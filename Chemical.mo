@@ -5783,7 +5783,7 @@ package Chemical
         "Electrochemical potential of the substance";
 
       Real state(stateSelect=StateSelect.prefer)
-        "To help the numeric calculation: Using of logarithmic substitution for state variable as amountOfSubstance = exp(state), where der(amountOfSubstance) = der(state)*exp(state)";
+        "To help the numerical calculation: Using of logarithmic substitution for state variable as amountOfSubstance = exp(state), where der(amountOfSubstance) = der(state)*exp(state)";
 
       Modelica.SIunits.ChemicalPotential u0=
         substance.u0(solution.T,solution.p)
@@ -7367,30 +7367,34 @@ package Chemical
 </html>"));
     end SubstanceOutflow;
 
-    model Clearance "Clearance with or without solvent outflow"
+    model Clearance "Physiological Clearance"
+     extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
 
-      parameter Modelica.SIunits.MolarFlowRate Clearance=0
-        "Molar clearance of the substance"
-        annotation (Dialog(enable=not useSolutionFlowInput));
+      parameter Modelica.SIunits.VolumeFlowRate Clearance=0
+        "Physiological clearance of the substance if useSolutionFlowInput=false"
+        annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
-      Interfaces.SubstanceUsePort port_a "cleared substance"
+      parameter Real K(unit="1")=1
+        "Coefficient such that Clearance = K*solutionFlow";
+
+      Interfaces.SubstanceUsePort port_a "The substance to be cleared."
         annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-       Modelica.SIunits.MoleFraction port_a_x;
+      Modelica.SIunits.MolarFlowRate molarClearance "Current molar clearance";
+
+    protected
+      constant Modelica.SIunits.Volume OneLiter=0.001 "One liter";
+
     equation
-    //  port_a.q = Clearance*port_a_x;
+      molarClearance = q*K;
 
-      //mole fractions:
-      port_a.u
-      = (port_a.DfH - port_a.temperature .* (port_a.DfH - port_a.DfG_25degC)./298.15)
-      + Modelica.Constants.R*port_a.temperature*log(port_a.activityCoefficient .* port_a_x)
-      + port_a.z * Modelica.Constants.F *port_a.electricPotential;
+      port_a.q = molarClearance * port_a.x;
 
-      assert(Clearance>=-Modelica.Constants.eps, "Clearance can not be negative!");
+      assert(molarClearance>=-Modelica.Constants.eps, "Clearance can not be negative!");
 
      annotation (
-        Icon(coordinateSystem(preserveAspectRatio=true, extent={{-100,-100},{
-                100,100}}), graphics={
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+                            graphics={
             Rectangle(
               extent={{-100,-50},{100,50}},
               lineColor={0,0,127},
@@ -7412,6 +7416,96 @@ package Chemical
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end Clearance;
+
+    model Degradation "Degradation of the substance"
+
+      Interfaces.SubstanceUsePort port_a "Degraded substance"
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+
+      parameter Physiolibrary.Types.Time HalfTime
+        "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
+
+    equation
+      port_a.q = (Modelica.Math.log(2)/HalfTime)*port_a.x*port_a.amountOfSolution;
+
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
+                            graphics={
+            Rectangle(
+              extent={{-100,-50},{100,50}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-80,26},{62,0},{-80,-26},{-80,26}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,-100},{150,-60}},
+              textString="%name",
+              lineColor={0,0,255}),
+            Text(
+              extent={{-100,-30},{100,-50}},
+              lineColor={0,0,0},
+              textString="half-time=%HalfTime s"),
+            Polygon(
+              points={{-68,24},{-68,-24},{-58,-22},{-58,22},{-68,24}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-46,20},{-46,-20},{-36,-18},{-36,18},{-46,20}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-24,16},{-24,-16},{-14,-14},{-14,14},{-24,16}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-2,12},{-2,-12},{8,-10},{8,10},{-2,12}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{20,8},{20,-8},{30,-6},{30,6},{20,8}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{40,4},{40,-4},{50,-2},{50,2},{40,4}},
+              lineColor={0,0,127},
+              smooth=Smooth.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid)}),
+        Documentation(revisions="<html>
+<table>
+<tr>
+<td>Author:</td>
+<td>Marek Matejak</td>
+</tr>
+<tr>
+<td>Copyright:</td>
+<td>In public domains</td>
+</tr>
+<tr>
+<td>By:</td>
+<td>Charles University, Prague</td>
+</tr>
+<tr>
+<td>Date of:</td>
+<td>2013-2015</td>
+</tr>
+</table>
+</html>"));
+    end Degradation;
   end Sources;
 
   package Interfaces
@@ -7501,7 +7595,7 @@ package Chemical
         output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
      algorithm
          molarVolume := Modelica.Constants.R*T/p; //ideal gas
-         //incompresible: molarVolume := constant;
+         //incompressible: molarVolume := constant;
      end molarVolume;
 
       annotation (Documentation(revisions="<html>
@@ -7736,12 +7830,15 @@ package Chemical
         "Is solution flow an input?"
       annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.MolarFlowRate SolutionFlow=0
-        "Molar flow of solution if useSolutionFlowInput=false" annotation (
+      parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
+        "Volume flow rate of the solution if useSolutionFlowInput=false" annotation (
           HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
-      Modelica.Blocks.Interfaces.RealInput solutionFlow(start=SolutionFlow, final unit="mol/s")=
-         q if useSolutionFlowInput
+      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L=55.508
+        "The amount of all particles in one liter of the solution";
+
+      Modelica.Blocks.Interfaces.RealInput solutionFlow(start=SolutionFlow, final unit="m3/s")=
+         q*OneLiter/AmountOfSolutionIn1L if useSolutionFlowInput
          annotation ( HideResult=true, Placement(transformation(
             extent={{-20,-20},{20,20}},
             rotation=270,
@@ -7750,10 +7847,14 @@ package Chemical
             rotation=270,
             origin={0,70})));
 
-      Modelica.SIunits.MolarFlowRate q "Current solution flow";
+      Modelica.SIunits.MolarFlowRate q "Current molar solution flow";
+
+    protected
+     constant Modelica.SIunits.Volume OneLiter=0.001 "One liter";
+
     equation
       if not useSolutionFlowInput then
-        q = SolutionFlow;
+        q*OneLiter/AmountOfSolutionIn1L = SolutionFlow;
       end if;
 
     end ConditionalSolutionFlow;
@@ -8002,7 +8103,7 @@ version="1.0.0-alpha",
 versionBuild=1,
 versionDate="2015-04-24",
 dateModified = "2015-04-24 17:14:41Z",
-uses(Modelica(version="3.2.1")),
+uses(Modelica(version="3.2.1"), Physiolibrary(version="2.3.0-beta")),
   Documentation(revisions="<html>
 <p>Licensed by Marek Matejak under the Modelica License 2</p>
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
