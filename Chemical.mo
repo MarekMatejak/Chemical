@@ -1,6 +1,318 @@
 ﻿within ;
 package Chemical
   "Chemical library (reactions, diffusions, semipermeable membranes, gas dissolutions, electrochemical cells, ...)"
+  package UsersGuide "User's Guide"
+    extends Modelica.Icons.Information;
+
+  class Overview "Overview of Chemical"
+    extends Modelica.Icons.Information;
+
+   annotation (Documentation(info="<html>
+<p>The Chemical library can describe the following phenomena.</p>
+<table cellspacing=\"0\" cellpadding=\"2\" border=\"1\"><tr>
+<td><p align=\"center\"><h4>Chemical Components</h4></p></td>
+<td><p align=\"center\"><h4>Description</h4></p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Solution.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Solution\">Chemical solution</a></p><p>The solution is the base component of each model, because it defines the conditions of the electro-chemical processes. It integrates the total amount of substance (called amount of solution), heat, charge, entropy, volume and others from each substances to present the base properties such as temperature, pressure, electric potential and others. The usage is very simple - just connect each chemical substance with its chemical solution using their <a href=\"modelica://Chemical.Interfaces.SolutionPort\">SolutionPort</a>.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Substance.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Substance\">Chemical substance</a></p><p>The chemical substance integrates the amount of the chemical substance and from the properties of the connected solution it presents the electro-chemical potential of the substance using the <a href=\"modelica://Chemical.Interfaces.ChemicalPort\">SubstancePort</a>.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Reaction.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>
+The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation.
+The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate.
+</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Diffusion.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Diffusion\">Diffusion</a></p><p>
+Diffusion is a dynamic chemical process, wich is also equilibrating of electro-chemical potential of the substance.
+Analogically as in chemical reaction the speed of diffucion can be calculated as coefficient C multiplied by electro-chemical gratient. C can be a parammeter or input expressed from distance, substance and solution properties.
+</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Gassolubility.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.GasSolubility\">Henry's law, Raoult's law or Sieverts' law</a></p><p>
+Surprisingly, all this laws has the same basis = equilibrium of electro-chemical potential. The most of problems in data is caused by wrong selection of standard state as 1 mol/kg or 1 mol/L. Please avoid these assumptions of these totally confused states and use only mole fractions instead of each molality or molarity - the world will be much better (I promise).
+</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Membrane.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Membrane\">Semipermeable membrane</a></p><p>
+The same as before - just equilibrating the electro-chemical potentials. A result is the Donnan's equilibrium, Nernst potentials of the ions and the membrane electric potential. Transporting water through membrane is reaching the osmotic equilibrium (The real one, not the simplified one defined by osmotic pressure lineary dependent on impermeable substance concentration).
+</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Speciation.png\"/></p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Speciation\">Chemical speciation</a></p><p>
+</p></td>
+</tr>
+</table>
+</html>"));
+  end Overview;
+
+  class Connectors "Connectors"
+    extends Modelica.Icons.Information;
+
+   annotation (Documentation(info="<html>
+<p>The Chemical defines the two important <b>elementary connectors</b> for substance and for solution:</p>
+<table cellspacing=\"0\" cellpadding=\"1\" border=\"1\"><tr>
+<td valign=\"top\"></td>
+<td valign=\"top\"><h4>potential</h4><p>variables</p></td>
+<td valign=\"top\"><h4>flow</h4><p>variables</p></td>
+<td valign=\"top\"><h4>stream</h4><p>variables</p></td>
+<td valign=\"top\"><h4>connector definition</h4></td>
+<td valign=\"top\"><h4>icons</h4></td>
+</tr>
+<tr>
+<td valign=\"middle\"><h4>substance</h4></td>
+<td valign=\"middle\"><p>u .. electro-chemical potential of the chemical substance</p></td>
+<td valign=\"middle\"><p>q .. molar flow of the chemical substance</p></td>
+<td valign=\"middle\"></td>
+<td valign=\"middle\"><p><br><br><a href=\"Chemical.Interfaces.ChemicalPort\">Chemical.Interfaces.ChemicalPort</a> </p><p>ChemicalDefinitionPort, ChemicalUsePort</p></td>
+<td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UserGuide/ChemicalPorts.png\"/></p></td>
+</tr>
+<tr>
+<td valign=\"middle\"><h4>solution</h4></td>
+<td valign=\"middle\"><p>T .. temperature of the solution</p><p>S .. free entropy of the solution</p><p>G .. free Gibbs energy of the solution</p><p>n .. amount of all substances in the solution</p><p>v .. electric potential of the solution</p><p>I .. ionic strength of the solution</p><p>p .. pressure of the solution</p></td>
+<td valign=\"middle\"><p>dH .. enthalpy change of the solution</p><p>dS .. entropy change of the solution</p><p>dG .. Gibbs energy change of the solution</p><p>dn .. molar change of the solution amount</p><p>i .. electric current to/from the solution</p><p>dI .. change of the ionic strength of the solution</p><p>dV .. change of the volume of the solution</p></td>
+<td valign=\"middle\"></td>
+<td valign=\"middle\"><p><br><br><a href=\"Chemical.Interfaces.SolutionPort\">Chemical.Interfaces.SolutionPort</a></p></td>
+<td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UserGuide/SolutionPort.png\"/></p></td>
+</tr>
+</table>
+</html>"));
+  end Connectors;
+
+    class ModelicaLicense2 "Modelica License 2"
+
+      annotation (Documentation(info="<html>
+<p>All files in this directory (Chemical) and in all subdirectories, especially all files that build package &QUOT;Chemical&QUOT; are licensed by <u><b>Marek Matejak</b></u> under the <u><b>Modelica License 2 </b></u>(with exception of files &QUOT;Resources/*&QUOT;). </p>
+<h4>Licensor:</h4>
+<p>Marek Matej&aacute;k,</p>
+<p>Hviezdoslavova 632/41,</p>
+<p>916 01 Star&aacute; Tur&aacute;, </p>
+<p>Slovak Republic, </p>
+<p>Charles University in Prague, Czech Republic</p>
+<p><br>email: marek@matfyz.cz</p>
+<h4>Copyright notices of the files:</h4>
+<p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague, First Faculty of Medicine, Institute of Pathological Physiology</p>
+<p><br><br>This package with all of its subpackages is released under the &ldquo;Modelica License 2&rdquo; (if not explicitly noted otherwise). </p>
+<p><br><a href=\"#The_Modelica_License_2-outline\">The Modelica License 2</a></p>
+<p><br><a href=\"#How_to_Apply_the_Modelica_License_2-outline\">How to Apply the Modelica License 2</a></p>
+<p><br><a href=\"#Frequently_Asked_Questions-outline\">Frequently Asked Questions</a></p>
+<p><br><b></font><font style=\"color: #008000; \">The Modelica License 2</font></b> </p>
+<p><b><font style=\"font-size: 10pt; \">Preamble.</b> The goal of this license is that Modelica related model libraries, software, images, documents, data files etc. can be used freely in the original or a modified form, in open source and in commercial environments (as long as the license conditions below are fulfilled, in particular sections 2c) and 2d). The Original Work is provided free of charge and the use is completely at your own risk. Developers of free Modelica packages are encouraged to utilize this license for their work. </p>
+<p>The Modelica License applies to any Original Work that contains the following licensing notice adjacent to the copyright notice(s) for this Original Work: </p>
+<p><b>Licensed by Marek Matejak under the Modelica License 2</b> </p>
+<h4>1. Definitions.</h4>
+<p>&ldquo;License&rdquo; is this Modelica License. </p>
+<p>&ldquo;Original Work&rdquo; is any work of authorship, including software, images, documents, data files, that contains the above licensing notice or that is packed together with a licensing notice referencing it. </p>
+<p>&ldquo;Licensor&rdquo; is the provider of the Original Work who has placed this licensing notice adjacent to the copyright notice(s) for the Original Work. The Original Work is either directly provided by the owner of the Original Work, or by a licensee of the owner. </p>
+<p>&ldquo;Derivative Work&rdquo; is any modification of the Original Work which represents, as a whole, an original work of authorship. For the matter of clarity and as examples: </p>
+<p>Derivative Work shall not include work that remains separable from the Original Work, as well as merely extracting a part of the Original Work without modifying it. </p>
+<p>Derivative Work shall not include (a) fixing of errors and/or (b) adding vendor specific Modelica annotations and/or (c) using a subset of the classes of a Modelica package, and/or (d) using a different representation, e.g., a binary representation. </p>
+<p>Derivative Work shall include classes that are copied from the Original Work where declarations, equations or the documentation are modified. </p>
+<p>Derivative Work shall include executables to simulate the models that are generated by a Modelica translator based on the Original Work (of a Modelica package). </p>
+<p>&ldquo;Modified Work&rdquo; is any modification of the Original Work with the following exceptions: (a) fixing of errors and/or (b) adding vendor specific Modelica annotations and/or (c) using a subset of the classes of a Modelica package, and/or (d) using a different representation, e.g., a binary representation. </p>
+<p>&QUOT;Source Code&QUOT; means the preferred form of the Original Work for making modifications to it and all available documentation describing how to modify the Original Work. </p>
+<p>&ldquo;You&rdquo; means an individual or a legal entity exercising rights under, and complying with all of the terms of, this License. </p>
+<p>&ldquo;Modelica package&rdquo; means any Modelica library that is defined with the &ldquo;<b>package</b></font><font style=\"font-size: 9pt; \">&nbsp;&LT;Name&GT;&nbsp;...&nbsp;</font><font style=\"font-size: 10pt; \">end</font><font style=\"font-size: 9pt; \">&nbsp;&LT;Name&GT;;</font><font style=\"font-size: 10pt; \">&rdquo; Modelica language element. </p>
+<p><b>2. Grant of Copyright License.</b> Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable license, for the duration of the copyright, to do the following: </p>
+<p>To reproduce the Original Work in copies, either alone or as part of a collection. </p>
+<p>To create Derivative Works according to Section 1d) of this License. </p>
+<p>To distribute or communicate to the public copies of the <u>Original Work</u> or a <u>Derivative Work</u> under <u>this License</u>. No fee, neither as a copyright-license fee, nor as a selling fee for the copy as such may be charged under this License. Furthermore, a verbatim copy of this License must be included in any copy of the Original Work or a Derivative Work under this License.</p>
+<p>For the matter of clarity, it is permitted A) to distribute or communicate such copies as part of a (possible commercial) collection where other parts are provided under different licenses and a license fee is charged for the other parts only and B) to charge for mere printing and shipping costs. </p>
+<p>To distribute or communicate to the public copies of a <u>Derivative Work</u>, alternatively to Section 2c), under <u>any other license</u> of your choice, especially also under a license for commercial/proprietary software, as long as You comply with Sections 3, 4 and 8 below. </p>
+<p>For the matter of clarity, no restrictions regarding fees, either as to a copyright-license fee or as to a selling fee for the copy as such apply. </p>
+<p>To perform the Original Work publicly. </p>
+<p>To display the Original Work publicly. </p>
+<p><b>3. Acceptance.</b> Any use of the Original Work or a Derivative Work, or any action according to either Section 2a) to 2f) above constitutes Your acceptance of this License. </p>
+<p><b>4. Designation of Derivative Works and of Modified Works. </b>The identifying designation of Derivative Work and of Modified Work must be different to the corresponding identifying designation of the Original Work. This means especially that the (root-level) name of a Modelica package under this license must be changed if the package is modified (besides fixing of errors, adding vendor specific Modelica annotations, using a subset of the classes of a Modelica package, or using another representation, e.g. a binary representation). </p>
+<p><b>5. Grant of Patent License.</b> Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable license, under patent claims owned by the Licensor or licensed to the Licensor by the owners of the Original Work that are embodied in the Original Work as furnished by the Licensor, for the duration of the patents, to make, use, sell, offer for sale, have made, and import the Original Work and Derivative Works under the conditions as given in Section 2. For the matter of clarity, the license regarding Derivative Works covers patent claims to the extent as they are embodied in the Original Work only. </p>
+<p><b>6. Provision of Source Code.</b> Licensor agrees to provide You with a copy of the Source Code of the Original Work but reserves the right to decide freely on the manner of how the Original Work is provided.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For the matter of clarity, Licensor might provide only a binary representation of the Original Work. In that case, You may (a) either reproduce the Source Code from the binary representation if this is possible (e.g., by performing a copy of an encrypted Modelica package, if encryption allows the copy operation) or (b) request the Source Code from the Licensor who will provide it to You. </p>
+<p><b>7. Exclusions from License Grant.</b> Neither the names of Licensor, nor the names of any contributors to the Original Work, nor any of their trademarks or service marks, may be used to endorse or promote products derived from this Original Work without express prior permission of the Licensor. Except as otherwise expressly stated in this License and in particular in Sections 2 and 5, nothing in this License grants any license to Licensor&rsquo;s trademarks, copyrights, patents, trade secrets or any other intellectual property, and no patent license is granted to make, use, sell, offer for sale, have made, or import embodiments of any patent claims.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No license is granted to the trademarks of Licensor even if such trademarks are included in the Original Work, except as expressly stated in this License. Nothing in this License shall be interpreted to prohibit Licensor from licensing under terms different from this License any Original Work that Licensor otherwise would have a right to license. </p>
+<p><b>8. Attribution Rights.</b> You must retain in the Source Code of the Original Work and of any Derivative Works that You create, all author, copyright, patent, or trademark notices, as well as any descriptive text identified therein as an &QUOT;Attribution Notice&QUOT;. The same applies to the licensing notice of this License in the Original Work. For the matter of clarity, &ldquo;author notice&rdquo; means the notice that identifies the original author(s). </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You must cause the Source Code for any Derivative Works that You create to carry a prominent Attribution Notice reasonably calculated to inform recipients that You have modified the Original Work. </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In case the Original Work or Derivative Work is not provided in Source Code, the Attribution Notices shall be appropriately displayed, e.g., in the documentation of the Derivative Work. </p>
+<h4>9. Disclaimer of Warranty. </h4>
+<p><u>The Original Work is provided under this License on an &QUOT;as is&QUOT; basis and without warranty, either express or implied, including, without limitation, the warranties of non-infringement, merchantability or fitness for a particular purpose. The entire risk as to the quality of the Original Work is with You.</u> This disclaimer of warranty constitutes an essential part of this License. No license to the Original Work is granted by this License except under this disclaimer. </p>
+<p><b>10. Limitation of Liability.</b> Under no circumstances and under no legal theory, whether in tort (including negligence), contract, or otherwise, shall the Licensor, the owner or a licensee of the Original Work be liable to anyone for any direct, indirect, general, special, incidental, or consequential damages of any character arising as a result of this License or the use of the Original Work including, without limitation, damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses. This limitation of liability shall not apply to the extent applicable law prohibits such limitation. </p>
+<p><b>11. Termination.</b> This License conditions your rights to undertake the activities listed in Section 2 and 5, including your right to create Derivative Works based upon the Original Work, and doing so without observing these terms and conditions is prohibited by copyright law and international treaty. Nothing in this License is intended to affect copyright exceptions and limitations. This License shall terminate immediately and You may no longer exercise any of the rights granted to You by this License upon your failure to observe the conditions of this license. </p>
+<p><b>12. Termination for Patent Action.</b> This License shall terminate automatically and You may no longer exercise any of the rights granted to You by this License as of the date You commence an action, including a cross-claim or counterclaim, against Licensor, any owners of the Original Work or any licensee alleging that the Original Work infringes a patent. This termination provision shall not apply for an action alleging patent infringement through combinations of the Original Work under combination with other software or hardware. </p>
+<p><b>13. Jurisdiction.</b> Any action or suit relating to this License may be brought only in the courts of a jurisdiction wherein the Licensor resides and under the laws of that jurisdiction excluding its conflict-of-law provisions. The application of the United Nations Convention on Contracts for the International Sale of Goods is expressly excluded. Any use of the Original Work outside the scope of this License or after its termination shall be subject to the requirements and penalties of copyright or patent law in the appropriate jurisdiction. This section shall survive the termination of this License. </p>
+<p><b>14. Attorneys&rsquo; Fees.</b> In any action to enforce the terms of this License or seeking damages relating thereto, the prevailing party shall be entitled to recover its costs and expenses, including, without limitation, reasonable attorneys&apos; fees and costs incurred in connection with such action, including any appeal of such action. This section shall survive the termination of this License. </p>
+<p><b>15. Miscellaneous.</b> </p>
+<p>If any provision of this License is held to be unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable. </p>
+<p>No verbal ancillary agreements have been made. Changes and additions to this License must appear in writing to be valid. This also applies to changing the clause pertaining to written form. </p>
+<p>You may use the Original Work in all ways not otherwise restricted or conditioned by this License or by law, and Licensor promises not to interfere with or be responsible for such uses by You. </p>
+<p><br><b></font><font style=\"color: #008000; \">How to Apply the Modelica License 2</font></b> </p>
+<p><font style=\"font-size: 10pt; \">At the top level of your Modelica package and at every important subpackage, add the following notices in the info layer of the package: </p>
+<p>Licensed by &LT;Licensor&GT; under the Modelica License 2</p>
+<p>Copyright &copy; &LT;year1&GT;-&LT;year2&GT;, &LT;name of copyright holder(s)&GT;. </p>
+<p><i>This Modelica package is <u>free</u> software and the use is completely at <u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see <a href=\"modelica://Modelica.UsersGuide.ModelicaLicense2\">Modelica.UsersGuide.ModelicaLicense2</a> or visit <a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i> </p>
+<p>Include a copy of the Modelica License 2 under <b>&LT;library&GT;.UsersGuide.ModelicaLicense2</b> (use <a href=\"http://www.modelica.org/licenses/ModelicaLicense2.mo\">http://www.modelica.org/licenses/ModelicaLicense2.mo</a>). Furthermore, add the list of authors and contributors under <b>&LT;library&GT;.UsersGuide.Contributors</b> or <b>&LT;library&GT;.UsersGuide.Contact</b>. </p>
+<p>For example, sublibrary Modelica.Blocks of the Modelica Standard Library may have the following notices: </p>
+<p>Licensed by Modelica Association under the Modelica License 2</p>
+<p>Copyright &copy; 1998-2008, Modelica Association. </p>
+<p><i>This Modelica package is <u>free</u> software and the use is completely at <u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see <a href=\"modelica://Modelica.UsersGuide.ModelicaLicense2\">Modelica.UsersGuide.ModelicaLicense2</a> or visit <a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i> </p>
+<p>For C-source code and documents, add similar notices in the corresponding file. </p>
+<p>For images, add a &ldquo;readme.txt&rdquo; file to the directories where the images are stored and include a similar notice in this file. </p>
+<p>In these cases, save a copy of the Modelica License 2 in one directory of the distribution, e.g., <a href=\"http://www.modelica.org/licenses/ModelicaLicense2.html\">http://www.modelica.org/licenses/ModelicaLicense2.html</a> in directory <b>&LT;library&GT;/Resources/Documentation/ModelicaLicense2.html</b>. </p>
+<p><br><b><font style=\"font-size: 6pt; color: #008000; \">Frequently Asked Questions</font></b></p>
+<p><font style=\"font-size: 10pt; \">This section contains questions/answer to users and/or distributors of Modelica packages and/or documents under Modelica License 2. Note, the answers to the questions below are not a legal interpretation of the Modelica License 2. In case of a conflict, the language of the license shall prevail. </p>
+<p><b></font><font style=\"color: #008000; \">Using or Distributing a Modelica <u>Package</u> under the Modelica License 2</font></b> </p>
+<p><b><font style=\"font-size: 10pt; \">What are the main differences to the previous version of the Modelica License?</b></p>
+<ol>
+<li>Modelica License 1 is unclear whether the licensed Modelica package can be distributed under a different license. Version 2 explicitly allows that &ldquo;Derivative Work&rdquo; can be distributed under any license of Your choice, see examples in Section 1d) as to what qualifies as Derivative Work (so, version 2 is clearer). </li>
+<li>If You modify a Modelica package under Modelica License 2 (besides fixing of errors, adding vendor specific Modelica annotations, using a subset of the classes of a Modelica package, or using another representation, e.g., a binary representation), you must rename the root-level name of the package for your distribution. In version 1 you could keep the name (so, version 2 is more restrictive). The reason of this restriction is to reduce the risk that Modelica packages are available that have identical names, but different functionality. </li>
+<li>Modelica License 1 states that &ldquo;It is not allowed to charge a fee for the original version or a modified version of the software, besides a reasonable fee for distribution and support&rdquo;. Version 2 has a similar intention for all Original Work under <u>Modelica License 2</u> (to remain free of charge and open source) but states this more clearly as &ldquo;No fee, neither as a copyright-license fee, nor as a selling fee for the copy as such may be charged&rdquo;. Contrary to version 1, Modelica License 2 has no restrictions on fees for Derivative Work that is provided under a different license (so, version 2 is clearer and has fewer restrictions). </li>
+<li>Modelica License 2 introduces several useful provisions for the licensee (articles 5, 6, 12), and for the licensor (articles 7, 12, 13, 14) that have no counter part in version 1. </li>
+<li>Modelica License 2 can be applied to all type of work, including documents, images and data files, contrary to version 1 that was dedicated for software only (so, version 2 is more general). </li>
+</ol>
+<h4>Can I distribute a Modelica package (under Modelica License 2) as part of my commercial Modelica modeling and simulation environment?</h4>
+<p>Yes, according to Section 2c). However, you are not allowed to charge a fee for this part of your environment. Of course, you can charge for your part of the environment. </p>
+<h4>Can I distribute a Modelica package (under Modelica License 2) under a different license?</h4>
+<p>No. The license of an unmodified Modelica package cannot be changed according to Sections 2c) and 2d). This means that you cannot <u>sell</u> copies of it, any distribution has to be free of charge. </p>
+<h4>Can I distribute a Modelica package (under Modelica License 2) under a different license when I first encrypt the package?</h4>
+<p>No. Merely encrypting a package does not qualify for Derivative Work and therefore the encrypted package has to stay under Modelica License 2. </p>
+<h4>Can I distribute a Modelica package (under Modelica License 2) under a different license when I first add classes to the package?</h4>
+<p>No. The package itself remains unmodified, i.e., it is Original Work, and therefore the license for this part must remain under Modelica License 2. The newly added classes can be, however, under a different license. </p>
+<p><b>Can I copy a class out of a Modelica package (under Modelica License 2) and include it <u>unmodified</u> in a Modelica package under a <u>commercial/proprietary license</u>?</b></p>
+<p>No, according to article 2c). However, you can include model, block, function, package, record and connector classes in your Modelica package under <u>Modelica License 2</u>. This means that your Modelica package could be under a commercial/proprietary license, but one or more classes of it are under Modelica License 2.</p>
+<p>Note, a &ldquo;type&rdquo; class (e.g., type Angle = Real(unit=&rdquo;rad&rdquo;)) can be copied and included unmodified under a commercial/proprietary license (for details, see the next question). </p>
+<p><b>Can I copy a type class or <u>part</u> of a model, block, function, record, connector class, out of a Modelica package (under Modelica License 2) and include it modified or unmodified in a Modelica package under a <u>commercial/proprietary</u> license</b></p>
+<p>Yes, according to article 2d), since this will in the end usually qualify as Derivative Work. The reasoning is the following: A type class or part of another class (e.g., an equation, a declaration, part of a class description) cannot be utilized &ldquo;by its own&rdquo;. In order to make this &ldquo;usable&rdquo;, you have to add additional code in order that the class can be utilized. This is therefore usually Derivative Work and Derivative Work can be provided under a different license. Note, this only holds, if the additional code introduced is sufficient to qualify for Derivative Work. Merely, just copying a class and changing, say, one character in the documentation of this class would be no Derivative Work and therefore the copied code would have to stay under Modelica License 2. </p>
+<p><b>Can I copy a class out of a Modelica package (under Modelica License 2) and include it in <u>modified </u>form in a <u>commercial/proprietary</u> Modelica package?</b></p>
+<p>Yes. If the modification can be seen as a &ldquo;Derivative Work&rdquo;, you can place it under your commercial/proprietary license. If the modification does not qualify as &ldquo;Derivative Work&rdquo; (e.g., bug fixes, vendor specific annotations), it must remain under Modelica License 2. This means that your Modelica package could be under a commercial/proprietary license, but one or more parts of it are under Modelica License 2. </p>
+<h4>Can I distribute a &ldquo;save total model&rdquo; under my commercial/proprietary license, even if classes under Modelica License 2 are included?</h4>
+<p>Your classes of the &ldquo;save total model&rdquo; can be distributed under your commercial/proprietary license, but the classes under Modelica License 2 must remain under Modelica License 2. This means you can distribute a &ldquo;save total model&rdquo;, but some parts might be under Modelica License 2. </p>
+<h4>Can I distribute a Modelica package (under Modelica License 2) in encrypted form?</h4>
+<p>Yes. Note, if the encryption does not allow &ldquo;copying&rdquo; of classes (in to unencrypted Modelica source code), you have to send the Modelica source code of this package to your customer, if he/she wishes it, according to article&nbsp;6. </p>
+<h4>Can I distribute an executable under my commercial/proprietary license, if the model from which the executable is generated uses models from a Modelica package under Modelica License 2?</h4>
+<p>Yes, according to article 2d), since this is seen as Derivative Work. The reasoning is the following: An executable allows the simulation of a concrete model, whereas models from a Modelica package (without pre-processing, translation, tool run-time library) are not able to be simulated without tool support. By the processing of the tool and by its run-time libraries, significant new functionality is added (a model can be simulated whereas previously it could not be simulated) and functionality available in the package is removed (e.g., to build up a new model by dragging components of the package is no longer possible with the executable). </p>
+<h4>Is my modification to a Modelica package (under Modelica License 2) a Derivative Work?</h4>
+<p>It is not possible to give a general answer to it. To be regarded as &QUOT;an original work of authorship&QUOT;, a derivative work must be different enough from the original or must contain a substantial amount of new material. Making minor changes or additions of little substance to a preexisting work will not qualify the work as a new version for such purposes. </p>
+<p><b></font><font style=\"color: #008000; \">Using or Distributing a Modelica <u>Document</u> under the Modelica License 2</font></b> </p>
+<p><font style=\"font-size: 10pt; \">This section is devoted especially for the following applications:</p>
+<p>A Modelica tool extracts information out of a Modelica package and presents the result in form of a &ldquo;manual&rdquo; for this package in, e.g., html, doc, or pdf format. </p>
+<p>The Modelica language specification is a document defining the Modelica language. It will be licensed under Modelica License 2. </p>
+<p>Someone writes a book about the Modelica language and/or Modelica packages and uses information which is available in the Modelica language specification and/or the corresponding Modelica package. </p>
+<h4>Can I sell a manual that was basically derived by extracting information automatically from a Modelica package under Modelica License 2 (e.g., a &ldquo;reference guide&rdquo; of the Modelica Standard Library):</h4>
+<p>Yes. Extracting information from a Modelica package, and providing it in a human readable, suitable format, like html, doc or pdf format, where the content is significantly modified (e.g. tables with interface information are constructed from the declarations of the public variables) qualifies as Derivative Work and there are no restrictions to charge a fee for Derivative Work under alternative 2d). </p>
+<p><b>Can I copy a text passage out of a Modelica document (under Modelica License 2) and use it <u>unmodified</u> in my document (e.g. the Modelica syntax description in the Modelica Specification)?</b></p>
+<p>Yes. In case you distribute your document, the copied parts are still under Modelica License 2 and you are not allowed to charge a license fee for this part. You can, of course, charge a fee for the rest of your document. </p>
+<p><b>Can I copy a text passage out of a Modelica document (under Modelica License 2) and use it in <u>modified</u> form in my document?</b></p>
+<p>Yes, the creation of Derivative Works is allowed. In case the content is significantly modified this qualifies as Derivative Work and there are no restrictions to charge a fee for Derivative Work under alternative 2d). </p>
+<h4>Can I sell a printed version of a Modelica document (under Modelica License 2), e.g., the Modelica Language Specification?</h4>
+<p>No, if you are not the copyright-holder, since article 2c) does not allow a selling fee for a (in this case physical) copy. However, mere printing and shipping costs may be recovered.</p>
+</html>"));
+    end ModelicaLicense2;
+
+  package ReleaseNotes "Release notes"
+    extends Modelica.Icons.ReleaseNotes;
+
+  class Version_1_0 "Version 1.0.0 (Comming soon)"
+    extends Modelica.Icons.ReleaseNotes;
+
+  annotation (Documentation(info="<html>
+<p><ul>
+<li>Separation the Chcemical from Physiolibrary GITHUB https://github.com/MarekMatejak/Chemical from https://github.com/MarekMatejak/Physiolibrary branche PhysicalChemistry </li>
+<li><font style=\"color: #333333; \">Components for solution, substance, chemical reaction, diffusion, gas dissolution, semipermeable membranes, chemical speciation of macromolecules, ..</font></li>
+<li><font style=\"color: #333333; \">The library uses the Modelica Standard Libary (MSL) version 3.2.</font></li>
+</ul></p>
+</html>"));
+  end Version_1_0;
+   annotation (Documentation(info="<html>
+<p>This section summarizes the changes that have been performed on the Chemical. </p>
+</html>"));
+
+  end ReleaseNotes;
+
+  class NewRealease "Publishing new release"
+    extends Modelica.Icons.Information;
+
+   annotation (Documentation(info="<html>
+<p><br>New release must be numbered by Semantic Versioning 2.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
+<p><br>If minor version, then the conversion script must be written and connected with package Chemical using &QUOT;annotation(conversion(from(version=..)))&QUOT;! </p>
+<p><br>To clean the code from dummy annotations try to use script <a href=\"https://github.com/dietmarw/trimtrailingwhitespaces\">ttws</a>. </p>
+<p><br>Update version number to &QUOT;X.Y.Z&QUOT;: </p>
+<ul>
+<li>At package Chemical annotation: (version=&QUOT;X.Y.Z&QUOT;) together with &QUOT;versionBuild&QUOT;, &QUOT;versionDate&QUOT; and &QUOT;dateModified&QUOT; attribute </li>
+<li>At head of package Chemical &QUOT;Electro-Chemical library (version X.Y.Z)&QUOT; </li>
+<li>At file &QUOT;./Chemical/libraryinfo.mos&QUOT; </li>
+</ul>
+<p><br>Update release notes: </p>
+<ul>
+<li>At UsersGuide.ReleaseNotes</li>
+<li>At file &QUOT;./README.md&QUOT;, together with update of &QUOT;Current release&QUOT; section.</li>
+</ul>
+<p><br>Publish release in GitHub: </p>
+<ul>
+<li>Prepare release in &QUOT;master&QUOT; branch</li>
+<li>Install, Check, Test, Test, Test.. </li>
+<li>Delete branch &QUOT;release&QUOT; </li>
+<li>Create new branch &QUOT;release&QUOT; from &QUOT;master&QUOT; branch </li>
+<li>Rename directory &QUOT;Chemical&QUOT; in release branch to directory &QUOT;Chemical X.Y.Z&QUOT; </li>
+<li>Commint and Push </li>
+<li>Draft a new release from &QUOT;release&QUOT; branch with number &QUOT;vX.Y.Z&QUOT; and with release notes. </li>
+</ul>
+</html>"));
+  end NewRealease;
+
+  class Contact "Contact"
+    extends Modelica.Icons.Contact;
+
+   annotation (Documentation(info="<html>
+<p>Marek Matejak</p>
+<p>email: marek@matfy.cz</p>
+<p>skype: marek.matejak</p>
+<p>tel: +420 776 301 395</p>
+</html>"));
+
+  end Contact;
+
+  annotation (__Dymola_DocumentationClass=true, Documentation(info="<html>
+<p>Package <b>Chemical </b>is a modelica package for <b>Electrochemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
+<p>This is a short <b>User&apos;s Guide</b> for the overall library. Some of the main sublibraries have their own User&apos;s Guides that can be accessed by the following links: </p>
+<table cellspacing=\"0\" cellpadding=\"2\" border=\"1\"><tr>
+<td valign=\"top\"><p>Chemical</p></td>
+<td valign=\"top\"><p>Library of chemical domain.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Hydraulic</p></td>
+<td valign=\"top\"><p>Library of hydraulic domain. For modeling of cardiovascular system.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Thermal</p></td>
+<td valign=\"top\"><p>Library of termoregulation support. As extension of Modelica.Thermal.HeatTransfer.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Osmotic</p></td>
+<td valign=\"top\"><p>Library to model water fluxes through semipermeable membrane caused by osmotic pressure.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Icons</p></td>
+<td valign=\"top\"><p>Icons</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Types </p></td>
+<td valign=\"top\"><p>Physiological types. Physiological unit vs. SI units, nominals, inputs/outputs, typed constants.</p></td>
+</tr>
+<tr>
+<td valign=\"top\"><p>Blocks</p></td>
+<td valign=\"top\"><p>Usefull blocks, that are missing in package Modelica.Blocks (MSL 3.2), cubic interpolation curves, multiplication factors.</p></td>
+</tr>
+</table>
+</html>"));
+  end UsersGuide;
  extends Modelica.Icons.Package;
 
   package Examples
@@ -313,7 +625,7 @@ package Chemical
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
-      annotation ( Documentation(revisions="<html>
+      annotation (preferredView="diagram", Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
@@ -597,7 +909,7 @@ package Chemical
         annotation (Placement(transformation(extent={{92,-12},{72,8}})));
       Sources.AmbientMoleFraction
                               S(MoleFraction=Km)
-        annotation (Placement(transformation(extent={{-88,-34},{-68,-14}})));
+        annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
          parameter Modelica.SIunits.AmountOfSubstance tE=0.01
         "Total amount of enzyme";
@@ -633,7 +945,7 @@ package Chemical
          //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
 
       connect(S.port_a, chemicalReaction.substrates[1]) annotation (Line(
-          points={{-68,-24},{-56,-24},{-56,-0.5},{-42,-0.5}},
+          points={{-72,-4},{-56,-4},{-56,-0.5},{-42,-0.5}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -663,11 +975,11 @@ package Chemical
           thickness=1,
           smooth=Smooth.None));
       connect(E.solution, solution.solution) annotation (Line(
-          points={{-6,38},{-18,38},{-18,-92},{0,-92},{0,-100}},
+          points={{-6,38},{-8,38},{-8,-100},{0,-100}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(ES.solution, solution.solution)
-        annotation (Line(points={{-8,-10},{-8,-92},{0,-92},{0,-100}}, smooth=Smooth.None));
+        annotation (Line(points={{-8,-10},{-8,-100},{0,-100}},        smooth=Smooth.None));
           annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -683,19 +995,36 @@ package Chemical
 <p><br>The new kinetics of the system defined as:</p>
 <p>uS&deg; = DfG(S) = 0</p>
 <p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = DfG(ES) = DfG(S) + DfG(E) -R*T*ln(2/x(Km))</p>
+<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
+<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
-<p>r = -C1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -C1 * (-R*T*ln(2/x(Km)) - R*T*ln(xS) ) = C1 * R * T * ln(2) </p>
+<p>r = -C1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -C1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = C1 * R * T * ln(2)</p>
+<p>because xES=xE this time</p>
 <p>r = -C2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -C2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = C2 * (-DfG(P) - R * T * ln(2))</p>
-<p><br>ActivationEnergy1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationEnergy2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
+<h4>C1 = (Vmax/2) / (R * T * ln(2))</h4>
+<h4>C2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
+<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
 <p><br>where</p>
 <p>AmountOfSolution = MM = 55.508 (for water)</p>
 <p>Tau = 1 s (just to be physical unit correct)</p>
 <p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
+<h4>The maximum of the new enzyme kinetics</h4>
+<p>The enzymatic rate must have a maximum near of Vmax. </p>
+<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The proof:</p>
+<p>We want to sutisfied the following inequality:</p>
+<p>-C2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&LT;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&LT;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
+<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&LT;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
+<p>R*T*ln(xP*xE/xES) ?=&LT;? - uP&deg; - R*T*ln(2/x(Km)) </p>
+<p>xP*xE/xES ?=&LT;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 </html>"),
-        experiment,
+        experiment(StopTime=1),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
                         graphics),
         __Dymola_experimentSetupOutput);
@@ -782,7 +1111,9 @@ package Chemical
           points={{86,-16},{94,-16},{94,74},{14,74}},
           color={0,0,255},
           smooth=Smooth.None));
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
+      annotation (
+      experiment(StopTime=1),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
             graphics), Documentation(info="<html>
 <p>Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential </p>
 </html>"));
@@ -876,7 +1207,9 @@ package Chemical
           smooth=Smooth.None));
       connect(H.solution, solution1.solution) annotation (Line(points={{14,-36},
               {14,-40},{5,-40},{5,-46}}, smooth=Smooth.None));
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+      annotation (
+      experiment(StopTime=1),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
                 -100},{100,100}}),
             graphics));
     end ElectrochemicalCell;
@@ -992,7 +1325,7 @@ package Chemical
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(__Dymola_Algorithm="Dassl"),
+</html>"),experiment(StopTime=1),
           Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                   100}}),            graphics),
           __Dymola_experimentSetupOutput);
@@ -1118,7 +1451,7 @@ package Chemical
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=0.02, __Dymola_Algorithm="Dassl"),
+</html>"),experiment(StopTime=0.02),
           Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                   100}}),            graphics),
           __Dymola_experimentSetupOutput);
@@ -1296,15 +1629,12 @@ package Chemical
 <p><br>Data and model is described in</p>
 <p><font style=\"color: #222222; \">Jame Figge: Role of non-volatile weak acids (albumin, phosphate and citrate). In: Stewart&apos;s Textbook of Acid-Base, 2nd Edition, John A. Kellum, Paul WG Elbers editors, &nbsp;AcidBase org, 2009, pp. 216-232.</font></p>
 </html>"),experiment(
-            StopTime=1e-005,
-            __Dymola_fixedstepsize=5e-005,
-            __Dymola_Algorithm="Dassl"),
+            StopTime=1e-005),
           Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                   100}}), graphics),
           __Dymola_experimentSetupOutput);
+
       end AlbuminTitration;
-
-
 
       model CarbonDioxideInBlood
         import Chemical;
@@ -1445,8 +1775,8 @@ package Chemical
             points={{92,2},{92,-16},{0,-16}},
             color={0,0,0},
             smooth=Smooth.None));
-        connect(CO2_liquid_E.solution, blood_erythrocytes.solution) annotation
-          (Line(
+        connect(CO2_liquid_E.solution, blood_erythrocytes.solution) annotation (
+           Line(
             points={{-90,-86},{-90,-100},{0,-100}},
             color={0,0,0},
             smooth=Smooth.None));
@@ -1534,14 +1864,11 @@ package Chemical
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=100, __Dymola_Algorithm="Dassl"),
+</html>"),experiment(StopTime=100),
           Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
                   -100},{100,100}}), graphics),
           __Dymola_experimentSetupOutput);
       end CarbonDioxideInBlood;
-
-
-
 
     end AcidBase;
 
@@ -2010,8 +2337,7 @@ package Chemical
             smooth=Smooth.None));
         annotation (          experiment(
             StopTime=15000,
-            Tolerance=0.001,
-            __Dymola_Algorithm="Dassl"),                  Documentation(info="<html>
+            Tolerance=0.001),   Documentation(info="<html>
 <p>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
@@ -2943,8 +3269,7 @@ package Chemical
             smooth=Smooth.None));
         annotation (          experiment(
             StopTime=15000,
-            Tolerance=0.001,
-            __Dymola_Algorithm="Dassl"), Documentation(info="<html>
+            Tolerance=0.001), Documentation(info="<html>
 <p>Before silumation in &QUOT;Dymola 2014 FD01&QUOT; please set environment variable &QUOT;<code><b>Advanced.Define.NonLinearIterations&nbsp;=&nbsp;3&QUOT;</b></code> and chose &QUOT;Euler&QUOT; method!</p>
 
 <p>[1] Mateják M, Kulhánek T, Matouaek S. Adair-Based Hemoglobin Equilibrium with Oxygen, Carbon Dioxide and Hydrogen Ion Activity. Scandinavian Journal of Clinical &AMP; Laboratory Investigation; 2015</p>
@@ -2961,8 +3286,6 @@ package Chemical
                   100}}), graphics),
           __Dymola_experimentSetupOutput);
       end Hemoglobin_MKM_Adair;
-
-
 
     end Hemoglobin;
 
@@ -3029,12 +3352,11 @@ package Chemical
         Documentation(revisions="<html>
 <p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>
-<h4>amountOfSubstances = &int; MolarFlows</h4>
-<h4>electricCharge = &int; ElectricCurrents</h4>
-<h4>freeEnthalpy = &int; EnthalpyChanges</h4>
-<h4>freeEntropy = &int; EntropyChanges</h4>
-<h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
-<h4>electricEnergy = &int; ElectricPowers</h4>
+<h4>amountOfSolution = &int; molarFlows</h4>
+<h4>electricCharge = &int; electricCurrents</h4>
+<h4>freeEnthalpy = &int; enthalpyChanges</h4>
+<h4>freeEntropy = &int; entropyChanges</h4>
+<h4>freeGibbsEnergy = &int; freeGibbsEnergyChanges</h4>
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
@@ -3228,7 +3550,7 @@ package Chemical
 <td><p>dissociation constant</p></td>
 </tr>
 <tr>
-<td><p>&Delta;<sub>r</sub>G= &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
 <td><p>molar Gibb&apos;s energy of the reaction</p></td>
 </tr>
 <tr>
@@ -3240,7 +3562,7 @@ package Chemical
 <td><p>molar entropy of the reaction</p></td>
 </tr>
 </table>
-<p><br><h4><span style=\"color:#008000\">Notations</span></h4></p>
+<h4><span style=\"color:#008000\">Notations</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
 <td><p>A<sub>i</sub></p></td>
 <td><p>i-th substance</p></td>
@@ -3381,7 +3703,7 @@ package Chemical
 <td><p>Henry&apos;s coefficient</p></td>
 </tr>
 <tr>
-<td><p>&Delta;<sub>sol</sub>G = &Delta;<sub>sol</sub>H - T&middot;&Delta;<sub>sol</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K<sub>H</sub>&middot; (f<sub>L</sub> / f<sub>g</sub>)) </p></td>
+<td><p>&Delta;<sub>sol</sub>G = &Delta;<sub>f</sub>G<sub>L </sub>- &Delta;<sub>f</sub>G<sub>g </sub>= &Delta;<sub>sol</sub>H - T&middot;&Delta;<sub>sol</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K<sub>H</sub>&middot; (f<sub>L</sub> / f<sub>g</sub>)) </p></td>
 <td><p>molar Gibb&apos;s energy of the dissolition</p></td>
 </tr>
 <tr>
@@ -3393,7 +3715,7 @@ package Chemical
 <td><p>molar entropy of the dissolition</p></td>
 </tr>
 </table>
-<p><br><h4><span style=\"color:#008000\">Notations</span></h4></p>
+<h4><span style=\"color:#008000\">Notations</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
 <td><p>x<sub>L</sub></p></td>
 <td><p>mole fraction of the substance in the liquid</p></td>
@@ -5499,7 +5821,7 @@ package Chemical
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
             graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
-                  "modelica://Chemical/Resources/Icons/Concentration.png")}));
+                  "modelica://Chemical/Resources/Icons/Substance.png")}));
     end Substance;
 
     class Speciation
@@ -5530,7 +5852,7 @@ package Chemical
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
                 -100},{100,100}}), graphics={Bitmap(extent={{-80,84},{86,-26}},
                 fileName=
-                  "modelica://Chemical/Resources/Icons/MichaelisMenten.png")}));
+                  "modelica://Chemical/Resources/Icons/EnzymeKinetics.png")}));
     end EnzymeKinetics;
 
     annotation (Documentation(revisions=""));
@@ -5542,7 +5864,7 @@ version="1.0.0-alpha",
 versionBuild=1,
 versionDate="2015-04-24",
 dateModified = "2015-04-24 17:14:41Z",
-uses(Modelica(version="3.2.1"), Physiolibrary(version="2.3.0-beta")),
+uses(Modelica(version="3.2.1")),
   Documentation(revisions="<html>
 <p>Licensed by Marek Matejak under the Modelica License 2</p>
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
