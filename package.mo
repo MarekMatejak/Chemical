@@ -1,10 +1,9 @@
 ﻿within ;
-package Chemical
-  "Chemical library (reactions, diffusions, semipermeable membranes, gas dissolutions, electrochemical cells, ...)"
+package Chemical "Chemical library (reactions, diffusions, semipermeable membranes, gas dissolutions, electrochemical cells, ...)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
-  class Overview "Overview of Chemical"
+  class Overview "Overview"
     extends Modelica.Icons.Information;
 
    annotation (Documentation(info="<html>
@@ -23,34 +22,23 @@ package Chemical
 </tr>
 <tr>
 <td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Reaction.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>
-The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation.
-The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate.
-</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&LT;-&GT;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5&percnt; of maximal rate. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Diffusion.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Diffusion\">Diffusion</a></p><p>
-Diffusion is a dynamic chemical process, wich is also equilibrating of electro-chemical potential of the substance.
-Analogically as in chemical reaction the speed of diffucion can be calculated as coefficient C multiplied by electro-chemical gratient. C can be a parammeter or input expressed from distance, substance and solution properties.
-</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Diffusion\">Diffusion</a></p><p>Diffusion is a dynamic chemical process, wich is also equilibrating of electro-chemical potential of the substance. Analogically as in chemical reaction the speed of diffucion can be calculated as coefficient C multiplied by electro-chemical gratient. C can be a parammeter or input expressed from distance, substance and solution properties. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Gassolubility.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.GasSolubility\">Henry's law, Raoult's law or Sieverts' law</a></p><p>
-Surprisingly, all this laws has the same basis = equilibrium of electro-chemical potential. The most of problems in data is caused by wrong selection of standard state as 1 mol/kg or 1 mol/L. Please avoid these assumptions of these totally confused states and use only mole fractions instead of each molality or molarity - the world will be much better (I promise).
-</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.GasSolubility\">Henry&apos;s law, Raoult&apos;s law or Sieverts&apos; law</a></p><p>Surprisingly, all this laws has the same basis = equilibrium of electro-chemical potential. The most of problems in data is caused by wrong selection of standard state as 1 mol/kg or 1 mol/L. Please avoid these assumptions of these totally confused states and use only mole fractions instead of each molality or molarity - the world will be much better (I promise). </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Membrane.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Membrane\">Semipermeable membrane</a></p><p>
-The same as before - just equilibrating the electro-chemical potentials. A result is the Donnan's equilibrium, Nernst potentials of the ions and the membrane electric potential. Transporting water through membrane is reaching the osmotic equilibrium (The real one, not the simplified one defined by osmotic pressure lineary dependent on impermeable substance concentration).
-</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Membrane\">Semipermeable membrane</a></p><p>The same as before - just equilibrating the electro-chemical potentials. A result is the Donnan&apos;s equilibrium, Nernst potentials of the ions and the membrane electric potential. Transporting water through membrane is reaching the osmotic equilibrium (The real one, not the simplified one defined by osmotic pressure lineary dependent on impermeable substance concentration). </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p><img src=\"modelica://Chemical/Resources/Icons/Speciation.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Speciation\">Chemical speciation</a></p><p>
-</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Speciation\">Chemical speciation</a></p><p>The chemical speciation is for macromolecule composed with independent subunits is specific conformations. For example the hemoglobin is tetramer, which can be in two conformation: relaxed and tensed. In each of this conformation it has different afinities (different dissociation constant) for binding oxygen in each of four independent subunits. This alosteric effect can be modeled using speciation such as in <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin2_MWC\">Allosteric_Hemoglobin2_MWC</a>. However the result should be the same as using the detailed reaction model <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">Allosteric_Hemoglobin_MWC</a>.</p></td>
 </tr>
 </table>
 </html>"));
@@ -74,18 +62,19 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 <td valign=\"middle\"><p>u .. electro-chemical potential of the chemical substance</p></td>
 <td valign=\"middle\"><p>q .. molar flow of the chemical substance</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><br><a href=\"Chemical.Interfaces.ChemicalPort\">Chemical.Interfaces.ChemicalPort</a> </p><p>ChemicalDefinitionPort, ChemicalUsePort</p></td>
+<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.ChemicalPort\">Chemical.Interfaces.ChemicalPort</a> </p><p>ChemicalDefinitionPort, ChemicalUsePort</p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UserGuide/ChemicalPorts.png\"/></p></td>
 </tr>
 <tr>
 <td valign=\"middle\"><h4>solution</h4></td>
 <td valign=\"middle\"><p>T .. temperature of the solution</p><p>S .. free entropy of the solution</p><p>G .. free Gibbs energy of the solution</p><p>n .. amount of all substances in the solution</p><p>v .. electric potential of the solution</p><p>I .. ionic strength of the solution</p><p>p .. pressure of the solution</p></td>
-<td valign=\"middle\"><p>dH .. enthalpy change of the solution</p><p>dS .. entropy change of the solution</p><p>dG .. Gibbs energy change of the solution</p><p>dn .. molar change of the solution amount</p><p>i .. electric current to/from the solution</p><p>dI .. change of the ionic strength of the solution</p><p>dV .. change of the volume of the solution</p></td>
+<td valign=\"middle\"><p>dH .. enthalpy change of the solution</p><p>dS .. entropy change of the solution</p><p>dG .. Gibbs energy change of the solution</p><p>dn .. molar change of the solution amount</p><p>i .. electric charge change of the solution</p><p>dI .. change of the ionic strength of the solution</p><p>dV .. change of the volume of the solution</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><br><a href=\"Chemical.Interfaces.SolutionPort\">Chemical.Interfaces.SolutionPort</a></p></td>
+<td valign=\"middle\"><p><br><br><br><br><a href=\"Chemical.Interfaces.SolutionPort\">Chemical.Interfaces.SolutionPort</a></p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UserGuide/SolutionPort.png\"/></p></td>
 </tr>
 </table>
+<br/>
 </html>"));
   end Connectors;
 
@@ -219,15 +208,15 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
   package ReleaseNotes "Release notes"
     extends Modelica.Icons.ReleaseNotes;
 
-  class Version_1_0 "Version 1.0.0 (Comming soon)"
+  class Version_1_0 "Version 1.0.0 (28.4.2015)"
     extends Modelica.Icons.ReleaseNotes;
 
   annotation (Documentation(info="<html>
-<p><ul>
-<li>Separation the Chcemical from Physiolibrary GITHUB https://github.com/MarekMatejak/Chemical from https://github.com/MarekMatejak/Physiolibrary branche PhysicalChemistry </li>
+<ul>
+<li>Separation the Chemical from Physiolibrary to https://github.com/MarekMatejak/Chemical from https://github.com/MarekMatejak/Physiolibrary branche PhysicalChemistry </li>
 <li><font style=\"color: #333333; \">Components for solution, substance, chemical reaction, diffusion, gas dissolution, semipermeable membranes, chemical speciation of macromolecules, ..</font></li>
 <li><font style=\"color: #333333; \">The library uses the Modelica Standard Libary (MSL) version 3.2.</font></li>
-</ul></p>
+</ul>
 </html>"));
   end Version_1_0;
    annotation (Documentation(info="<html>
@@ -246,7 +235,6 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 <p><br>Update version number to &QUOT;X.Y.Z&QUOT;: </p>
 <ul>
 <li>At package Chemical annotation: (version=&QUOT;X.Y.Z&QUOT;) together with &QUOT;versionBuild&QUOT;, &QUOT;versionDate&QUOT; and &QUOT;dateModified&QUOT; attribute </li>
-<li>At head of package Chemical &QUOT;Electro-Chemical library (version X.Y.Z)&QUOT; </li>
 <li>At file &QUOT;./Chemical/libraryinfo.mos&QUOT; </li>
 </ul>
 <p><br>Update release notes: </p>
@@ -280,43 +268,16 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
   end Contact;
 
   annotation (__Dymola_DocumentationClass=true, Documentation(info="<html>
-<p>Package <b>Chemical </b>is a modelica package for <b>Electrochemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
-<p>This is a short <b>User&apos;s Guide</b> for the overall library. Some of the main sublibraries have their own User&apos;s Guides that can be accessed by the following links: </p>
-<table cellspacing=\"0\" cellpadding=\"2\" border=\"1\"><tr>
-<td valign=\"top\"><p>Chemical</p></td>
-<td valign=\"top\"><p>Library of chemical domain.</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Hydraulic</p></td>
-<td valign=\"top\"><p>Library of hydraulic domain. For modeling of cardiovascular system.</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Thermal</p></td>
-<td valign=\"top\"><p>Library of termoregulation support. As extension of Modelica.Thermal.HeatTransfer.</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Osmotic</p></td>
-<td valign=\"top\"><p>Library to model water fluxes through semipermeable membrane caused by osmotic pressure.</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Icons</p></td>
-<td valign=\"top\"><p>Icons</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Types </p></td>
-<td valign=\"top\"><p>Physiological types. Physiological unit vs. SI units, nominals, inputs/outputs, typed constants.</p></td>
-</tr>
-<tr>
-<td valign=\"top\"><p>Blocks</p></td>
-<td valign=\"top\"><p>Usefull blocks, that are missing in package Modelica.Blocks (MSL 3.2), cubic interpolation curves, multiplication factors.</p></td>
-</tr>
-</table>
+<p>Package <b>Chemical </b>is a modelica package for <b>Electro-Chemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
 </html>"));
   end UsersGuide;
+
+
  extends Modelica.Icons.Package;
 
+
   package Examples
-    "Examples that demonstrate usage of the Pressure flow components"
+  "Examples that demonstrate usage of the Pressure flow components"
   extends Modelica.Icons.ExamplesPackage;
 
     package Substances "Definitions of substances"
@@ -337,7 +298,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=77100,
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "Ag+(aq)";
+      "Ag+(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData SilverChloride_solid(
         MolarWeight=0.14332,
@@ -346,7 +307,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-109720,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "AgCl(s)";
+      "AgCl(s)";
 
       constant Interfaces.SubstanceModel.SubstanceData Calcium_aqueous(
         MolarWeight=0.0401,
@@ -363,7 +324,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-131170,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "Cl-(aq)";
+      "Cl-(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData CarbonDioxide_gas(
         MolarWeight=0.044,
@@ -371,7 +332,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-394400,
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "CO2(g)";
+      "CO2(g)";
 
       constant Interfaces.SubstanceModel.SubstanceData CarbonDioxide_aqueous(
         MolarWeight=0.044,
@@ -379,7 +340,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-386200,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "CO2(aq)";
+      "CO2(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Carbonate_aqueous(
         MolarWeight=0.06001,
@@ -388,7 +349,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-676300 - 298.15*(-497.065),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "CO3--(aq)";
+      "CO3--(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Electrone_solid(
         MolarWeight=5.4857990946e-7,
@@ -435,7 +396,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-699700 - 298.15*(-256.582),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "H2CO3(aq)";
+      "H2CO3(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Water_gas(
         MolarWeight=0.018015,
@@ -443,7 +404,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-228590,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "H2O(g)";
+      "H2O(g)";
 
       constant Interfaces.SubstanceModel.SubstanceData Water_liquid(
         MolarWeight=0.018015,
@@ -451,7 +412,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-237190,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "H2O(l)";
+      "H2O(l)";
 
       constant Interfaces.SubstanceModel.SubstanceData
         DihydrogenPhosphate_aqueous(
@@ -461,7 +422,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-1302480 - 298.15*(-561.395),
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "H2PO4-(aq)";
+      "H2PO4-(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Hydronium_aqueous(
         MolarWeight=0.019022,
@@ -470,7 +431,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-285840 - 298.15*(-163.17),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "H3O+(aq)";
+      "H3O+(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData PhosphoricAcid_aqueous(
         MolarWeight=0.095,
@@ -478,7 +439,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-1288000 - 298.15*(-496.4),
         References={"https://en.wikipedia.org/wiki/Phosphoric_acid",
             "https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"})
-        "H3PO4(aq)";
+      "H3PO4(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Proton_aqueous(
         MolarWeight=0.001007,
@@ -487,7 +448,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=0,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "H+(aq)";
+      "H+(aq)";
                  // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
 
       constant Interfaces.SubstanceModel.SubstanceData Bicarbonate_aqueous(
@@ -497,7 +458,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-691100 - 298.15*(-348.82),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "HCO3-(aq)";
+      "HCO3-(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData
         HydrogenPhosphate_aqueous(
@@ -507,7 +468,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-1298700 - 298.15*(-686.232),
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "HPO4--(aq)";
+      "HPO4--(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Potassium_aqueous(
         MolarWeight=0.0391,
@@ -516,7 +477,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-251200 - 298.15*(103.97),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "K+(aq)";
+      "K+(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Magnesium_aqueous(
         MolarWeight=0.0243,
@@ -533,7 +494,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-239660 - 298.15*(74.49),
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "Na+(aq)";
+      "Na+(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Amonium_aqueous(
         MolarWeight=0.01804,
@@ -557,7 +518,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         References={
             "http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf",
             "https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"})
-        "O2(aq)";
+      "O2(aq)";
       constant Interfaces.SubstanceModel.SubstanceData Hydroxide_aqueous(
         MolarWeight=0.017006,
         z=-1,
@@ -565,7 +526,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-157300,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"})
-        "OH-(aq)";
+      "OH-(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Phosphate_aqueous(
         MolarWeight=0.095,
@@ -574,7 +535,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-1284070 - 298.15*(-866.946),
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "PO4---(aq)";
+      "PO4---(aq)";
 
       constant Interfaces.SubstanceModel.SubstanceData Sulphates_aqueous(
         MolarWeight=0.09607,
@@ -583,13 +544,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         DfG_25degC=-907500 - 298.15*(-555.123),
         References={
             "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
-        "SO4--(aq)";
+      "SO4--(aq)";
 
         //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
     end Substances;
 
     model SimpleReaction
-      "The simple chemical reaction A<->B with equilibrium B/A = 2"
+    "The simple chemical reaction A<->B with equilibrium B/A = 2"
        extends Modelica.Icons.Example;
 
       constant Real K = 2 "Dissociation constant of the reaction";
@@ -636,14 +597,14 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SimpleReaction;
 
     model SimpleReaction2
-      "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
+    "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
        extends Modelica.Icons.Example;
 
       constant Real Kb(unit="kg/mol") = 2
-        "Molarity based dissociation constant of the reaction with one more reactant";
+      "Molarity based dissociation constant of the reaction with one more reactant";
 
       constant Real Kx(unit="1") = Kb*55.508
-        "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
+      "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
 
       constant Modelica.SIunits.Temperature T_25degC = 298.15 "Temperature";
       constant Real R = Modelica.Constants.R "Gas constant";
@@ -695,7 +656,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SimpleReaction2;
 
     model ExothermicReaction
-      "Exothermic reaction in ideally thermal isolated solution and in constant temperature conditions"
+    "Exothermic reaction in ideally thermal isolated solution and in constant temperature conditions"
 
        extends Modelica.Icons.Example;
 
@@ -711,9 +672,9 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
 
       Modelica.SIunits.HeatFlowRate q
-        "Heat flow to environment to reach constant temperature";
+      "Heat flow to environment to reach constant temperature";
       Modelica.SIunits.Temperature t
-        "Temperature if the solution is ideally thermal isolated from environment";
+      "Temperature if the solution is ideally thermal isolated from environment";
 
       Components.Substance A1(amountOfSubstance_start=0.9)
         annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
@@ -912,16 +873,16 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
          parameter Modelica.SIunits.AmountOfSubstance tE=0.01
-        "Total amount of enzyme";
+      "Total amount of enzyme";
          parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
-        "Forward rate of second reaction";
+      "Forward rate of second reaction";
          constant Modelica.SIunits.Concentration Km=0.1
-        "Michaelis constant = substrate concentration at rate of half Vmax";
+      "Michaelis constant = substrate concentration at rate of half Vmax";
 
         parameter Modelica.SIunits.MolarFlowRate Vmax=tE*k_cat
-        "Maximal molar flow";
+      "Maximal molar flow";
         parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution= 55.508
-        "Amount of solution used in kinetics";
+      "Amount of solution used in kinetics";
 
           Components.Substance ES(substanceData(DfG_25degC=-Modelica.Constants.R*298.15*log(2/Km)),
           amountOfSubstance_start=tE/2)
@@ -1031,7 +992,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end MichaelisMenten;
 
     model StandardElectrochemicalCell
-      "Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential "
+    "Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential "
      extends Modelica.Icons.Example;
 
       Sources.PureSubstance Ag(substanceData=
@@ -1120,7 +1081,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end StandardElectrochemicalCell;
 
     model ElectrochemicalCell
-      "The electrochemical cell: Pt(s) | H2(g) | H+(aq), Cl−(aq) | AgCl(s) | Ag(s)"
+    "The electrochemical cell: Pt(s) | H2(g) | H+(aq), Cl−(aq) | AgCl(s) | Ag(s)"
      extends Modelica.Icons.Example;
 
       Sources.PureSubstance Ag(substanceData=
@@ -1363,7 +1324,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
               Chemical.Examples.Substances.Carbonate_aqueous)
           annotation (Placement(transformation(extent={{68,32},{88,52}})));
         Chemical.Components.Reaction c2(nP=2, nS=1)
-          "K=10^(-10.33 + 3), dH=14.9kJ/mol"
+        "K=10^(-10.33 + 3), dH=14.9kJ/mol"
           annotation (Placement(transformation(extent={{20,24},{40,44}})));
         Chemical.Components.Substance H2O(  substanceData=
               Chemical.Examples.Substances.Water_liquid,
@@ -1462,12 +1423,12 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
           extends Modelica.Icons.Example;
 
         parameter Physiolibrary.Types.Concentration totalPO4=0.00115
-          "Total phosphate concentration";
+        "Total phosphate concentration";
 
         Components.Substance H(
           amountOfSubstance_start=55.6*10^(-7.4),
             substanceData=Chemical.Examples.Substances.Proton_aqueous)
-          "hydrogen ions activity" annotation (Placement(transformation(extent=
+        "hydrogen ions activity"   annotation (Placement(transformation(extent=
                   {{-10,-10},{10,10}}, origin={36,-12})));
 
         Components.Substance H3PO4(
@@ -1572,12 +1533,12 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         extends Modelica.Icons.Example;
 
         Sources.AmbientMoleFraction   H(MoleFraction=1e-7)
-          "hydrogen ions activity"                                        annotation (Placement(
+        "hydrogen ions activity"                                          annotation (Placement(
               transformation(extent={{10,-10},{-10,10}}, origin={14,22})));
 
         constant Integer n=218 "Number of weak acid group in albumin molecule";
         constant Real pKAs[n]=cat(1,{8.5},fill(4.0,98),fill(11.7,18),fill(12.5,24),fill(5.8,2),fill(6.0,2),{7.6,7.8,7.8,8,8},fill(10.3,50),{7.19,7.29,7.17,7.56,7.08,7.38,6.82,6.43,4.92,5.83,6.24,6.8,5.89,5.2,6.8,5.5,8,3.1})
-          "acid dissociation constants";
+        "acid dissociation constants";
         constant Real K[n]=fill(10.0, n) .^ (-pKAs);
         constant Real DfG[n]= Modelica.Constants.R*(298.15)*log(K);
 
@@ -1633,7 +1594,6 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
           Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                   100}}), graphics),
           __Dymola_experimentSetupOutput);
-
       end AlbuminTitration;
 
       model CarbonDioxideInBlood
@@ -1646,7 +1606,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
               rotation=0,
               origin={34,32})));
         Chemical.Components.Reaction HendersonHasselbalch(nP=2, nS=2)
-          "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
+        "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
           annotation (Placement(transformation(extent={{-20,22},{0,42}})));
         Sources.AirSubstance CO2_gas(
           substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
@@ -1679,7 +1639,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
           substanceData=Chemical.Examples.Substances.Bicarbonate_aqueous)
           annotation (Placement(transformation(extent={{46,-70},{26,-50}})));
         Chemical.Components.Reaction HendersonHasselbalch1(nP=2, nS=2)
-          "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
+        "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
           annotation (Placement(transformation(extent={{-16,-70},{4,-50}})));
         Components.Substance CO2_liquid_E(
           amountOfSubstance_start=0.00093,
@@ -1877,23 +1837,23 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         extends Modelica.Icons.Example;
 
         constant Modelica.SIunits.AmountOfSubstance THb = 0.001
-          "Total amount of hemoglobin";
+        "Total amount of hemoglobin";
 
         constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
 
         constant Real L(final unit="1")=7.0529*10^6
-          "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
+        "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
         constant Real c(final unit="1")=0.00431555
-          "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
+        "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
         constant Modelica.SIunits.Concentration KR=0.000671946
-          "Oxygen dissociation coefficient on relaxed(R) hemoglobin subunit";
+        "Oxygen dissociation coefficient on relaxed(R) hemoglobin subunit";
 
         constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 39.7
-          "Amount of solution used for molarity to mole fraction conversion";
+        "Amount of solution used for molarity to mole fraction conversion";
 
         constant Modelica.SIunits.Volume OneLiter = 0.001;
         constant Real KRx=KR*OneLiter/AmountOfSolutionIn1L
-          "Mole fraction based KR";
+        "Mole fraction based KR";
 
       //Relative Gibbs formation energies of the substances in the system:
         constant Real RT = Modelica.Constants.R*T;
@@ -2357,28 +2317,28 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       end Allosteric_Hemoglobin_MWC;
 
       model Allosteric_Hemoglobin2_MWC
-        "Monod,Wyman,Changeux (1965) - The same allosteric hemoglobin model as Allosteric_Hemoglobin_MWC implemented by Speciation blocks"
+      "Monod,Wyman,Changeux (1965) - The same allosteric hemoglobin model as Allosteric_Hemoglobin_MWC implemented by Speciation blocks"
 
        extends Modelica.Icons.Example;
 
         parameter Modelica.SIunits.MolarEnergy DfHT=10000
-          "Enthalpy of formation of heme oxygenation in T hemoglobin form";
+        "Enthalpy of formation of heme oxygenation in T hemoglobin form";
         parameter Modelica.SIunits.MolarEnergy DfHR=20000
-          "Enthalpy of formation of heme oxygenation in R hemoglobin form";
+        "Enthalpy of formation of heme oxygenation in R hemoglobin form";
         parameter Modelica.SIunits.MolarEnergy DfHL=-1000
-          "Enthalpy of formation of reaction T->R as hemoglobin tetramer structure change";
+        "Enthalpy of formation of reaction T->R as hemoglobin tetramer structure change";
 
         parameter Real L=7.0529*10^6
-          "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
+        "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
         parameter Modelica.SIunits.MoleFraction c=0.00431555
-          "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
+        "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
         parameter Modelica.SIunits.Concentration KR=0.000671946
-          "oxygen dissociation on relaxed(R) hemoglobin subunit";
+        "oxygen dissociation on relaxed(R) hemoglobin subunit";
                                                                     //*7.875647668393782383419689119171e-5
                                                                   //10.500001495896 7.8756465463794e-05
 
         parameter Modelica.SIunits.Concentration KT=KR/c
-          "oxygen dissociation on tensed(T) hemoglobin subunit";
+        "oxygen dissociation on tensed(T) hemoglobin subunit";
 
         constant Real RT=Modelica.Constants.R*298.15;
         constant Modelica.SIunits.Volume OneLiter=0.001;
@@ -2409,26 +2369,26 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         Components.Substance OxyRHm[4](
           each amountOfSubstance_start=4e-19,
           substanceData( each DfH=-DfHL/4 - DfHR, each DfG_25degC=DfG_uRO2))
-          "Oxygenated subunit in R structure of hemoglobin tetramer"
+        "Oxygenated subunit in R structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{-96,-18},{-76,2}})));
         Components.Reaction oxygenation_R[4](each nP=2,each Tau=Tau)
           annotation (Placement(transformation(extent={{-68,-18},{-48,2}})));
         Components.Substance DeoxyRHm[4](
           each amountOfSubstance_start=4e-11,
           substanceData(each DfH=-DfHL/4, each DfG_25degC=DfG_uR))
-          "Deoxygenated subunit in R structure of hemoglobin tetramer"
+        "Deoxygenated subunit in R structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{-40,-18},{-20,2}})));
         Components.Substance OxyTHm[4](
           substanceData(each DfH=-DfHT, each DfG_25degC=DfG_uTO2),
           each amountOfSubstance_start=1e-14)
-          "Oxygenated subunit in T structure of hemoglobin tetramer"
+        "Oxygenated subunit in T structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{14,-18},{34,2}})));
         Components.Reaction oxygenation_T[4](each nP=2, each Tau=Tau)
           annotation (Placement(transformation(extent={{42,-18},{62,2}})));
         Components.Substance DeoxyTHm[4](
           substanceData(each DfH=0, each DfG_25degC=DfG_uT), each
             amountOfSubstance_start=totalAmountOfHemoglobin)
-          "Deoxygenated subunit in T structure of hemoglobin tetramer"
+        "Deoxygenated subunit in T structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{68,-18},{88,2}})));
 
         Components.Substance oxygen_unbound(        substanceData(DfG_25degC=DfG_O2),
@@ -2597,26 +2557,26 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
          extends Interfaces.PartialSubstanceInSolution;
 
          parameter Modelica.SIunits.AmountOfSubstance amountOfSubstance_start = 6e-6
-          "initial amount of substance";
+        "initial amount of substance";
 
       parameter Real[4] pKz
-          "Dissociation coefficient of reaction z (Val1 amino terminal protonation)";
+        "Dissociation coefficient of reaction z (Val1 amino terminal protonation)";
       parameter Real[4] pKc
-          "Dissociation coefficient of reaction c (Val1 amino terminal carbamination)";
+        "Dissociation coefficient of reaction c (Val1 amino terminal carbamination)";
       parameter Real[4] pKh
-          "Dissociation coefficient of reaction h (other Bohr protonation reactions of side chains)";
+        "Dissociation coefficient of reaction h (other Bohr protonation reactions of side chains)";
 
-      protected
+    protected
           constant Modelica.SIunits.Volume OneLiter = 0.001;
           constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 39.7
-          "Amount of solution used for molarity to mole fraction conversion";
+        "Amount of solution used for molarity to mole fraction conversion";
 
           parameter Real[4] Kz = {10,10,10,10}.^(-pKz)
-          "Dissociation coefficient of reaction z (Val1 amino terminal protonation)";
+        "Dissociation coefficient of reaction z (Val1 amino terminal protonation)";
           parameter Real[4] Kcx = ({10,10,10,10}.^(-pKc)) .* OneLiter./AmountOfSolutionIn1L
-          "Dissociation coefficient of reaction c (Val1 amino terminal carbamination)";
+        "Dissociation coefficient of reaction c (Val1 amino terminal carbamination)";
           parameter Real[4] Kh = {10,10,10,10}.^(-pKh)
-          "Dissociation coefficient of reaction h (other Bohr protonation reactions of side chains)";
+        "Dissociation coefficient of reaction h (other Bohr protonation reactions of side chains)";
 
           constant Real RT=Modelica.Constants.R*298.15;
 
@@ -2629,14 +2589,14 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
           parameter Modelica.SIunits.MolarEnergy G_AH_HCOO[4] = G_AH_H2 + G_CO2*ones(4) - RT*log(Kcx);
 
           parameter Modelica.SIunits.MolarEnergy[4] dH_HbuANH2 = zeros(4)
-          "Standard enthalpy of deprotonated and decarboxylated hemoglobin subunit";
-      public
+        "Standard enthalpy of deprotonated and decarboxylated hemoglobin subunit";
+    public
       parameter Modelica.SIunits.MolarEnergy[4] dHz
-          "Enthalpy of reaction z (Val1 amino terminal protonation)";
+        "Enthalpy of reaction z (Val1 amino terminal protonation)";
       parameter Modelica.SIunits.MolarEnergy[4] dHc
-          "Enthalpy of reaction c (Val1 amino terminal carbamination)";
+        "Enthalpy of reaction c (Val1 amino terminal carbamination)";
       parameter Modelica.SIunits.MolarEnergy[4] dHh
-          "Enthalpy of reaction h (other Bohr protonation reactions of side chains)";
+        "Enthalpy of reaction h (other Bohr protonation reactions of side chains)";
 
           Components.Substance Hbu_A_NH3[4](
           substanceData(DfH=dH_HbuANH2 - dHz,  DfG_25degC=G_A_H3),
@@ -2903,14 +2863,14 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
         constant Modelica.SIunits.Volume OneLiter = 0.001;
         constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 39.7
-          "Amount of solution used for molarity to mole fraction conversion";
+        "Amount of solution used for molarity to mole fraction conversion";
 
         parameter Real K1x = 0.0121 *OneLiter/AmountOfSolutionIn1L;
         parameter Real K2x = 0.0117 *OneLiter/AmountOfSolutionIn1L;
         parameter Real K3x = 0.0871 *OneLiter/AmountOfSolutionIn1L;
         parameter Real K4x = 0.000386 *OneLiter/AmountOfSolutionIn1L;
 
-      protected
+    protected
          constant Real RT = Modelica.Constants.R*298.15;
         parameter Real GO2 = Chemical.Examples.Substances.Oxygen_aqueous.DfG_25degC;
         parameter Real G0 = 0;
@@ -2919,7 +2879,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         parameter Real G3 = G2 + GO2 + RT*log(K3x);
         parameter Real G4 = G3 + GO2 + RT*log(K4x);
 
-      public
+    public
         Components.Reaction K1(
           nS=1,
           nP=2,
@@ -3291,21 +3251,22 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
   end Examples;
 
+
   package Components
     extends Modelica.Icons.Package;
     model Solution
-      "Chemical solution as homogenous mixture of the substances at constant pressure"
+    "Chemical solution as homogenous mixture of the substances at constant pressure"
 
       extends Interfaces.PartialSolution;
 
       parameter Modelica.SIunits.Pressure ConstantPressure=101325
-        "Constant pressure of the solution";
+      "Constant pressure of the solution";
 
       parameter Boolean ElectricGround = true
-        "Is the solution electric potential equal to zero during simulation?";
+      "Is the solution electric potential equal to zero during simulation?";
 
       parameter Boolean ConstantTemperature = true
-        "Has the solution constant temperature during simulation?";
+      "Has the solution constant temperature during simulation?";
 
     equation
       //isobaric condition
@@ -3328,7 +3289,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         heatFromEnvironment = 0;
       end if;
 
-                                                                                                          annotation (
+                                                                                                        annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
             graphics={
@@ -3368,10 +3329,10 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstanceInSolution;
 
       parameter Modelica.SIunits.AmountOfSubstance amountOfSubstance_start=1e-8
-        "Initial amount of the substance in compartment";
+      "Initial amount of the substance in compartment";
 
        Modelica.Blocks.Interfaces.RealOutput amountOfSubstance(start=amountOfSubstance_start, stateSelect=StateSelect.avoid, final unit="mol")
-        "Current amount of the substance" annotation (Placement(transformation(
+      "Current amount of the substance"   annotation (Placement(transformation(
             extent={{-20,-20},{20,20}},
             rotation=0,
             origin={100,-60}),  iconTransformation(
@@ -3380,8 +3341,8 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
             origin={100,-60})));
 
       Real log10n(stateSelect=StateSelect.prefer)
-        "Decadic logarithm of the amount of the substance in solution";
-    protected
+      "Decadic logarithm of the amount of the substance in solution";
+  protected
       constant Real InvLog_10=1/log(10);
     initial equation
       amountOfSubstance=amountOfSubstance_start;
@@ -3405,7 +3366,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       solution.dI = (1/2) * port_a.q * z^2;
       solution.dV = molarVolume * port_a.q;
 
-                                                                                                         annotation (
+                                                                                                        annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
             graphics={Text(
@@ -3450,14 +3411,14 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         annotation ( HideResult=true);
 
       parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
-        "Stoichiometric reaction coefficient for substrates"
+      "Stoichiometric reaction coefficient for substrates"
         annotation (HideResult=true);
 
       parameter Integer nP=1 "Number of products types"
         annotation ( HideResult=true);
 
       parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
-        "Stoichiometric reaction coefficients for products"
+      "Stoichiometric reaction coefficients for products"
         annotation (HideResult=true);
 
       Modelica.SIunits.MolarFlowRate rr(start=0) "Reaction molar flow rate";
@@ -3470,7 +3431,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       //solution properties:
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-        "Amount of all particles in the reacting solution";
+      "Amount of all particles in the reacting solution";
 
     /*  //for debugging:
   Real DissociationConstant "Dissociation constant as ratio of mole fractions";
@@ -3484,10 +3445,10 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 //    "Standard electric potential of half-cell rection";
 */
       parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-        "To determine the reaction rate";
+      "To determine the reaction rate";
 
       parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the reaction rate";
+      "Time constant for other scaling of the reaction rate";
     equation
       //the main equation
       rr = (AmountOfSolution/(Tau*ActivationEnergy))*((p * products.u) - (s * substrates.u));
@@ -3616,13 +3577,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.OnePortParallel;
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-        "Amount of all particles in the diffusing solution";
+      "Amount of all particles in the diffusing solution";
 
       parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-        "To determine the diffusion rate";
+      "To determine the diffusion rate";
 
       parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the diffusion rate";
+      "Time constant for other scaling of the diffusion rate";
 
     equation
       port_b.q = (AmountOfSolution/(Tau*ActivationEnergy)) * (port_b.u - port_a.u);
@@ -3639,7 +3600,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Icons.GasSolubility;
 
       parameter Boolean useWaterCorrection = true
-        "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
+      "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
       annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true));
 
       Interfaces.SubstanceUsePort gas_port "Gaseous solution"
@@ -3662,13 +3623,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 //    "Standard electric potential";
 */
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSubstanceInSurface = 1
-        "The amount of liquid-gaseous molecules in the liquid-gas junction to the dissolution rate";
+      "The amount of liquid-gaseous molecules in the liquid-gas junction to the dissolution rate";
 
       parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-        "To determine the diffusion rate";
+      "To determine the diffusion rate";
 
       parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the diffusion rate";
+      "Time constant for other scaling of the diffusion rate";
 
     equation
       gas_port.q + liquid_port.q = 0;
@@ -3769,18 +3730,18 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end GasSolubility;
 
     model Membrane
-      "Passive transport of the substance through semipermeable membrane"
+    "Passive transport of the substance through semipermeable membrane"
       extends Icons.Membrane;
       extends Interfaces.OnePortParallel;
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfMembraneChannels = 1
-        "The amount of membrane channels to determine the rate of transport";
+      "The amount of membrane channels to determine the rate of transport";
 
       parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-        "To determine the transport rate";
+      "To determine the transport rate";
 
       parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the transport rate";
+      "Time constant for other scaling of the transport rate";
      /*
   //for debugging
    parameter Modelica.SIunits.MolarVolume Vm=18.1367e-6 
@@ -3837,19 +3798,19 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end Membrane;
 
     model Speciation
-      "Quaternary form of macromolecule with independent subunits"
+    "Quaternary form of macromolecule with independent subunits"
       extends Icons.Speciation;
       extends Interfaces.PartialSubstance;
 
       parameter Integer NumberOfSubunits=1
-        "Number of independent subunits occuring in macromolecule";
+      "Number of independent subunits occuring in macromolecule";
 
       Interfaces.SubstanceUsePort subunits[NumberOfSubunits]
-        "Subunits of macromolecule"
+      "Subunits of macromolecule"
         annotation (Placement(transformation(extent={{-10,90},{10,110}})));
 
       Modelica.Blocks.Interfaces.RealOutput amountOfMacromolecule(final unit="mol")
-        "Total amount of macromolecules including all selected forms of subunits"
+      "Total amount of macromolecules including all selected forms of subunits"
                                                                                   annotation (Placement(
             transformation(
             extent={{-10,-10},{10,10}},
@@ -3860,10 +3821,10 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
             origin={20,-100})));
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSubstance_start=1e-8
-        "Initial value of the total amount of the macromolecules. It must be the same as the total amount of each its subunit!";
+      "Initial value of the total amount of the macromolecules. It must be the same as the total amount of each its subunit!";
 
        Real log10n(stateSelect=StateSelect.prefer)
-        "Decadic logarithm of the amount of the substance in solution";
+      "Decadic logarithm of the amount of the substance in solution";
 
       Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{-70,
                 -110},{-50,-90}}),
@@ -3872,15 +3833,15 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     //  Real fractions[NumberOfSubunits]
     //    "Fractions of selected specific form of each subunit in macromolecule";
         parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-        "To determine the speed of the equilibration";
+      "To determine the speed of the equilibration";
 
         parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the speed of the reaction";
-    protected
+      "Time constant for other scaling of the speed of the reaction";
+  protected
         Modelica.SIunits.MoleFraction xm
-        "Mole fraction of all form of the macromolecule (in the conformation)";
+      "Mole fraction of all form of the macromolecule (in the conformation)";
         Modelica.SIunits.ChemicalPotential uEq
-        "Chemical potential of the specific form of the macromolecule (in the conformation) at equilibrium";
+      "Chemical potential of the specific form of the macromolecule (in the conformation) at equilibrium";
     initial equation
       amountOfMacromolecule = AmountOfSubstance_start;
     equation
@@ -4104,6 +4065,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SubstancePump;
   end Components;
 
+
   package Sensors
     extends Modelica.Icons.SensorsPackage;
 
@@ -4168,7 +4130,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
           Placement(transformation(extent={{-10,-12},{10,8}}),
             iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
-        "Mole fraction of the substance"
+      "Mole fraction of the substance"
        annotation (
           Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -4205,13 +4167,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstanceNoStorage;
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1kgOfSolvent = 55.508
-        "Amount of all particles in the solution per one kilogram of solvent";
+      "Amount of all particles in the solution per one kilogram of solvent";
 
       Interfaces.SubstanceUsePort port_a "For measure only" annotation (
           Placement(transformation(extent={{-10,-12},{10,8}}),
             iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput molality(final unit="mol/kg")
-        "Molality of the substance (amount of substance per mass of solvent)"
+      "Molality of the substance (amount of substance per mass of solvent)"
        annotation (
           Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -4221,7 +4183,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
             rotation=0,
             origin={100,0})));
 
-    protected
+  protected
       constant Modelica.SIunits.Mass KG=1;
     equation
       port_a.q = 0;
@@ -4250,13 +4212,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstanceNoStorage;
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneLiter = 55.508
-        "Amount of all particles in one liter of the solution";
+      "Amount of all particles in one liter of the solution";
 
       Interfaces.SubstanceUsePort port_a "For measure only" annotation (
           Placement(transformation(extent={{-10,-12},{10,8}}),
             iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput molarConcentration(final unit="mol/m3", displayUnit="mol/l")
-        "Molarity of the substance (amount of substance in one liter of whole solution)"
+      "Molarity of the substance (amount of substance in one liter of whole solution)"
        annotation (
           Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -4266,7 +4228,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
             rotation=0,
             origin={100,0})));
 
-    protected
+  protected
       constant Modelica.SIunits.Volume L=0.001;
     equation
       port_a.q = 0;
@@ -4295,13 +4257,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstanceNoStorage;
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneKilogram = 55.508
-        "Amount of all particles in one kilogram of the solution";
+      "Amount of all particles in one kilogram of the solution";
 
       Interfaces.SubstanceUsePort port_a "For measure only" annotation (
           Placement(transformation(extent={{-10,-12},{10,8}}),
             iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput massFraction(final unit="kg/kg")
-        "Mass fraction of the substance (mass of the substance per mass of the whole solution)"
+      "Mass fraction of the substance (mass of the substance per mass of the whole solution)"
        annotation (
           Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -4334,6 +4296,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end MassFractionSensor;
   end Sensors;
 
+
   package Sources
     extends Modelica.Icons.SourcesPackage;
 
@@ -4341,31 +4304,31 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstance;
 
       parameter Boolean usePartialPressureInput = false
-        "=true, if fixed partial pressure is from input instead of parameter"
+      "=true, if fixed partial pressure is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Pressure PartialPressure=0
-        "Fixed partial pressure if usePartialPressureInput=false"
+      "Fixed partial pressure if usePartialPressureInput=false"
         annotation (HideResult=true, Dialog(enable=not usePartialPressureInput));
 
       parameter Modelica.SIunits.Pressure TotalPressure=101325
-        "Total pressure of the whole gaseous solution";
+      "Total pressure of the whole gaseous solution";
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput partialPressure(start=
             PartialPressure, final unit="Pa")=p if usePartialPressureInput
-        "Partial pressure of gas = total pressure * gas fraction"
+      "Partial pressure of gas = total pressure * gas fraction"
         annotation (HideResult=true,Placement(transformation(extent={{-120,-20},{-80,20}})));
 
       Modelica.SIunits.Pressure p "Current partial pressure";
 
       parameter Modelica.SIunits.Volume Volume = 0.001
-        "Volume of gaseous solution";
+      "Volume of gaseous solution";
 
     equation
       if not usePartialPressureInput then
@@ -4431,12 +4394,12 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-        "Amount of solution";
+      "Amount of solution";
 
     equation
       x = 1;
@@ -4485,20 +4448,20 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end PureSubstance;
 
     model PureElectricParticle
-      "Constant source of pure particle driven by electric port"
+    "Constant source of pure particle driven by electric port"
       extends Interfaces.PartialSubstance;
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
 
       Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
           Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
               extent={{-110,-10},{-90,10}})));
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-        "Amount of solution";
+      "Amount of solution";
 
     equation
       //electric
@@ -4554,22 +4517,22 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstance;
 
        parameter Real Molality(final unit="mol/kg") = 1e-8
-        "Fixed molality of the substance if useMolalityInput=false"
+      "Fixed molality of the substance if useMolalityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolalityInput));
 
        parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-        "Amount of all particles in the solution per one kilogram of solvent";
+      "Amount of all particles in the solution per one kilogram of solvent";
 
         parameter Boolean useMolalityInput = false
-        "Is amount of substance an input?"
+      "Is amount of substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG if
            useMolalityInput
@@ -4577,7 +4540,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       Modelica.SIunits.AmountOfSubstance n "Current amount of the substance";
 
-    protected
+  protected
       constant Modelica.SIunits.Mass KG=1;
     equation
        if not useMolalityInput then
@@ -4633,22 +4596,22 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
        extends Interfaces.PartialSubstance;
 
        parameter Real MolarConcentration(final unit="mol/m3", displayUnit="mol/l") = 1e-8
-        "Fixed molarity of the substance if useMolarityInput=false"
+      "Fixed molarity of the substance if useMolarityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolarityInput));
 
        parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-        "Amount of all particles in the solution one liter of solvent";
+      "Amount of all particles in the solution one liter of solvent";
 
         parameter Boolean useMolarityInput = false
-        "Is amount of substance an input?"
+      "Is amount of substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
        parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L if
            useMolarityInput
@@ -4656,7 +4619,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       Modelica.SIunits.AmountOfSubstance n "Current amount of the substance";
 
-    protected
+  protected
       constant Modelica.SIunits.Volume L=0.001;
     equation
        if not useMolarityInput then
@@ -4712,22 +4675,22 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
          extends Interfaces.PartialSubstance;
 
        parameter Modelica.SIunits.MoleFraction MoleFraction = 1e-8
-        "Fixed mole fraction of the substance if useMoleFractionInput=false"
+      "Fixed mole fraction of the substance if useMoleFractionInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
        parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-        "Amount of all reacting particles in the solution";
+      "Amount of all reacting particles in the solution";
 
         parameter Boolean useMoleFractionInput = false
-        "Is mole fraction of the substance an input?"
+      "Is mole fraction of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput moleFractionInput(
         final unit="mol/mol",
@@ -4850,11 +4813,11 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
      extends Interfaces.PartialSubstanceNoStorage;
 
       parameter Modelica.SIunits.VolumeFlowRate Clearance=0
-        "Physiological clearance of the substance if useSolutionFlowInput=false"
+      "Physiological clearance of the substance if useSolutionFlowInput=false"
         annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
       parameter Real K(unit="1")=1
-        "Coefficient such that Clearance = K*solutionFlow";
+      "Coefficient such that Clearance = K*solutionFlow";
 
       Modelica.SIunits.MolarFlowRate molarClearance "Current molar clearance";
 
@@ -4896,7 +4859,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       extends Interfaces.PartialSubstanceNoStorage;
 
       parameter Physiolibrary.Types.Time HalfTime
-        "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
+      "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
     equation
       port_a.q = (Modelica.Math.log(2)/HalfTime)*x*amountOfSolution;
@@ -4981,18 +4944,18 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end Degradation;
 
     model Buffer
-      "Source of substance to reach linear dependence between concentration and electrochemical potential"
+    "Source of substance to reach linear dependence between concentration and electrochemical potential"
          extends Interfaces.PartialSubstance;
 
        parameter Modelica.SIunits.MoleFraction xBuffered_start=1e-7
-        "Initial value of mole fraction of the buffered substance";
+      "Initial value of mole fraction of the buffered substance";
 
        parameter Real BufferValue(final unit="1") = 1
-        "Fixed buffer value (slope between x and -log10(x)) if useBufferValueInput=false"
+      "Fixed buffer value (slope between x and -log10(x)) if useBufferValueInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
        parameter Boolean useBufferValueInput = false
-        "Is buffer value of the substance an input?"
+      "Is buffer value of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
         Real bufferValue(final unit="1");
@@ -5004,17 +4967,17 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
               extent={{-120,-20},{-80,20}})));
 
        parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-        "Amount of all particles in the buffering solution";
+      "Amount of all particles in the buffering solution";
 
       parameter Modelica.SIunits.Time Tau = 1
-        "Time constant for other scaling of the buffering rate";
+      "Time constant for other scaling of the buffering rate";
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-        "Ionic strength";
+      "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-        "Electric potential";
+      "Electric potential";
 
       Modelica.SIunits.AmountOfSubstance nBuffered;
       Modelica.SIunits.MoleFraction xBuffered;
@@ -5073,6 +5036,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end Buffer;
   end Sources;
 
+
   package Interfaces
     extends Modelica.Icons.InterfacesPackage;
 
@@ -5081,18 +5045,18 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
        record SubstanceData "Base substance data"
 
        parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0
-          "Molar weight of the substance in kg/mol or kDa";
+        "Molar weight of the substance in kg/mol or kDa";
 
        parameter Modelica.SIunits.ChargeNumberOfIon z=0
-          "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
+        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
 
        parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol")=0
-          "Enthalpy of formation of the substance in the selected state";
+        "Enthalpy of formation of the substance in the selected state";
        parameter Modelica.SIunits.MolarEnergy DfG_25degC(displayUnit="kJ/mol")=0
-          "Gibbs enerfy of formation at 25°C of the substance in the selected state";
+        "Gibbs enerfy of formation at 25°C of the substance in the selected state";
 
        parameter String References[:]={""}
-          "References of these thermodynamical values";
+        "References of these thermodynamical values";
 
         annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -5101,30 +5065,30 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
        end SubstanceData;
 
      replaceable function activityCoefficient
-        "Return activity coefficient of the substance in the solution"
+      "Return activity coefficient of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Real gamma "Activity Coefficient";
      algorithm
          gamma := 1;
      end activityCoefficient;
 
      replaceable function chargeNumberOfIon
-        "Return charge number of the substance in the solution"
+      "Return charge number of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
      algorithm
         z := substanceData.z;
@@ -5136,9 +5100,9 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarEnthalpy molarEnthalpy "Molar enthalpy";
      algorithm
          molarEnthalpy := substanceData.DfH + Modelica.Constants.F*substanceData.z*v;
@@ -5147,46 +5111,46 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
      replaceable function molarEntropy "Molar entropy of the substance"
         extends Modelica.Icons.Function;
         input Modelica.SIunits.ChemicalPotential u
-          "Electro-chemical potential of the substance";
+        "Electro-chemical potential of the substance";
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarEntropy molarEntropy "Molar entropy";
      algorithm
          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
      end molarEntropy;
 
      replaceable function u0
-        "Chemical part of electro-chemical potential of the pure substance"
+      "Chemical part of electro-chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.ChemicalPotential u0 "Base chemical potential";
      algorithm
          u0 := substanceData.DfH - T*((substanceData.DfH-substanceData.DfG_25degC)/298.15);
      end u0;
 
      replaceable function uPure
-        "Electro-chemical potential of the pure substance"
+      "Electro-chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.ChemicalPotential uPure
-          "Base electro-chemical potential";
+        "Base electro-chemical potential";
      algorithm
          uPure := u0(substanceData,T,p,v,I) + Modelica.Constants.F*substanceData.z*v;
      end uPure;
@@ -5197,9 +5161,9 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarMass molarMass "Molar mass";
      algorithm
          molarMass := substanceData.MolarWeight; //ideal gas
@@ -5213,9 +5177,9 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
         input Modelica.SIunits.Pressure p=101325 "Pressure";
         input Modelica.SIunits.ElectricPotential v=0
-          "Electric potential of the substance";
+        "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
-          "Ionic strengh (mole fraction based)";
+        "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
      algorithm
          molarVolume := Modelica.Constants.R*T/p; //ideal gas
@@ -5229,10 +5193,10 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SubstanceModel;
 
     connector ChemicalPort
-      "Electro-chemical potential and molar change of the substance in the solution"
+    "Electro-chemical potential and molar change of the substance in the solution"
 
       Modelica.SIunits.ChemicalPotential u
-        "Electro-chemical potential of the substance in the solution";
+      "Electro-chemical potential of the substance in the solution";
 
       flow Modelica.SIunits.MolarFlowRate q "Molar change of the substance";
 
@@ -5260,7 +5224,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end ChemicalPort;
 
     connector SubstanceDefinitionPort
-      "Electro-chemical potential and molar flow of the substance in the solution"
+    "Electro-chemical potential and molar flow of the substance in the solution"
       extends ChemicalPort;
 
     /*  
@@ -5334,7 +5298,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SubstanceDefinitionPort;
 
     connector SubstanceUsePort
-      "Electro-chemical potential and molar flow of the substance in the solution"
+    "Electro-chemical potential and molar flow of the substance in the solution"
       extends ChemicalPort;
 
     /*
@@ -5410,53 +5374,53 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     partial model PartialSubstance
 
       Interfaces.SubstanceDefinitionPort port_a
-        "The substance with prescribed partial pressure"
+      "The substance with prescribed partial pressure"
         annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
       parameter substanceModel.SubstanceData substanceData
          annotation (choicesAllMatching = true);
 
       replaceable package substanceModel = Interfaces.SubstanceModel   constrainedby
-        Interfaces.SubstanceModel
-        "Substance model: Molar Weight, Enthalpy, Gibbs energy,... from substance data"
+      Interfaces.SubstanceModel
+      "Substance model: Molar Weight, Enthalpy, Gibbs energy,... from substance data"
          annotation (choicesAllMatching = true);
 
       Modelica.SIunits.MoleFraction x "Mole fraction of the substance";
 
-    protected
+  protected
       Modelica.SIunits.ActivityCoefficient gamma
-        "Activity coefficient of the substance";
+      "Activity coefficient of the substance";
 
       Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
 
       Modelica.SIunits.Temperature temperature(start=298.15)
-        "Temperature of the solution";
+      "Temperature of the solution";
 
       Modelica.SIunits.Pressure pressure(start=101325)
-        "Pressure of the solution";
+      "Pressure of the solution";
 
       Modelica.SIunits.ElectricPotential electricPotential(start=0)
-        "Electric potential of the solution";
+      "Electric potential of the solution";
 
       Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength(start=0)
-        "Ionic strength of the solution";
+      "Ionic strength of the solution";
 
       Modelica.SIunits.AmountOfSubstance amountOfSolution
-        "Amount of all solution particles";
+      "Amount of all solution particles";
 
       Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
 
       Modelica.SIunits.MolarEnthalpy molarEnthalpy
-        "Molar enthalpy of the substance";
+      "Molar enthalpy of the substance";
 
       Modelica.SIunits.MolarEntropy molarEntropy
-        "Molar entropy of the substance";
+      "Molar entropy of the substance";
 
       Modelica.SIunits.ChemicalPotential u0
-        "Chemical potential of the pure substance";
+      "Chemical potential of the pure substance";
 
       Modelica.SIunits.ChemicalPotential uPure
-        "Electro-Chemical potential of the pure substance";
+      "Electro-Chemical potential of the pure substance";
 
       Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
 
@@ -5503,7 +5467,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end PartialSubstance;
 
     partial model OnePortParallel
-      "Partial molar flow beween two substance definitions"
+    "Partial molar flow beween two substance definitions"
 
       SubstanceUsePort port_a annotation (Placement(transformation(extent={{-110,-10},
                 {-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
@@ -5517,7 +5481,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end OnePortParallel;
 
     partial model OnePortSerial
-      "Partial transfer of substance from substance definition component to another transfer component (such as MolarFlowSensor)"
+    "Partial transfer of substance from substance definition component to another transfer component (such as MolarFlowSensor)"
 
       SubstanceUsePort port_a annotation (Placement(transformation(extent={{-110,
                 -10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
@@ -5546,18 +5510,18 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end OnePortSerial;
 
     partial model ConditionalSolutionFlow
-      "Input of solution molar flow vs. parametric solution molar flow"
+    "Input of solution molar flow vs. parametric solution molar flow"
 
       parameter Boolean useSolutionFlowInput = false
-        "Is solution flow an input?"
+      "Is solution flow an input?"
       annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
-        "Volume flow rate of the solution if useSolutionFlowInput=false" annotation (
+      "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
           HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L=55.508
-        "The amount of all particles in one liter of the solution";
+      "The amount of all particles in one liter of the solution";
 
       Modelica.Blocks.Interfaces.RealInput solutionFlow(start=SolutionFlow, final unit="m3/s")=
          q*OneLiter/AmountOfSolutionIn1L if useSolutionFlowInput
@@ -5571,7 +5535,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       Modelica.SIunits.MolarFlowRate q "Current molar solution flow";
 
-    protected
+  protected
      constant Modelica.SIunits.Volume OneLiter=0.001 "One liter";
 
     equation
@@ -5582,14 +5546,14 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end ConditionalSolutionFlow;
 
     partial model ConditionalSubstanceFlow
-      "Input of substance molar flow vs. parametric substance molar flow"
+    "Input of substance molar flow vs. parametric substance molar flow"
 
       parameter Boolean useSubstanceFlowInput = false
-        "Is substance flow an input?"
+      "Is substance flow an input?"
       annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
-        "Volumetric flow of Substance if useSubstanceFlowInput=false" annotation (
+      "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
           HideResult=true, Dialog(enable=not useSubstanceFlowInput));
 
       Modelica.Blocks.Interfaces.RealInput substanceFlow(start=SubstanceFlow, final unit="mol/s")=q if
@@ -5609,12 +5573,12 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end ConditionalSubstanceFlow;
 
     connector SolutionPort
-      "Interation of properties from all substances of the solution"
+    "Interation of properties from all substances of the solution"
 
       //heat port
       Modelica.SIunits.Temperature T "Temperature of the solution";
       flow Modelica.SIunits.EnthalpyFlowRate dH
-        "Enthalpy change of the solution";
+      "Enthalpy change of the solution";
 
       //entropy
       Modelica.SIunits.Entropy S "Free entropy";
@@ -5623,7 +5587,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       //free Gibbs energy
       Modelica.SIunits.Energy G "Free Gibbs energy";
       flow Modelica.SIunits.EnergyFlowRate dG
-        "Gibbs energy change of the solution";
+      "Gibbs energy change of the solution";
 
       //amount of substances
       Modelica.SIunits.AmountOfSubstance n "Amount of the solution";
@@ -5635,9 +5599,9 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       //ionic strength
       Modelica.SIunits.MoleFraction I
-        "Mole fraction based ionic strength of the solution";
+      "Mole fraction based ionic strength of the solution";
       flow Modelica.SIunits.MolarFlowRate dI
-        "Change of mole-fraction based ionic strength of the solution";
+      "Change of mole-fraction based ionic strength of the solution";
 
       //hydraulic port
       Modelica.SIunits.Pressure p "Pressure of the solution";
@@ -5657,40 +5621,40 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end SolutionPort;
 
     partial model PartialSolution
-      "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
+    "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
       parameter Modelica.SIunits.MolarHeatCapacity Cp_start = 75.4
-        "Initial heat capacity of the solution at constant pressure"
+      "Initial heat capacity of the solution at constant pressure"
         annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.AmountOfSubstance amountOfSolution_start=55.508
-        "Initial amount of the solution (default is amount of pure water in 1kg)"
+      "Initial amount of the solution (default is amount of pure water in 1kg)"
          annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.Volume volume_start=1/0.997
-        "Initial volume of the solution (default is volume of pure water in 1kg at 25degC)"
+      "Initial volume of the solution (default is volume of pure water in 1kg at 25degC)"
          annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.Temperature temperature_start=298.15
-        "Initial temperature of the solution"
+      "Initial temperature of the solution"
          annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.ElectricCharge electricCharge_start=0
-        "Initial electric charge of the solution"
+      "Initial electric charge of the solution"
          annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.MoleFraction ionicStrength_start=0
-        "Initial ionic strength (mole fraction based) of the solution"
+      "Initial ionic strength (mole fraction based) of the solution"
          annotation (Dialog(group="Initialization"));
 
       Modelica.SIunits.AmountOfSubstance amountOfSolution(start=amountOfSolution_start)
-        "Current amount of all substances in the solution";
+      "Current amount of all substances in the solution";
 
       Modelica.SIunits.ElectricCharge charge(start=electricCharge_start)
-        "Current amount of all substances in the solution";
+      "Current amount of all substances in the solution";
 
       Modelica.SIunits.Enthalpy freeEnthalpy(start=temperature_start*Cp_start*amountOfSolution_start)
-        "Free enthalpy of the solution";
+      "Free enthalpy of the solution";
 
       Interfaces.SolutionPort solution "Solution nonflows and flows"
                                       annotation (Placement(
@@ -5698,11 +5662,11 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
 
       //for debuging only:
       Modelica.SIunits.MolarHeatCapacity Cp=freeEnthalpy/(solution.T*amountOfSolution)
-        "Current heat capacity of the solution";
+      "Current heat capacity of the solution";
 
       //Valid only, if you are sure with molarVolume calculation of the substances.
       Modelica.SIunits.Volume volume(start=volume_start)
-        "Current volume of the solution (Valid only, if you are sure with molarVolume calculation of the substances)";
+      "Current volume of the solution (Valid only, if you are sure with molarVolume calculation of the substances)";
 
       Modelica.SIunits.HeatFlowRate heatFromEnvironment;
 
@@ -5744,7 +5708,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       der(volume) = solution.dV;
       //der(lnvolume) = solution.dV/volume; volume = exp(lnvolume);
 
-                                                                                                          annotation (
+                                                                                                        annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
             graphics={
@@ -5772,11 +5736,11 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end PartialSolution;
 
     partial model PartialSubstanceInSolution
-      "Substance properties for components, where the substance is connected with the solution"
+    "Substance properties for components, where the substance is connected with the solution"
       extends PartialSubstance;
 
       SolutionPort            solution
-        "To connect substance with solution, where is pressented"                                annotation (Placement(transformation(
+      "To connect substance with solution, where is pressented"                                  annotation (Placement(transformation(
               extent={{-70,-110},{-50,-90}}),iconTransformation(extent={{-70,-110},{
                 -50,-90}})));
     equation
@@ -5789,7 +5753,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     end PartialSubstanceInSolution;
 
     partial model PartialSubstanceNoStorage
-      "Substance properties for components, where the substance is not accumulated"
+    "Substance properties for components, where the substance is not accumulated"
       extends PartialSubstanceInSolution;
 
     equation
@@ -5804,6 +5768,7 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
       solution.dV = 0;
     end PartialSubstanceNoStorage;
   end Interfaces;
+
 
   package Icons "Icons for chemical models"
     //extends Modelica.Icons.IconsPackage;
@@ -5858,12 +5823,13 @@ The same as before - just equilibrating the electro-chemical potentials. A resul
     annotation (Documentation(revisions=""));
   end Icons;
 
+
   annotation (
 preferredView="info",
-version="1.0.0-alpha",
+version="1.0.0",
 versionBuild=1,
-versionDate="2015-04-24",
-dateModified = "2015-04-24 17:14:41Z",
+versionDate="2015-04-28",
+dateModified = "2015-04-28 17:14:41Z",
 uses(Modelica(version="3.2.1")),
   Documentation(revisions="<html>
 <p>Licensed by Marek Matejak under the Modelica License 2</p>
