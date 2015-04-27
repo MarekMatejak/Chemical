@@ -1,4 +1,4 @@
-﻿within ;
+within ;
 package Chemical "Chemical library (reactions, diffusions, semipermeable membranes, gas dissolutions, electrochemical cells, ...)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
@@ -81,7 +81,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     class ModelicaLicense2 "Modelica License 2"
 
       annotation (Documentation(info="<html>
-<p>All files in this directory (Chemical) and in all subdirectories, especially all files that build package &QUOT;Chemical&QUOT; are licensed by <u><b>Marek Matejak</b></u> under the <u><b>Modelica License 2 </b></u>(with exception of files &QUOT;Resources/*&QUOT;). </p>
+<p>All files in this directory (Chemical) and in all subdirectories, especially all files that build package &QUOT;Chemical&QUOT; are licensed by <u><b>Marek Matej&aacute;k</b></u> under the <u><b>Modelica License 2 </b></u>(with exception of files &QUOT;Resources/*&QUOT;). </p>
 <h4>Licensor:</h4>
 <p>Marek Matej&aacute;k,</p>
 <p>Hviezdoslavova 632/41,</p>
@@ -259,7 +259,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     extends Modelica.Icons.Contact;
 
    annotation (Documentation(info="<html>
-<p>Marek Matejak</p>
+<p>Marek Matej&aacute;k</p>
 <p>email: marek@matfy.cz</p>
 <p>skype: marek.matejak</p>
 <p>tel: +420 776 301 395</p>
@@ -276,8 +276,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
  extends Modelica.Icons.Package;
 
 
-  package Examples
-  "Examples that demonstrate usage of the Pressure flow components"
+  package Examples "Examples that demonstrate usage of chemical library"
   extends Modelica.Icons.ExamplesPackage;
 
     package Substances "Definitions of substances"
@@ -590,10 +589,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment(StopTime=0.001),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics),
-        __Dymola_experimentSetupOutput);
+        experiment(StopTime=0.001));
     end SimpleReaction;
 
     model SimpleReaction2
@@ -649,10 +645,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment(StopTime=0.001),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics),
-        __Dymola_experimentSetupOutput);
+        experiment(StopTime=0.001));
     end SimpleReaction2;
 
     model ExothermicReaction
@@ -726,10 +719,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment(StopTime=0.001),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-                        graphics),
-        __Dymola_experimentSetupOutput);
+        experiment(StopTime=0.001));
     end ExothermicReaction;
 
     model Henry "Dissolution of gases in liquids"
@@ -851,9 +841,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
           color={0,0,0},
           smooth=Smooth.None));
       annotation (
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}),
-                graphics),
         experiment(StopTime=1),
         Documentation(info="<html>
 <p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
@@ -985,10 +972,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 </html>"),
-        experiment(StopTime=1),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-                        graphics),
-        __Dymola_experimentSetupOutput);
+        experiment(StopTime=1));
     end MichaelisMenten;
 
     model StandardElectrochemicalCell
@@ -1073,15 +1057,14 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
           color={0,0,255},
           smooth=Smooth.None));
       annotation (
-      experiment(StopTime=1),
-      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-            graphics), Documentation(info="<html>
+      experiment(StopTime=1), Documentation(info=
+                    "<html>
 <p>Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential </p>
 </html>"));
     end StandardElectrochemicalCell;
 
     model ElectrochemicalCell
-    "The electrochemical cell: Pt(s) | H2(g) | H+(aq), Cl−(aq) | AgCl(s) | Ag(s)"
+    "The electrochemical cell: Pt(s) | H2(g) | H+(aq), Cl-(aq) | AgCl(s) | Ag(s)"
      extends Modelica.Icons.Example;
 
       Sources.PureSubstance Ag(substanceData=
@@ -1169,10 +1152,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
       connect(H.solution, solution1.solution) annotation (Line(points={{14,-36},
               {14,-40},{5,-40},{5,-46}}, smooth=Smooth.None));
       annotation (
-      experiment(StopTime=1),
-      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}),
-            graphics));
+      experiment(StopTime=1));
     end ElectrochemicalCell;
 
     package AcidBase
@@ -1286,10 +1266,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=1),
-          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}),            graphics),
-          __Dymola_experimentSetupOutput);
+</html>"),experiment(StopTime=1));
       end WaterSelfIonization;
 
       model CarbonDioxideInWater "CO2 as alone acid-base buffer"
@@ -1412,10 +1389,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=0.02),
-          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}),            graphics),
-          __Dymola_experimentSetupOutput);
+</html>"),experiment(StopTime=0.02));
       end CarbonDioxideInWater;
 
       model Phosphate
@@ -1524,9 +1498,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=0.05),
-          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}), graphics));
+</html>"),experiment(StopTime=0.05));
       end Phosphate;
 
       model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
@@ -1590,10 +1562,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p><br>Data and model is described in</p>
 <p><font style=\"color: #222222; \">Jame Figge: Role of non-volatile weak acids (albumin, phosphate and citrate). In: Stewart&apos;s Textbook of Acid-Base, 2nd Edition, John A. Kellum, Paul WG Elbers editors, &nbsp;AcidBase org, 2009, pp. 216-232.</font></p>
 </html>"),experiment(
-            StopTime=1e-005),
-          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}), graphics),
-          __Dymola_experimentSetupOutput);
+            StopTime=1e-005));
       end AlbuminTitration;
 
       model CarbonDioxideInBlood
@@ -1603,7 +1572,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
           amountOfSubstance_start=0.024,
           substanceData=Chemical.Examples.Substances.Bicarbonate_aqueous)
           annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-              rotation=0,
               origin={34,32})));
         Chemical.Components.Reaction HendersonHasselbalch(nP=2, nS=2)
         "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
@@ -1824,10 +1792,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>",      revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),experiment(StopTime=100),
-          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                  -100},{100,100}}), graphics),
-          __Dymola_experimentSetupOutput);
+</html>"),experiment(StopTime=100));
       end CarbonDioxideInBlood;
 
     end AcidBase;
@@ -2311,9 +2276,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>",   revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}), graphics),
-          __Dymola_experimentSetupOutput);
+</html>"));
       end Allosteric_Hemoglobin_MWC;
 
       model Allosteric_Hemoglobin2_MWC
@@ -2550,7 +2513,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),__Dymola_experimentSetupOutput);
+</html>"));
       end Allosteric_Hemoglobin2_MWC;
 
       model Hemoglobin_MKM_Specie "Part of model Hemoglobin_MKM_Adair"
@@ -2678,7 +2641,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
           Modelica.Blocks.Interfaces.RealOutput tHb_u(final unit="mol") annotation (
             Placement(transformation(
               extent={{-10,-10},{10,10}},
-              rotation=0,
               origin={100,-60})));
 
               parameter Modelica.SIunits.Time Tau = 0.1 "Slow down factor";
@@ -2832,16 +2794,13 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>
 
-<p>[1] Mateják M, Kulhánek T, Matouaek S. Adair-Based Hemoglobin Equilibrium with Oxygen, Carbon Dioxide and Hydrogen Ion Activity. Scandinavian Journal of Clinical &AMP; Laboratory Investigation; 2015</p>
+<p>[1] Matej&aacute;k M, Kulh&aacute;nek T, Matouaek S. Adair-Based Hemoglobin Equilibrium with Oxygen, Carbon Dioxide and Hydrogen Ion Activity. Scandinavian Journal of Clinical &AMP; Laboratory Investigation; 2015</p>
 
 <p>[2] Bauer C, Schr&ouml;der E. Carbamino compounds of haemoglobin in human adult and foetal blood. The Journal of physiology 1972;227:457-71.</p>
 
 <p>[3] Siggaard-Andersen O. Oxygen-Linked Hydrogen Ion Binding of Human Hemoglobin. Effects of Carbon Dioxide and 2, 3-Diphosphoglycerate I. Studies on Erythrolysate. Scandinavian Journal of Clinical &AMP; Laboratory Investigation 1971;27:351-60.</p>
 
-</html>"), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}),            graphics),
-          Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-              graphics));
+</html>"));
       end Hemoglobin_MKM_Specie;
 
       model Hemoglobin_MKM_Adair "Matejak,Kulhanek,Matousek (2014)"
@@ -3232,7 +3191,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             Tolerance=0.001), Documentation(info="<html>
 <p>Before silumation in &QUOT;Dymola 2014 FD01&QUOT; please set environment variable &QUOT;<code><b>Advanced.Define.NonLinearIterations&nbsp;=&nbsp;3&QUOT;</b></code> and chose &QUOT;Euler&QUOT; method!</p>
 
-<p>[1] Mateják M, Kulhánek T, Matouaek S. Adair-Based Hemoglobin Equilibrium with Oxygen, Carbon Dioxide and Hydrogen Ion Activity. Scandinavian Journal of Clinical &AMP; Laboratory Investigation; 2015</p>
+<p>[1] Matej&aacute;k M, Kulh&aacute;nek T, Matouaek S. Adair-Based Hemoglobin Equilibrium with Oxygen, Carbon Dioxide and Hydrogen Ion Activity. Scandinavian Journal of Clinical &AMP; Laboratory Investigation; 2015</p>
 
 <p>[2] Bauer C, Schr&ouml;der E. Carbamino compounds of haemoglobin in human adult and foetal blood. The Journal of physiology 1972;227:457-71.</p>
 
@@ -3242,9 +3201,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>", revisions="<html>
 <p><i>2014-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                  100}}), graphics),
-          __Dymola_experimentSetupOutput);
+</html>"));
       end Hemoglobin_MKM_Adair;
 
     end Hemoglobin;
@@ -3252,7 +3209,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   end Examples;
 
 
-  package Components
+  package Components "Chemical Components"
     extends Modelica.Icons.Package;
     model Solution
     "Chemical solution as homogenous mixture of the substances at constant pressure"
@@ -3319,9 +3276,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <h4>freeEntropy = &int; entropyChanges</h4>
 <h4>freeGibbsEnergy = &int; freeGibbsEnergyChanges</h4>
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end Solution;
 
     model Substance "Substance in solution"
@@ -3334,10 +3289,8 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
        Modelica.Blocks.Interfaces.RealOutput amountOfSubstance(start=amountOfSubstance_start, stateSelect=StateSelect.avoid, final unit="mol")
       "Current amount of the substance"   annotation (Placement(transformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,-60}),  iconTransformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,-60})));
 
       Real log10n(stateSelect=StateSelect.prefer)
@@ -3400,9 +3353,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>DfH .. free enthalpy of formation of the substance</p>
 <p>DfS .. free entropy of formation of the substance </p>
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end Substance;
 
     model Reaction "Chemical Reaction"
@@ -3436,7 +3387,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     /*  //for debugging:
   Real DissociationConstant "Dissociation constant as ratio of mole fractions";
 
-  Modelica.SIunits.MolarEnergy DrH 
+  Modelica.SIunits.MolarEnergy DrH
     "Standard Enthalpy Change of reaction (negative=exothermic)";
 
   Modelica.SIunits.Power lossHeat "Comsumed heat by the reaction";
@@ -3612,9 +3563,9 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 
             /*
   //for debugging
-  Real kH(final unit="(mol/mol)/(Pa/Pa)", displayUnit="(mol/kg H2O)/bar at 25degC") 
+  Real kH(final unit="(mol/mol)/(Pa/Pa)", displayUnit="(mol/kg H2O)/bar at 25degC")
     "Henry's law coefficient such as liquid-gas concentration ratio at 25degC";
-  Modelica.SIunits.Temperature C(displayUnit="K") 
+  Modelica.SIunits.Temperature C(displayUnit="K")
     "Henry's law temperature dependence coefficient";
 
   Modelica.SIunits.Power lossHeat "Comsumed heat by the reaction";
@@ -3722,11 +3673,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <td></td>
 </tr>
 </table>
-</html>"),
-        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-            graphics),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end GasSolubility;
 
     model Membrane
@@ -3744,24 +3691,24 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
       "Time constant for other scaling of the transport rate";
      /*
   //for debugging
-   parameter Modelica.SIunits.MolarVolume Vm=18.1367e-6 
+   parameter Modelica.SIunits.MolarVolume Vm=18.1367e-6
     "Molar volume of the particle, defaultly set to water molar volume at 37degC";
 
-   
-   Modelica.SIunits.MoleFraction donnanRatio 
+
+   Modelica.SIunits.MoleFraction donnanRatio
     "Donnan's ratios  as  x(inside)/x(outside)";
 
-   Modelica.SIunits.OsmoticPressure opi 
+   Modelica.SIunits.OsmoticPressure opi
     "Osmotic pressure of the substance on inner side of membrane";
-   Modelica.SIunits.OsmoticPressure opo 
+   Modelica.SIunits.OsmoticPressure opo
     "Osmotic pressure of the substance on outer side of membrane";
 
-  Modelica.SIunits.ElectricPotential membranePotential 
+  Modelica.SIunits.ElectricPotential membranePotential
     "Current potential on membrane";
 
   Modelica.SIunits.Power lossHeat "Comsumed heat by the reaction";
 
-  Modelica.SIunits.ElectricPotential NernstPotential 
+  Modelica.SIunits.ElectricPotential NernstPotential
     "Nernst electric potential of the substance";
 */
     equation
@@ -3793,8 +3740,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>If zero-flow Donnan&apos;s equilibrium is reached. </p>
 </html>", revisions="<html>
 <p><i>2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics));
+</html>"));
     end Membrane;
 
     model Speciation
@@ -3967,9 +3913,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             graphics={                                                        Text(
               extent={{-22,-106},{220,-140}},
               lineColor={0,0,255},
-              textString="%name")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+              textString="%name")}));
     end Speciation;
 
     model Stream "Flow of whole solution"
@@ -4066,7 +4010,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   end Components;
 
 
-  package Sensors
+  package Sensors "Chemical sensors"
     extends Modelica.Icons.SensorsPackage;
 
     model MolarFlowSensor "Measure of molar flow"
@@ -4092,9 +4036,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics),
-        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+</html>"),        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
                 100,100}}), graphics={
             Line(
               points={{70,-10},{90,-10}},
@@ -4137,7 +4079,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,0})));
 
     equation
@@ -4180,7 +4121,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,0})));
 
   protected
@@ -4225,7 +4165,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,0})));
 
   protected
@@ -4270,7 +4209,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            rotation=0,
             origin={100,0})));
 
     equation
@@ -4297,7 +4235,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   end Sensors;
 
 
-  package Sources
+  package Sources "Chemical sources"
     extends Modelica.Icons.SourcesPackage;
 
     model AirSubstance "Substance with defined partial pressure"
@@ -4850,9 +4788,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
               lineColor={0,0,0},
               textString="K=%K")}),        Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end Clearance;
 
     model Degradation "Degradation of the substance"
@@ -5037,7 +4973,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   end Sources;
 
 
-  package Interfaces
+  package Interfaces "Chemical interfaces"
     extends Modelica.Icons.InterfacesPackage;
 
     package SubstanceModel "Base substance model"
@@ -5053,7 +4989,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
        parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol")=0
         "Enthalpy of formation of the substance in the selected state";
        parameter Modelica.SIunits.MolarEnergy DfG_25degC(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation at 25°C of the substance in the selected state";
+        "Gibbs enerfy of formation at 25�C of the substance in the selected state";
 
        parameter String References[:]={""}
         "References of these thermodynamical values";
@@ -5227,45 +5163,45 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     "Electro-chemical potential and molar flow of the substance in the solution"
       extends ChemicalPort;
 
-    /*  
+    /*
  //substance properties (expressed from sunstance definition and current state of the solution)
   output Modelica.SIunits.MolarMass molarWeight "Molar weight of the substance";
 
   output Modelica.SIunits.ChargeNumberOfIon z "Charge number of the substance";
 
   //substance properties dependent on solution
-  output Modelica.SIunits.MoleFraction x 
+  output Modelica.SIunits.MoleFraction x
     "Mole fraction of the substance in the solution";
 
-  output Modelica.SIunits.MolarEnthalpy molarEnthalpy(displayUnit="kJ/mol") 
+  output Modelica.SIunits.MolarEnthalpy molarEnthalpy(displayUnit="kJ/mol")
     "Molar enthalpy of the substance";
 
-  output Modelica.SIunits.MolarEntropy molarEntropy 
+  output Modelica.SIunits.MolarEntropy molarEntropy
     "Molar entropy of the substance";
 
-  output Modelica.SIunits.MolarVolume molarVolume 
+  output Modelica.SIunits.MolarVolume molarVolume
     "Molar volume of the substance";
 
-  output Modelica.SIunits.MolarEnergy u0 
+  output Modelica.SIunits.MolarEnergy u0
     "Chemical potential of the pure substance";
 
-  output Modelica.SIunits.MolarEnergy uPure 
+  output Modelica.SIunits.MolarEnergy uPure
     "Electro-Chemical potential of the pure substance";
 
-  output Modelica.SIunits.ActivityCoefficient activityCoefficient 
+  output Modelica.SIunits.ActivityCoefficient activityCoefficient
     "Activity coefficient of the substance";
 
   //solution properties
-  output Modelica.SIunits.Temperature temperature(displayUnit="degC") 
+  output Modelica.SIunits.Temperature temperature(displayUnit="degC")
     "Temperature of the solution";
 
-  output Modelica.SIunits.Pressure pressure(displayUnit="bar") 
+  output Modelica.SIunits.Pressure pressure(displayUnit="bar")
     "Pressure of the solution";
 
-  output Modelica.SIunits.ElectricPotential electricPotential 
+  output Modelica.SIunits.ElectricPotential electricPotential
     "Total electric potential of the solution";
 
-  output Modelica.SIunits.AmountOfSubstance amountOfSolution 
+  output Modelica.SIunits.AmountOfSubstance amountOfSolution
     "Total amount of all particles in the solution";
     */
 
@@ -5308,38 +5244,38 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   input Modelica.SIunits.ChargeNumberOfIon z "Charge number of the substance";
 
   //substance properties dependent on solution
-  input Modelica.SIunits.MoleFraction x 
+  input Modelica.SIunits.MoleFraction x
     "Mole fraction of the substance in the solution";
 
-  input Modelica.SIunits.MolarEnthalpy molarEnthalpy(displayUnit="kJ/mol") 
+  input Modelica.SIunits.MolarEnthalpy molarEnthalpy(displayUnit="kJ/mol")
     "Molar enthalpy of the substance in the solution";
 
-  input Modelica.SIunits.MolarEntropy molarEntropy 
+  input Modelica.SIunits.MolarEntropy molarEntropy
     "Molar entropy of the substance in the solution";
 
-  input Modelica.SIunits.MolarVolume molarVolume 
+  input Modelica.SIunits.MolarVolume molarVolume
     "Molar volume of the substance";
 
-  input Modelica.SIunits.MolarEnergy u0 
+  input Modelica.SIunits.MolarEnergy u0
     "Chemical potential of the pure substance";
 
-  input Modelica.SIunits.MolarEnergy uPure 
+  input Modelica.SIunits.MolarEnergy uPure
     "Electro-Chemical potential of the pure substance";
 
-  input Modelica.SIunits.ActivityCoefficient activityCoefficient 
+  input Modelica.SIunits.ActivityCoefficient activityCoefficient
     "Activity coefficient of the substance in the solution";
 
   //solution properties
-  input Modelica.SIunits.Temperature temperature(displayUnit="degC") 
+  input Modelica.SIunits.Temperature temperature(displayUnit="degC")
     "Temperature of the solution";
 
-  input Modelica.SIunits.Pressure pressure(displayUnit="bar") 
+  input Modelica.SIunits.Pressure pressure(displayUnit="bar")
     "Pressure of the solution";
 
-  input Modelica.SIunits.ElectricPotential electricPotential 
+  input Modelica.SIunits.ElectricPotential electricPotential
     "Total electric potential of the solution";
 
-  input Modelica.SIunits.AmountOfSubstance amountOfSolution 
+  input Modelica.SIunits.AmountOfSubstance amountOfSolution
   "Total amount of all particles in the solution";
   */
 
@@ -5476,8 +5412,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     equation
       port_a.q + port_b.q = 0;
 
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics));
     end OnePortParallel;
 
     partial model OnePortSerial
@@ -5505,8 +5439,6 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
   port_b.electricPotential = port_a.electricPotential;
   port_b.amountOfSolution = port_a.amountOfSolution;
 */
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics));
     end OnePortSerial;
 
     partial model ConditionalSolutionFlow
@@ -5730,9 +5662,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
 <h4>electricEnergy = &int; ElectricPowers</h4>
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end PartialSolution;
 
     partial model PartialSubstanceInSolution
@@ -5836,8 +5766,9 @@ uses(Modelica(version="3.2.1")),
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
 <p><br><i>This Modelica package is&nbsp;<u>free</u>&nbsp;software and the use is completely at&nbsp;<u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see&nbsp;<a href=\"modelica://Physiolibrary.UsersGuide.ModelicaLicense2\">UsersGuide.ModelicaLicense2</a>&nbsp;or visit&nbsp;<a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i></p>
 </html>", info="<html>
-<p>In physiology books, chapters about chemical substances are organized by their types. The main reason for this is that each substance in the human body is regulated in a different way. For example the regulation of sodium is different from the regulation of potassium, and from the regulation of glucose, and so on. This view leads to the idea of having separate models of each substance. The origin of different flows and regulations is the (cellular) membrane. Water and solutions can cross it in different directions at the same time. Crossings occur for different reasons: water is driven mostly by osmotic gradients, electrolytes are driven by charge to reach Donnan&apos;s equilibrium, and some solutes can even be actively transported against their concentration or electrical gradients. And all this is specifically driven from the higher levels by neural and hormonal responses.&nbsp; </p>
-<p>In Physiolibrary flows and fluxes of solutes are supported mostly by the Chemical package. All parts inside this Chemical package use the connector ChemicalPort, which defines the molar concentration and molar flow/flux rate of one solute. This is the supporting infrastructure for modeling membrane diffusion, accumulations of substances, reversal chemical reactions, Henry&apos;s law of gas solubility, dilution with additional solvent flow, membrane reabsorption, chemical degradation and physiological clearance. </p>
+<p>At firs there was an equilibration of concentrations, but it does not work at all. In reality for almost all electro-chemical processes is equilibrated always the <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a>, not only the concentration.</p>
+<p>The pattern is so strong, that the equilibriation of electro-chemical potential can be aplicated for almost all components: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
+<p>Please see the <a href=\"modelica://Chemical.UsersGuide.Overview\">overview</a>.</p>
 </html>"));
 
 end Chemical;
