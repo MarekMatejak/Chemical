@@ -1,5 +1,5 @@
 within ;
-package Chemical "Chemical library (reactions, diffusions, semipermeable membranes, gas dissolutions, electrochemical cells, ...)"
+package Chemical "Library of Electro-Chemical models (chemical reactions, diffusions, membrane channels, gas dissolutions, electrochemical cells, ...)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -847,26 +847,24 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 </html>"));
     end Henry;
 
-    model MichaelisMenten "Basic enzyme kinetics"
+
+    model EnzymeKinetics "Basic enzyme kinetics"
       extends Modelica.Icons.Example;
 
       //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-      Sources.AmbientMoleFraction
-                              P(             substanceData(DfG_25degC=-Modelica.Constants.R*298.15*50),
-          MoleFraction=0.1)
+      Components.Substance    P(             substanceData(DfG_25degC=-Modelica.Constants.R*298.15*50))
         annotation (Placement(transformation(extent={{92,-12},{72,8}})));
-      Sources.AmbientMoleFraction
-                              S(MoleFraction=Km)
+      Components.Substance    S(amountOfSubstance_start=1)
         annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
-         parameter Modelica.SIunits.AmountOfSubstance tE=0.01
+         parameter Modelica.SIunits.AmountOfSubstance tE=1e-6
       "Total amount of enzyme";
          parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
       "Forward rate of second reaction";
          constant Modelica.SIunits.Concentration Km=0.1
       "Michaelis constant = substrate concentration at rate of half Vmax";
 
-        parameter Modelica.SIunits.MolarFlowRate Vmax=tE*k_cat
+        parameter Modelica.SIunits.MolarFlowRate Vmax=1e-5*k_cat
       "Maximal molar flow";
         parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution= 55.508
       "Amount of solution used in kinetics";
@@ -876,14 +874,10 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
             annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
           Components.Substance E(amountOfSubstance_start=tE/2)
             annotation (Placement(transformation(extent={{-10,38},{10,58}})));
-      Components.Reaction chemicalReaction(nS=2, ActivationEnergy=2*AmountOfSolution*Modelica.Constants.R
-            *298.15*log(2)/Vmax,
-        AmountOfSolution=AmountOfSolution)
+      Components.Reaction chemicalReaction(nS=2, KC=Vmax/(2*Modelica.Constants.R*298.15*log(2)))
         annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
 
-      Components.Reaction chemicalReaction1(nP=2, ActivationEnergy=2*AmountOfSolution*Modelica.Constants.R
-            *298.15*(50 - log(2))/Vmax,
-        AmountOfSolution=AmountOfSolution)
+      Components.Reaction chemicalReaction1(nP=2, KC=Vmax/(2*Modelica.Constants.R*298.15*(50 - log(2))))
         annotation (Placement(transformation(extent={{24,-10},{44,10}})));
 
       Components.Solution solution annotation (Placement(transformation(extent={{-100,
@@ -928,11 +922,21 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
           smooth=Smooth.None));
       connect(ES.solution, solution.solution)
         annotation (Line(points={{-8,-10},{-8,-100},{0,-100}},        smooth=Smooth.None));
+      connect(S.solution, solution.solution) annotation (Line(
+          points={{-88,-14},{-88,-100},{0,-100}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(P.solution, solution.solution) annotation (Line(
+          points={{88,-12},{88,-100},{0,-100}},
+          color={158,66,200},
+          smooth=Smooth.None));
           annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
-<p>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &GT;&GT; Km) &AMP;&AMP; ([P] &LT;&LT; K2)</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
@@ -947,11 +951,11 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
-<p>r = -C1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -C1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = C1 * R * T * ln(2)</p>
+<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
 <p>because xES=xE this time</p>
-<p>r = -C2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -C2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = C2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>C1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>C2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
+<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
+<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
+<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
 <p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
 <p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
 <p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
@@ -964,16 +968,22 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 <p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
 <p>We want to sutisfied the following inequality:</p>
-<p>-C2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&LT;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&LT;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
 <p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&LT;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
 <p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&LT;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
 <p>R*T*ln(xP*xE/xES) ?=&LT;? - uP&deg; - R*T*ln(2/x(Km)) </p>
 <p>xP*xE/xES ?=&LT;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
+<h4>The increasing of the amount of the enzyme</h4>
+<p>In the situation of doubled amount of enzyme should double also the maximal speed of the reaction, shouldn&apos;t?</p>
+<p>The assumptions of</p>
 </html>"),
-        experiment(StopTime=1));
-    end MichaelisMenten;
+        experiment(StopTime=200000),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+                100}}), graphics),
+        __Dymola_experimentSetupOutput);
+    end EnzymeKinetics;
 
     model StandardElectrochemicalCell
     "Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential "
@@ -1396,10 +1406,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
         import Chemical;
           extends Modelica.Icons.Example;
 
-        parameter Physiolibrary.Types.Concentration totalPO4=0.00115
-        "Total phosphate concentration";
-
-        Components.Substance H(
+         Components.Substance H(
           amountOfSubstance_start=55.6*10^(-7.4),
             substanceData=Chemical.Examples.Substances.Proton_aqueous)
         "hydrogen ions activity"   annotation (Placement(transformation(extent=
@@ -3380,9 +3387,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
       Interfaces.SubstanceUsePort substrates[nS] "Substrates"
         annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-      //solution properties:
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-      "Amount of all particles in the reacting solution";
+      extends Interfaces.ConditionalKinetics;
 
     /*  //for debugging:
   Real DissociationConstant "Dissociation constant as ratio of mole fractions";
@@ -3395,14 +3400,10 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 //  Modelica.SIunits.ElectricPotential StandardNernstPotential
 //    "Standard electric potential of half-cell rection";
 */
-      parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-      "To determine the reaction rate";
 
-      parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the reaction rate";
     equation
       //the main equation
-      rr = (AmountOfSolution/(Tau*ActivationEnergy))*((p * products.u) - (s * substrates.u));
+      rr = kC * ((p * products.u) - (s * substrates.u));
 
       //reaction molar rates
       rr*s = -substrates.q;
@@ -3526,18 +3527,10 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     model Diffusion "Solute diffusion"
       extends Icons.Diffusion;
       extends Interfaces.OnePortParallel;
-
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-      "Amount of all particles in the diffusing solution";
-
-      parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-      "To determine the diffusion rate";
-
-      parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the diffusion rate";
+      extends Interfaces.ConditionalKinetics;
 
     equation
-      port_b.q = (AmountOfSolution/(Tau*ActivationEnergy)) * (port_b.u - port_a.u);
+      port_b.q = kC * (port_b.u - port_a.u);
 
        annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3561,7 +3554,9 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
         annotation (Placement(transformation(extent={{-10,-110},{10,-90}}),
             iconTransformation(extent={{-10,-110},{10,-90}})));
 
-            /*
+       extends Interfaces.ConditionalKinetics;
+
+    /*
   //for debugging
   Real kH(final unit="(mol/mol)/(Pa/Pa)", displayUnit="(mol/kg H2O)/bar at 25degC")
     "Henry's law coefficient such as liquid-gas concentration ratio at 25degC";
@@ -3573,20 +3568,12 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 //  Modelica.SIunits.ElectricPotential StandardNernstPotential
 //    "Standard electric potential";
 */
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSubstanceInSurface = 1
-      "The amount of liquid-gaseous molecules in the liquid-gas junction to the dissolution rate";
-
-      parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-      "To determine the diffusion rate";
-
-      parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the diffusion rate";
 
     equation
       gas_port.q + liquid_port.q = 0;
 
       // the main equation
-      liquid_port.q = (AmountOfSubstanceInSurface/(Tau*ActivationEnergy))*(liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.018) else 0));
+      liquid_port.q = kC *(liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.018) else 0));
 
       //for debugging olny:
     /*
@@ -3680,16 +3667,9 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
     "Passive transport of the substance through semipermeable membrane"
       extends Icons.Membrane;
       extends Interfaces.OnePortParallel;
+      extends Interfaces.ConditionalKinetics;
 
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfMembraneChannels = 1
-      "The amount of membrane channels to determine the rate of transport";
-
-      parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-      "To determine the transport rate";
-
-      parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the transport rate";
-     /*
+    /*
   //for debugging
    parameter Modelica.SIunits.MolarVolume Vm=18.1367e-6
     "Molar volume of the particle, defaultly set to water molar volume at 37degC";
@@ -3713,7 +3693,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
 */
     equation
       //the main equation
-      port_a.q = (AmountOfMembraneChannels / (Tau*ActivationEnergy)) * (port_a.u - port_b.u);
+      port_a.q = kC * (port_a.u - port_b.u);
 
       //for debuging only:
     /*
@@ -3776,13 +3756,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-    //  Real fractions[NumberOfSubunits]
-    //    "Fractions of selected specific form of each subunit in macromolecule";
-        parameter Modelica.SIunits.MolarEnergy ActivationEnergy(displayUnit="kJ/mol")=10000
-      "To determine the speed of the equilibration";
-
-        parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the speed of the reaction";
+      extends Interfaces.ConditionalKinetics;
   protected
         Modelica.SIunits.MoleFraction xm
       "Mole fraction of all form of the macromolecule (in the conformation)";
@@ -3800,7 +3774,7 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
       //change of macromolecule = change of its subunits
       subunits.q = -port_a.q * ones(NumberOfSubunits);
 
-      port_a.q = (solution.n/(Tau*ActivationEnergy)) * (uEq - port_a.u);
+      port_a.q = kC * (uEq - port_a.u);
 
       xm = amountOfMacromolecule/solution.n;
       uEq = substanceModel.u0(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength)
@@ -5697,6 +5671,38 @@ package Chemical "Chemical library (reactions, diffusions, semipermeable membran
       solution.dI = 0;
       solution.dV = 0;
     end PartialSubstanceNoStorage;
+
+    partial model ConditionalKinetics
+    "Input of kinetics coefficient vs. parametric kinetics coefficient"
+
+      parameter Boolean useKineticsInput = false
+      "Is kinetics coefficient as an input?"
+      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Real KC(final unit="mol2.s-1.J-1")=1
+      "Kinetics rate coefficient if useKineticsInput=false"   annotation (
+          HideResult=true, Dialog(enable=not useKineticsInput));
+
+      Modelica.Blocks.Interfaces.RealInput kineticsCoefficientInput(start=KC, final unit="mol2.s-1.J-1")=
+         kC if useKineticsInput
+         annotation ( HideResult=true, Placement(transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,40}), iconTransformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={-60,40})));
+
+      Real kC(final unit="mol2.s-1.J-1") "Current kinetics coefficient";
+
+    equation
+      if not useKineticsInput then
+        kC = KC;
+      end if;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}), graphics));
+    end ConditionalKinetics;
   end Interfaces;
 
 
