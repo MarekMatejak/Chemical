@@ -4357,7 +4357,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     equation
       //electric
       pin.v = electricPotential;
-      pin.i = -Modelica.Constants.F*port_a.q;
+      pin.i = - z*Modelica.Constants.F*port_a.q;
 
       //pure substance
       x = 1;
