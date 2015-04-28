@@ -298,8 +298,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=0,
       DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
-      "Ag(s)";
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "Ag(s)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Silver_aqueous(
       MolarWeight=0.1078682,
@@ -394,8 +393,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=0,
       DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
-      "H2(g)";
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "H2(g)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData CarbonicAcid_aqueous(
       MolarWeight=0.062027,
@@ -508,8 +506,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       MolarWeight=0.032,
       DfH=0,
       DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
-      "O2(g)";
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "O2(g)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Oxygen_aqueous(
       MolarWeight=0.032,
@@ -763,11 +760,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Free dissolved CO2 in red cells"
       annotation (Placement(transformation(extent={{20,-32},{40,-12}})));
 
-
       Components.GasSolubility O2_dissolutionE_NIST(useWaterCorrection=false)
       annotation (Placement(transformation(extent={{78,44},{98,64}})));
-      Components.Substance O2_unbound_erythrocyte_NIST(substanceData(DfG_25degC
-          =-Modelica.Constants.R*298.15*log(0.0013*0.018)))
+      Components.Substance O2_unbound_erythrocyte_NIST(substanceData(DfG_25degC=
+           -Modelica.Constants.R*298.15*log(0.0013*0.018)))
       "Free dissolved O2 in red cells"
       annotation (Placement(transformation(extent={{48,-50},{68,-30}})));
     equation
@@ -4751,7 +4747,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     model Degradation "Degradation of the substance"
       extends Interfaces.PartialSubstanceNoStorage;
 
-      parameter Physiolibrary.Types.Time HalfTime
+      parameter Modelica.SIunits.Time HalfTime
       "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
     equation
@@ -4932,7 +4928,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
   package Interfaces "Chemical interfaces"
     extends Modelica.Icons.InterfacesPackage;
-
 
     connector ChemicalPort
     "Electro-chemical potential and molar change of the substance in the solution"
@@ -5829,7 +5824,7 @@ uses(Modelica(version="3.2.1")),
   Documentation(revisions="<html>
 <p>Licensed by Marek Matejak under the Modelica License 2</p>
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
-<p><br><i>This Modelica package is&nbsp;<u>free</u>&nbsp;software and the use is completely at&nbsp;<u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see&nbsp;<a href=\"modelica://Physiolibrary.UsersGuide.ModelicaLicense2\">UsersGuide.ModelicaLicense2</a>&nbsp;or visit&nbsp;<a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i></p>
+<p><br><i>This Modelica package is&nbsp;<u>free</u>&nbsp;software and the use is completely at&nbsp;<u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see&nbsp;<a href=\"modelica://Chemical.UsersGuide.ModelicaLicense2\">UsersGuide.ModelicaLicense2</a>&nbsp;or visit&nbsp;<a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i></p>
 </html>", info="<html>
 <p>At firs there was an equilibration of concentrations, but it does not work at all. In reality for almost all electro-chemical processes is equilibrated always the <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a>, not only the concentration.</p>
 <p>The pattern is so strong, that the equilibriation of electro-chemical potential can be aplicated for almost all components: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
