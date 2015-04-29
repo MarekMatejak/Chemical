@@ -1125,7 +1125,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Solution anode(amountOfSolution_start=1, ElectricGround=false)
         annotation (Placement(transformation(extent={{62,-40},{96,60}})));
 
-      Components.Solution solution1 annotation (Placement(transformation(extent={{-30,-60},
+      Components.Solution solution1(amountOfSolution_start=2)
+                                    annotation (Placement(transformation(extent={{-30,-60},
               {38,6}})));
 
       Components.Substance  Ag(substanceData=
@@ -1134,7 +1135,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-72,-26},{-52,-6}})));
       Components.Substance Cl(substanceData=
             Chemical.Examples.Substances.Chloride_aqueous,
-          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-2,-36},
+        amountOfSubstance_start=1)     annotation (Placement(transformation(extent={{-2,-36},
               {-22,-16}})));
       Components.Substance  AgCl(substanceData=
             Chemical.Examples.Substances.SilverChloride_solid)
@@ -1144,7 +1145,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         TotalPressure=100000) annotation (Placement(transformation(extent={{24,32},{44,52}})));
       Components.Substance H(substanceData=
             Chemical.Examples.Substances.Proton_aqueous,
-        amountOfSubstance_start=0.1)  annotation (Placement(transformation(extent={{6,-36},
+        amountOfSubstance_start=1)    annotation (Placement(transformation(extent={{6,-36},
               {26,-16}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
         annotation (Placement(transformation(extent={{-6,64},{14,84}})));
@@ -1237,6 +1238,158 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               false, extent={{-100,-100},{100,100}}), graphics));
     end ElectrochemicalCell;
 
+    model StandardLeadAcidPotential
+    "Standard potential of the lead acid battery"
+     extends Modelica.Icons.Example;
+
+      Components.Solution anode(amountOfSolution_start=1, ElectricGround=false)
+      annotation (Placement(transformation(extent={{54,-46},{92,62}})));
+
+       Components.Solution cathode(                          ElectricGround=
+          false, amountOfSolution_start=1)
+      annotation (Placement(transformation(extent={{-94,-50},{-56,58}})));
+
+
+      Sources.AmbientMoleFraction
+                            Pb(substanceData=Chemical.Examples.Substances.Lead_solid,
+        MoleFraction=1)
+        annotation (Placement(transformation(extent={{84,-34},{64,-14}})));
+      Sources.AmbientMoleFraction
+                           HSO4(                             substanceData=Chemical.Examples.Substances.HydrogenSulfate_aqueous,
+        MoleFraction=1)
+        annotation (Placement(transformation(extent={{-22,-58},{-2,-38}})));
+      Sources.AmbientMoleFraction
+                            PbSO4_(substanceData=Chemical.Examples.Substances.LeadSulfate_solid,
+        MoleFraction=1)
+        annotation (Placement(transformation(extent={{84,4},{64,24}})));
+      Sources.AmbientMoleFraction
+                           H(substanceData=
+            Chemical.Examples.Substances.Proton_aqueous, MoleFraction=1)
+                                      annotation (Placement(transformation(extent={{6,-28},
+              {26,-8}})));
+      Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
+        annotation (Placement(transformation(extent={{-6,60},{14,80}})));
+      Components.Reaction electrodeReaction(nP=2,
+        nS=4,
+        s={1,1,3,2})                                       annotation (Placement(transformation(
+            extent={{-10,10},{10,-10}},
+            rotation=90,
+            origin={-42,6})));
+      Components.Reaction electrodeReaction1(nS=2,
+        nP=3,
+        p={1,1,2})                                       annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=90,
+            origin={44,14})));
+
+      Sources.PureElectricParticle
+                           electrone(substanceData=
+            Chemical.Examples.Substances.Electrone_solid)
+                                     annotation (Placement(transformation(extent={{84,32},
+              {64,52}})));
+      Sources.PureElectricParticle
+                           electrone1(substanceData=
+            Chemical.Examples.Substances.Electrone_solid)
+                                      annotation (Placement(transformation(extent={{-86,-8},
+              {-66,12}})));
+      Sources.AmbientMoleFraction
+                            PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
+        MoleFraction=1)
+        annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=0,
+            origin={-74,-30})));
+      Sources.AmbientMoleFraction
+                           H2O(substanceData=Chemical.Examples.Substances.Water_liquid,
+        MoleFraction=1)
+        annotation (Placement(transformation(extent={{-2,-10},{-22,10}})));
+      Sources.AmbientMoleFraction
+                            PbSO4(substanceData=Chemical.Examples.Substances.LeadSulfate_solid,
+        MoleFraction=1)
+        annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=0,
+            origin={-74,32})));
+
+    equation
+      connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
+          points={{64,-24},{45.5,-24},{45.5,4},{44.5,4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
+          points={{-2,-48},{42,-48},{42,4},{43.5,4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
+          points={{64,14},{56,14},{56,28},{46,28},{46,24},{44.6667,24}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
+          points={{-42.5,16},{-42.5,32},{-64,32}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
+          points={{-41.5,16},{-40,16},{-40,22},{-34,22},{-34,0},{-22,0}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
+          points={{-64,-30},{-44,-30},{-44,-4},{-42.75,-4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
+          points={{-2,-48},{-40,-48},{-40,-4},{-42.25,-4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
+          points={{26,-18},{-41.75,-18},{-41.75,-4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
+          points={{-66,2},{-40,2},{-40,-4},{-41.25,-4}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(
+          points={{26,-18},{32,-18},{32,32},{42,32},{42,24},{44,24}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
+          points={{64,42},{44,42},{44,24},{43.3333,24}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+    connect(electrone1.pin, voltageSensor.p) annotation (Line(
+        points={{-86,2},{-98,2},{-98,70},{-6,70}},
+        color={0,0,255},
+        smooth=Smooth.None));
+    connect(electrone.pin, voltageSensor.n) annotation (Line(
+        points={{84,42},{98,42},{98,70},{14,70}},
+        color={0,0,255},
+        smooth=Smooth.None));
+    connect(electrone1.solution, cathode.solution) annotation (Line(
+        points={{-82,-8},{-82,-50},{-75,-50}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(electrone.solution, anode.solution) annotation (Line(
+        points={{80,32},{80,-46},{73,-46}},
+        color={158,66,200},
+        smooth=Smooth.None));
+      annotation (
+      experiment(StopTime=100),
+                              Diagram(coordinateSystem(preserveAspectRatio=false,
+                     extent={{-100,-100},{100,100}}), graphics),
+        __Dymola_experimentSetupOutput);
+    end StandardLeadAcidPotential;
+
     model LeadAcidBattery
     "The electrochemical cell: PbSO4(s) | Pb(s) | HSO4-(aq) , H+(aq) | PbO2(s) | PbSO4(s) + 2 H2O"
      extends Modelica.Icons.Example;
@@ -1244,24 +1397,25 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Solution anode(amountOfSolution_start=1, ElectricGround=false)
       annotation (Placement(transformation(extent={{54,-46},{92,62}})));
 
-       Components.Solution cathode(amountOfSolution_start=1, ElectricGround=
-          false)
+       Components.Solution cathode(                          ElectricGround=
+          false, amountOfSolution_start=1)
       annotation (Placement(transformation(extent={{-94,-50},{-56,58}})));
 
-      Components.Solution solution1(ElectricGround=false)
-                                    annotation (Placement(transformation(extent={{-32,-66},
+      Components.Solution solution1(ElectricGround=false,
+        amountOfSolution_start=2)   annotation (Placement(transformation(extent={{-32,-66},
               {40,18}})));
 
       Components.Substance  Pb(substanceData=Chemical.Examples.Substances.Lead_solid,
         amountOfSubstance_start=1)
         annotation (Placement(transformation(extent={{84,-34},{64,-14}})));
-      Components.Substance HSO4(amountOfSubstance_start=0.1, substanceData=Chemical.Examples.Substances.HydrogenSulfate_aqueous)
+      Components.Substance HSO4(                             substanceData=Chemical.Examples.Substances.HydrogenSulfate_aqueous,
+        amountOfSubstance_start=1)
         annotation (Placement(transformation(extent={{-22,-58},{-2,-38}})));
       Components.Substance  PbSO4_(substanceData=Chemical.Examples.Substances.LeadSulfate_solid)
         annotation (Placement(transformation(extent={{84,4},{64,24}})));
       Components.Substance H(substanceData=
             Chemical.Examples.Substances.Proton_aqueous,
-        amountOfSubstance_start=0.1)  annotation (Placement(transformation(extent={{6,-28},
+        amountOfSubstance_start=1)    annotation (Placement(transformation(extent={{6,-28},
               {26,-8}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
         annotation (Placement(transformation(extent={{-6,60},{14,80}})));
@@ -1288,18 +1442,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             Chemical.Examples.Substances.Electrone_solid)
                                       annotation (Placement(transformation(extent={{-84,-16},
               {-64,4}})));
-    Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
-      annotation (Placement(transformation(extent={{-34,76},{-14,96}})));
-    Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
-      annotation (Placement(transformation(extent={{22,76},{42,96}})));
       Components.Substance  PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
         amountOfSubstance_start=1)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={-74,-30})));
-      Components.Substance H2O(substanceData=Chemical.Examples.Substances.Water_liquid,
-          amountOfSubstance_start=55.5)
+      Components.Substance H2O(substanceData=Chemical.Examples.Substances.Water_liquid)
         annotation (Placement(transformation(extent={{-2,-10},{-22,10}})));
       Components.Substance  PbSO4(substanceData=Chemical.Examples.Substances.LeadSulfate_solid)
         annotation (Placement(transformation(
@@ -1308,7 +1457,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             origin={-74,32})));
 
     Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{72,-84},{92,-64}})));
+      annotation (Placement(transformation(extent={{88,-84},{108,-64}})));
     equation
       connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
           points={{64,-24},{45.5,-24},{45.5,4},{44.5,4}},
@@ -1316,7 +1465,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-          points={{-2,-48},{-2,-48},{42,-48},{42,-46},{42,-46},{42,4},{43.5,4}},
+          points={{-2,-48},{42,-48},{42,4},{43.5,4}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -1331,10 +1480,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
       connect(H.solution, solution1.solution) annotation (Line(points={{10,-28},
             {4,-28},{4,-66}},            smooth=Smooth.None));
-    connect(currentSensor.n, resistor.p) annotation (Line(
-        points={{-14,86},{22,86}},
-        color={0,0,255},
-        smooth=Smooth.None));
       connect(H2O.solution, solution1.solution) annotation (Line(
           points={{-6,-10},{-6,-30},{4,-30},{4,-66}},
           color={158,66,200},
@@ -1375,7 +1520,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
-          points={{64,42},{44,42},{44,36},{44,36},{44,24},{43.3333,24}},
+          points={{64,42},{44,42},{44,24},{43.3333,24}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -1411,18 +1556,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{84,42},{98,42},{98,70},{14,70}},
         color={0,0,255},
         smooth=Smooth.None));
-    connect(electrone1.pin, currentSensor.p) annotation (Line(
-        points={{-84,-6},{-98,-6},{-98,86},{-34,86}},
-        color={0,0,255},
-        smooth=Smooth.None));
-    connect(resistor.n, electrone.pin) annotation (Line(
-        points={{42,86},{98,86},{98,42},{84,42}},
-        color={0,0,255},
-        smooth=Smooth.None));
-    connect(electrone.pin, ground.p) annotation (Line(
-        points={{84,42},{98,42},{98,-64},{82,-64}},
-        color={0,0,255},
-        smooth=Smooth.None));
     connect(electrone1.solution, cathode.solution) annotation (Line(
         points={{-80,-16},{-80,-50},{-75,-50}},
         color={158,66,200},
@@ -1431,8 +1564,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{80,32},{80,-46},{73,-46}},
         color={158,66,200},
         smooth=Smooth.None));
+    connect(electrone.pin, ground.p) annotation (Line(
+        points={{84,42},{98,42},{98,-64}},
+        color={0,0,255},
+        smooth=Smooth.None));
       annotation (
-      experiment(StopTime=23100),
+      experiment(StopTime=100),
                               Diagram(coordinateSystem(preserveAspectRatio=false,
                      extent={{-100,-100},{100,100}}), graphics),
         __Dymola_experimentSetupOutput);
