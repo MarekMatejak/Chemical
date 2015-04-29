@@ -298,15 +298,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=0,
       DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "Ag(s)";
+      Cp=25.4,
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Ag(s)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Silver_aqueous(
       MolarWeight=0.1078682,
       z=1,
       DfH=105900,
       DfG_25degC=77100,
+      Cp=25.4,
       References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","Cp is estimated from solid phase"})
       "Ag+(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData SilverChloride_solid(
@@ -314,6 +316,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=-127030,
       DfG_25degC=-109720,
+      Cp=50.8,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "AgCl(s)";
 
@@ -322,21 +325,24 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=2,
       DfH=-542960,
       DfG_25degC=-542960 - 298.15*(33.67),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-        "}) "Ca++(aq)";
+      Cp=25.9,
+      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","Cp is estimated from solid phase"})
+      "Ca++(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Chloride_aqueous(
       MolarWeight=0.03545,
       z=-1,
       DfH=-167460,
       DfG_25degC=-131170,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      Cp=21.8,
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","Cp is estimated from gas phase"})
       "Cl-(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData CarbonDioxide_gas(
       MolarWeight=0.044,
       DfH=-393500,
       DfG_25degC=-394400,
+      Cp=37.1,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "CO2(g)";
@@ -346,7 +352,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       MolarWeight=0.044,
       DfH=-412900,
       DfG_25degC=-386200,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      Cp=37.1,
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","Cp is estimated from gas phase"})
       "CO2(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Carbonate_aqueous(
@@ -362,6 +369,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=-1,
       DfH=0,
       DfG_25degC=0,
+      Cp=0,
       References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme",
           "To solve standard electo-chemical cell potentials"}) "e-(s)";
 
@@ -370,16 +378,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=2,
       DfH=-87860,
       DfG_25degC=-87860 - 298.15*(-9.93),
+      Cp=25.1,
       References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-        "}) "Fe++(aq)";
+        ",     "Cp is setimated from solid phase"}) "Fe++(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Iron3_aqueous(
       MolarWeight=0.05585,
       z=3,
       DfH=-47700,
       DfG_25degC=-47700 - 298.15*(-124.77),
+      Cp=25.1,
       References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-"}) "Fe+++(aq)";
+  ",     "Cp is setimated from solid phase"}) "Fe+++(aq)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Glucose_solid(
       MolarWeight=0.1806,
@@ -393,6 +403,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=0,
       DfG_25degC=0,
+      Cp=28.8,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "H2(g)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData CarbonicAcid_aqueous(
@@ -406,6 +417,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       MolarWeight=0.018015,
       DfH=-241830,
       DfG_25degC=-228590,
+      Cp=33.6,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(g)";
 
@@ -413,6 +425,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       MolarWeight=0.018015,
       DfH=-285830,
       DfG_25degC=-237190,
+      Cp=75.3,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(l)";
 
@@ -540,14 +553,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=0,
       DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "Pb(s)";
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Pb(s)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData LeadDioxide_solid(
       MolarWeight=0.2391988,
       z=0,
       DfH=-276600,
       DfG_25degC=-219000,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
       "PbO2(s)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData LeadSulfate_solid(
@@ -555,7 +568,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       z=0,
       DfH=-918400,
       DfG_25degC=-811200,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
       "PbSO4(s)";
 
     constant Interfaces.SimpleSubstanceModel.SubstanceData Phosphate_aqueous(
@@ -577,6 +590,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "SO4--(aq)";
 
         //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
+        //Other source: http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf
     end Substances;
 
     model SimpleReaction
@@ -703,7 +717,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
       Components.Reaction reaction1
         annotation (Placement(transformation(extent={{-8,40},{12,60}})));
-      Components.Substance B1(amountOfSubstance_start=0.1, substanceData(DfH=-ReactionEnthalpy))
+      Components.Substance B1(amountOfSubstance_start=0.1, substanceData(DfH=ReactionEnthalpy))
         annotation (Placement(transformation(extent={{40,40},{20,60}})));
 
       Modelica.SIunits.HeatFlowRate q
@@ -1248,7 +1262,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
        Components.Solution cathode(                          ElectricGround=
           false, amountOfSolution_start=1)
       annotation (Placement(transformation(extent={{-94,-50},{-56,58}})));
-
 
       Sources.AmbientMoleFraction
                             Pb(substanceData=Chemical.Examples.Substances.Lead_solid,
@@ -3651,8 +3664,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       if ConstantTemperature then
         //Ideal thermal exchange between environment and solution to reach constant temperature
-        //0 = der(solution.T) = der((H-G)/S) = 0 = ((dH-dG)*S-(H-G)*dS)/(S*S)
-        heatFromEnvironment = solution.dG - solution.dH + (freeEnthalpy-solution.G)*solution.dS/solution.S;
+        //0 = der(solution.T) = der(heat/Cp) = 0 = (dHeat*Cp-heat*dCp)/(Cp*Cp)
+        heatFromEnvironment = heat*(solution.dCp/solution.Cp) - solution.dH;
       else
         //Thermally isolated without any thermal exchange with environment
         heatFromEnvironment = 0;
@@ -3711,8 +3724,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       //local changes of the solution
       solution.dH = molarEnthalpy*port_a.q;
-      solution.dS = molarEntropy*port_a.q;
-      solution.dG = port_a.u*port_a.q;
+      solution.dCp = molarHeatCapacity*port_a.q;
       solution.dn = port_a.q;
       solution.dm = molarMass*port_a.q;
       solution.i = Modelica.Constants.F * z * port_a.q;
@@ -4189,13 +4201,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       temperature = solution.T;
       pressure = solution.p;
       electricPotential = solution.v;
-      amountOfSolution = solution.n;
       moleFractionBasedIonicStrength = solution.I;
 
       //changes of the solution, where all subunits are also connected
       solution.dH = molarEnthalpy * port_a.q; // 0 = subunits.molarEnthalpy
-      solution.dS = molarEntropy * port_a.q - (subunits.u * subunits.q) / temperature + amountOfMacromolecule*sum(subunits.u)*der(temperature)/temperature^2; // dS(subunits) = (-G/T)' = (-G'T+GT')/T^2
-      solution.dG = port_a.u * port_a.q + subunits.u * subunits.q;
+      solution.dCp = molarHeatCapacity * port_a.q; // 0 = subunits.molarHeatCapacity
+    //  solution.dS = molarEntropy * port_a.q - (subunits.u * subunits.q) / temperature + amountOfMacromolecule*sum(subunits.u)*der(temperature)/temperature^2; // dS(subunits) = (-G/T)' = (-G'T+GT')/T^2
+    //  solution.dG = port_a.u * port_a.q + subunits.u * subunits.q;
       solution.dn = port_a.q + sum(subunits.q);
       solution.dm = molarMass * port_a.q; // 0 = subunits.molarMass
       solution.i = 0; // 0 = Modelica.Constants.F * (port_a.z * port_a.q + subunits.z * subunits.q);
@@ -4650,7 +4662,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       temperature = Temperature;
       pressure = TotalPressure;
       electricPotential = ElectricPotential;
-      amountOfSolution = TotalPressure*Volume/(Modelica.Constants.R*Temperature);
+    //  amountOfSolution = TotalPressure*Volume/(Modelica.Constants.R*Temperature);
       moleFractionBasedIonicStrength = 0;
 
       annotation ( Icon(coordinateSystem(
@@ -4706,9 +4718,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
       "Ionic strength";
 
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 1
-      "Amount of solution";
-
     equation
       x = 1;
 
@@ -4717,7 +4726,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
-      amountOfSolution = AmountOfSolution;
+     // amountOfSolution = AmountOfSolution;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -4772,11 +4781,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       x = 1;
 
       //the solution changes
-      solution.dH = 0;
-      solution.dS = 0;
-      solution.dG = 0;
       solution.dn = 0;
       solution.dm = 0;
+      solution.dH = 0;
+      solution.dCp = 0;
       solution.dI = (1/2) * z*solution.i/Modelica.Constants.F;
       solution.dV = 0;
 
@@ -4823,7 +4831,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Fixed molality of the substance if useMolalityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolalityInput));
 
-       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
+       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1KgSolvent = 55.508
       "Amount of all particles in the solution per one kilogram of solvent";
 
         parameter Boolean useMolalityInput = false
@@ -4850,14 +4858,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          n=Molality*KG;
        end if;
 
-      x = n/AmountOfSolution;
+      x = n/AmountOfSolutionPer1KgSolvent;
 
       //solution properties at the port
       temperature = Temperature;
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
-      amountOfSolution = AmountOfSolution;
+    //  amountOfSolution = AmountOfSolution;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -4902,7 +4910,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Fixed molarity of the substance if useMolarityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolarityInput));
 
-       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
+       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 55.508
       "Amount of all particles in the solution one liter of solvent";
 
         parameter Boolean useMolarityInput = false
@@ -4929,14 +4937,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          n=MolarConcentration*L;
        end if;
 
-      x = n/AmountOfSolution;
+      x = n/AmountOfSolutionIn1L;
 
       //solution properties at the port
       temperature = Temperature;
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
-      amountOfSolution = AmountOfSolution;
+    //  amountOfSolution = AmountOfSolution;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -4981,8 +4989,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Fixed mole fraction of the substance if useMoleFractionInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
-       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-      "Amount of all reacting particles in the solution";
+    //   parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
+    //    "Amount of all reacting particles in the solution";
 
         parameter Boolean useMoleFractionInput = false
       "Is mole fraction of the substance an input?"
@@ -5011,7 +5019,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
-      amountOfSolution = AmountOfSolution;
+    //  amountOfSolution = AmountOfSolution;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -5244,7 +5252,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end Degradation;
 
-    model Buffer
+    model AmbientBuffer
     "Source of substance to reach linear dependence between concentration and electrochemical potential"
          extends Interfaces.PartialSubstance;
 
@@ -5298,7 +5306,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
-      amountOfSolution = AmountOfSolution;
+     // amountOfSolution = AmountOfSolution;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -5334,7 +5342,101 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-    end Buffer;
+    end AmbientBuffer;
+
+    model BufferInSolution
+    "Source of substance to reach linear dependence between concentration and electrochemical potential"
+         extends Interfaces.PartialSubstanceInSolution;
+
+       parameter Modelica.SIunits.MoleFraction xBuffered_start=1e-7
+      "Initial value of mole fraction of the buffered substance";
+
+       parameter Real BufferValue(final unit="1") = 1
+      "Fixed buffer value (slope between x and -log10(x)) if useBufferValueInput=false"
+        annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
+
+       parameter Boolean useBufferValueInput = false
+      "Is buffer value of the substance an input?"
+        annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+
+        Real bufferValue(final unit="1");
+
+      Modelica.Blocks.Interfaces.RealInput bufferValueInput(
+        final unit="mol/mol",
+        start=BufferValue)=bufferValue if
+           useBufferValueInput annotation (HideResult=true, Placement(transformation(
+              extent={{-120,-20},{-80,20}})));
+
+       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
+      "Amount of all particles in the buffering solution";
+
+      parameter Modelica.SIunits.Time Tau = 1
+      "Time constant for other scaling of the buffering rate";
+
+      Modelica.SIunits.AmountOfSubstance nBuffered;
+      Modelica.SIunits.MoleFraction xBuffered;
+    initial equation
+      xBuffered = xBuffered_start;
+    equation
+      if not useBufferValueInput then
+        bufferValue = BufferValue;
+      end if;
+
+      der(nBuffered) = port_a.q;
+      xBuffered = nBuffered/AmountOfSolution;
+      port_a.q = (AmountOfSolution/Tau)*(-xBuffered -log10(x)*bufferValue);
+
+      //solution properties at the port
+    /*  temperature = Temperature;
+  pressure = Pressure;
+  electricPotential = ElectricPotential;
+  moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+ // amountOfSolution = AmountOfSolution;
+ */
+
+      solution.dH = 0; //does not consume or produce heat
+      solution.dCp = 0; //does not change the heat capacity
+      solution.dn = 0;
+      solution.dm = 0;
+      solution.i = 0;
+      solution.dI = 0;
+      solution.dV = 0;
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={0,0,0},
+              pattern=LinePattern.None,
+              fillColor={0,0,127},
+              fillPattern=FillPattern.CrossDiag),
+            Line(
+              points={{-62,0},{56,0}},
+              color={191,0,0},
+              thickness=0.5),
+            Polygon(
+              points={{38,-20},{38,20},{78,0},{38,-20}},
+              lineColor={191,0,0},
+              fillColor={191,0,0},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,150},{150,110}},
+              textString="%name",
+              lineColor={0,0,255}),
+            Text(
+              extent={{-104,-76},{100,-100}},
+              lineColor={0,0,0},
+              textString="%T K"),
+            Text(
+              extent={{94,-4},{-94,-78}},
+              lineColor={0,0,0},
+              textString="n")}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end BufferInSolution;
   end Sources;
 
 
@@ -5630,6 +5732,20 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
      end molarVolume;
 
+     replaceable function molarHeatCapacity
+      "Molar heat capacity of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=101325 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarHeatCapacity molarHeatCapacity
+        "Molar heat capacity";
+     end molarHeatCapacity;
+
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5655,6 +5771,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
+
+          parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
+        "Molar heat capacity of the substance";
 
           parameter String References[:]={""}
         "References of these thermodynamical values";
@@ -5711,6 +5830,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          //incompressible: molarVolume := constant;
      end molarVolume;
 
+     redeclare function extends molarHeatCapacity
+      "Molar heat capacity of the substance"
+     algorithm
+         molarHeatCapacity := substanceData.Cp;
+     end molarHeatCapacity;
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5754,9 +5878,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength(start=0)
       "Ionic strength of the solution";
 
-      Modelica.SIunits.AmountOfSubstance amountOfSolution
-      "Amount of all solution particles";
-
       Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
 
       Modelica.SIunits.MolarEnthalpy molarEnthalpy
@@ -5772,6 +5893,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Electro-Chemical potential of the pure substance";
 
       Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
+
+      Modelica.SIunits.MolarHeatCapacity molarHeatCapacity
+      "Molar heat capacity of the substance";
 
     equation
       //define the substance
@@ -5802,6 +5926,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       u0 = substanceModel.u0(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       uPure = substanceModel.uPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarVolume = substanceModel.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      molarHeatCapacity = substanceModel.molarHeatCapacity(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
       a = gamma*x;
 
@@ -5940,17 +6065,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       //heat port
       Modelica.SIunits.Temperature T "Temperature of the solution";
-      flow Modelica.SIunits.EnthalpyFlowRate dH
-      "Enthalpy change of the solution";
+      flow Modelica.SIunits.EnthalpyFlowRate dH "heat change of the solution";
 
-      //entropy
-      Modelica.SIunits.Entropy S "Free entropy";
-      flow Modelica.SIunits.EntropyFlowRate dS "Entropy change of the solution";
-
-      //free Gibbs energy
-      Modelica.SIunits.Energy G "Free Gibbs energy";
-      flow Modelica.SIunits.EnergyFlowRate dG
-      "Gibbs energy change of the solution";
+      //heat capacity from the composition of the solution
+      Modelica.SIunits.HeatCapacity Cp "Heat capacity at constant pressure";
+      flow Real dCp(final unit="J/(K.s)")
+      "Change of heat capacity at constant pressure";
 
       //electric port
       Modelica.SIunits.ElectricPotential v "Electric potential in the solution";
@@ -5978,25 +6098,24 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     partial model PartialSolution
     "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
-      parameter Modelica.SIunits.MolarHeatCapacity Cp_start = 75.4
-      "Initial heat capacity of the solution at constant pressure"
-        annotation (Dialog(group="Initialization"));
-
       parameter Modelica.SIunits.AmountOfSubstance amountOfSolution_start=55.508
       "Initial amount of the solution (default is amount of pure water in 1kg)"
-         annotation (Dialog(group="Initialization"));
-
-      parameter Modelica.SIunits.Volume volume_start=1/0.997
-      "Initial volume of the solution (default is volume of pure water in 1kg at 25degC)"
          annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.Mass mass_start=1
       "Initial mass of the solution (default 1kg)"
          annotation (Dialog(group="Initialization"));
 
+      parameter Modelica.SIunits.Volume volume_start=1/0.997
+      "Initial volume of the solution (default is volume of pure water in 1kg at 25degC)"
+         annotation (Dialog(group="Initialization"));
+
       parameter Modelica.SIunits.Temperature temperature_start=298.15
       "Initial temperature of the solution"
          annotation (Dialog(group="Initialization"));
+       parameter Modelica.SIunits.HeatCapacity Cp_start = 75.4
+      "Initial heat capacity of the solution at constant pressure"
+        annotation (Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.ElectricCharge electricCharge_start=0
       "Initial electric charge of the solution"
@@ -6012,7 +6131,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.ElectricCharge charge(start=electricCharge_start)
       "Current amount of all substances in the solution";
 
-      Modelica.SIunits.Enthalpy freeEnthalpy(start=temperature_start*Cp_start*amountOfSolution_start)
+      Modelica.SIunits.Enthalpy heat(start=temperature_start*Cp_start)
       "Free enthalpy of the solution";
 
       Interfaces.SolutionPort solution "Solution nonflows and flows"
@@ -6020,8 +6139,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             transformation(extent={{-80,-80},{-60,-60}}),iconTransformation(extent={{-2,-102},{2,-98}})));
 
       //for debuging only:
-      Modelica.SIunits.MolarHeatCapacity Cp=freeEnthalpy/(solution.T*amountOfSolution)
-      "Current heat capacity of the solution";
+    //  Modelica.SIunits.HeatCapacity Cp "Current heat capacity of the solution";
 
       //Valid only, if you are sure with molarVolume calculation of the substances.
       Modelica.SIunits.Volume volume(start=volume_start)
@@ -6042,9 +6160,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       mass = mass_start;
       volume = volume_start;
       charge = electricCharge_start;
-      freeEnthalpy = temperature_start*Cp_start*amountOfSolution_start;
-      solution.S = Cp_start*amountOfSolution_start;
-      solution.G = 0;
+      heat = temperature_start*Cp_start;
+      solution.Cp = Cp_start;
       solution.I = ionicStrength_start;
     equation
 
@@ -6057,10 +6174,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.m = mass;
 
       //heat
-      der(solution.S) = solution.dS;
-      der(freeEnthalpy) = solution.dH + heatFromEnvironment;
-      der(solution.G) = solution.dG;
-      solution.T = (freeEnthalpy-solution.G)/solution.S;
+      der(heat) = solution.dH + heatFromEnvironment;
+      der(solution.Cp) = solution.dCp; //The heat capacities are additive in solutions: http://nvlpubs.nist.gov/nistpubs/jres/4/jresv4n2p313_A2b.pdf
+      solution.T = heat/solution.Cp;
 
       //electric
       der(charge) = solution.i;
@@ -6095,6 +6211,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     "Substance properties for components, where the substance is connected with the solution"
       extends PartialSubstance;
 
+      Modelica.SIunits.AmountOfSubstance amountOfSolution
+      "Amount of all solution particles";
+
       SolutionPort            solution
       "To connect substance with solution, where is pressented"                                  annotation (Placement(transformation(
               extent={{-70,-110},{-50,-90}}),iconTransformation(extent={{-70,-110},{
@@ -6116,8 +6235,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       //solution is not changed by the non-accumulating components
       //duality allows to change it only by accumulation components
       solution.dH = 0;
-      solution.dS = 0;
-      solution.dG = 0;
+      solution.dCp = 0;
       solution.dn = 0;
       solution.dm = 0;
       solution.i = 0;
