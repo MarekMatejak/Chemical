@@ -293,300 +293,304 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     package Substances "Definitions of substances"
         extends Modelica.Icons.Package;
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Silver_solid(
-      MolarWeight=0.1078682,
-      z=0,
-      DfH=0,
-      DfG_25degC=0,
-      Cp=25.4,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Ag(s)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Silver_solid(
+        MolarWeight=0.1078682,
+        z=0,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        Cp=25.4,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Ag(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Silver_aqueous(
-      MolarWeight=0.1078682,
-      z=1,
-      DfH=105900,
-      DfG_25degC=77100,
-      Cp=25.4,
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","Cp is estimated from solid phase"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Silver_aqueous(
+        MolarWeight=0.1078682,
+        z=1,
+        DfH_1bar=105900,
+        DfG_25degC_1bar=77100,
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "Ag+(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData SilverChloride_solid(
-      MolarWeight=0.14332,
-      z=0,
-      DfH=-127030,
-      DfG_25degC=-109720,
-      Cp=50.8,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        SilverChloride_solid(
+        MolarWeight=0.14332,
+        z=0,
+        DfH_1bar=-127030,
+        DfG_25degC_1bar=-109720,
+        Cp=50.8,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "AgCl(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Calcium_aqueous(
-      MolarWeight=0.0401,
-      z=2,
-      DfH=-542960,
-      DfG_25degC=-542960 - 298.15*(33.67),
-      Cp=25.9,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","Cp is estimated from solid phase"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Calcium_aqueous(
+        MolarWeight=0.0401,
+        z=2,
+        DfH_1bar=-542960,
+        DfG_25degC_1bar=-542960 - 298.15*(33.67),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "Ca++(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Chloride_aqueous(
-      MolarWeight=0.03545,
-      z=-1,
-      DfH=-167460,
-      DfG_25degC=-131170,
-      Cp=21.8,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","Cp is estimated from gas phase"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Chloride_aqueous(
+        MolarWeight=0.03545,
+        z=-1,
+        DfH_1bar=-167460,
+        DfG_25degC_1bar=-131170,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "Cl-(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData CarbonDioxide_gas(
-      MolarWeight=0.044,
-      DfH=-393500,
-      DfG_25degC=-394400,
-      Cp=37.1,
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IdealGasSubstanceModel.SubstanceData
+        CarbonDioxide_gas(
+        MolarWeight=0.044,
+        DfH_1bar=-393500,
+        DfG_25degC_1bar=-394400,
+        Cp=37.1,
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "CO2(g)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData
-      CarbonDioxide_aqueous(
-      MolarWeight=0.044,
-      DfH=-412900,
-      DfG_25degC=-386200,
-      Cp=37.1,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","Cp is estimated from gas phase"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        CarbonDioxide_aqueous(
+        MolarWeight=0.044,
+        DfH_1bar=-412900,
+        DfG_25degC_1bar=-386200,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "CO2(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Carbonate_aqueous(
-      MolarWeight=0.06001,
-      z=-2,
-      DfH=-676300,
-      DfG_25degC=-676300 - 298.15*(-497.065),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Carbonate_aqueous(
+        MolarWeight=0.06001,
+        z=-2,
+        DfH_1bar=-676300,
+        DfG_25degC_1bar=-676300 - 298.15*(-497.065),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "CO3--(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Electrone_solid(
-      MolarWeight=5.4857990946e-7,
-      z=-1,
-      DfH=0,
-      DfG_25degC=0,
-      Cp=0,
-      References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme",
-          "To solve standard electo-chemical cell potentials"}) "e-(s)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Electrone_solid(
+        MolarWeight=5.4857990946e-7,
+        z=-1,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        Cp=0,
+        References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme","To solve standard electo-chemical cell potentials"}) "e-(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Iron2_aqueous(
-      MolarWeight=0.05585,
-      z=2,
-      DfH=-87860,
-      DfG_25degC=-87860 - 298.15*(-9.93),
-      Cp=25.1,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-        ",     "Cp is setimated from solid phase"}) "Fe++(aq)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Iron2_aqueous(
+        MolarWeight=0.05585,
+        z=2,
+        DfH_1bar=-87860,
+        DfG_25degC_1bar=-87860 - 298.15*(-9.93),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
+        "}) "Fe++(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Iron3_aqueous(
-      MolarWeight=0.05585,
-      z=3,
-      DfH=-47700,
-      DfG_25degC=-47700 - 298.15*(-124.77),
-      Cp=25.1,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-  ",     "Cp is setimated from solid phase"}) "Fe+++(aq)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Iron3_aqueous(
+        MolarWeight=0.05585,
+        z=3,
+        DfH_1bar=-47700,
+        DfG_25degC_1bar=-47700 - 298.15*(-124.77),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
+  "}) "Fe+++(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Glucose_solid(
-      MolarWeight=0.1806,
-      DfH=-1274500,
-      DfG_25degC=-1274500 - 298.15*(-1220.66),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Glucose_solid(
+        MolarWeight=0.1806,
+        DfH_1bar=-1274500,
+        DfG_25degC_1bar=-1274500 - 298.15*(-1220.66),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
 "}) "Glu(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Hydrogen_gas(
-      MolarWeight=0.00201588,
-      z=0,
-      DfH=0,
-      DfG_25degC=0,
-      Cp=28.8,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "H2(g)";
+      constant Interfaces.IdealGasSubstanceModel.SubstanceData Hydrogen_gas(
+        MolarWeight=0.00201588,
+        z=0,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        Cp=28.8,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "H2(g)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData CarbonicAcid_aqueous(
-      MolarWeight=0.062027,
-      DfH=-699700,
-      DfG_25degC=-699700 - 298.15*(-256.582),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        CarbonicAcid_aqueous(
+        MolarWeight=0.062027,
+        DfH_1bar=-699700,
+        DfG_25degC_1bar=-699700 - 298.15*(-256.582),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2CO3(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Water_gas(
-      MolarWeight=0.018015,
-      DfH=-241830,
-      DfG_25degC=-228590,
-      Cp=33.6,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IdealGasSubstanceModel.SubstanceData Water_gas(
+        MolarWeight=0.018015,
+        DfH_1bar=-241830,
+        DfG_25degC_1bar=-228590,
+        Cp=33.6,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(g)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Water_liquid(
-      MolarWeight=0.018015,
-      DfH=-285830,
-      DfG_25degC=-237190,
-      Cp=75.3,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Water_liquid(
+        MolarWeight=0.018015,
+        DfH_1bar=-285830,
+        DfG_25degC_1bar=-237190,
+        Cp=75.3,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(l)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData
-      DihydrogenPhosphate_aqueous(
-      MolarWeight=0.095,
-      z=-1,
-      DfH=-1302480,
-      DfG_25degC=-1302480 - 298.15*(-561.395),
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        DihydrogenPhosphate_aqueous(
+        MolarWeight=0.095,
+        z=-1,
+        DfH_1bar=-1302480,
+        DfG_25degC_1bar=-1302480 - 298.15*(-561.395),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "H2PO4-(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Hydronium_aqueous(
-      MolarWeight=0.019022,
-      z=1,
-      DfH=-285840,
-      DfG_25degC=-285840 - 298.15*(-163.17),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Hydronium_aqueous(
+        MolarWeight=0.019022,
+        z=1,
+        DfH_1bar=-285840,
+        DfG_25degC_1bar=-285840 - 298.15*(-163.17),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H3O+(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData
-      PhosphoricAcid_aqueous(
-      MolarWeight=0.095,
-      DfH=-1288000,
-      DfG_25degC=-1288000 - 298.15*(-496.4),
-      References={"https://en.wikipedia.org/wiki/Phosphoric_acid",
-          "https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        PhosphoricAcid_aqueous(
+        MolarWeight=0.095,
+        DfH_1bar=-1288000,
+        DfG_25degC_1bar=-1288000 - 298.15*(-496.4),
+        References={"https://en.wikipedia.org/wiki/Phosphoric_acid","https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"})
       "H3PO4(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Proton_aqueous(
-      MolarWeight=0.001007,
-      z=1,
-      DfH=0,
-      DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Proton_aqueous(
+        MolarWeight=0.001007,
+        z=1,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H+(aq)";
                  // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Bicarbonate_aqueous(
-      MolarWeight=0.06102,
-      z=-1,
-      DfH=-691100,
-      DfG_25degC=-691100 - 298.15*(-348.82),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Bicarbonate_aqueous(
+        MolarWeight=0.06102,
+        z=-1,
+        DfH_1bar=-691100,
+        DfG_25degC_1bar=-691100 - 298.15*(-348.82),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "HCO3-(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData
-      HydrogenPhosphate_aqueous(
-      MolarWeight=0.095,
-      z=-2,
-      DfH=-1298700,
-      DfG_25degC=-1298700 - 298.15*(-686.232),
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        HydrogenPhosphate_aqueous(
+        MolarWeight=0.095,
+        z=-2,
+        DfH_1bar=-1298700,
+        DfG_25degC_1bar=-1298700 - 298.15*(-686.232),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "HPO4--(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData
-      HydrogenSulfate_aqueous(
-      MolarWeight=0.097,
-      z=-1,
-      DfH=-885750,
-      DfG_25degC=-752870,
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        HydrogenSulfate_aqueous(
+        MolarWeight=0.097,
+        z=-1,
+        DfH_1bar=-885750,
+        DfG_25degC_1bar=-752870,
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "HSO4-(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Potassium_aqueous(
-      MolarWeight=0.0391,
-      z=1,
-      DfH=-251200,
-      DfG_25degC=-251200 - 298.15*(103.97),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Potassium_aqueous(
+        MolarWeight=0.0391,
+        z=1,
+        DfH_1bar=-251200,
+        DfG_25degC_1bar=-251200 - 298.15*(103.97),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "K+(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Magnesium_aqueous(
-      MolarWeight=0.0243,
-      z=2,
-      DfH=-461960,
-      DfG_25degC=-461960 - 298.15*(-19.99),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Magnesium_aqueous(
+        MolarWeight=0.0243,
+        z=2,
+        DfH_1bar=-461960,
+        DfG_25degC_1bar=-461960 - 298.15*(-19.99),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
 ",    "http://www.vias.org/genchem/standard_enthalpies_table.html"}) "Mg++(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Sodium_aqueous(
-      MolarWeight=0.02299,
-      z=1,
-      DfH=-239660,
-      DfG_25degC=-239660 - 298.15*(74.49),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Sodium_aqueous(
+        MolarWeight=0.02299,
+        z=1,
+        DfH_1bar=-239660,
+        DfG_25degC_1bar=-239660 - 298.15*(74.49),
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "Na+(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Amonium_aqueous(
-      MolarWeight=0.01804,
-      z=1,
-      DfH=-132800,
-      DfG_25degC=-132800 - 298.15*(-178.77),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Amonium_aqueous(
+        MolarWeight=0.01804,
+        z=1,
+        DfH_1bar=-132800,
+        DfG_25degC_1bar=-132800 - 298.15*(-178.77),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
 "}) "NH4+(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Oxygen_gas(
-      MolarWeight=0.032,
-      DfH=0,
-      DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "O2(g)";
+      constant Interfaces.IdealGasSubstanceModel.SubstanceData Oxygen_gas(
+        MolarWeight=0.032,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        Cp=29.4,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "O2(g)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Oxygen_aqueous(
-      MolarWeight=0.032,
-      DfH=-11700,
-      DfG_25degC=16320,
-      References={
-          "http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf",
-          "https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Oxygen_aqueous(
+        MolarWeight=0.032,
+        DfH_1bar=-11700,
+        DfG_25degC_1bar=16320,
+        References={"http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf","https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"})
       "O2(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Hydroxide_aqueous(
-            MolarWeight=0.017006,
-            z=-1,
-            DfH=-229940,
-            DfG_25degC=-157300,
-            References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Hydroxide_aqueous(
+        MolarWeight=0.017006,
+        z=-1,
+        DfH_1bar=-229940,
+        DfG_25degC_1bar=-157300,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "OH-(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Lead_solid(
-      MolarWeight=0.2072,
-      z=0,
-      DfH=0,
-      DfG_25degC=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Pb(s)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData Lead_solid(
+        MolarWeight=0.2072,
+        z=0,
+        DfH_1bar=0,
+        DfG_25degC_1bar=0,
+        Cp=26.4,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Pb(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData LeadDioxide_solid(
-      MolarWeight=0.2391988,
-      z=0,
-      DfH=-276600,
-      DfG_25degC=-219000,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        LeadDioxide_solid(
+        MolarWeight=0.2391988,
+        z=0,
+        DfH_1bar=-276600,
+        DfG_25degC_1bar=-219000,
+        Cp = 64.6,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
       "PbO2(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData LeadSulfate_solid(
-      MolarWeight=0.30326,
-      z=0,
-      DfH=-918400,
-      DfG_25degC=-811200,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
-      "PbSO4(s)";
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        LeadSulfate_solid(
+        MolarWeight=0.30326,
+        z=0,
+        DfH_1bar=-918400,
+        DfG_25degC_1bar=-811200,
+        Cp=103.2,
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf",
+            "http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "PbSO4(s)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Phosphate_aqueous(
-      MolarWeight=0.095,
-      z=-3,
-      DfH=-1284070,
-      DfG_25degC=-1284070 - 298.15*(-866.946),
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Phosphate_aqueous(
+        MolarWeight=0.095,
+        z=-3,
+        DfH_1bar=-1284070,
+        DfG_25degC_1bar=-1284070 - 298.15*(-866.946),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "PO4---(aq)";
 
-    constant Interfaces.SimpleSubstanceModel.SubstanceData Sulphates_aqueous(
-      MolarWeight=0.09607,
-      z=-2,
-      DfH=-907500,
-      DfG_25degC=-907500 - 298.15*(-555.123),
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      constant Interfaces.IncompressibleSubstanceModel.SubstanceData
+        Sulphates_aqueous(
+        MolarWeight=0.09607,
+        z=-2,
+        DfH_1bar=-907500,
+        DfG_25degC_1bar=-907500 - 298.15*(-555.123),
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "SO4--(aq)";
 
         //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
@@ -610,7 +614,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Components.Reaction reaction annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
       Components.Substance B(
-        substanceData( DfG_25degC=-R*T_25degC*log(K)),
+        substanceData( DfG_25degC_1bar=-R*T_25degC*log(K)),
         amountOfSubstance_start=0.1)
         annotation (Placement(transformation(extent={{62,-8},{42,12}})));
 
@@ -660,7 +664,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{4,-8},{24,12}})));
       Components.Substance B(amountOfSubstance_start=0.1)
         annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-      Components.Substance C(substanceData(DfG_25degC=-R*T_25degC*log(Kx)), amountOfSubstance_start=0.1)
+      Components.Substance C(substanceData(DfG_25degC_1bar=-R*T_25degC*log(Kx)), amountOfSubstance_start=0.1)
         annotation (Placement(transformation(extent={{68,-8},{48,12}})));
 
     equation
@@ -708,7 +712,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
       Components.Reaction reaction
         annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
-      Components.Substance B( amountOfSubstance_start=0.1, substanceData(DfH=ReactionEnthalpy))
+      Components.Substance B( amountOfSubstance_start=0.1, substanceData(DfH_1bar=ReactionEnthalpy))
         annotation (Placement(transformation(extent={{40,-60},{20,-40}})));
 
       Components.Solution solution_at_constant_temperature
@@ -717,7 +721,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
       Components.Reaction reaction1
         annotation (Placement(transformation(extent={{-8,40},{12,60}})));
-      Components.Substance B1(amountOfSubstance_start=0.1, substanceData(DfH=ReactionEnthalpy))
+      Components.Substance B1(amountOfSubstance_start=0.1, substanceData(DfH_1bar=ReactionEnthalpy))
         annotation (Placement(transformation(extent={{40,40},{20,60}})));
 
       Modelica.SIunits.HeatFlowRate q
@@ -778,12 +782,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       annotation (Placement(transformation(extent={{8,-78},{102,14}})));
 
       Components.GasSolubility CO2_dissolutionP
-      annotation (Placement(transformation(extent={{-68,44},{-48,64}})));
+      annotation (Placement(transformation(extent={{-78,44},{-58,64}})));
       //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
 
       Components.Substance CO2_unbound_plasma(substanceData=Substances.CarbonDioxide_aqueous)
       "Free dissolved CO2 in blood plasma"
-      annotation (Placement(transformation(extent={{-84,-44},{-64,-24}})));
+      annotation (Placement(transformation(extent={{-90,-24},{-70,-4}})));
       Components.GasSolubility O2_dissolutionP
       annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
 
@@ -800,8 +804,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Sources.AirSubstance CO2_g_n2(
         substanceData=Substances.CarbonDioxide_gas,
-        PartialPressure=5332.8954966,
-        TotalPressure=101325.0144354)
+      PartialPressure=5332.8954966,
+      TotalPressure=101325.0144354)
         annotation (Placement(transformation(extent={{-56,78},{-36,98}})));
 
       Components.Substance CO2_unbound_erythrocyte(substanceData=Substances.CarbonDioxide_aqueous)
@@ -810,14 +814,20 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Components.GasSolubility O2_dissolutionE_NIST(useWaterCorrection=false)
       annotation (Placement(transformation(extent={{78,44},{98,64}})));
-      Components.Substance O2_unbound_erythrocyte_NIST(substanceData(DfG_25degC=
+      Components.Substance O2_unbound_erythrocyte_NIST(substanceData(DfG_25degC_1bar=
            -Modelica.Constants.R*298.15*log(0.0013*0.018)))
       "Free dissolved O2 in red cells"
       annotation (Placement(transformation(extent={{48,-50},{68,-30}})));
+      Components.Substance CO2_unbound_plasma_NIST(substanceData(DfG_25degC_1bar=
+            Substances.CarbonDioxide_gas.DfG_25degC_1bar - Modelica.Constants.R*
+            298.15*log(0.034*0.018))) "Free dissolved CO2 in blood plasma"
+      annotation (Placement(transformation(extent={{-84,-50},{-64,-30}})));
+      Components.GasSolubility CO2_dissolutionP1(useWaterCorrection=false)
+      annotation (Placement(transformation(extent={{-62,44},{-42,64}})));
     equation
 
     connect(CO2_g_n2.port_a, CO2_dissolutionP.gas_port) annotation (Line(
-        points={{-36,88},{-26,88},{-26,72},{-58,72},{-58,64}},
+        points={{-36,88},{-26,88},{-26,72},{-68,72},{-68,64}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
@@ -828,7 +838,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
     connect(CO2_dissolutionP.liquid_port, CO2_unbound_plasma.port_a)
       annotation (Line(
-        points={{-58,44},{-58,-34},{-64,-34}},
+        points={{-68,44},{-68,-14},{-70,-14}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
@@ -851,7 +861,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
     connect(CO2_unbound_plasma.solution, blood_plasma.solution) annotation (
         Line(
-        points={{-80,-44},{-80,-76},{-54,-76}},
+        points={{-86,-24},{-86,-76},{-54,-76}},
         color={0,0,0},
         smooth=Smooth.None));
     connect(O2_unbound_plasma.solution, blood_plasma.solution) annotation (Line(
@@ -879,11 +889,29 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{52,-50},{52,-78},{55,-78}},
         color={0,0,0},
         smooth=Smooth.None));
+    connect(CO2_unbound_plasma_NIST.solution, blood_plasma.solution)
+      annotation (Line(
+        points={{-80,-50},{-80,-74},{-54,-74},{-54,-76}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(CO2_unbound_plasma_NIST.port_a, CO2_dissolutionP1.liquid_port)
+      annotation (Line(
+        points={{-64,-40},{-52,-40},{-52,44}},
+        color={158,66,200},
+        thickness=1,
+        smooth=Smooth.None));
+    connect(CO2_dissolutionP1.gas_port, CO2_g_n2.port_a) annotation (Line(
+        points={{-52,64},{-44,64},{-44,88},{-36,88}},
+        color={158,66,200},
+        thickness=1,
+        smooth=Smooth.None));
       annotation (
         experiment(StopTime=1),
         Documentation(info="<html>
 <p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
-</html>"));
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
     end Henry;
 
     model EnzymeKinetics "Basic enzyme kinetics"
@@ -893,7 +921,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 -100},{100,100}})));
 
       //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-      Components.Substance    P(             substanceData(DfG_25degC=-Modelica.Constants.R*298.15*50))
+      Components.Substance    P(             substanceData(DfG_25degC_1bar=-Modelica.Constants.R*298.15*50))
         annotation (Placement(transformation(extent={{92,-12},{72,8}})));
       Components.Substance    S(amountOfSubstance_start=1)
         annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
@@ -910,7 +938,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution= 55.508
       "Amount of solution used in kinetics";
 
-          Components.Substance ES(substanceData(DfG_25degC=-Modelica.Constants.R*298.15*log(2/Km)),
+          Components.Substance ES(substanceData(DfG_25degC_1bar=-Modelica.Constants.R*298.15*log(2/Km)),
           amountOfSubstance_start=tE/2)
             annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
           Components.Substance E(amountOfSubstance_start=tE/2)
@@ -1963,7 +1991,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Chemical.Components.Reaction react[n](each nP=2)
           annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
-        Chemical.Components.Substance HA[n](substanceData(DfG_25degC=DfG), each amountOfSubstance_start=
+        Chemical.Components.Substance HA[n](substanceData(DfG_25degC_1bar=DfG), each amountOfSubstance_start=
              0.00033) "protonated acid groups"
           annotation (Placement(transformation(extent={{-76,-2},{-56,18}})));
 
@@ -2274,47 +2302,47 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               AmountOfSolutionIn1L)
           annotation (Placement(transformation(extent={{-66,-102},{100,124}})));
 
-        Components.Substance oxygen_unbound(substanceData( DfG_25degC=GO2aq),
+        Components.Substance oxygen_unbound(substanceData( DfG_25degC_1bar=GO2aq),
             amountOfSubstance_start(displayUnit="mol") = 1e-5)
           annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
 
-        Components.Substance T0(substanceData( DfG_25degC=GT0), amountOfSubstance_start=
+        Components.Substance T0(substanceData( DfG_25degC_1bar=GT0), amountOfSubstance_start=
               THb)
           annotation (Placement(transformation(extent={{34,78},{54,98}})));
 
-        Components.Substance T1(substanceData( DfG_25degC=GT1),
+        Components.Substance T1(substanceData( DfG_25degC_1bar=GT1),
             amountOfSubstance_start=THb*1e-4)
           annotation (Placement(transformation(extent={{34,36},{54,56}})));
 
-        Components.Substance T2(substanceData( DfG_25degC=GT2),
+        Components.Substance T2(substanceData( DfG_25degC_1bar=GT2),
             amountOfSubstance_start=THb*1e-8)
           annotation (Placement(transformation(extent={{34,-10},{54,10}})));
 
-        Components.Substance R1(substanceData( DfG_25degC=GR1),
+        Components.Substance R1(substanceData( DfG_25degC_1bar=GR1),
             amountOfSubstance_start=THb*1e-8)
           annotation (Placement(transformation(extent={{-20,36},{0,56}})));
 
-        Components.Substance R2(substanceData( DfG_25degC=GR2),
+        Components.Substance R2(substanceData( DfG_25degC_1bar=GR2),
             amountOfSubstance_start=THb*1e-10)
           annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
 
-        Components.Substance T3(substanceData( DfG_25degC=GT3),
+        Components.Substance T3(substanceData( DfG_25degC_1bar=GT3),
             amountOfSubstance_start=THb*1e-12)
           annotation (Placement(transformation(extent={{34,-54},{54,-34}})));
 
-        Components.Substance R3(substanceData( DfG_25degC=GR3),
+        Components.Substance R3(substanceData( DfG_25degC_1bar=GR3),
             amountOfSubstance_start=THb*1e-12)
           annotation (Placement(transformation(extent={{-20,-54},{0,-34}})));
 
-        Components.Substance T4(substanceData( DfG_25degC=GT4),
+        Components.Substance T4(substanceData( DfG_25degC_1bar=GT4),
             amountOfSubstance_start=THb*1e-17)
           annotation (Placement(transformation(extent={{34,-92},{54,-72}})));
 
-        Components.Substance R4(substanceData( DfG_25degC=GR4),
+        Components.Substance R4(substanceData( DfG_25degC_1bar=GR4),
             amountOfSubstance_start=THb*1e-14)
           annotation (Placement(transformation(extent={{-20,-92},{0,-72}})));
 
-        Components.Substance R0(substanceData( DfG_25degC=GR0),
+        Components.Substance R0(substanceData( DfG_25degC_1bar=GR0),
             amountOfSubstance_start=THb*1e-7)
           annotation (Placement(transformation(extent={{-20,78},{0,98}})));
 
@@ -2765,38 +2793,38 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         Components.Reaction quaternaryForm(KC=KC)
           annotation (Placement(transformation(extent={{0,-68},{20,-48}})));
-        Components.Speciation R0_in_R(NumberOfSubunits=4, substanceData(DfG_25degC=DfG_tR),
+        Components.Speciation R0_in_R(NumberOfSubunits=4, substanceData(DfG_25degC_1bar=DfG_tR),
           AmountOfSubstance_start=4e-11)
           annotation (Placement(transformation(extent={{-50,-68},{-30,-48}})));
-        Components.Speciation T0_in_T(NumberOfSubunits=4, substanceData(DfG_25degC=DfG_tT),
+        Components.Speciation T0_in_T(NumberOfSubunits=4, substanceData(DfG_25degC_1bar=DfG_tT),
           AmountOfSubstance_start=totalAmountOfHemoglobin)
           annotation (Placement(transformation(extent={{70,-66},{50,-46}})));
         Components.Substance OxyRHm[4](
           each amountOfSubstance_start=4e-19,
-          substanceData( each DfH=-DfHL/4 - DfHR, each DfG_25degC=DfG_uRO2))
+          substanceData( each DfH_1bar=-DfHL/4 - DfHR, each DfG_25degC_1bar=DfG_uRO2))
         "Oxygenated subunit in R structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{-96,-18},{-76,2}})));
         Components.Reaction oxygenation_R[4](each nP=2,each KC=KC)
           annotation (Placement(transformation(extent={{-68,-18},{-48,2}})));
         Components.Substance DeoxyRHm[4](
           each amountOfSubstance_start=4e-11,
-          substanceData(each DfH=-DfHL/4, each DfG_25degC=DfG_uR))
+          substanceData(each DfH_1bar=-DfHL/4, each DfG_25degC_1bar=DfG_uR))
         "Deoxygenated subunit in R structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{-40,-18},{-20,2}})));
         Components.Substance OxyTHm[4](
-          substanceData(each DfH=-DfHT, each DfG_25degC=DfG_uTO2),
+          substanceData(each DfH_1bar=-DfHT, each DfG_25degC_1bar=DfG_uTO2),
           each amountOfSubstance_start=1e-14)
         "Oxygenated subunit in T structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{14,-18},{34,2}})));
         Components.Reaction oxygenation_T[4](each nP=2, each KC=KC)
           annotation (Placement(transformation(extent={{42,-18},{62,2}})));
         Components.Substance DeoxyTHm[4](
-          substanceData(each DfH=0, each DfG_25degC=DfG_uT), each
+          substanceData(each DfH_1bar=0, each DfG_25degC_1bar=DfG_uT), each
             amountOfSubstance_start=totalAmountOfHemoglobin)
         "Deoxygenated subunit in T structure of hemoglobin tetramer"
           annotation (Placement(transformation(extent={{68,-18},{88,2}})));
 
-        Components.Substance oxygen_unbound(        substanceData(DfG_25degC=DfG_O2),
+        Components.Substance oxygen_unbound(        substanceData(DfG_25degC_1bar=DfG_O2),
             amountOfSubstance_start=1e-5)
           annotation (Placement(transformation(extent={{-2,6},{18,26}})));
         Modelica.Blocks.Sources.Clock clock(offset=10)
@@ -2962,7 +2990,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
           constant Real RT=Modelica.Constants.R*298.15;
 
-          parameter Modelica.SIunits.MolarEnergy G_CO2 = Substances.CarbonDioxide_aqueous.DfG_25degC;
+          parameter Modelica.SIunits.MolarEnergy G_CO2 = Substances.CarbonDioxide_aqueous.DfG_25degC_1bar;
           parameter Modelica.SIunits.MolarEnergy G_A_H2[4] = {0,0,0,0};
           parameter Modelica.SIunits.MolarEnergy G_A_H3[4] = G_A_H2 + RT*log(Kz);
           parameter Modelica.SIunits.MolarEnergy G_A_HCOO[4] = G_A_H2 + G_CO2*ones(4) - RT*log(Kcx);
@@ -2981,27 +3009,27 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Enthalpy of reaction h (other Bohr protonation reactions of side chains)";
 
           Components.Substance Hbu_A_NH3[4](
-          substanceData(DfH=dH_HbuANH2 - dHz,  DfG_25degC=G_A_H3),
+          substanceData(DfH_1bar=dH_HbuANH2 - dHz,  DfG_25degC_1bar=G_A_H3),
           each amountOfSubstance_start=1e-06)
           annotation (Placement(transformation(extent={{20,66},{40,86}})));
       Components.Substance Hbu_AH_NH3[4](
           each amountOfSubstance_start=1e-06,
-          substanceData(DfH=dH_HbuANH2 - dHh - dHz,  DfG_25degC=G_AH_H3))
+          substanceData(DfH_1bar=dH_HbuANH2 - dHh - dHz,  DfG_25degC_1bar=G_AH_H3))
           annotation (Placement(transformation(extent={{-40,64},{-20,84}})));
       Components.Substance Hbu_A_NH2[4](
-          substanceData(DfH=dH_HbuANH2,  DfG_25degC=G_A_H2), each
+          substanceData(DfH_1bar=dH_HbuANH2,  DfG_25degC_1bar=G_A_H2), each
             amountOfSubstance_start=amountOfSubstance_start - 5e-6)
           annotation (Placement(transformation(extent={{20,-4},{40,16}})));
       Components.Substance Hbu_AH_NH2[4](
           each amountOfSubstance_start=1e-06,
-          substanceData(DfH=dH_HbuANH2 - dHh,  DfG_25degC=G_AH_H2))
+          substanceData(DfH_1bar=dH_HbuANH2 - dHh,  DfG_25degC_1bar=G_AH_H2))
           annotation (Placement(transformation(extent={{-40,-8},{-20,12}})));
       Components.Substance Hbu_A_NHCOO[4](
-          substanceData(DfH=dH_HbuANH2 + dHc,  DfG_25degC=G_A_HCOO),
+          substanceData(DfH_1bar=dH_HbuANH2 + dHc,  DfG_25degC_1bar=G_A_HCOO),
           each amountOfSubstance_start=1e-06)
           annotation (Placement(transformation(extent={{20,-90},{40,-70}})));
       Components.Substance Hbu_AH_NHCOO[4](
-          substanceData(DfH=dH_HbuANH2 + dHc,  DfG_25degC=G_AH_HCOO),
+          substanceData(DfH_1bar=dH_HbuANH2 + dHc,  DfG_25degC_1bar=G_AH_HCOO),
           each amountOfSubstance_start=1e-06)
           annotation (Placement(transformation(extent={{-40,-90},{-20,-70}})));
       Components.Reaction h2[4](
@@ -3253,7 +3281,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
     protected
          constant Real RT = Modelica.Constants.R*298.15;
-        parameter Real GO2 = Chemical.Examples.Substances.Oxygen_aqueous.DfG_25degC;
+        parameter Real GO2 = Chemical.Examples.Substances.Oxygen_aqueous.DfG_25degC_1bar;
         parameter Real G0 = 0;
         parameter Real G1 = G0 + GO2 + RT*log(K1x);
         parameter Real G2 = G1 + GO2 + RT*log(K2x);
@@ -3297,7 +3325,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               rotation=270,
               origin={-36,-60})));
         Hemoglobin_MKM_Specie Hb0(
-          substanceData(DfH = dH_HbuDANH2, DfG_25degC=G0),
+          substanceData(DfH_1bar = dH_HbuDANH2, DfG_25degC_1bar=G0),
           pKz=fill(pKzD, 4),
           pKc=fill(pKcD, 4),
           pKh=fill(pKhD, 4),
@@ -3308,7 +3336,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           KC=KC)
           annotation (Placement(transformation(extent={{10,78},{-10,98}})));
         Hemoglobin_MKM_Specie Hb1(
-          substanceData(DfH = dH_HbuDANH2 + dHo, DfG_25degC=G1),
+          substanceData(DfH_1bar = dH_HbuDANH2 + dHo, DfG_25degC_1bar=G1),
           pKz=cat(  1,
                     fill(pKzD, 3),
                     fill(pKzO, 1)),
@@ -3335,7 +3363,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{10,40},{-10,60}})));
 
         Hemoglobin_MKM_Specie Hb2(
-          substanceData(DfH = dH_HbuDANH2 + 2*dHo, DfG_25degC=G2),
+          substanceData(DfH_1bar = dH_HbuDANH2 + 2*dHo, DfG_25degC_1bar=G2),
           pKz=cat(  1,
                     fill(pKzD, 2),
                     fill(pKzO, 2)),
@@ -3362,7 +3390,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{10,0},{-10,20}})));
 
         Hemoglobin_MKM_Specie Hb3(
-          substanceData(DfH = dH_HbuDANH2 + 3*dHo, DfG_25degC=G3),
+          substanceData(DfH_1bar = dH_HbuDANH2 + 3*dHo, DfG_25degC_1bar=G3),
           pKz=cat(  1,
                     fill(pKzD, 1),
                     fill(pKzO, 3)),
@@ -3388,7 +3416,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           KC=KC)
           annotation (Placement(transformation(extent={{10,-44},{-10,-24}})));
         Hemoglobin_MKM_Specie Hb4(
-          substanceData(DfH = dH_HbuDANH2 + 4*dHo, DfG_25degC=G4),
+          substanceData(DfH_1bar = dH_HbuDANH2 + 4*dHo, DfG_25degC_1bar=G4),
           pKz=fill(pKzO, 4),
           pKc=fill(pKcO, 4),
           pKh=fill(pKhO, 4),
@@ -3713,13 +3741,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       amountOfSubstance=amountOfSubstance_start;
     equation
       //der(amountOfSubstance)=port_a.q;
-      //                                 log10n=log10(amountOfSubstance);
-      //<- This is mathematically the same as two following lines. However, the differential solvers can handle the log10n much better. :-)
-      der(log10n)=(InvLog_10)*(port_a.q/amountOfSubstance); amountOfSubstance = 10^log10n;
+      // <- This is mathematically the same as two following lines. However, the differential solvers can handle the log10n much better. :-)
+      der(log10n)=(InvLog_10)*(port_a.q/amountOfSubstance);
+      amountOfSubstance = 10^log10n;
 
       //mole fraction (an analogy of molar concentration or molality)
-      //if you select the amount of solution per one kilogram of solvent then the values of amountOfSubstance will be the same as molality
-      //if you select the amount of solution in one liter of solution then the values of amountOfSubstance will be the same as molarity
+      //if it is selected the amount of solution per one kilogram of solvent then the values of amountOfSubstance will be the same as molality
+      //if it is selected the amount of solution in one liter of solution then the values of amountOfSubstance will be the same as molarity
       x = amountOfSubstance/solution.n;
 
       //local changes of the solution
@@ -3980,7 +4008,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       gas_port.q + liquid_port.q = 0;
 
       // the main equation
-      liquid_port.q = kC *(liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.018) else 0));
+      liquid_port.q = kC *(liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
 
       //for debugging olny:
     /*
@@ -4184,8 +4212,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       port_a.q = kC * (uEq - port_a.u);
 
       xm = amountOfMacromolecule/solution.n;
-      uEq = substanceModel.u0(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength)
-      + Modelica.Constants.R*temperature*log(xm) + sum(subunits.u - Modelica.Constants.R*temperature*log(xm)*ones(NumberOfSubunits));
+      uEq =Interfaces.IncompressibleSubstanceModel.chemicalPotentialPure(
+          substanceData,
+          temperature,
+          pressure,
+          electricPotential,
+          moleFractionBasedIonicStrength) + Modelica.Constants.R*temperature*
+      log(xm) + sum(subunits.u - Modelica.Constants.R*temperature*log(xm)*ones(
+      NumberOfSubunits));
 
     /*  //the amount of total macromolecule is the same as amount of each its selected subunit
   amountOfMacromolecule = amountOfSubunits[1];
@@ -4621,7 +4655,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     extends Modelica.Icons.SourcesPackage;
 
     model AirSubstance "Substance with defined partial pressure"
-      extends Interfaces.PartialSubstance;
+      extends Interfaces.PartialSubstance(redeclare package substanceModel =
+            Interfaces.IdealGasSubstanceModel);
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
@@ -5639,7 +5674,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Real gamma "Activity Coefficient";
+        output Real activityCoefficient "Activity Coefficient";
      end activityCoefficient;
 
      replaceable function chargeNumberOfIon
@@ -5652,7 +5687,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
+        output Modelica.SIunits.ChargeNumberOfIon chargeNumberOfIon
+        "Charge number of ion";
      end chargeNumberOfIon;
 
      replaceable function molarEnthalpy "Molar enthalpy of the substance"
@@ -5681,8 +5717,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         output Modelica.SIunits.MolarEntropy molarEntropy "Molar entropy";
      end molarEntropy;
 
-     replaceable function u0
-      "Chemical part of electro-chemical potential of the pure substance"
+     replaceable function chemicalPotentialPure
+      "Chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
@@ -5691,10 +5727,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.ChemicalPotential u0 "Base chemical potential";
-     end u0;
+        output Modelica.SIunits.ChemicalPotential chemicalPotentialPure
+        "Base chemical potential";
+     end chemicalPotentialPure;
 
-     replaceable function uPure
+     replaceable function electroChemicalPotentialPure
       "Electro-chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
@@ -5704,9 +5741,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.ChemicalPotential uPure
+        output Modelica.SIunits.ChemicalPotential electroChemicalPotentialPure
         "Base electro-chemical potential";
-     end uPure;
+     end electroChemicalPotentialPure;
 
      replaceable function molarMass "Molar mass of the substance"
         extends Modelica.Icons.Function;
@@ -5720,6 +5757,32 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         output Modelica.SIunits.MolarMass molarMass "Molar mass";
      end molarMass;
 
+     replaceable function molarVolumePure "Molar volume of the pure substance"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=101325 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
+     end molarVolumePure;
+
+     replaceable function molarVolumeExcess
+      "Excess molar volume of the substance in the solution"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=101325 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarVolume molarVolumeExcess
+        "Excess molar volume of the substance in the solution";
+     end molarVolumeExcess;
+
      replaceable function molarVolume "Molar volume of the substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
@@ -5730,6 +5793,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
+     algorithm
+      molarVolume :=molarVolumePure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + molarVolumeExcess(
+           substanceData,
+           T,
+           p,
+           v,
+           I);
      end molarVolume;
 
      replaceable function molarHeatCapacity
@@ -5752,7 +5827,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end PartialSubstanceModel;
 
-    package SimpleSubstanceModel "Simple substance model"
+    package IdealGasSubstanceModel "Ideal gas substance model"
        extends PartialSubstanceModel;
 
        redeclare replaceable record SubstanceData "Base substance data"
@@ -5763,11 +5838,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           parameter Modelica.SIunits.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
 
-          parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance in the selected state";
+          parameter Modelica.SIunits.MolarEnergy DfH_1bar(displayUnit="kJ/mol")=0
+        "Enthalpy of formation of the substance at pressure of 1 bar";
 
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation at 25°C of the substance in the selected state";
+          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+        "Gibbs enerfy of formation of the substance at 25°C,1bar";
 
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
@@ -5787,18 +5862,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
      redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
      algorithm
-         gamma := substanceData.gamma;
+         activityCoefficient := substanceData.gamma;
      end activityCoefficient;
 
      redeclare function extends chargeNumberOfIon
       "Return charge number of the substance in the solution"
      algorithm
-        z := substanceData.z;
+        chargeNumberOfIon := substanceData.z;
      end chargeNumberOfIon;
 
      redeclare function extends molarEnthalpy "Molar enthalpy of the substance"
      algorithm
-         molarEnthalpy := substanceData.DfH + Modelica.Constants.F*substanceData.z*v;
+         molarEnthalpy := p*(substanceData.DfH_1bar/100000) + Modelica.Constants.F*substanceData.z*v;
      end molarEnthalpy;
 
      redeclare function extends molarEntropy "Molar entropy of the substance"
@@ -5806,29 +5881,41 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
      end molarEntropy;
 
-     redeclare function extends u0
-      "Chemical part of electro-chemical potential of the pure substance"
+     redeclare function extends chemicalPotentialPure
+      "Chemical potential of the pure substance"
      algorithm
-         u0 := substanceData.DfH - T*((substanceData.DfH-substanceData.DfG_25degC)/298.15);
-     end u0;
+         //u0 = DfG(T,p) = DfH(p) - T*DfS,  at 25degC,1bar: DfG_25degC_1bar = DfH_1bar - 298.15*DfS
+         chemicalPotentialPure := p*(substanceData.DfH_1bar/100000) - T*(((p*(substanceData.DfH_1bar/100000))-substanceData.DfG_25degC_1bar)/298.15);
+     end chemicalPotentialPure;
 
-     redeclare function extends uPure
+     redeclare function extends electroChemicalPotentialPure
       "Electro-chemical potential of the pure substance"
      algorithm
-         uPure := u0(substanceData,T,p,v,I) + Modelica.Constants.F*substanceData.z*v;
-     end uPure;
+         electroChemicalPotentialPure :=chemicalPotentialPure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + Modelica.Constants.F*substanceData.z*v;
+     end electroChemicalPotentialPure;
 
      redeclare function extends molarMass "Molar mass of the substance"
      algorithm
          molarMass := substanceData.MolarWeight;
      end molarMass;
 
-     //not needed for isobaric processes:
-     redeclare function extends molarVolume "Molar volume of the substance"
+     redeclare function extends molarVolumePure
+      "Molar volume of the pure substance"
      algorithm
-         molarVolume := Modelica.Constants.R*T/p; //ideal gas
-         //incompressible: molarVolume := constant;
-     end molarVolume;
+         molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
+     end molarVolumePure;
+
+     redeclare function extends molarVolumeExcess
+      "Excess molar volume of the substance in the solution"
+     algorithm
+        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
+           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
+     end molarVolumeExcess;
 
      redeclare function extends molarHeatCapacity
       "Molar heat capacity of the substance"
@@ -5839,20 +5926,126 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-    end SimpleSubstanceModel;
+    end IdealGasSubstanceModel;
+
+    package IncompressibleSubstanceModel "Incompressible substance model"
+       extends PartialSubstanceModel;
+
+       redeclare replaceable record SubstanceData "Base substance data"
+
+          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0
+        "Molar weight of the substance in kg/mol or kDa";
+
+          parameter Modelica.SIunits.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
+
+          parameter Modelica.SIunits.MolarEnergy DfH_1bar(displayUnit="kJ/mol")=0
+        "Enthalpy of formation of the substance at pressure of 1 bar";
+
+          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+        "Gibbs enerfy of formation of the substance at 25°C,1bar";
+
+          parameter Modelica.SIunits.ActivityCoefficient gamma=1
+        "Activity coefficient of the substance";
+
+          parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
+        "Molar heat capacity of the substance";
+
+          parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=997.0479
+        "Density of the pure substance (default density of water at 25degC)";
+
+          parameter String References[:]={""}
+        "References of these thermodynamical values";
+
+        annotation (Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+       end SubstanceData;
+
+     redeclare function extends activityCoefficient
+      "Return activity coefficient of the substance in the solution"
+     algorithm
+         activityCoefficient := substanceData.gamma;
+     end activityCoefficient;
+
+     redeclare function extends chargeNumberOfIon
+      "Return charge number of the substance in the solution"
+     algorithm
+        chargeNumberOfIon := substanceData.z;
+     end chargeNumberOfIon;
+
+     redeclare function extends molarEnthalpy "Molar enthalpy of the substance"
+     algorithm
+         //at 1bar: H = DfH_1bar + zFv
+         molarEnthalpy := p*(substanceData.DfH_1bar/100000) + Modelica.Constants.F*substanceData.z*v;
+
+     end molarEnthalpy;
+
+     redeclare function extends molarEntropy "Molar entropy of the substance"
+     algorithm
+         molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
+     end molarEntropy;
+
+     redeclare function extends chemicalPotentialPure
+      "Chemical part of electro-chemical potential of the pure substance"
+     algorithm
+         //u0 = DfG(T,p) = DfH(p) - T*DfS,  at 25degC,1bar: DfG_25degC_1bar = DfH_1bar - 298.15*DfS
+         chemicalPotentialPure := p*(substanceData.DfH_1bar/100000) - T*(((p*(substanceData.DfH_1bar/100000))-substanceData.DfG_25degC_1bar)/298.15);
+     end chemicalPotentialPure;
+
+     redeclare function extends electroChemicalPotentialPure
+      "Electro-chemical potential of the pure substance"
+     algorithm
+         electroChemicalPotentialPure :=chemicalPotentialPure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + Modelica.Constants.F*substanceData.z*v;
+     end electroChemicalPotentialPure;
+
+     redeclare function extends molarMass "Molar mass of the substance"
+     algorithm
+         molarMass := substanceData.MolarWeight;
+     end molarMass;
+
+     redeclare function extends molarVolumePure
+      "Molar volume of the pure substance"
+     algorithm
+         molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
+     end molarVolumePure;
+
+     redeclare function extends molarVolumeExcess
+      "Excess molar volume of the substance in the solution"
+     algorithm
+        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
+           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
+     end molarVolumeExcess;
+
+     redeclare function extends molarHeatCapacity
+      "Molar heat capacity of the substance"
+     algorithm
+         molarHeatCapacity := substanceData.Cp;
+     end molarHeatCapacity;
+      annotation (Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end IncompressibleSubstanceModel;
 
     partial model PartialSubstance
 
       Interfaces.SubstanceDefinitionPort port_a "The substance"
         annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-      parameter substanceModel.SubstanceData substanceData
-      "Definition of the substance"
-         annotation (choicesAllMatching = true);
-
-      replaceable package substanceModel = SimpleSubstanceModel        constrainedby
+      replaceable package substanceModel = IncompressibleSubstanceModel      constrainedby
       PartialSubstanceModel
       "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
+      parameter substanceModel.SubstanceData substanceData
+      "Definition of the substance"
          annotation (choicesAllMatching = true);
 
       Modelica.SIunits.MoleFraction x "Mole fraction of the substance";
@@ -5894,6 +6087,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
 
+      Modelica.SIunits.MolarVolume molarVolumePure
+      "Molar volume of the pure substance";
+
+      Modelica.SIunits.MolarVolume molarVolumeExcess
+      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+
       Modelica.SIunits.MolarHeatCapacity molarHeatCapacity
       "Molar heat capacity of the substance";
 
@@ -5923,17 +6122,34 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       molarEnthalpy = substanceModel.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarEntropy = substanceModel.molarEntropy(port_a.u,substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      u0 = substanceModel.u0(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      uPure = substanceModel.uPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      u0 = substanceModel.chemicalPotentialPure(
+        substanceData,
+        temperature,
+        pressure,
+        electricPotential,
+        moleFractionBasedIonicStrength);
+      uPure = substanceModel.electroChemicalPotentialPure(
+        substanceData,
+        temperature,
+        pressure,
+        electricPotential,
+        moleFractionBasedIonicStrength);
       molarVolume = substanceModel.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      molarVolumePure = substanceModel.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      molarVolumeExcess = substanceModel.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarHeatCapacity = substanceModel.molarHeatCapacity(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
       a = gamma*x;
 
       //electro-chemical potential of the substance in the solution
-      port_a.u = substanceModel.u0(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength)
-       + Modelica.Constants.R*temperature*log(a)
-       + z*Modelica.Constants.F*electricPotential;
+      port_a.u = substanceModel.chemicalPotentialPure(
+        substanceData,
+        temperature,
+        pressure,
+        electricPotential,
+        moleFractionBasedIonicStrength)
+        + Modelica.Constants.R*temperature*log(a)
+        + z*Modelica.Constants.F*electricPotential;
 
       annotation (
         Documentation(revisions="<html>
