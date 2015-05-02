@@ -3797,8 +3797,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       extends Interfaces.PartialSolution;
 
-      parameter Modelica.SIunits.Pressure ConstantPressure=101325
-      "Constant pressure of the solution";
+      parameter Modelica.SIunits.Area SurfaceArea=0.01
+      "Area for surfacePort to connect MultiBody components";
+
+      parameter Modelica.SIunits.Pressure AmbientPressure=100000
+      "Ambient pressure if the force on port surfaceFlange is zero";
 
       Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
           Placement(transformation(extent={{50,-110},{70,-90}}), iconTransformation(
@@ -3806,9 +3809,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
             transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(
               extent={{-62,-102},{-58,-98}})));
+      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
+      "The pressure of solution generate force on prescribed surface."
+        annotation (Placement(transformation(extent={{-10,70},{10,90}}),
+            iconTransformation(extent={{-2,78},{2,82}})));
     equation
       //isobaric condition
-      solution.p = ConstantPressure;
+      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
+      surfaceFlange.s = volume/SurfaceArea;
 
       electricPin.v=solution.v;
       electricPin.i=solution.i;
