@@ -48,4 +48,4 @@ This Modelica package is free software and the use is completely at your own ris
 it can be redistributed and/or modified under the terms of the [Modelica License 2](https://modelica.org/licenses/ModelicaLicense2).
 
 ## Development and contribution
-Release manager: [Marek Matejak](http://www.physiome.cz)
+Release manager: Marek Matejak
