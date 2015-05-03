@@ -6,9 +6,9 @@ Modelica Library of Chemical processes
   * thermal, electric and mechanic connectors from Modelica Standard Library 3.2
 * Chemical Substance 
   * ideal gas substance model 
-    * with 6-parameters record as definition of gaseous chemical substance
+    * with 6-parameters record as definition of gaseous chemical substance (all parameters of the substance are well described tabulated values)
   * incompressible substance model 
-    * with 7-parameters record as definition of liquid or solid chemical substance
+    * with 7-parameters record as definition of liquid or solid chemical substance (all parameters of the substance are well described tabulated values)
   * example of more than 30 fully defined chemical substances 
   * template for user substance models
 * Chemical Reaction
