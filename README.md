@@ -32,7 +32,9 @@ Modelica Library of Chemical processes
   * allosteric effects
   * example of hemoglobin oxygen binding
 * Diffusion
-* Stream of the solution
+* Substance flow in stream of the solution
+* Degradation
+* Clearance
 * ...
 
 * Based on equilibration of the electro-chemical potentials. 
