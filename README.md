@@ -42,3 +42,10 @@ Modelica Library of Chemical processes
 * Based on equilibration of the electro-chemical potentials. 
 * With full support of thermodynamics of chemical solutions.
 
+## License
+
+This Modelica package is free software and the use is completely at your own risk;
+it can be redistributed and/or modified under the terms of the [Modelica License 2](https://modelica.org/licenses/ModelicaLicense2).
+
+## Development and contribution
+Release manager: [Marek Matejak](http://www.physiome.cz)
