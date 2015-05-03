@@ -5,8 +5,10 @@ Modelica Library of Chemical processes
   * full thermodynamical state support: amount of substances, pressure, volume, temperature, electric potential, enthalpy, entropy
   * thermal, electric and mechanic connectors from Modelica Standard Library 3.2
 * Chemical Substance 
-  * ideal gas substance model with 5-parameter record as definition of gaseous chemical substance
-  * incompressible substance model with 7-parameter record as definitions of liquid or solid chemical substance
+  * ideal gas substance model 
+    * with 5-parameter record as definition of gaseous chemical substance
+  * incompressible substance model 
+    * with 7-parameter record as definition of liquid or solid chemical substance
   * example of more than 30 fully defined chemical substances 
   * template for user substance models
 * Chemical Reaction
