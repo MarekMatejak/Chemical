@@ -819,7 +819,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         redeclare package substanceModel =
             Chemical.Interfaces.IncompressibleSubstanceModel,
         substanceData=Chemical.Examples.Substances.Water_liquid,
-      amountOfSubstance_start=55.508)
+        amountOfSubstance_start=55.508)
         annotation (Placement(transformation(extent={{-4,-16},{16,4}})));
       Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
         annotation (Placement(transformation(extent={{28,-76},{48,-56}})));
@@ -838,8 +838,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           points={{-38,-80},{-60,-80},{-60,98}},
           color={0,0,255},
           smooth=Smooth.None));
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-              -100},{100,100}}),   graphics));
+      annotation (experiment(StopTime=1),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics),
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
     end HeatingOfWater;
 
     model HeatingOfAlcohol "Heating of 50% ethanol"
@@ -881,8 +886,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{0,-100},{0,-34},{22,-34},{22,-8}},
         color={158,66,200},
         smooth=Smooth.None));
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-              -100},{100,100}}),   graphics));
+      annotation (experiment(StopTime=1), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics),
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
     end HeatingOfAlcohol;
 
     model WaterVaporization "Evaporation of water"
@@ -918,6 +927,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-32,-38},{-12,-18}})));
       Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
         annotation (Placement(transformation(extent={{62,36},{82,56}})));
+    Sensors.PartialPressureSensor partialPressureSensor(redeclare package
+        substanceModel = Chemical.Interfaces.IdealGasSubstanceModel,
+        substanceData=Chemical.Examples.Substances.Water_gas)
+      annotation (Placement(transformation(extent={{6,68},{26,88}})));
     equation
 
       connect(H2O_liquid.solution, liquid.solution) annotation (Line(
@@ -958,10 +971,22 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{90,-6},{98,-6},{98,46},{83,46}},
         color={0,0,127},
         smooth=Smooth.Bezier));
+    connect(partialPressureSensor.solution, gas.solution) annotation (Line(
+        points={{10,68},{30,68},{30,-2},{4,-2}},
+        color={158,66,200},
+        smooth=Smooth.Bezier));
+    connect(partialPressureSensor.port_a, H2O_gaseuous.port_a) annotation (Line(
+        points={{26,78},{32,78},{32,52},{0,52}},
+        color={158,66,200},
+        thickness=1,
+        smooth=Smooth.None));
       annotation (
         experiment(StopTime=100),
         Documentation(info="<html>
 <p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+</html>", revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
       Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
               100,100}}), graphics),
@@ -1082,6 +1107,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         experiment(StopTime=1),
         Documentation(info="<html>
 <p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+</html>", revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
       Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
               100,100}}), graphics));
@@ -1346,7 +1374,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
       annotation (
       experiment(StopTime=1), Diagram(coordinateSystem(preserveAspectRatio=false,
-                     extent={{-100,-100},{100,100}}), graphics));
+                     extent={{-100,-100},{100,100}}), graphics),
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
     end ElectrochemicalCell;
 
     model StandardElectrochemicalCell
@@ -1445,6 +1477,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       experiment(StopTime=1), Documentation(info=
                     "<html>
 <p>Hypothetical experiment of pure substances reaction to define the standard electrochemical cell potential </p>
+</html>", revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
               {100,100}}),
@@ -1641,7 +1676,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       experiment(StopTime=50400),
                               Diagram(coordinateSystem(preserveAspectRatio=false,
                      extent={{-100,-100},{100,100}}), graphics),
-        __Dymola_experimentSetupOutput);
+        __Dymola_experimentSetupOutput,
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
     end LeadAcidBattery;
 
     model StandardLeadAcidPotential
@@ -1788,7 +1827,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       experiment(StopTime=100),
                               Diagram(coordinateSystem(preserveAspectRatio=false,
                      extent={{-100,-100},{100,100}}), graphics),
-        __Dymola_experimentSetupOutput);
+        __Dymola_experimentSetupOutput,
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
     end StandardLeadAcidPotential;
 
     package AcidBase
@@ -3853,6 +3896,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Boolean ConstantTemperature = true
       "Has the solution constant temperature during simulation?";
 
+    initial equation
+      T=temperature_start;
     equation
       //isobaric condition
       solution.p = ConstantPressure;
@@ -4790,14 +4835,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Modelica.Icons.RotationalSensor;
       extends Interfaces.PartialSubstanceNoStorage;
 
-      Interfaces.SolutionPort solution annotation (Placement(transformation(
-              extent={{-70,-60},{-50,-40}}), iconTransformation(extent={{-70,-60},{-50,
-                -40}})));
-
-      Interfaces.SubstanceUsePort port_a "For measure only" annotation (
-          Placement(transformation(extent={{-10,-12},{10,8}}),
-            iconTransformation(extent={{-10,-12},{10,8}})));
-       Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
+      Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
       "Mole fraction of the substance"
        annotation (
           Placement(transformation(
@@ -4805,7 +4843,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            origin={100,0})));
+            origin={-100,0},
+          rotation=180)));
 
     equation
       port_a.q = 0;
@@ -4814,7 +4853,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-                100,100}}), graphics={
+              100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
               lineColor={0,0,0},
@@ -4836,9 +4875,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1kgOfSolvent = 55.508
       "Amount of all particles in the solution per one kilogram of solvent";
 
-      Interfaces.SubstanceUsePort port_a "For measure only" annotation (
-          Placement(transformation(extent={{-10,-12},{10,8}}),
-            iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput molality(final unit="mol/kg")
       "Molality of the substance (amount of substance per mass of solvent)"
        annotation (
@@ -4847,7 +4883,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            origin={100,0})));
+            origin={-100,0},
+          rotation=180)));
 
   protected
       constant Modelica.SIunits.Mass KG=1;
@@ -4857,8 +4894,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       x=molality*KG / AmountOfSolutionPer1kgOfSolvent;
 
      annotation (
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-                            graphics={
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
               lineColor={0,0,0},
@@ -4880,9 +4917,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneLiter = 55.508
       "Amount of all particles in one liter of the solution";
 
-      Interfaces.SubstanceUsePort port_a "For measure only" annotation (
-          Placement(transformation(extent={{-10,-12},{10,8}}),
-            iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput molarConcentration(final unit="mol/m3", displayUnit="mol/l")
       "Molarity of the substance (amount of substance in one liter of whole solution)"
        annotation (
@@ -4891,7 +4925,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            origin={100,0})));
+            origin={-100,0},
+          rotation=180)));
 
   protected
       constant Modelica.SIunits.Volume L=0.001;
@@ -4901,8 +4936,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       x=molarConcentration*L / AmountOfSolutionInOneLiter;
 
      annotation (
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-                            graphics={
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
               lineColor={0,0,0},
@@ -4924,9 +4959,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneKilogram = 55.508
       "Amount of all particles in one kilogram of the solution";
 
-      Interfaces.SubstanceUsePort port_a "For measure only" annotation (
-          Placement(transformation(extent={{-10,-12},{10,8}}),
-            iconTransformation(extent={{-10,-12},{10,8}})));
        Modelica.Blocks.Interfaces.RealOutput massFraction(final unit="kg/kg")
       "Mass fraction of the substance (mass of the substance per mass of the whole solution)"
        annotation (
@@ -4935,7 +4967,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=270,
             origin={0,-60}), iconTransformation(
             extent={{-20,-20},{20,20}},
-            origin={100,0})));
+            origin={-100,0},
+          rotation=180)));
 
     equation
       port_a.q = 0;
@@ -4943,8 +4976,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       x=(massFraction/molarMass) / AmountOfSolutionInOneKilogram;
 
      annotation (
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-                            graphics={
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
               lineColor={0,0,0},
@@ -4958,6 +4991,46 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end MassFractionSensor;
+
+    model PartialPressureSensor
+    "Measure of partial pressure of the substance in gaseous solution"
+      extends Modelica.Icons.RotationalSensor;
+      extends Interfaces.PartialSubstanceNoStorage;
+
+       Modelica.Blocks.Interfaces.RealOutput partialPressure(final unit="Pa")
+      "Partial pressure of the substance in gaseous solution"
+       annotation (
+          Placement(transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,-60}), iconTransformation(
+            extent={{-20,-20},{20,20}},
+            origin={-100,0},
+          rotation=180)));
+
+    equation
+      port_a.q = 0;
+
+      partialPressure = x*solution.p;
+
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
+            Text(
+              extent={{-31,-3},{28,-62}},
+              lineColor={0,0,0},
+              textString="x"),
+            Line(
+              points={{70,0},{80,0}},
+              color={127,0,127},
+              smooth=Smooth.None)}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+                100}}), graphics));
+    end PartialPressureSensor;
   end Sensors;
 
 
@@ -6227,7 +6300,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
          //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
          molarEnthalpyElectroneutral := substanceData.DfH
-           +(T-298.15)*substanceData.Cp;
+           +(T-298.15)*(substanceData.Cp+Modelica.Constants.R);
      end molarEnthalpyElectroneutral;
 
      redeclare function extends molarEntropyPure
@@ -6239,7 +6312,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          //Molar entropy:
          // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
          // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
-         molarEntropyPure := substanceData.Cp*log(T/298.15) - Modelica.Constants.R*log(p/100000) + ((substanceData.DfH
+         molarEntropyPure := (substanceData.Cp+Modelica.Constants.R)*log(T/298.15) - Modelica.Constants.R*log(p/100000) + ((substanceData.DfH
           - substanceData.DfG_25degC_1bar)/298.15);
 
          //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
@@ -6327,8 +6400,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
 
          molarEnthalpyElectroneutral :=  substanceData.DfH
-         + (T - 298.15) * substanceData.Cv
-         - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
+         + (T - 298.15) * substanceData.Cp;
+      //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
      end molarEnthalpyElectroneutral;
 
       redeclare function extends molarEntropyPure
