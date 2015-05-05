@@ -243,6 +243,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><br>New release must be numbered by Semantic Versioning 2.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
 <p><br>If minor version, then the conversion script must be written and connected with package Chemical using &QUOT;annotation(conversion(from(version=..)))&QUOT;! </p>
 <p><br>To clean the code from dummy annotations try to use script <a href=\"https://github.com/dietmarw/trimtrailingwhitespaces\">ttws</a>. </p>
+<p>To check english spelling try to use <a href=\"https://github.com/vlajos/misspell_fixer\">missspell_fixer</a>.</p>
 <p><br>Update version number to &QUOT;X.Y.Z&QUOT;: </p>
 <ul>
 <li>At package Chemical annotation: (version=&QUOT;X.Y.Z&QUOT;) together with &QUOT;versionBuild&QUOT;, &QUOT;versionDate&QUOT; and &QUOT;dateModified&QUOT; attribute </li>
@@ -424,6 +425,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH=-285830,
         DfG_25degC_1bar=-237190,
         Cp=75.3,
+        Cv=74.539,
         References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(l)";
 
@@ -787,11 +789,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           Line(points={{-36,40},{-36,12},{-1,12},{-1,0}}, smooth=Smooth.None));
     connect(solution_at_constant_temperature.electricPin, ground.p) annotation (
        Line(
-        points={{-60.4,84.6},{-60,84.6},{-60,-22},{-48,-22}},
+        points={{-60.4,93.06},{-60,93.06},{-60,-22},{-48,-22}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(thermal_isolated_solution.electricPin, ground.p) annotation (Line(
-        points={{-60.4,-15.4},{-60,-15.4},{-60,-22},{-48,-22}},
+        points={{-60.4,-6.94},{-60,-6.94},{-60,-22},{-48,-22}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(fixedTemperature.port, solution_at_constant_temperature.heatPort)
@@ -808,7 +810,39 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               100,100}}), graphics));
     end ExothermicReaction;
 
-    model Heating "Heating of 1 kg water"
+    model HeatingOfWater "Heating of 1 kg water"
+      extends Modelica.Icons.Example;
+
+    Components.Solution solution
+      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+      Components.Substance H2O(
+        redeclare package substanceModel =
+            Chemical.Interfaces.IncompressibleSubstanceModel,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+      amountOfSubstance_start=55.508)
+        annotation (Placement(transformation(extent={{-4,-16},{16,4}})));
+      Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
+        annotation (Placement(transformation(extent={{28,-76},{48,-56}})));
+      Modelica.Electrical.Analog.Basic.Ground ground
+        annotation (Placement(transformation(extent={{-48,-100},{-28,-80}})));
+    equation
+      connect(H2O.solution, solution.solution) annotation (Line(
+          points={{0,-16},{0,-100}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
+          points={{48,-66},{60,-66},{60,-100}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(ground.p, solution.electricPin) annotation (Line(
+          points={{-38,-80},{-60,-80},{-60,98}},
+          color={0,0,255},
+          smooth=Smooth.None));
+      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics));
+    end HeatingOfWater;
+
+    model HeatingOfAlcohol "Heating of 50% ethanol"
       extends Modelica.Icons.Example;
 
     Components.Solution solution(mass_start=0.5 + (55.508/2)*Substances.Ethanol_liquid.MolarWeight,
@@ -840,7 +874,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={191,0,0},
           smooth=Smooth.None));
       connect(ground.p, solution.electricPin) annotation (Line(
-          points={{-38,-80},{-60,-80},{-60,80}},
+          points={{-38,-80},{-60,-80},{-60,98}},
           color={0,0,255},
           smooth=Smooth.None));
     connect(solution.solution, Ethanol.solution) annotation (Line(
@@ -849,9 +883,92 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
       annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
               -100},{100,100}}),   graphics));
-    end Heating;
+    end HeatingOfAlcohol;
 
-    model Henry "Dissolution of gases in liquids"
+    model WaterVaporization "Evaporation of water"
+       extends Modelica.Icons.Example;
+
+       parameter Modelica.SIunits.Temperature T_start=273.15
+      "Initial temperature";
+
+    Components.Solution liquid(temperature_start=T_start)
+        annotation (Placement(transformation(extent={{-34,-98},{58,-8}})));
+
+      //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+
+      Components.Substance H2O_liquid(substanceData=Chemical.Examples.Substances.Water_liquid,
+          amountOfSubstance_start=55.508) "Liquid water"
+        annotation (Placement(transformation(extent={{16,-66},{-4,-46}})));
+
+    Components.IdealGasSolution gas(volume_start(
+            displayUnit="l") = 0.001, temperature_start=T_start)
+        annotation (Placement(transformation(extent={{-42,-2},{50,88}})));
+      Components.GasSolubility gasSolubility(useWaterCorrection=false, KC=10)
+        annotation (Placement(transformation(extent={{-72,-22},{-52,-2}})));
+      Components.Substance H2O_gaseuous(redeclare package substanceModel =
+            Chemical.Interfaces.IdealGasSubstanceModel, substanceData=Chemical.Examples.Substances.Water_gas)
+        annotation (Placement(transformation(extent={{20,42},{0,62}})));
+    Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
+                                                           fixedTemperature
+                  annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=0,
+          origin={78,-6})));
+      Modelica.Electrical.Analog.Basic.Ground ground
+        annotation (Placement(transformation(extent={{-32,-38},{-12,-18}})));
+      Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
+        annotation (Placement(transformation(extent={{62,36},{82,56}})));
+    equation
+
+      connect(H2O_liquid.solution, liquid.solution) annotation (Line(
+          points={{12,-66},{12,-98}},
+          color={0,0,0},
+          smooth=Smooth.None));
+      connect(H2O_liquid.port_a, gasSolubility.liquid_port) annotation (Line(
+          points={{-4,-56},{-62,-56},{-62,-22}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
+          points={{4,-2},{4,42},{16,42}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(H2O_gaseuous.port_a, gasSolubility.gas_port) annotation (Line(
+          points={{0,52},{-62,52},{-62,-2}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(fixedTemperature.port, gas.heatPort) annotation (Line(
+          points={{68,-6},{32,-6},{32,-2},{31.6,-2}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(fixedTemperature.port, liquid.heatPort) annotation (Line(
+          points={{68,-6},{39.6,-6},{39.6,-98}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(liquid.electricPin, ground.p) annotation (Line(
+          points={{-15.6,-8.9},{-15.6,-8},{-16,-8},{-16,-18},{-22,-18}},
+          color={0,0,255},
+          smooth=Smooth.None));
+      connect(gas.electricPin, ground.p) annotation (Line(
+          points={{-23.6,87.1},{-22,87.1},{-22,-18}},
+          color={0,0,255},
+          smooth=Smooth.None));
+    connect(fixedTemperature.T, clock.y) annotation (Line(
+        points={{90,-6},{98,-6},{98,46},{83,46}},
+        color={0,0,127},
+        smooth=Smooth.Bezier));
+      annotation (
+        experiment(StopTime=100),
+        Documentation(info="<html>
+<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics),
+      __Dymola_experimentSetupOutput);
+    end WaterVaporization;
+
+    model GasSolubility "Dissolution of gases in liquids"
        extends Modelica.Icons.Example;
 
     Components.SimpleSolution blood_plasma(amountOfSolution_start=52.3)
@@ -968,7 +1085,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"),
       Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
               100,100}}), graphics));
-    end Henry;
+    end GasSolubility;
 
     model EnzymeKinetics "Basic enzyme kinetics"
       extends Modelica.Icons.Example;
@@ -2354,7 +2471,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           GR3=GR2+GO2aq +RT*log(KRx/(2/3)), GT3=GR3 -RT*log(c^3*L),
           GR4=GR3+GO2aq +RT*log(KRx*4),     GT4=GR4 -RT*log(c^4*L);
 
-        parameter Real kC = 1 "Slow down factor";
+        parameter Real kC = 0.01 "Slow down factor";
 
       Components.SimpleSolution solution(amountOfSolution_start=
             AmountOfSolutionIn1L)
@@ -2785,9 +2902,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             points={{-84,51},{-84,32}},
             color={0,0,127},
             smooth=Smooth.None));
-        annotation (          experiment(
-            StopTime=15000,
-            Tolerance=0.001),   Documentation(info="<html>
+        annotation (          experiment(StopTime=15000, Tolerance=0.01),
+                                Documentation(info="<html>
 <p>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
@@ -2801,7 +2917,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>",   revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
+</html>"),
+        __Dymola_experimentSetupOutput);
       end Allosteric_Hemoglobin_MWC;
 
       model Allosteric_Hemoglobin2_MWC
@@ -2844,9 +2961,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Modelica.SIunits.AmountOfSubstance totalAmountOfHemoglobin=1;
 
-        parameter Real KC = 0.1 "Slow down factor";
+        parameter Real KC = 0.01 "Slow down factor";
 
-      Components.SimpleSolution solution(ConstantTemperature=false)
+      Components.SimpleSolution solution
         annotation (Placement(transformation(extent={{-100,-100},{100,56}})));
 
         Components.Reaction quaternaryForm(KC=KC)
@@ -2899,7 +3016,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         Real sO2 "Hemoglobin oxygen saturation";
       equation
-        sO2 = (sum(OxyRHm.amountOfSubstance)+sum(OxyTHm.amountOfSubstance))/totalAmountOfHemoglobin;
+        sO2 = (sum(OxyRHm.amountOfSubstance)+sum(OxyTHm.amountOfSubstance))/(4*totalAmountOfHemoglobin);
 
         connect(OxyTHm.port_a, oxygenation_T.substrates[1])
                                                  annotation (Line(
@@ -3756,6 +3873,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         heatFromEnvironment = 0;
       end if;
 
+      workFromEnvironment = 0;
                                                                                                         annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
@@ -3793,15 +3911,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               extent={{58,-102},{62,-98}})));
       Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
             transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(
-              extent={{-62,78},{-58,82}})));
+              extent={{-62,96},{-58,100}})));
       Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
       "The pressure of solution generate force on prescribed surface."
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
-            iconTransformation(extent={{-2,78},{2,82}})));
+            iconTransformation(extent={{-2,96},{2,100}})));
     equation
       //isobaric condition
-      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
       surfaceFlange.s = volume/SurfaceArea;
+      workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
+      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
 
       electricPin.v=solution.v;
       electricPin.i=solution.i;
@@ -3811,8 +3930,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
                                                                                                         annotation (
         Icon(coordinateSystem(
-              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
-              100,100}}),
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
             graphics={Text(
               extent={{-84,-88},{84,-96}},
               lineColor={0,0,255},
@@ -3832,6 +3950,67 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                 100}}), graphics));
     end Solution;
+
+    model IdealGasSolution
+    "Chemical solution as gaseous homogenous mixture of the substances"
+      extends Icons.Solution;
+
+      extends Interfaces.PartialSolution(final amountOfSolution_start=AmbientPressure*volume_start/(Modelica.Constants.R*temperature_start),
+      final mass_start=MolarMass_start*AmbientPressure*volume_start/(Modelica.Constants.R*temperature_start));
+
+      parameter Modelica.SIunits.Area SurfaceArea=0.01
+      "Area for surfacePort to connect MultiBody components";
+
+      parameter Modelica.SIunits.Pressure AmbientPressure=100000
+      "Ambient pressure if the force on port surfaceFlange is zero";
+
+      parameter Modelica.SIunits.MolarMass MolarMass_start=0.01801528
+      "Average molar mass of the substances of the ideal gass";
+
+      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
+          Placement(transformation(extent={{50,-110},{70,-90}}), iconTransformation(
+              extent={{58,-102},{62,-98}})));
+      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
+            transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(
+              extent={{-62,96},{-58,100}})));
+      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
+      "The pressure of solution generate force on prescribed surface."
+        annotation (Placement(transformation(extent={{-10,70},{10,90}}),
+            iconTransformation(extent={{-2,96},{2,100}})));
+    equation
+      //isobaric condition
+      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
+      workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
+      surfaceFlange.s = volume/SurfaceArea;
+
+      electricPin.v=solution.v;
+      electricPin.i=solution.i;
+
+      heatPort.T = T;
+      heatPort.Q_flow = heatFromEnvironment;
+
+                                                                                                        annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
+            graphics={Text(
+              extent={{-84,-88},{84,-96}},
+              lineColor={0,0,255},
+              textString="%name",
+              horizontalAlignment=TextAlignment.Left)}),
+        Documentation(revisions="<html>
+<p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<h4>amountOfSolution = &int; molarFlows</h4>
+<h4>mass = &int; massChanges</h4>
+<h4>volume = &int; volumeChanges</h4>
+<h4>freeEnthalpy = &int; enthalpyChanges</h4>
+<h4>freeEntropy = &int; entropyChanges</h4>
+<h4>freeGibbsEnergy = &int; freeGibbsEnergyChanges</h4>
+<p>Integration of all substances together into one homogenous mixture - the solution.</p>
+</html>"),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+                100}}), graphics));
+    end IdealGasSolution;
 
     model Substance "Substance in solution"
       extends Icons.Substance;
@@ -3865,15 +4044,22 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       x = amountOfSubstance/solution.n;
 
       //local changes of the solution
-      solution.dH = molarEnthalpy*port_a.q;
-      solution.dG = port_a.u*port_a.q;
+      //solution.dH = der(molarEnthalpy*amountOfSubstance);
+      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)*amountOfSubstance;
+      //solution.dG = der(port_a.u*amountOfSubstance);
+      solution.dG = port_a.u*port_a.q + der(port_a.u)*amountOfSubstance;
+      //solution.dS = der(molarEntropyPure*amountOfSubstance);
       solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure)*amountOfSubstance;
 
       solution.dn = port_a.q;
-      solution.dm = molarMass*port_a.q;
-      solution.i = Modelica.Constants.F * z * port_a.q;
-      solution.dI = (1/2) * port_a.q * z^2;
-      solution.dV = molarVolume * port_a.q;
+      //solution.dm = der(molarMass*amountOfSubstance);
+      solution.dm = molarMass*port_a.q + der(molarMass)*amountOfSubstance;
+      //solution.i = der(Modelica.Constants.F * z * amountOfSubstance);
+      solution.i = Modelica.Constants.F * z * port_a.q + Modelica.Constants.F*der(z)*amountOfSubstance;
+      //solution.dI = der((1/2) * port_a.q * z^2);
+      solution.dI = (1/2) * ( port_a.q * z^2 + 2*der(z)*z*amountOfSubstance);
+      //solution.dV = der(molarVolume * amountOfSubstance);
+      solution.dV = molarVolume * port_a.q + der(molarVolume)*amountOfSubstance;
 
                                                                                                         annotation (
         Icon(coordinateSystem(
@@ -4362,15 +4548,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       moleFractionBasedIonicStrength = solution.I;
 
       //changes of the solution, where all subunits are also connected
-      solution.dH = molarEnthalpy * port_a.q; // 0 = subunits.molarEnthalpy
+      solution.dH = molarEnthalpy * port_a.q + der(molarEnthalpy) * amountOfMacromolecule; // 0 = subunits.molarEnthalpy
       solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure) * amountOfMacromolecule - (subunits.u * subunits.q) / temperature + amountOfMacromolecule*sum(subunits.u)*der(temperature)/temperature^2; // dS(subunits) = (-G/T)' = (-G'T+GT')/T^2
-      solution.dG = port_a.u * port_a.q + subunits.u * subunits.q;
+      solution.dG = port_a.u * port_a.q + der(port_a.u)*amountOfMacromolecule + subunits.u * subunits.q + der(sum(subunits.u))*amountOfMacromolecule;
 
       solution.dn = port_a.q + sum(subunits.q);
-      solution.dm = molarMass * port_a.q; // 0 = subunits.molarMass
+      solution.dm = molarMass * port_a.q + der(molarMass)*amountOfMacromolecule; // 0 = subunits.molarMass
       solution.i = 0; // 0 = Modelica.Constants.F * (port_a.z * port_a.q + subunits.z * subunits.q);
       solution.dI = 0; // 0 = (1/2) * port_a.q * port_a.z^2 + (1/2) * subunits.q * (subunits.z .^ 2);
-      solution.dV = molarVolume * port_a.q; // 0 = subunits.molarVolume
+      solution.dV = molarVolume * port_a.q  + der(molarVolume) * amountOfMacromolecule; // 0 = subunits.molarVolume
       annotation (defaultComponentName="macromolecule",
         Documentation(revisions="<html>
 <p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5822,7 +6008,22 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Charge number of ion";
      end chargeNumberOfIon;
 
-     replaceable function molarEnthalpy "Molar enthalpy of the substance"
+     replaceable function molarEnthalpyElectroneutral
+      "Molar enthalpy of the substance in electroneutral solution"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=101325 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarEnthalpy molarEnthalpyElectroneutral
+        "Molar enthalpy";
+     end molarEnthalpyElectroneutral;
+
+     function molarEnthalpy
+      "Molar enthalpy of the substance with electric potential dependence"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
@@ -5832,6 +6033,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarEnthalpy molarEnthalpy "Molar enthalpy";
+     algorithm
+        molarEnthalpy := molarEnthalpyElectroneutral(substanceData,T,p) +
+             Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
      end molarEnthalpy;
 
      replaceable function molarEntropyPure
@@ -5848,7 +6052,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Molar entropy of the pure substance";
      end molarEntropyPure;
 
-      function molarEntropy "Molar entropy of the substance"
+      function molarEntropy "Molar entropy of the substance in the solution"
             extends Modelica.Icons.Function;
             input Modelica.SIunits.ChemicalPotential u
         "Electro-chemical potential of the substance";
@@ -5864,8 +6068,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
       end molarEntropy;
 
-     replaceable function chemicalPotentialPure
-      "Chemical potential of the pure substance"
+     function chemicalPotentialPure "Chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
         input Modelica.SIunits.Temperature T=298.15 "Temperature";
@@ -5876,9 +6079,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.ChemicalPotential chemicalPotentialPure
         "Base chemical potential";
+     algorithm
+         chemicalPotentialPure :=  molarEnthalpyElectroneutral(substanceData,T,p) - T*molarEntropyPure(substanceData,T,p,v,I);
      end chemicalPotentialPure;
 
-     replaceable function electroChemicalPotentialPure
+     function electroChemicalPotentialPure
       "Electro-chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
@@ -5890,6 +6095,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.ChemicalPotential electroChemicalPotentialPure
         "Base electro-chemical potential";
+     algorithm
+      electroChemicalPotentialPure := chemicalPotentialPure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
      end electroChemicalPotentialPure;
 
      replaceable function molarMass "Molar mass of the substance"
@@ -5916,7 +6128,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
      end molarVolumePure;
 
-     replaceable function molarVolumeExcess
+     function molarVolumeExcess
       "Excess molar volume of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
@@ -5928,6 +6140,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Ionic strengh (mole fraction based)";
         output Modelica.SIunits.MolarVolume molarVolumeExcess
         "Excess molar volume of the substance in the solution";
+     algorithm
+        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
+           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
      end molarVolumeExcess;
 
      replaceable function molarVolume "Molar volume of the substance"
@@ -5953,20 +6168,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
            v,
            I);
      end molarVolume;
-
-     replaceable function molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure"
-        extends Modelica.Icons.Function;
-        input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=101325 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
-        "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
-        "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.MolarHeatCapacity molarHeatCapacity
-        "Molar heat capacity";
-     end molarHeatCapacityCp;
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -5994,7 +6195,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
 
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
+          parameter Modelica.SIunits.MolarHeatCapacity Cp = 33.6
         "Molar heat capacity of the substance";
 
           parameter String References[:]={""}
@@ -6018,40 +6219,32 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         chargeNumberOfIon := substanceData.z;
      end chargeNumberOfIon;
 
-     redeclare function extends molarEnthalpy "Molar enthalpy of the substance"
+     redeclare function extends molarEnthalpyElectroneutral
+      "Molar enthalpy of the pure substance in electroneutral solution"
      algorithm
-         molarEnthalpy := substanceData.DfH + Modelica.Constants.F*substanceData.z*v;
-     end molarEnthalpy;
+         //Molar enthalpy:
+         // - temperature shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - R*dT)
+         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
+         //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
+         molarEnthalpyElectroneutral := substanceData.DfH
+           +(T-298.15)*substanceData.Cp;
+     end molarEnthalpyElectroneutral;
 
      redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
      algorithm
+       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+       //+ (substanceData.Cp+Modelica.Constants.R)*log(T/298.15);
+
          //Molar entropy:
          // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
          // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
          molarEntropyPure := substanceData.Cp*log(T/298.15) - Modelica.Constants.R*log(p/100000) + ((substanceData.DfH
-           - substanceData.DfG_25degC_1bar)/298.15);
+          - substanceData.DfG_25degC_1bar)/298.15);
 
          //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
          //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
      end molarEntropyPure;
-
-     redeclare function extends chemicalPotentialPure
-      "Chemical potential of the pure substance"
-     algorithm
-         chemicalPotentialPure := substanceData.DfH - T*molarEntropyPure(substanceData,T,p,v,I);
-     end chemicalPotentialPure;
-
-     redeclare function extends electroChemicalPotentialPure
-      "Electro-chemical potential of the pure substance"
-     algorithm
-         electroChemicalPotentialPure := chemicalPotentialPure(
-           substanceData,
-           T,
-           p,
-           v,
-           I) + Modelica.Constants.F*substanceData.z*v;
-     end electroChemicalPotentialPure;
 
      redeclare function extends molarMass "Molar mass of the substance"
      algorithm
@@ -6064,18 +6257,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
      end molarVolumePure;
 
-     redeclare function extends molarVolumeExcess
-      "Excess molar volume of the substance in the solution"
-     algorithm
-        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
-           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
-     end molarVolumeExcess;
+    /* redeclare function extends molarHeatCapacityCp 
+    "Molar heat capacity of the substance at constant pressure"
+ algorithm 
+     molarHeatCapacity := substanceData.Cp;
+     end molarHeatCapacityCp; */
 
-     redeclare function extends molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure"
-     algorithm
-         molarHeatCapacity := substanceData.Cp;
-     end molarHeatCapacityCp;
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -6103,7 +6290,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Activity coefficient of the substance";
 
           parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
-        "Molar heat capacity of the substance";
+        "Molar heat capacity of the substance at constant pressure";
+
+          parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
+        "Molar heat capacity of the substance at constant volume";
 
           parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=997.0479
         "Density of the pure substance (default density of water at 25degC)";
@@ -6129,15 +6319,24 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         chargeNumberOfIon := substanceData.z;
      end chargeNumberOfIon;
 
-     redeclare function extends molarEnthalpy "Molar enthalpy of the substance"
+     redeclare function extends molarEnthalpyElectroneutral
+      "Molar enthalpy of the pure electroneutral substance"
      algorithm
-         //at 1bar: H = DfH + zFv
-         molarEnthalpy :=  substanceData.DfH + Modelica.Constants.F*substanceData.z*v;
-     end molarEnthalpy;
+         //Molar enthalpy:
+         // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
+         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
+
+         molarEnthalpyElectroneutral :=  substanceData.DfH
+         + (T - 298.15) * substanceData.Cv
+         - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
+     end molarEnthalpyElectroneutral;
 
       redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
       algorithm
+         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+         //+ substanceData.Cv*log(T/298.15);
+
          //Molar entropy shift:
          // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
          // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
@@ -6149,25 +6348,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
            I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15);
 
          //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+         //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
          //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
       end molarEntropyPure;
-
-     redeclare function extends chemicalPotentialPure
-      "Chemical potential of the pure substance"
-     algorithm
-         chemicalPotentialPure := substanceData.DfH - T*molarEntropyPure(substanceData,T,p,v,I);
-     end chemicalPotentialPure;
-
-     redeclare function extends electroChemicalPotentialPure
-      "Electro-chemical potential of the pure substance"
-     algorithm
-         electroChemicalPotentialPure :=chemicalPotentialPure(
-           substanceData,
-           T,
-           p,
-           v,
-           I) + Modelica.Constants.F*substanceData.z*v;
-     end electroChemicalPotentialPure;
 
      redeclare function extends molarMass "Molar mass of the substance"
      algorithm
@@ -6180,18 +6363,28 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
      end molarVolumePure;
 
-     redeclare function extends molarVolumeExcess
-      "Excess molar volume of the substance in the solution"
-     algorithm
-        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
-           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
-     end molarVolumeExcess;
+    /* redeclare function extends molarHeatCapacityCp 
+    "Molar heat capacity of the substance at constant pressure"
+ algorithm 
+     molarHeatCapacity := substanceData.Cp;
+ end molarHeatCapacityCp;
 
-     redeclare function extends molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure"
-     algorithm
-         molarHeatCapacity := substanceData.Cp;
-     end molarHeatCapacityCp;
+ function molarHeatCapacityCv 
+    "Molar heat capacity of the substance at constant volume"
+    extends Modelica.Icons.Function;
+   input SubstanceData substanceData "Data record of substance";
+   input Modelica.SIunits.Temperature T=298.15 "Temperature";
+   input Modelica.SIunits.Pressure p=101325 "Pressure";
+   input Modelica.SIunits.ElectricPotential v=0 
+      "Electric potential of the substance";
+   input Modelica.SIunits.MoleFraction I=0 
+      "Ionic strengh (mole fraction based)";
+   output Modelica.SIunits.MolarHeatCapacity molarHeatCapacity 
+      "Molar heat capacity";
+ algorithm 
+     molarHeatCapacity := substanceData.Cv;
+ end molarHeatCapacityCv;
+*/
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -6257,8 +6450,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.MolarVolume molarVolumeExcess
       "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
 
-      Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure";
+    //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
+    //    "Molar heat capacity of the substance at constant pressure";
 
     equation
       //define the substance
@@ -6284,7 +6477,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       molarVolume = substanceModel.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarVolumePure = substanceModel.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarVolumeExcess = substanceModel.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      molarHeatCapacityCp = substanceModel.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+    //  molarHeatCapacityCp = substanceModel.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
       a = gamma*x;
 
@@ -6477,7 +6670,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Initial mass of the solution (default 1kg)"
          annotation (Dialog(group="Initialization"));
 
-      parameter Modelica.SIunits.Volume volume_start=1/0.997
+      parameter Modelica.SIunits.Volume volume_start=1/997
       "Initial volume of the solution (default is volume of pure water in 1kg at 25degC)"
          annotation (Dialog(group="Initialization"));
 
@@ -6495,6 +6688,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Modelica.SIunits.AmountOfSubstance amountOfSolution(start=amountOfSolution_start)
       "Current amount of all substances in the solution";
+
+      Modelica.SIunits.Energy freeInternalEnergy
+      "Free Internal energy of the solution relative to start of the simulation";
 
       Modelica.SIunits.Entropy freeEntropy
       "Free entropy of the solution relative to start of the simulation";
@@ -6516,7 +6712,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Modelica.SIunits.Mass mass(start=mass_start) "Mass of the solution";
 
-      Modelica.SIunits.HeatFlowRate heatFromEnvironment;
+       Modelica.SIunits.HeatFlowRate heatFromEnvironment
+      "External heat flow rate";
+       Modelica.SIunits.Power workFromEnvironment "External working power";
 
        Modelica.SIunits.ElectricCharge charge(start=electricCharge_start)
       "Current electric charge of the solution";
@@ -6533,39 +6731,48 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       volume = volume_start;
       freeEntropy=0;
       freeEnthalpy=0;
-      T=temperature_start;
+    //  T=temperature_start;
       charge = electricCharge_start;
       solution.I = ionicStrength_start;
     equation
+      //The negative flows mean the same accumulations as in the connected substances models.
+      //This pattern does not simulate the flows of substances from Substance instances to Solution instance!
+      //It sumarize the total changes of all substances, so the flows must be in oposite direction as usual.
 
       //amount of substances
-      //der(amountOfSolution) = solution.dn;
-      der(lnn) = solution.dn/amountOfSolution;  amountOfSolution = exp(lnn);
+      //der(amountOfSolution) = -solution.dn;
+      der(lnn) = -solution.dn/amountOfSolution;  amountOfSolution = exp(lnn);
       solution.n = amountOfSolution;
 
-      der(mass) = solution.dm;
+      der(mass) = -solution.dm;
       solution.m = mass;
 
       //energies
-      der(freeEnthalpy) = solution.dH; // - heatFromEnvironment;
-      freeGibbsEnergy = freeEnthalpy - T*freeEntropy;
+      der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
+      heatFromEnvironment + workFromEnvironment = (-solution.dH) - solution.p*(-solution.dV) - volume*der(solution.p);
+
+      //calculation of free enthalpy
+      freeInternalEnergy = freeEnthalpy - volume*solution.p; //fundamental thermodynamics equation: H=U+p*V
+
+    //  der(freeEnthalpy) = solution.dH;
+      freeGibbsEnergy = freeEnthalpy - T*freeEntropy; //fundamental thermodynamics equation: G=H-T*S
       solution.T=T;
 
-      der(freeGibbsEnergy) = solution.dG;
+      der(freeGibbsEnergy) = -solution.dG;
       solution.G=freeGibbsEnergy;
 
-      der(freeEntropy) = solution.dS + heatFromEnvironment/T;
+    //  der(freeEntropy) = -solution.dS;
       solution.S=freeEntropy;
 
       //ionic strength (mole fraction based)
-      der(solution.I*amountOfSolution) = solution.dI;
+      der(solution.I*amountOfSolution) = -solution.dI;
       //der(lnIn) = solution.dI/(solution.I*amountOfSolution); (solution.I*amountOfSolution) = exp(lnIn);
 
       //electric charge
-      der(charge) = solution.i;
+      der(charge) = -solution.i;
 
       //volume
-      der(volume) = solution.dV;
+      der(volume) = -solution.dV;
       //der(lnvolume) = solution.dV/volume; volume = exp(lnvolume);
 
                                                                                                         annotation (
@@ -6715,27 +6922,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
             graphics={
-          Rectangle(
-            extent={{-94,80},{94,-90}},
-            lineThickness=1,
-            fillColor={224,255,254},
-            fillPattern=FillPattern.Solid,
-            pattern=LinePattern.None),
           Line(
             points={{-98,90},{-94,96},{-84,98},{84,98},{96,96},{100,92},{98,86},
                 {94,80},{94,80},{94,-88},{94,-88},{92,-94},{84,-100},{-84,-100},
                 {-92,-96},{-94,-90},{-94,-86},{-94,24},{-94,78},{-94,80},{-98,
                 90}},
             color={127,0,127},
-            smooth=Smooth.Bezier),
-          Polygon(
-            points={{-90,-96},{-84,-100},{82,-100},{92,-94},{94,-88},{-92,-82},
-                {-94,-92},{-90,-96}},
-            lineThickness=1,
             smooth=Smooth.Bezier,
-            fillColor={224,255,254},
-            fillPattern=FillPattern.Solid,
-            pattern=LinePattern.None)}));
+            pattern=LinePattern.Dot,
+            thickness=0.5)}));
     end Solution;
     annotation (Documentation(revisions=""));
   end Icons;
