@@ -924,13 +924,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           rotation=0,
           origin={78,-6})));
       Modelica.Electrical.Analog.Basic.Ground ground
-        annotation (Placement(transformation(extent={{-32,-38},{-12,-18}})));
+        annotation (Placement(transformation(extent={{-26,-36},{-6,-16}})));
       Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
         annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Sensors.PartialPressureSensor partialPressureSensor(redeclare package
         substanceModel = Chemical.Interfaces.IdealGasSubstanceModel,
         substanceData=Chemical.Examples.Substances.Water_gas)
-      annotation (Placement(transformation(extent={{6,68},{26,88}})));
+      annotation (Placement(transformation(extent={{-32,68},{-12,88}})));
     equation
 
       connect(H2O_liquid.solution, liquid.solution) annotation (Line(
@@ -960,11 +960,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={191,0,0},
           smooth=Smooth.None));
       connect(liquid.electricPin, ground.p) annotation (Line(
-          points={{-15.6,-8.9},{-15.6,-8},{-16,-8},{-16,-18},{-22,-18}},
-          color={0,0,255},
-          smooth=Smooth.None));
-      connect(gas.electricPin, ground.p) annotation (Line(
-          points={{-23.6,87.1},{-22,87.1},{-22,-18}},
+          points={{-15.6,-8.9},{-15.6,-8},{-16,-8},{-16,-16}},
           color={0,0,255},
           smooth=Smooth.None));
     connect(fixedTemperature.T, clock.y) annotation (Line(
@@ -972,11 +968,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         color={0,0,127},
         smooth=Smooth.Bezier));
     connect(partialPressureSensor.solution, gas.solution) annotation (Line(
-        points={{10,68},{30,68},{30,-2},{4,-2}},
+        points={{-28,68},{30,68},{30,-2},{4,-2}},
         color={158,66,200},
         smooth=Smooth.Bezier));
     connect(partialPressureSensor.port_a, H2O_gaseuous.port_a) annotation (Line(
-        points={{26,78},{32,78},{32,52},{0,52}},
+        points={{-12,78},{-12,52},{0,52}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
@@ -1834,6 +1830,108 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end StandardLeadAcidPotential;
 
+    model PowerGeneration "Hydrogen burning piston"
+      extends Modelica.Icons.Example;
+
+      parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
+      parameter Modelica.SIunits.Pressure p=100000 "Initial pressure";
+      parameter Modelica.SIunits.Temperature T=298.15 "Initial temperature";
+
+      parameter Modelica.SIunits.Area A=0.01 "Cross area of cylinder";
+
+      //p*V=n*R*T
+      parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
+      "Initial amount of substances in sulution";
+
+      Components.IdealGasSolution idealGas(
+        volume_start=V,
+        SurfaceArea=A,
+        AmbientPressure=p)
+        annotation (Placement(transformation(extent={{-50,-68},{50,32}})));
+      Modelica.Mechanics.Translational.Sources.Position position
+        annotation (Placement(transformation(extent={{-30,74},{-10,94}})));
+      Modelica.Blocks.Sources.Constant const(k=V/A)
+        annotation (Placement(transformation(extent={{-60,74},{-40,94}})));
+      Components.Substance H2_gas1(
+                                  redeclare package substanceModel =
+            Chemical.Interfaces.IdealGasSubstanceModel, substanceData=Chemical.Examples.Substances.Hydrogen_gas,
+        amountOfSubstance_start=2*n/3)
+        annotation (Placement(transformation(extent={{-40,-8},{-20,12}})));
+      Components.Substance O2_gas1(                           substanceData=
+            Chemical.Examples.Substances.Oxygen_gas,
+        redeclare package substanceModel =
+            Chemical.Interfaces.IdealGasSubstanceModel,
+        amountOfSubstance_start=n/3)
+        annotation (Placement(transformation(extent={{-44,-52},{-24,-32}})));
+      Components.Substance H2O_gas1(                          substanceData=
+            Chemical.Examples.Substances.Water_gas, redeclare package
+        substanceModel =   Chemical.Interfaces.IdealGasSubstanceModel)
+        annotation (Placement(transformation(extent={{44,-26},{24,-6}})));
+      Components.Reaction reaction1(
+        nS=2,
+        s={2,1},
+        p={2}) annotation (Placement(transformation(extent={{-10,-26},{10,-6}})));
+      Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
+          Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=90,
+            origin={0,52})));
+      Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=3)
+        annotation (Placement(transformation(extent={{44,-96},{64,-76}})));
+      Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
+        annotation (Placement(transformation(extent={{96,-96},{76,-76}})));
+    equation
+      connect(const.y, position.s_ref) annotation (Line(
+          points={{-39,84},{-32,84}},
+          color={0,0,127},
+          smooth=Smooth.None));
+      connect(reaction1.products[1], H2O_gas1.port_a) annotation (Line(
+          points={{10,-16},{24,-16}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(H2_gas1.port_a, reaction1.substrates[1]) annotation (Line(
+          points={{-20,2},{-16,2},{-16,-16.5},{-10,-16.5}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(O2_gas1.port_a, reaction1.substrates[2]) annotation (Line(
+          points={{-24,-42},{-16,-42},{-16,-15.5},{-10,-15.5}},
+          color={158,66,200},
+          thickness=1,
+          smooth=Smooth.None));
+      connect(H2_gas1.solution, idealGas.solution) annotation (Line(
+          points={{-36,-8},{-44,-8},{-44,-68},{0,-68}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(O2_gas1.solution, idealGas.solution) annotation (Line(
+          points={{-40,-52},{-44,-52},{-44,-68},{0,-68}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(H2O_gas1.solution, idealGas.solution) annotation (Line(
+          points={{40,-26},{40,-48},{0,-48},{0,-68}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
+          points={{0,31},{0,42}},
+          color={0,127,0},
+          smooth=Smooth.None));
+      connect(spring.flange_b, position.flange) annotation (Line(
+          points={{0,62},{0,84},{-10,84}},
+          color={0,127,0},
+          smooth=Smooth.None));
+      connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
+          points={{30,-68},{30,-86},{44,-86}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
+          points={{64,-86},{76,-86}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      annotation ( experiment(StopTime=1),Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+                -100},{100,100}}), graphics));
+    end PowerGeneration;
+
     package AcidBase
 
       model WaterSelfIonization "H2O  <->  OH-   +   H+ "
@@ -2329,10 +2427,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
               rotation=270,
               origin={18,-28})));
-        Components.Membrane membrane3
+        Components.Membrane membrane3(useKineticsInput=false)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
               rotation=270,
-              origin={72,-28})));
+              origin={70,-28})));
         Components.Membrane membrane annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=270,
@@ -2437,12 +2535,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(membrane3.port_b, Cl_E.port_a) annotation (Line(
-            points={{72,-38},{72,-84},{78,-84}},
+            points={{70,-38},{70,-84},{78,-84}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(membrane3.port_a, Cl_P.port_a) annotation (Line(
-            points={{72,-18},{72,12},{76,12}},
+            points={{70,-18},{70,12},{76,12}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
@@ -3899,9 +3997,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     initial equation
       T=temperature_start;
     equation
-      //isobaric condition
+      //hydraulic
       solution.p = ConstantPressure;
+      workFromEnvironment = 0;
 
+      //electric
       if  ElectricGround then
         //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
         solution.v = 0;
@@ -3910,6 +4010,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         solution.i = 0;
       end if;
 
+      //thermal
       if ConstantTemperature then
         //Ideal thermal exchange between environment and solution to reach constant temperature
         der(T)=0;
@@ -3918,7 +4019,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         heatFromEnvironment = 0;
       end if;
 
-      workFromEnvironment = 0;
                                                                                                         annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
@@ -3962,14 +4062,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
             iconTransformation(extent={{-2,96},{2,100}})));
     equation
-      //isobaric condition
+      //hydraulic
       surfaceFlange.s = volume/SurfaceArea;
       workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
       solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
 
+      //electric
       electricPin.v=solution.v;
       electricPin.i=solution.i;
 
+      //thermal
       heatPort.T = T;
       heatPort.Q_flow = heatFromEnvironment;
 
@@ -4012,25 +4114,32 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Modelica.SIunits.MolarMass MolarMass_start=0.01801528
       "Average molar mass of the substances of the ideal gass";
 
+       parameter Boolean ElectricGround = true
+      "Is the solution electric potential equal to zero during simulation?";
+
       Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
           Placement(transformation(extent={{50,-110},{70,-90}}), iconTransformation(
               extent={{58,-102},{62,-98}})));
-      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
-            transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(
-              extent={{-62,96},{-58,100}})));
       Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
       "The pressure of solution generate force on prescribed surface."
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
             iconTransformation(extent={{-2,96},{2,100}})));
     equation
-      //isobaric condition
-      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
-      workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
+      //hydraulic
+      solution.p = AmbientPressure - surfaceFlange.f/SurfaceArea;
+      workFromEnvironment = -der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
       surfaceFlange.s = volume/SurfaceArea;
 
-      electricPin.v=solution.v;
-      electricPin.i=solution.i;
+      //electric
+       if  ElectricGround then
+        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
+        solution.v = 0;
+      else
+        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
+        solution.i = 0;
+      end if;
 
+      //thermal
       heatPort.T = T;
       heatPort.Q_flow = heatFromEnvironment;
 
@@ -4094,7 +4203,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       //solution.dG = der(port_a.u*amountOfSubstance);
       solution.dG = port_a.u*port_a.q + der(port_a.u)*amountOfSubstance;
       //solution.dS = der(molarEntropyPure*amountOfSubstance);
-      solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure)*amountOfSubstance;
+    //  solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure)*amountOfSubstance;
 
       solution.dn = port_a.q;
       //solution.dm = der(molarMass*amountOfSubstance);
@@ -4519,7 +4628,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Interfaces.PartialSubstance;
 
       parameter Integer NumberOfSubunits=1
-      "Number of independent subunits occuring in macromolecule";
+      "Number of independent subunits occurring in macromolecule";
 
       Interfaces.SubstanceUsePort subunits[NumberOfSubunits]
       "Subunits of macromolecule"
@@ -4594,7 +4703,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       //changes of the solution, where all subunits are also connected
       solution.dH = molarEnthalpy * port_a.q + der(molarEnthalpy) * amountOfMacromolecule; // 0 = subunits.molarEnthalpy
-      solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure) * amountOfMacromolecule - (subunits.u * subunits.q) / temperature + amountOfMacromolecule*sum(subunits.u)*der(temperature)/temperature^2; // dS(subunits) = (-G/T)' = (-G'T+GT')/T^2
+    //  solution.dS = molarEntropyPure*port_a.q + der(molarEntropyPure) * amountOfMacromolecule - (subunits.u * subunits.q) / temperature + amountOfMacromolecule*sum(subunits.u)*der(temperature)/temperature^2; // dS(subunits) = (-G/T)' = (-G'T+GT')/T^2
       solution.dG = port_a.u * port_a.q + der(port_a.u)*amountOfMacromolecule + subunits.u * subunits.q + der(sum(subunits.u))*amountOfMacromolecule;
 
       solution.dn = port_a.q + sum(subunits.q);
@@ -5440,7 +5549,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.dn = 0;
       solution.dm = 0;
       solution.dH = 0;
-      solution.dS = 0;
+    //  solution.dS = 0;
       solution.dG = 0;
       solution.dI = (1/2) * z*solution.i/Modelica.Constants.F;
       solution.dV = 0;
@@ -6704,10 +6813,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       flow Modelica.SIunits.Power dG
       "Internal change of free Gibbs energy of the solution";
 
-      //free entropy
-      Modelica.SIunits.Entropy S "Free Entropy of the solution";
-      flow Modelica.SIunits.EntropyFlowRate dS
-      "Internal change of free entropy of the solution";
+    /*  //free entropy
+  Modelica.SIunits.Entropy S "Free Entropy of the solution";
+  flow Modelica.SIunits.EntropyFlowRate dS 
+    "Internal change of free entropy of the solution";
+    */
 
       //electric port
       Modelica.SIunits.ElectricPotential v "Electric potential in the solution";
@@ -6835,7 +6945,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.G=freeGibbsEnergy;
 
     //  der(freeEntropy) = -solution.dS;
-      solution.S=freeEntropy;
+    //  solution.S=freeEntropy;
 
       //ionic strength (mole fraction based)
       der(solution.I*amountOfSolution) = -solution.dI;
@@ -6895,7 +7005,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       //solution is not changed by the non-accumulating components
       //duality allows to change it only by accumulation components
       solution.dH = 0;
-      solution.dS = 0;
+    //  solution.dS = 0;
       solution.dG = 0;
       solution.dn = 0;
       solution.dm = 0;
