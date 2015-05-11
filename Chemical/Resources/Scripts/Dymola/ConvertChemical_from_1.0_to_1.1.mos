@@ -1,0 +1,30 @@
+// Convert from Chemical 1.0.* to Chemical 1.1.*
+
+// clear
+convertClear();
+
+
+convertClass("Chemical.Interfaces.PartialSubstanceModel.u0","Chemical.Interfaces.PartialSubstanceModel.chemicalPotentialPure")
+convertElement("Chemical.Interfaces.PartialSubstanceModel.u0", "u0" , "chemicalPotentialPure");
+convertClass("Chemical.Interfaces.PartialSubstanceModel.uPure","Chemical.Interfaces.PartialSubstanceModel.electroChemicalPotentialPure")
+convertElement("Chemical.Interfaces.PartialSubstanceModel.uPure", "uPure" , "electroChemicalPotentialPure");
+convertElement("Chemical.Interfaces.PartialSubstanceModel.activityCoefficient", "gamma" , "activityCoefficient");
+
+convertElement("Chemical.Interfaces.SimpleSubstanceModel.SubstanceData","DfG_25degC","DfG_25degC_1bar");
+convertClass("Chemical.Interfaces.SimpleSubstanceModel","Chemical.Interfaces.IncompressibleSubstanceModel")
+
+convertElement("Chemical.Interfaces.PartialSubstance","amountOfSolution","");
+
+convertElement("Chemical.Interfaces.PartialSolution","Cp_start","");
+convertElement("Chemical.Interfaces.PartialSolution","Cp","");
+
+convertElement("Chemical.Interfaces.PartialSubstanceInSolution","amountOfSolution","solution.n");
+
+convertModifiers("Chemical.Sources.PureSubstance",{"AmountOfSolution"}, fill("",0), true);
+
+convertClass("Chemical.Sources.PureElectricParticle","Chemical.Sources.Electrone")
+
+convertClass("Chemical.Components.Solution","Chemical.Components.SimpleSolution")
+
+convertClass("Chemical.Components.Buffer","Chemical.Components.AmbientBuffer")
+
