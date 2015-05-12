@@ -425,9 +425,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH=-285830,
         DfG_25degC_1bar=-237190,
         Cp=75.3,
-        Cv=74.539,
         References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
       "H2O(l)";
+     //   Cv=74.539,
 
       constant Interfaces.IncompressibleSubstanceModel.SubstanceData
         DihydrogenPhosphate_aqueous(
@@ -1394,11 +1394,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=90,
             origin={-40,0})));
 
-      Sources.Electrone electrone
-        annotation (Placement(transformation(extent={{-78,32},{-58,52}})));
+    Components.Electrone electrone
+      annotation (Placement(transformation(extent={{-78,32},{-58,52}})));
                                  //(substanceData=Chemical.Examples.Substances.Electrone_solid)
-      Sources.Electrone electrone1
-        annotation (Placement(transformation(extent={{88,-26},{68,-6}})));
+    Components.Electrone electrone1
+      annotation (Placement(transformation(extent={{88,-26},{68,-6}})));
                                   //(substanceData=Chemical.Examples.Substances.Electrone_solid)
 
     Modelica.Electrical.Analog.Basic.Ground ground
@@ -1526,10 +1526,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=90,
             origin={44,14})));
 
-      Sources.Electrone electrone
-        annotation (Placement(transformation(extent={{84,32},{64,52}})));
-      Sources.Electrone electrone1
-        annotation (Placement(transformation(extent={{-84,-16},{-64,4}})));
+    Components.Electrone electrone
+      annotation (Placement(transformation(extent={{84,32},{64,52}})));
+    Components.Electrone electrone1
+      annotation (Placement(transformation(extent={{-84,-16},{-64,4}})));
       Components.Substance  PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
         amountOfSubstance_start=1)
         annotation (Placement(transformation(
@@ -1669,7 +1669,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         color={158,66,200},
         smooth=Smooth.None));
       annotation (
-      experiment(StopTime=50400),
+      experiment(StopTime=49500),
                               Diagram(coordinateSystem(preserveAspectRatio=false,
                      extent={{-100,-100},{100,100}}), graphics),
         __Dymola_experimentSetupOutput,
@@ -3719,8 +3719,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
       end Hemoglobin_MKM_Adair;
 
-
-
     end Hemoglobin;
 
     package CheckSubstancesData
@@ -3898,10 +3896,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               extent={{-10,10},{10,-10}},
               rotation=90,
               origin={-40,6})));
-        Sources.Electrone electrone
-          annotation (Placement(transformation(extent={{-80,40},{-60,60}})));
-        Sources.Electrone electrone1
-          annotation (Placement(transformation(extent={{86,-26},{66,-6}})));
+      Components.Electrone electrone
+        annotation (Placement(transformation(extent={{-80,40},{-60,60}})));
+      Components.Electrone electrone1
+        annotation (Placement(transformation(extent={{86,-26},{66,-6}})));
 
       equation
         connect(Ag.port_a, electrodeReaction1.substrates[1]) annotation (Line(
@@ -4012,10 +4010,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               rotation=90,
               origin={44,14})));
 
-        Sources.Electrone electrone
-          annotation (Placement(transformation(extent={{84,32},{64,52}})));
-        Sources.Electrone electrone1
-          annotation (Placement(transformation(extent={{-86,-12},{-66,8}})));
+      Components.Electrone electrone
+        annotation (Placement(transformation(extent={{84,32},{64,52}})));
+      Components.Electrone electrone1
+        annotation (Placement(transformation(extent={{-86,-12},{-66,8}})));
         Sources.AmbientMoleFraction
                               PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
           MoleFraction=1)
@@ -4395,6 +4393,71 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
               100,100}}), graphics));
     end Substance;
+
+    model Electrone "Electrons in solution"
+      extends Interfaces.PartialSubstanceInSolution(final substanceModel, final substanceData(
+        MolarWeight=5.4857990946e-7,
+        z=-1,
+        DfH=0,
+        DfG_25degC_1bar=0,
+        Cp=0,
+        density=1e20));
+
+      Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+          Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
+              extent={{-110,-10},{-90,10}})));
+
+    equation
+      //electric
+      pin.v = electricPotential;
+      pin.i + z*Modelica.Constants.F*port_a.q = 0;
+
+      //pure substance
+      x = 1;
+
+      //the solution changes
+      solution.dn = 0;
+      solution.dm = 0;
+      solution.dH = 0;
+      solution.dG = 0;
+      solution.dI = (1/2) * z*solution.i/Modelica.Constants.F;
+      solution.dV = 0;
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={0,0,0},
+              pattern=LinePattern.None,
+              fillColor={107,45,134},
+              fillPattern=FillPattern.Backward),
+            Text(
+              extent={{10,8},{-90,-92}},
+              lineColor={0,0,0},
+              textString="pure"),
+            Line(
+              points={{-62,0},{56,0}},
+              color={191,0,0},
+              thickness=0.5),
+            Polygon(
+              points={{38,-20},{38,20},{78,0},{38,-20}},
+              lineColor={191,0,0},
+              fillColor={191,0,0},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,150},{150,110}},
+              textString="%name",
+              lineColor={0,0,255}),
+            Text(
+              extent={{-104,-76},{100,-100}},
+              lineColor={0,0,0},
+              textString="%T K")}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end Electrone;
 
     model Reaction "Chemical Reaction"
 
@@ -5851,71 +5914,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end AmbientMoleFraction;
 
-    model Electrone "Electrons in solution"
-      extends Interfaces.PartialSubstanceInSolution(final substanceModel, final substanceData(
-        MolarWeight=5.4857990946e-7,
-        z=-1,
-        DfH=0,
-        DfG_25degC_1bar=0,
-        Cp=0,
-        density=1e20));
-
-      Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
-          Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
-              extent={{-110,-10},{-90,10}})));
-
-    equation
-      //electric
-      pin.v = electricPotential;
-      pin.i + z*Modelica.Constants.F*port_a.q = 0;
-
-      //pure substance
-      x = 1;
-
-      //the solution changes
-      solution.dn = 0;
-      solution.dm = 0;
-      solution.dH = 0;
-    //  solution.dS = 0;
-      solution.dG = 0;
-      solution.dI = (1/2) * z*solution.i/Modelica.Constants.F;
-      solution.dV = 0;
-
-      annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-            graphics={
-            Rectangle(
-              extent={{-100,100},{100,-100}},
-              lineColor={0,0,0},
-              pattern=LinePattern.None,
-              fillColor={107,45,134},
-              fillPattern=FillPattern.Backward),
-            Text(
-              extent={{10,8},{-90,-92}},
-              lineColor={0,0,0},
-              textString="pure"),
-            Line(
-              points={{-62,0},{56,0}},
-              color={191,0,0},
-              thickness=0.5),
-            Polygon(
-              points={{38,-20},{38,20},{78,0},{38,-20}},
-              lineColor={191,0,0},
-              fillColor={191,0,0},
-              fillPattern=FillPattern.Solid),
-            Text(
-              extent={{-150,150},{150,110}},
-              textString="%name",
-              lineColor={0,0,255}),
-            Text(
-              extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
-              textString="%T K")}),
-        Documentation(revisions="<html>
-<p><i>2009-2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end Electrone;
 
     model SubstanceInflow "Molar pump of substance to system"
       extends Interfaces.ConditionalSubstanceFlow;
@@ -6922,8 +6920,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
         "Molar heat capacity of the substance at constant pressure";
 
-          parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
-        "Molar heat capacity of the substance at constant volume";
+      //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
+      //      "Molar heat capacity of the substance at constant volume";
 
           parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=997.0479
         "Density of the pure substance (default density of water at 25degC)";
