@@ -2136,7 +2136,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{-16,-70},{4,-50}})));
         Components.Substance CO2_dissolved_E(amountOfSubstance_start=0.00093,
           substanceData=Chemical.Examples.Substances.CarbonDioxide_aqueous)
-        annotation (Placement(transformation(extent={{-94,-86},{-74,-66}})));
+        annotation (Placement(transformation(extent={{-92,-86},{-72,-66}})));
         Components.Substance H2O_E(
           amountOfSubstance_start=39.5,
           substanceData=Chemical.Examples.Substances.Water_liquid)
@@ -2166,9 +2166,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Components.Membrane membrane annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=270,
-              origin={-66,-16})));
-      Chemical.Sources.BufferInSolution H(xBuffered_start=10^(-7.2),
-          substanceData=Chemical.Examples.Substances.Proton_aqueous)
+              origin={-64,-16})));
+      Chemical.Sources.BufferInSolution H_E(
+        a_start=10^(-7.2),
+        substanceData=Chemical.Examples.Substances.Proton_aqueous,
+        BufferValue=0.003)
         annotation (Placement(transformation(extent={{48,-90},{30,-72}})));
       equation
       //  pH_p = -log10(H.a);
@@ -2180,7 +2182,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
       connect(CO2_dissolved_E.port_a, HendersonHasselbalch1.substrates[1])
         annotation (Line(
-          points={{-74,-76},{-30,-76},{-30,-60.5},{-16,-60.5}},
+          points={{-72,-76},{-30,-76},{-30,-60.5},{-16,-60.5}},
           color={107,45,134},
           thickness=1,
           smooth=Smooth.None));
@@ -2201,7 +2203,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
       connect(CO2_dissolved_E.solution, blood_erythrocytes.solution)
         annotation (Line(
-          points={{-90,-86},{-90,-98},{0,-98}},
+          points={{-88,-86},{-88,-98},{0,-98}},
           color={0,0,0},
           smooth=Smooth.None));
         connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
@@ -2219,7 +2221,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(membrane.port_b, CO2_dissolved_E.port_a) annotation (Line(
-          points={{-66,-26},{-66,-76},{-74,-76}},
+          points={{-64,-26},{-64,-76},{-72,-76}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2254,7 +2256,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(membrane.port_a, CO2_dissolved.port_a) annotation (Line(
-          points={{-66,-6},{-66,32},{-72,32}},
+          points={{-64,-6},{-64,32},{-72,32}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2267,11 +2269,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           points={{42,20},{42,6},{0,6}},
           color={0,0,0},
           smooth=Smooth.None));
-      connect(blood_erythrocytes.solution, H.solution) annotation (Line(
+      connect(blood_erythrocytes.solution, H_E.solution) annotation (Line(
           points={{0,-98},{44,-98},{44,-90},{44.4,-90}},
           color={158,66,200},
           smooth=Smooth.None));
-      connect(H.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
+      connect(H_E.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
           points={{30,-81},{14,-81},{14,-59.5},{4,-59.5}},
           color={158,66,200},
           thickness=1,
@@ -6195,7 +6197,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.AmountOfSubstance nBuffered;
       Modelica.SIunits.MoleFraction xBuffered;
     initial equation
-      xBuffered = log10(a)*(bufferValue/solution.n);
+      xBuffered = log10(a_start)*(bufferValue/solution.n);
     equation
       if not useBufferValueInput then
         bufferValue = BufferValue;
