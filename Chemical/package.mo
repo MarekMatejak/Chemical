@@ -236,11 +236,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
   end ReleaseNotes;
 
-  class NewRealease "Publishing new release"
+  class NewRelease "Publishing new release"
     extends Modelica.Icons.Information;
 
    annotation (Documentation(info="<html>
-<p><br>New release must be numbered by Semantic Versioning 2.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
+<p><br>New release must be numbered by Semantic Versioning 2.0.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
 <p><br>If minor version, then the conversion script must be written and connected with package Chemical using &QUOT;annotation(conversion(from(version=..)))&QUOT;! </p>
 <p><br>To clean the code from dummy annotations try to use script <a href=\"https://github.com/dietmarw/trimtrailingwhitespaces\">ttws</a>. </p>
 <p>To check english spelling try to use <a href=\"https://github.com/vlajos/misspell_fixer\">missspell_fixer</a>.</p>
@@ -265,7 +265,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <li>Draft a new release from &QUOT;release&QUOT; branch with number &QUOT;vX.Y.Z&QUOT; and with release notes. </li>
 </ul>
 </html>"));
-  end NewRealease;
+  end NewRelease;
 
   class Contact "Contact"
     extends Modelica.Icons.Contact;
@@ -1902,7 +1902,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&QUOT;pH&QUOT;,&nbsp;1);</b></pre>
 <p><br>Please note, that OH- (and CO3^-2) can be neglected from electroneutrality calculation, because of very small concentrations (in physiological pH) anyway. </p>
 <p>And if SID&GT;0 then also H3O+ can be also neglected from electroneutrality, because only bicarbonate anions HCO3- (or CO3^-2) are needed there to balance the electroneutrality.</p>
-<p><br>The partial pressure of CO2 in gas are input parameter. Outputs are an amount of free disolved CO2 in liquid and an amount of HCO3-.</p>
+<p><br>The partial pressure of CO2 in gas are input parameter. Outputs are an amount of free dissolved CO2 in liquid and an amount of HCO3-.</p>
 <p><br>The titration slope der(pH)/der(SID)=17.5 1/(mol/L) at pH=7.4 and pCO2=40 mmHg.</p>
 <p><br>Molar heat of formation (aqueous):</p>
 <p>CO2:        -413.5 kJ/mol  (gas: -393.5 kJ/mol )</p>
@@ -7135,7 +7135,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p>Solution port integrates all substances of the solution:</p>
-<p>Such as if there are conected together with electric port, thermal port and with port composed with the amont of substance and molar change of substance.</p>
+<p>Such as if there are connected together with electric port, thermal port and with port composed with the amont of substance and molar change of substance.</p>
 </html>"), Icon(graphics={            Rectangle(
               extent={{-100,100},{100,-100}},
               lineColor={158,66,200},
@@ -7223,7 +7223,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     equation
       //The negative flows mean the same accumulations as in the connected substances models.
       //This pattern does not simulate the flows of substances from Substance instances to Solution instance!
-      //It sumarize the total changes of all substances, so the flows must be in oposite direction as usual.
+      //It sumarize the total changes of all substances, so the flows must be in opposite direction as usual.
 
       //amount of substances
       //der(amountOfSolution) = -solution.dn;
@@ -7278,7 +7278,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     end PartialSolution;
 
     partial model OnePortParallel
-    "Partial molar flow beween two substance definitions"
+    "Partial molar flow between two substance definitions"
 
       SubstanceUsePort port_a annotation (Placement(transformation(extent={{-110,-10},
                 {-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
