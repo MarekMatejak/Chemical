@@ -1394,10 +1394,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=90,
             origin={-40,0})));
 
-    Components.Electrone electrone
+    Components.Electron electrone
       annotation (Placement(transformation(extent={{-78,32},{-58,52}})));
                                  //(substanceData=Chemical.Examples.Substances.Electrone_solid)
-    Components.Electrone electrone1
+    Components.Electron electrone1
       annotation (Placement(transformation(extent={{88,-26},{68,-6}})));
                                   //(substanceData=Chemical.Examples.Substances.Electrone_solid)
 
@@ -1526,9 +1526,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=90,
             origin={44,14})));
 
-    Components.Electrone electrone
+    Components.Electron electrone
       annotation (Placement(transformation(extent={{84,32},{64,52}})));
-    Components.Electrone electrone1
+    Components.Electron electrone1
       annotation (Placement(transformation(extent={{-84,-16},{-64,4}})));
       Components.Substance  PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
         amountOfSubstance_start=1)
@@ -3896,9 +3896,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               extent={{-10,10},{10,-10}},
               rotation=90,
               origin={-40,6})));
-      Components.Electrone electrone
+      Components.Electron electrone
         annotation (Placement(transformation(extent={{-80,40},{-60,60}})));
-      Components.Electrone electrone1
+      Components.Electron electrone1
         annotation (Placement(transformation(extent={{86,-26},{66,-6}})));
 
       equation
@@ -4010,9 +4010,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               rotation=90,
               origin={44,14})));
 
-      Components.Electrone electrone
+      Components.Electron electrone
         annotation (Placement(transformation(extent={{84,32},{64,52}})));
-      Components.Electrone electrone1
+      Components.Electron electrone1
         annotation (Placement(transformation(extent={{-86,-12},{-66,8}})));
         Sources.AmbientMoleFraction
                               PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
@@ -4394,7 +4394,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               100,100}}), graphics));
     end Substance;
 
-    model Electrone "Electrons in solution"
+    model Electron "Electron in the solution"
       extends Interfaces.PartialSubstanceInSolution(final substanceModel, final substanceData(
         MolarWeight=5.4857990946e-7,
         z=-1,
@@ -4457,7 +4457,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-    end Electrone;
+    end Electron;
 
     model Reaction "Chemical Reaction"
 
@@ -5913,7 +5913,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end AmbientMoleFraction;
-
 
     model SubstanceInflow "Molar pump of substance to system"
       extends Interfaces.ConditionalSubstanceFlow;
