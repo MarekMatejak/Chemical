@@ -6078,8 +6078,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
        parameter Modelica.SIunits.MoleFraction xBuffered_start=1e-7
       "Initial value of mole fraction of the buffered substance";
 
-       parameter Modelica.SIunits.AmountOfSubstance BufferValue(final unit="1") = 1
-      "Fixed buffer value (slope between amount of free substance (x*n) and -log10(x)) if useBufferValueInput=false"
+       parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.001
+      "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
        parameter Boolean useBufferValueInput = false
@@ -6118,7 +6118,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       der(nBuffered) = port_a.q;
       xBuffered = nBuffered/AmountOfSolution;
-      port_a.q = (AmountOfSolution/Tau)*(-xBuffered -log10(x)*bufferValue);
+      port_a.q = (AmountOfSolution/Tau)*(-xBuffered -log10(a)*bufferValue);
 
       //solution properties at the port
       temperature = Temperature;
@@ -6167,11 +6167,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     "Source of substance bounded to constant amount of buffer to reach linear dependence between concentration and electrochemical potential"
          extends Interfaces.PartialSubstanceInSolution;
 
-       parameter Modelica.SIunits.MoleFraction xBuffered_start=1e-7
+       parameter Modelica.SIunits.MoleFraction a_start=1e-7
       "Initial value of mole fraction of the buffered substance";
 
-       parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.003
-      "Fixed buffer value (slope between amount of free substance (x*n) and -log10(x)) if useBufferValueInput=false"
+       parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.001
+      "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
        parameter Boolean useBufferValueInput = false
@@ -6195,7 +6195,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.AmountOfSubstance nBuffered;
       Modelica.SIunits.MoleFraction xBuffered;
     initial equation
-      xBuffered = xBuffered_start;
+      xBuffered = log10(a)*(bufferValue/solution.n);
     equation
       if not useBufferValueInput then
         bufferValue = BufferValue;
@@ -6203,7 +6203,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       der(nBuffered) = port_a.q;
       xBuffered = nBuffered/solution.n;
-      port_a.q = (solution.n/Tau)*(-xBuffered -log10(x)*(bufferValue/solution.n));
+      port_a.q = (solution.n/Tau)*(-xBuffered -log10(a)*(bufferValue/solution.n));
 
       //solution properties at the port
     /*  temperature = Temperature;
