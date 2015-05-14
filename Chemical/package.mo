@@ -6310,8 +6310,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
        parameter Modelica.SIunits.MoleFraction a_start=1e-7
       "Initial value of mole fraction of the buffered substance";
 
-       parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.001
-      "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
+       parameter Modelica.SIunits.MoleFraction BufferValue = 0.063/38730
+      "Fixed buffer value (slope between mole fraction of free buffer and -log10(activity)) if useBufferValueInput=false. Default value from Siggaard-Andersen in mmol/l divided by amount of solution per volume (mol/m3)"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
        parameter Boolean useBufferValueInput = false
