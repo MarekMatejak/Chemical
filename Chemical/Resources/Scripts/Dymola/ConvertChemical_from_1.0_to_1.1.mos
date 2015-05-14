@@ -22,7 +22,7 @@ convertElement("Chemical.Interfaces.PartialSubstanceInSolution","amountOfSolutio
 
 convertModifiers("Chemical.Sources.PureSubstance",{"AmountOfSolution"}, fill("",0), true);
 
-convertClass("Chemical.Sources.PureElectricParticle","Chemical.Sources.Electrone")
+convertClass("Chemical.Sources.PureElectricParticle","Chemical.Components.Electron")
 
 convertClass("Chemical.Components.Solution","Chemical.Components.SimpleSolution")
 
