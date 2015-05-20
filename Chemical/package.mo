@@ -622,11 +622,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(A.solution, solution.solution) annotation (Line(
-          points={{-48,-8},{-48,-92},{0,-92},{0,-98}},
+          points={{-48,-8},{-48,-92},{0,-92},{0,-100}},
           color={0,0,0},
           smooth=Smooth.None));
-      connect(B.solution, solution.solution) annotation (Line(points={{58,-8},{
-            58,-92},{0,-92},{0,-98}},    smooth=Smooth.None));
+      connect(B.solution, solution.solution) annotation (Line(points={{58,-8},{58,-92},
+              {0,-92},{0,-100}},         smooth=Smooth.None));
       connect(A.port_a, reaction.substrates[1]) annotation (Line(
           points={{-32,2},{-10,2}},
           color={158,66,200},
@@ -847,12 +847,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(B.solution, thermal_isolated_solution.solution) annotation (Line(
-          points={{36,-60},{36,-64},{-1,-64},{-1,-99.06}},
+          points={{36,-60},{36,-64},{-1,-64},{-1,-100}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(A.solution, thermal_isolated_solution.solution) annotation (Line(
-            points={{-36,-60},{-36,-64},{-1,-64},{-1,-99.06}},
-                                                             smooth=Smooth.None));
+            points={{-36,-60},{-36,-64},{-1,-64},{-1,-100}}, smooth=Smooth.None));
       connect(A1.port_a, reaction1.substrates[1]) annotation (Line(
           points={{-20,50},{-8,50}},
           color={158,66,200},
@@ -865,33 +864,32 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
       connect(B1.solution, solution_at_constant_temperature.solution) annotation (
           Line(
-          points={{36,40},{36,34},{-1,34},{-1,0.94}},
+          points={{36,40},{36,34},{-1,34},{-1,0}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(A1.solution, solution_at_constant_temperature.solution) annotation (
-          Line(points={{-36,40},{-36,34},{-1,34},{-1,0.94}},
-                                                          smooth=Smooth.None));
+          Line(points={{-36,40},{-36,34},{-1,34},{-1,0}}, smooth=Smooth.None));
     connect(solution_at_constant_temperature.electricPin, ground.p) annotation (
        Line(
-        points={{-60.4,94},{-60,94},{-60,-22},{-48,-22}},
+        points={{-60.4,93.06},{-60,93.06},{-60,-22},{-48,-22}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(thermal_isolated_solution.electricPin, ground.p) annotation (Line(
-        points={{-60.4,-6},{-60,-6},{-60,-22},{-48,-22}},
+        points={{-60.4,-6.94},{-60,-6.94},{-60,-22},{-48,-22}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(fixedTemperature.port, solution_at_constant_temperature.heatPort)
       annotation (Line(
-        points={{72,50},{58.4,50},{58.4,0.94}},
+        points={{72,50},{58.4,50},{58.4,0}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(solution_at_constant_temperature.solution, H2O.solution)
       annotation (Line(
-        points={{-1,0.94},{24,0.94},{24,4}},
+        points={{-1,3.55271e-015},{24,3.55271e-015},{24,4}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(thermal_isolated_solution.solution, H2O1.solution) annotation (Line(
-        points={{-1,-99.06},{24,-99.06},{24,-94}},
+        points={{-1,-100},{24,-100},{24,-94}},
         color={158,66,200},
         smooth=Smooth.None));
       annotation ( Documentation(revisions="<html>
@@ -918,7 +916,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Components.IdealGasSolution idealGas(
         SurfaceArea=A)
-        annotation (Placement(transformation(extent={{-50,-44},{50,56}})));
+        annotation (Placement(transformation(extent={{-50,-68},{50,32}})));
                        // AmbientPressure=p)
       //  volume_start=V,
       Components.Substance H2_gas(
@@ -926,74 +924,74 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           Chemical.Interfaces.IdealGas,
       substanceData=Chemical.Examples.Substances.Hydrogen_gas,
         amountOfSubstance_start(displayUnit="mmol") = 0.026)
-      annotation (Placement(transformation(extent={{-42,16},{-22,36}})));
+      annotation (Placement(transformation(extent={{-42,-8},{-22,12}})));
       Components.Substance O2_gas(
       substanceData=Chemical.Examples.Substances.Oxygen_gas,
       redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGas,
         amountOfSubstance_start(displayUnit="mmol") = 0.013)
-      annotation (Placement(transformation(extent={{-44,-28},{-24,-8}})));
+      annotation (Placement(transformation(extent={{-44,-52},{-24,-32}})));
       Components.Substance H2O_gas(substanceData=Chemical.Examples.Substances.Water_gas,
         redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGas)
-      annotation (Placement(transformation(extent={{44,-2},{24,18}})));
+      annotation (Placement(transformation(extent={{44,-26},{24,-6}})));
       Components.Reaction reaction(
       nS=2,
       s={2,1},
-      p={2}) annotation (Placement(transformation(extent={{-10,-2},{10,18}})));
+      p={2}) annotation (Placement(transformation(extent={{-10,-26},{10,-6}})));
       Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
           Placement(transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
-            origin={14,68})));
+            rotation=90,
+            origin={0,52})));
       Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=2)
-        annotation (Placement(transformation(extent={{28,-70},{8,-50}})));
+        annotation (Placement(transformation(extent={{44,-96},{64,-76}})));
       Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
-        annotation (Placement(transformation(extent={{-20,-70},{0,-50}})));
+        annotation (Placement(transformation(extent={{96,-96},{76,-76}})));
       Modelica.Mechanics.Translational.Components.Fixed fixed
-        annotation (Placement(transformation(extent={{30,58},{50,78}})));
+        annotation (Placement(transformation(extent={{8,72},{28,92}})));
     equation
     connect(reaction.products[1], H2O_gas.port_a) annotation (Line(
-        points={{10,8},{24,8}},
+        points={{10,-16},{24,-16}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
     connect(H2_gas.port_a, reaction.substrates[1]) annotation (Line(
-        points={{-22,26},{-16,26},{-16,7.5},{-10,7.5}},
+        points={{-22,2},{-16,2},{-16,-16.5},{-10,-16.5}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
     connect(O2_gas.port_a, reaction.substrates[2]) annotation (Line(
-        points={{-24,-18},{-16,-18},{-16,8.5},{-10,8.5}},
+        points={{-24,-42},{-16,-42},{-16,-15.5},{-10,-15.5}},
         color={158,66,200},
         thickness=1,
         smooth=Smooth.None));
     connect(H2_gas.solution, idealGas.solution) annotation (Line(
-        points={{-38,16},{-44,16},{-44,-43},{0,-43}},
+        points={{-38,-8},{-44,-8},{-44,-67},{0,-67}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(O2_gas.solution, idealGas.solution) annotation (Line(
-        points={{-40,-28},{-44,-28},{-44,-43},{0,-43}},
+        points={{-40,-52},{-44,-52},{-44,-67},{0,-67}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(H2O_gas.solution, idealGas.solution) annotation (Line(
-        points={{40,-2},{40,-24},{0,-24},{0,-43}},
+        points={{40,-26},{40,-48},{0,-48},{0,-67}},
         color={158,66,200},
         smooth=Smooth.None));
       connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
-          points={{0,56},{0,68},{4,68}},
+          points={{0,32},{0,42}},
           color={0,127,0},
           smooth=Smooth.None));
       connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
-          points={{30,-43},{30,-60},{28,-60}},
+          points={{30,-67},{30,-86},{44,-86}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
-          points={{8,-60},{0,-60}},
+          points={{64,-86},{76,-86}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(fixed.flange, spring.flange_b) annotation (Line(
-          points={{40,68},{24,68}},
+          points={{18,82},{18,82},{18,88},{0,88},{0,62},{6.66134e-016,62}},
           color={0,127,0},
           smooth=Smooth.None));
       annotation ( experiment(StopTime=1),Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
@@ -1613,185 +1611,198 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
     Components.SimpleSolution anode( ElectricGround=
           false)
-      annotation (Placement(transformation(extent={{54,-46},{92,62}})));
+      annotation (Placement(transformation(extent={{24,-76},{58,32}})));
 
     Components.SimpleSolution cathode(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-94,-50},{-56,58}})));
+      annotation (Placement(transformation(extent={{-80,-78},{-46,30}})));
 
     Components.SimpleSolution solution1(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-32,-66},{40,18}})));
+      annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
 
       Components.Substance  Pb(substanceData=Chemical.Examples.Substances.Lead_solid,
         amountOfSubstance_start=1)
-        annotation (Placement(transformation(extent={{84,-34},{64,-14}})));
+        annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
       Components.Substance HSO4(                             substanceData=Chemical.Examples.Substances.HydrogenSulfate_aqueous,
         amountOfSubstance_start=1)
-        annotation (Placement(transformation(extent={{-22,-58},{-2,-38}})));
+        annotation (Placement(transformation(extent={{-2,-70},{-22,-50}})));
       Components.Substance  PbSO4_(substanceData=Chemical.Examples.Substances.LeadSulfate_solid,
         amountOfSubstance_start=0.01)
-        annotation (Placement(transformation(extent={{84,4},{64,24}})));
+        annotation (Placement(transformation(extent={{50,-32},{30,-12}})));
       Components.Substance H(substanceData=
             Chemical.Examples.Substances.Proton_aqueous,
-        amountOfSubstance_start=1)    annotation (Placement(transformation(extent={{6,-28},
-              {26,-8}})));
+        amountOfSubstance_start=1)    annotation (Placement(transformation(extent={{-2,-42},
+              {-22,-22}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
-        annotation (Placement(transformation(extent={{-8,76},{12,96}})));
+        annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
       Components.Reaction electrodeReaction(nP=2,
         nS=4,
         s={1,1,3,2},
       p={1,2})                                             annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
-            origin={-42,6})));
+            origin={-36,-14})));
       Components.Reaction electrodeReaction1(nS=2,
         nP=3,
         p={1,1,2})                                       annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=90,
-            origin={44,14})));
+            origin={14,-16})));
 
     Components.ElectronTransfer electrone
-      annotation (Placement(transformation(extent={{84,32},{64,52}})));
+      annotation (Placement(transformation(extent={{50,2},{30,22}})));
     Components.ElectronTransfer electrone1
-      annotation (Placement(transformation(extent={{-84,-16},{-64,4}})));
+      annotation (Placement(transformation(extent={{-72,-38},{-52,-18}})));
       Components.Substance  PbO2(substanceData=Chemical.Examples.Substances.LeadDioxide_solid,
         amountOfSubstance_start=1)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
-            origin={-74,-30})));
+            origin={-60,-58})));
       Components.Substance H2O(substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=0.1)
-        annotation (Placement(transformation(extent={{-2,-10},{-22,10}})));
+        annotation (Placement(transformation(extent={{-2,-8},{-22,12}})));
       Components.Substance  PbSO4(substanceData=Chemical.Examples.Substances.LeadSulfate_solid,
         amountOfSubstance_start=0.01)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
-            origin={-74,32})));
+            origin={-60,6})));
 
     Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{82,-84},{102,-64}})));
+      annotation (Placement(transformation(extent={{16,30},{36,50}})));
     Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
-      annotation (Placement(transformation(extent={{16,54},{36,74}})));
+      annotation (Placement(transformation(extent={{-14,40},{6,60}})));
     Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
-      annotation (Placement(transformation(extent={{-38,54},{-18,74}})));
+      annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
     equation
       connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-          points={{64,-24},{45.5,-24},{45.5,4},{44.5,4}},
+          points={{30,-56},{15.5,-56},{15.5,-26},{14.5,-26}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-          points={{-2,-48},{42,-48},{42,4},{43.5,4}},
+          points={{-22,-60},{12,-60},{12,-26},{13.5,-26}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
-          points={{64,14},{56,14},{56,28},{46,28},{46,24},{44.6667,24}},
+          points={{30,-22},{26,-22},{26,-2},{16,-2},{16,-6},{14.6667,-6}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(HSO4.solution, solution1.solution) annotation (Line(
-          points={{-18,-58},{4,-58},{4,-65.16}},
+          points={{-6,-70},{-6,-70},{-6,-78},{-12,-78},{-12,-79}},
           color={0,0,0},
           smooth=Smooth.None));
-      connect(H.solution, solution1.solution) annotation (Line(points={{10,-28},
-            {4,-28},{4,-65.16}},         smooth=Smooth.None));
+      connect(H.solution, solution1.solution) annotation (Line(points={{-6,-42},
+            {-6,-78},{-12,-78},{-12,-79}},
+                                         smooth=Smooth.None));
       connect(H2O.solution, solution1.solution) annotation (Line(
-          points={{-6,-10},{-6,-30},{4,-30},{4,-65.16}},
+          points={{-6,-8},{-6,-79},{-12,-79}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
-          points={{-42.5,16},{-42.5,32},{-64,32}},
+          points={{-36.5,-4},{-36.5,6},{-50,6}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
-          points={{-41.5,16},{-40,16},{-40,22},{-34,22},{-34,0},{-22,0}},
+          points={{-35.5,-4},{-34,-4},{-34,2},{-22,2}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
-          points={{-64,-30},{-42,-30},{-42,-4},{-42.75,-4}},
+          points={{-50,-58},{-36,-58},{-36,-24},{-36.75,-24}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
-          points={{-2,-48},{-40,-48},{-40,-4},{-42.25,-4}},
+          points={{-22,-60},{-34,-60},{-34,-24},{-36.25,-24}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
-          points={{26,-18},{-38,-18},{-38,-4},{-41.75,-4}},
+          points={{-22,-32},{-32,-32},{-32,-24},{-35.75,-24}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
-          points={{-64,-6},{-54,-6},{-54,-14},{-44,-14},{-44,-4},{-41.25,-4}},
+          points={{-52,-28},{-38,-28},{-38,-24},{-35.25,-24}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(
-          points={{26,-18},{32,-18},{32,32},{42,32},{42,24},{44,24}},
+          points={{-22,-32},{2,-32},{2,2},{12,2},{12,-6},{14,-6}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
       connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
-          points={{64,42},{44,42},{44,24},{43.3333,24}},
+          points={{30,12},{14,12},{14,-6},{13.3333,-6}},
           color={158,66,200},
-          thickness=1,
+          thickness=0.5,
           smooth=Smooth.None));
     connect(Pb.solution, anode.solution) annotation (Line(
-        points={{80,-34},{80,-44.92},{73,-44.92}},
+        points={{46,-66},{46,-74.92},{41,-74.92}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(PbSO4_.solution, anode.solution) annotation (Line(
-        points={{80,4},{80,-44.92},{73,-44.92}},
+        points={{46,-32},{46,-74.92},{41,-74.92}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(PbO2.solution, cathode.solution) annotation (Line(
-        points={{-80,-40},{-80,-48.92},{-75,-48.92}},
+        points={{-66,-68},{-66,-76.92},{-63,-76.92}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(PbSO4_.solution, Pb.solution) annotation (Line(
-        points={{80,4},{80,-34}},
+        points={{46,-32},{46,-66}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(electrone1.pin, voltageSensor.p) annotation (Line(
-        points={{-84,-6},{-98,-6},{-98,64},{-50,64},{-50,86},{-8,86}},
+        points={{-72,-28},{-82,-28},{-82,50},{-64,50},{-64,82},{-32,82}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(electrone.pin, voltageSensor.n) annotation (Line(
-        points={{84,42},{98,42},{98,64},{48,64},{48,86},{12,86}},
+        points={{50,12},{50,50},{26,50},{26,82},{-12,82},{-12,82}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(electrone.solution, anode.solution) annotation (Line(
-        points={{80,32},{80,-44.92},{73,-44.92}},
+        points={{46,2},{46,-74.92},{41,-74.92}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(electrone.pin, ground.p) annotation (Line(
-        points={{84,42},{92,42},{92,-64}},
+        points={{50,12},{50,50},{26,50}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(electrone1.pin, currentSensor.p) annotation (Line(
-        points={{-84,-6},{-98,-6},{-98,64},{-38,64}},
+        points={{-72,-28},{-82,-28},{-82,50},{-56,50}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(currentSensor.n, resistor.p) annotation (Line(
-        points={{-18,64},{16,64}},
+        points={{-36,50},{-14,50}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(resistor.n, electrone.pin) annotation (Line(
-        points={{36,64},{98,64},{98,42},{84,42}},
+        points={{6,50},{50,50},{50,12}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(PbSO4.solution, cathode.solution) annotation (Line(
-        points={{-80,22},{-92,22},{-92,-48.92},{-75,-48.92}},
+        points={{-66,-4},{-66,-76.92},{-63,-76.92}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(electrone1.solution, cathode.solution) annotation (Line(
-        points={{-80,-16},{-92,-16},{-92,-48.92},{-75,-48.92}},
+        points={{-68,-38},{-66,-38},{-66,-76.92},{-63,-76.92}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(H2O.solution, H.solution) annotation (Line(
+        points={{-6,-8},{-6,-42}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(resistor.n, ground.p) annotation (Line(
+        points={{6,50},{26,50}},
+        color={0,0,255},
+        smooth=Smooth.None));
+    connect(electrone.solution, PbSO4_.solution) annotation (Line(
+        points={{46,2},{46,-32}},
         color={158,66,200},
         smooth=Smooth.None));
       annotation (
@@ -2671,13 +2682,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Chemical.Components.SimpleSolution blood_erythrocytes(ElectricGround=
             false, temperature_start=310.15)
-        annotation (Placement(transformation(extent={{-100,-98},{82,-38}})));
+        annotation (Placement(transformation(extent={{-100,-98},{100,-38}})));
       Chemical.Components.SimpleSolution blood_plasma(temperature_start=310.15)
-        annotation (Placement(transformation(extent={{-100,6},{84,56}})));
+        annotation (Placement(transformation(extent={{-100,6},{100,56}})));
 
         Components.Substance HCO3(amountOfSubstance_start=0.024, substanceData=
             Chemical.Examples.Substances.Bicarbonate_blood)   annotation (
-          Placement(transformation(extent={{10,-10},{-10,10}}, origin={6,32})));
+          Placement(transformation(extent={{10,-10},{-10,10}}, origin={36,30})));
       Chemical.Sources.AmbientIdealGasSubstance CO2_gas(
         substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
         TotalPressure(displayUnit="mmHg") = 101325.0144354,
@@ -2685,8 +2696,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         usePartialPressureInput=true,
         Temperature=310.15) annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
-            rotation=180,
-            origin={-54,72})));
+            rotation=270,
+            origin={-84,84})));
         Components.GasSolubility gasSolubility(KC=KC)
           annotation (Placement(transformation(extent={{-94,48},{-74,68}})));
 
@@ -2699,10 +2710,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{-60,22},{-40,42}})));
         Components.Substance HCO3_E(
           amountOfSubstance_start=0.0116, substanceData=Chemical.Examples.Substances.Bicarbonate_blood)
-          annotation (Placement(transformation(extent={{42,-66},{22,-46}})));
+          annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
         Chemical.Components.Reaction HendersonHasselbalch1(nP=2, nS=2,
         KC=KC) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
-          annotation (Placement(transformation(extent={{-16,-76},{4,-56}})));
+          annotation (Placement(transformation(extent={{-16,-70},{4,-50}})));
         Components.Substance CO2_E(substanceData=Chemical.Examples.Substances.CarbonDioxide_aqueous,
           amountOfSubstance_start=0.00123) "Free dissolved CO2 in erythrocyte"
         annotation (Placement(transformation(extent={{-90,-86},{-70,-66}})));
@@ -2713,12 +2724,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Components.Substance Cl_E(
           amountOfSubstance_start=0.0499,
           substanceData=Chemical.Examples.Substances.Chloride_aqueous)
-          annotation (Placement(transformation(extent={{74,-64},{54,-44}})));
+          annotation (Placement(transformation(extent={{90,-64},{70,-44}})));
         Components.Substance Cl(amountOfSubstance_start=0.103, substanceData=
             Chemical.Examples.Substances.Chloride_aqueous)
-        annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-            rotation=0,
-            origin={62,32})));
+        annotation (Placement(transformation(extent={{92,18},{72,38}})));
 
         Real pH_e; //,pH_p;
 
@@ -2729,11 +2738,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Components.Membrane membrane2(KC=KC)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
               rotation=270,
-              origin={-10,-16})));
+              origin={18,-18})));
         Components.Membrane membrane3(useKineticsInput=false, KC=KC)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
               rotation=270,
-              origin={46,-16})));
+              origin={64,-18})));
         Components.Membrane membrane(KC=KC)
                                      annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -2743,16 +2752,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         substanceData=Chemical.Examples.Substances.Proton_aqueous,
         BufferValue=0.063,
         a_start=10^(-7.2))
-        annotation (Placement(transformation(extent={{40,-90},{22,-72}})));
+        annotation (Placement(transformation(extent={{48,-90},{30,-72}})));
         Modelica.Blocks.Sources.Clock clock(offset=5000)
-          annotation (Placement(transformation(extent={{18,62},{-2,82}})));
+          annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
         Components.Substance others_E(amountOfSubstance_start=38.7*(1 -
             0.994648) - 0.0499 - 0.0116 - 0.00123, substanceData(
           density=(1.045 - 0.695523)*1000/(1 - 0.697583),
           References={"erythrocyte intracellular fluid density 1045kg/m3"},
           MolarWeight=(1.045 - 0.695523)/(38.7*(1 - 0.994648) - 0.0499 - 0.0116
                - 0.00123)))
-        annotation (Placement(transformation(extent={{46,-90},{66,-70}})));
+        annotation (Placement(transformation(extent={{58,-92},{78,-72}})));
         Components.Substance others_P(amountOfSubstance_start=51.8*(1 -
             0.994648) - 0.103 - 0.024 - 0.0017, substanceData(
           References={
@@ -2760,50 +2769,50 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           density=(1.024 - 0.933373)*1000/(1 - 0.936137),
           MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024
                - 0.0017)))
-        annotation (Placement(transformation(extent={{-32,32},{-12,52}})));
+        annotation (Placement(transformation(extent={{-16,28},{4,48}})));
       equation
       //  pH_p = -log10(H.a);
         pH_e = -log10(H_E.a);
         connect(HendersonHasselbalch1.products[1], HCO3_E.port_a) annotation (Line(
-            points={{4,-66.5},{16,-66.5},{16,-56},{22,-56}},
+            points={{4,-60.5},{16,-60.5},{16,-56},{30,-56}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
       connect(CO2_E.port_a, HendersonHasselbalch1.substrates[1]) annotation (
           Line(
-          points={{-70,-76},{-30,-76},{-30,-66.5},{-16,-66.5}},
+          points={{-70,-76},{-30,-76},{-30,-60.5},{-16,-60.5}},
           color={107,45,134},
           thickness=1,
           smooth=Smooth.None));
         connect(H2O_E.port_a, HendersonHasselbalch1.substrates[2]) annotation (Line(
-            points={{-40,-52},{-34,-52},{-34,-65.5},{-16,-65.5}},
+            points={{-40,-52},{-34,-52},{-34,-59.5},{-16,-59.5}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
       connect(CO2.solution, blood_plasma.solution) annotation (Line(
-          points={{-84,22},{-84,6.5},{-8,6.5}},
+          points={{-84,22},{-84,6.5},{0,6.5}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(H2O.solution, blood_plasma.solution)
-        annotation (Line(points={{-56,22},{-56,6.5},{-8,6.5}},
+        annotation (Line(points={{-56,22},{-56,6.5},{0,6.5}},
                                                           smooth=Smooth.None));
       connect(Cl.solution, blood_plasma.solution) annotation (Line(
-          points={{68,22},{68,6.5},{-8,6.5}},
+          points={{88,18},{88,6.5},{0,6.5}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{-86,-86},{-86,-97.4},{-9,-97.4}},
+          points={{-86,-86},{-86,-97.4},{0,-97.4}},
           color={0,0,0},
           smooth=Smooth.None));
         connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
-              points={{-56,-62},{-56,-97.4},{-9,-97.4}},
+              points={{-56,-62},{-56,-97.4},{0,-97.4}},
                                                       smooth=Smooth.None));
         connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-            points={{70,-64},{70,-97.4},{-9,-97.4}},
+            points={{86,-64},{86,-97.4},{0,-97.4}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
-              points={{38,-66},{20,-66},{20,-97.4},{-9,-97.4}},
+              points={{46,-66},{22,-66},{22,-97.4},{0,-97.4}},
                                                     smooth=Smooth.None));
       connect(gasSolubility.liquid_port, CO2.port_a) annotation (Line(
           points={{-84,48},{-84,32},{-68,32}},
@@ -2826,22 +2835,22 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(membrane2.port_a, HCO3.port_a) annotation (Line(
-          points={{-10,-6},{-10,32},{-4,32}},
+          points={{18,-8},{18,30},{26,30}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
         connect(membrane2.port_b, HCO3_E.port_a) annotation (Line(
-            points={{-10,-26},{-10,-56},{22,-56}},
+            points={{18,-28},{18,-56},{30,-56}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(membrane3.port_b, Cl_E.port_a) annotation (Line(
-            points={{46,-26},{46,-54},{54,-54}},
+            points={{64,-28},{64,-54},{70,-54}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
       connect(membrane3.port_a, Cl.port_a) annotation (Line(
-          points={{46,-6},{46,32},{52,32}},
+          points={{64,-8},{64,28},{72,28}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2851,33 +2860,33 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
         connect(gasSolubility.gas_port, CO2_gas.port_a) annotation (Line(
-            points={{-84,68},{-84,72},{-64,72}},
+            points={{-84,68},{-84,74}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
       connect(HCO3.solution, blood_plasma.solution) annotation (Line(
-          points={{12,22},{12,6.5},{-8,6.5}},
+          points={{42,20},{42,6.5},{0,6.5}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(H_E.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
-          points={{22,-81},{14,-81},{14,-65.5},{4,-65.5}},
+          points={{30,-81},{14,-81},{14,-59.5},{4,-59.5}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
       connect(blood_erythrocytes.solution, others_E.solution) annotation (Line(
-          points={{-9,-97.4},{50,-97.4},{50,-90}},
+          points={{0,-97.4},{62,-97.4},{62,-92}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(blood_plasma.solution, others_P.solution) annotation (Line(
-          points={{-8,6.5},{-28,6.5},{-28,32}},
+          points={{0,6.5},{-12,6.5},{-12,28}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(clock.y, CO2_gas.partialPressure) annotation (Line(
-          points={{-3,72},{-44,72}},
+          points={{-33,72},{-22,72},{-22,100},{-84,100},{-84,94}},
           color={0,0,127},
           smooth=Smooth.None));
       connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{36.4,-90},{44,-90},{44,-97.4},{-9,-97.4}},
+          points={{44.4,-90},{44,-90},{44,-97.4},{0,-97.4}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation ( Documentation(info="<html>
@@ -6995,7 +7004,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
             graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
-                "modelica://Chemical/Resources/Icons/buffer.png")}));
+                  "modelica://Chemical/Resources/Icons/buffer.png")}));
     end Buffer;
 
     class ElectronTransfer
