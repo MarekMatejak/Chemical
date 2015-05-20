@@ -1212,22 +1212,22 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.GasSolubility O2_dissolutionP
       annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
 
-      Sources.AirSubstance O2_g_n1(
-        substanceData=Substances.Oxygen_gas,
-        PartialPressure=12665.626804425,
-        TotalPressure=101325.0144354)
-        annotation (Placement(transformation(extent={{22,76},{42,96}})));
+    Sources.AmbientIdealGasSubstance O2_g_n1(
+      substanceData=Substances.Oxygen_gas,
+      PartialPressure=12665.626804425,
+      TotalPressure=101325.0144354)
+      annotation (Placement(transformation(extent={{22,76},{42,96}})));
       Components.Substance O2_unbound_plasma(substanceData=Substances.Oxygen_aqueous)
       "Free dissolved O2 in blood plasma"
       annotation (Placement(transformation(extent={{-50,-26},{-30,-6}})));
       Components.GasSolubility CO2_dissolutionE
       annotation (Placement(transformation(extent={{36,44},{56,64}})));
 
-      Sources.AirSubstance CO2_g_n2(
-        substanceData=Substances.CarbonDioxide_gas,
+    Sources.AmbientIdealGasSubstance CO2_g_n2(
+      substanceData=Substances.CarbonDioxide_gas,
       PartialPressure=5332.8954966,
       TotalPressure=101325.0144354)
-        annotation (Placement(transformation(extent={{-56,78},{-36,98}})));
+      annotation (Placement(transformation(extent={{-56,78},{-36,98}})));
 
       Components.Substance CO2_unbound_erythrocyte(substanceData=Substances.CarbonDioxide_aqueous)
       "Free dissolved CO2 in red cells"
@@ -1402,21 +1402,21 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(E.solution, solution.solution) annotation (Line(
-          points={{-6,38},{-8,38},{-8,-100},{0,-100}},
+          points={{-6,38},{-8,38},{-8,-98},{0,-98}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(ES.solution, solution.solution)
-        annotation (Line(points={{-8,-10},{-8,-100},{0,-100}},        smooth=Smooth.None));
+        annotation (Line(points={{-8,-10},{-8,-98},{0,-98}},          smooth=Smooth.None));
       connect(S.solution, solution.solution) annotation (Line(
-          points={{-88,-14},{-88,-100},{0,-100}},
+          points={{-88,-14},{-88,-98},{0,-98}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(P.solution, solution.solution) annotation (Line(
-          points={{88,-12},{88,-100},{0,-100}},
+          points={{88,-12},{88,-98},{0,-98}},
           color={158,66,200},
           smooth=Smooth.None));
     connect(solution.solution, otherSubstances.solution) annotation (Line(
-        points={{0,-100},{46,-100},{46,-76}},
+        points={{0,-98},{46,-98},{46,-76}},
         color={158,66,200},
         smooth=Smooth.None));
           annotation ( Documentation(revisions="<html>
@@ -1497,9 +1497,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Substance  AgCl(substanceData=
             Chemical.Examples.Substances.SilverChloride_solid)
         annotation (Placement(transformation(extent={{-76,4},{-56,24}})));
-      Sources.AirSubstance H2(substanceData = Chemical.Examples.Substances.Hydrogen_gas,
-        PartialPressure=100000,
-        TotalPressure=100000) annotation (Placement(transformation(extent={{24,32},{44,52}})));
+    Sources.AmbientIdealGasSubstance H2(
+      substanceData=Chemical.Examples.Substances.Hydrogen_gas,
+      PartialPressure=100000,
+      TotalPressure=100000)
+      annotation (Placement(transformation(extent={{24,32},{44,52}})));
       Components.Substance H(substanceData=
             Chemical.Examples.Substances.Proton_aqueous,
         amountOfSubstance_start=1)    annotation (Placement(transformation(extent={{6,-36},
@@ -1907,7 +1909,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Substance O2(substanceData=Chemical.Examples.Substances.Oxygen_aqueous,
           amountOfSubstance_start(displayUnit="mmol") = 0.000167)
       "free dissolved undound oxygen"
-        annotation (Placement(transformation(extent={{98,20},{118,40}})));
+        annotation (Placement(transformation(extent={{96,20},{116,40}})));
       Components.Membrane freeO2(KC=KC) annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
@@ -2117,7 +2119,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={158,66,200},
           smooth=Smooth.None));
       connect(blood_plasma.solution, O2.solution) annotation (Line(
-          points={{0,12.88},{0,20},{102,20}},
+          points={{0,12.88},{0,20},{100,20}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(O2_E.solution, blood_erythrocytes.solution) annotation (Line(
@@ -2130,7 +2132,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(freeO2.port_a, O2.port_a) annotation (Line(
-          points={{118,10},{118,30}},
+          points={{118,10},{118,30},{116,30}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2343,14 +2345,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Chemical.Components.Reaction HendersonHasselbalch(nP=2, nS=2,
         useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
           annotation (Placement(transformation(extent={{-50,-6},{-30,14}})));
-        Sources.AirSubstance CO2_gas(
-            substanceData=
-              Chemical.Examples.Substances.CarbonDioxide_gas,
-          PartialPressure=5332.8954966,
-          TotalPressure=101325.0144354) annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}},
-              rotation=270,
-              origin={-60,86})));
+      Chemical.Sources.AmbientIdealGasSubstance CO2_gas(
+        substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
+        PartialPressure=5332.8954966,
+        TotalPressure=101325.0144354) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={-60,86})));
         Components.Substance H(  substanceData=
               Chemical.Examples.Substances.Proton_aqueous,
             amountOfSubstance_start=3e-8) annotation (Placement(transformation(
@@ -2585,9 +2586,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.SimpleSolution solution
         annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-        Sources.AmbientMoleFraction   H(MoleFraction=1e-7)
-        "hydrogen ions activity"                                          annotation (Placement(
-              transformation(extent={{10,-10},{-10,10}}, origin={14,22})));
+        Sources.BufferInSolution      H(substanceData=Chemical.Examples.Substances.Proton_aqueous,
+          a_start=10^(-7.4)) "hydrogen ions activity"                     annotation (Placement(
+              transformation(extent={{10,-10},{-10,10}}, origin={14,36})));
 
         constant Integer n=218 "Number of weak acid group in albumin molecule";
         constant Real pKAs[n]=cat(1,{8.5},fill(4.0,98),fill(11.7,18),fill(12.5,24),fill(5.8,2),fill(6.0,2),{7.6,7.8,7.8,8,8},fill(10.3,50),{7.19,7.29,7.17,7.56,7.08,7.38,6.82,6.43,4.92,5.83,6.24,6.8,5.89,5.2,6.8,5.5,8,3.1})
@@ -2596,14 +2597,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         constant Real DfG[n]= Modelica.Constants.R*(298.15)*log(K);
 
         Chemical.Components.Substance A[n](
-          each amountOfSubstance_start=0.00033) "deprotonated acid groups"
+          each amountOfSubstance_start=0.00033, substanceData(z=-1))
+        "deprotonated acid groups"
           annotation (Placement(transformation(extent={{24,-16},{4,4}})));
         Chemical.Components.Reaction react[n](each nP=2)
           annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
         Chemical.Components.Substance HA[n](substanceData(DfG_25degC_1bar=DfG), each amountOfSubstance_start=
              0.00033) "protonated acid groups"
-          annotation (Placement(transformation(extent={{-76,-2},{-56,18}})));
+          annotation (Placement(transformation(extent={{-78,-2},{-58,18}})));
 
         Components.Substance H2O(      substanceData=
               Chemical.Examples.Substances.Water_liquid,
@@ -2618,12 +2620,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
         for i in 1:n loop
           connect(react[i].products[2], H.port_a) annotation (Line(
-              points={{-24,8.5},{-14,8.5},{-14,22},{4,22}},
+              points={{-24,8.5},{-14,8.5},{-14,36},{4,36}},
               color={107,45,134},
               thickness=1,
               smooth=Smooth.None));
           connect(HA[i].solution, solution.solution) annotation (Line(
-            points={{-72,-2},{-72,-86},{0,-86},{0,-98}},
+            points={{-74,-2},{-74,-86},{0,-86},{0,-98}},
             color={0,0,0},
             smooth=Smooth.None));
           connect(A[i].solution, solution.solution) annotation (Line(
@@ -2632,13 +2634,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
         end for;
         connect(HA.port_a, react.substrates[1]) annotation (Line(
-            points={{-56,8},{-44,8}},
+            points={{-58,8},{-44,8}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
 
       connect(solution.solution, H2O.solution) annotation (Line(
           points={{0,-98},{56,-98},{56,-78}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(H.solution, solution.solution) annotation (Line(
+          points={{20,26},{20,14},{36,14},{36,-98},{0,-98}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation ( Documentation(revisions="<html>
@@ -2648,9 +2654,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>The titration slope der(pH)/der(SID)=185 1/(mol/L) at pH=7.4 and tAlb=0.66 mmol/l.</p>
 <p>Data and model is described in</p>
 <p><font style=\"color: #222222; \">Jame Figge: Role of non-volatile weak acids (albumin, phosphate and citrate). In: Stewart&apos;s Textbook of Acid-Base, 2nd Edition, John A. Kellum, Paul WG Elbers editors, &nbsp;AcidBase org, 2009, pp. 216-232.</font></p>
-</html>"),experiment(
-            StopTime=1e-005),
-        Diagram(graphics));
+</html>"),experiment(StopTime=1.6),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}),
+                graphics),
+        __Dymola_experimentSetupOutput);
       end AlbuminTitration;
 
       model CarbonDioxideInBlood
@@ -2668,15 +2676,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Components.Substance HCO3(amountOfSubstance_start=0.024, substanceData=
             Chemical.Examples.Substances.Bicarbonate_blood)   annotation (
           Placement(transformation(extent={{10,-10},{-10,10}}, origin={36,30})));
-        Sources.AirSubstance CO2_gas(
-          substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
-          TotalPressure(displayUnit="mmHg") = 101325.0144354,
+      Chemical.Sources.AmbientIdealGasSubstance CO2_gas(
+        substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
+        TotalPressure(displayUnit="mmHg") = 101325.0144354,
         PartialPressure(displayUnit="mmHg") = 5332.8954966,
         usePartialPressureInput=true,
-        Temperature=310.15)             annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}},
-              rotation=270,
-              origin={-84,84})));
+        Temperature=310.15) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={-84,84})));
         Components.GasSolubility gasSolubility(KC=KC)
           annotation (Placement(transformation(extent={{-94,48},{-74,68}})));
 
@@ -3029,14 +3037,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
               rotation=270,
               origin={-84,62})));
-        Sources.AirSubstance O2_in_air(
-          TotalPressure(displayUnit="kPa") = 101325.0144354,
-          substanceData = Chemical.Examples.Substances.Oxygen_gas,
-          PartialPressure(displayUnit="kPa") = 1000,
-          usePartialPressureInput=true) annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}},
-              rotation=270,
-              origin={-84,22})));
+      Sources.AmbientIdealGasSubstance O2_in_air(
+        TotalPressure(displayUnit="kPa") = 101325.0144354,
+        substanceData=Chemical.Examples.Substances.Oxygen_gas,
+        PartialPressure(displayUnit="kPa") = 1000,
+        usePartialPressureInput=true) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={-84,22})));
 
         Components.GasSolubility gasSolubility(useWaterCorrection=false, KC=KC)
           annotation (Placement(transformation(extent={{-94,-16},{-74,4}})));
@@ -3303,7 +3311,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 {100,100}}), graphics));
       end Allosteric_Hemoglobin_MWC;
 
-
       model Allosteric_Hemoglobin2_MWC
       "Monod,Wyman,Changeux (1965) - The same allosteric hemoglobin model as Allosteric_Hemoglobin_MWC implemented by Speciation blocks"
         extends Modelica.Icons.Example;
@@ -3393,12 +3400,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{-2,6},{18,26}})));
         Modelica.Blocks.Sources.Clock clock(offset=10)
           annotation (Placement(transformation(extent={{-40,74},{-20,94}})));
-        Sources.AirSubstance        oxygen_in_air(
-          usePartialPressureInput=true, substanceData=Chemical.Examples.Substances.Oxygen_gas)
-                    annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}},
-              rotation=270,
-              origin={8,68})));
+      Sources.AmbientIdealGasSubstance oxygen_in_air(usePartialPressureInput=
+            true, substanceData=Chemical.Examples.Substances.Oxygen_gas)
+        annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={8,68})));
         Components.GasSolubility partialPressure1(       useWaterCorrection=false, KC=KC)
                                                   annotation (Placement(transformation(extent={{-10,-10},{10,10}},
                 origin={8,40})));
@@ -3693,9 +3700,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{-8,-36},{-28,-16}})));
         Sources.AmbientPureSubstance AgCl(substanceData=Chemical.Examples.Substances.SilverChloride_solid)
           annotation (Placement(transformation(extent={{-80,12},{-60,32}})));
-        Sources.AirSubstance H2(substanceData = Chemical.Examples.Substances.Hydrogen_gas,
-          PartialPressure=100000,
-          TotalPressure=100000) annotation (Placement(transformation(extent={{24,32},{44,52}})));
+      Sources.AmbientIdealGasSubstance H2(
+        substanceData=Chemical.Examples.Substances.Hydrogen_gas,
+        PartialPressure=100000,
+        TotalPressure=100000)
+        annotation (Placement(transformation(extent={{24,32},{44,52}})));
         Sources.AmbientPureSubstance H(substanceData=Chemical.Examples.Substances.Proton_aqueous)
           annotation (Placement(transformation(extent={{18,-36},{38,-16}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -3758,11 +3767,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             color={0,0,255},
             smooth=Smooth.None));
       connect(electrone1.solution, anode.solution) annotation (Line(
-          points={{82,-26},{80,-26},{80,-40},{78,-40}},
+          points={{82,-26},{80,-26},{80,-38.9},{78,-38.9}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(electrone.solution, cathode.solution) annotation (Line(
-          points={{-76,40},{-88,40},{-88,-40},{-68,-40}},
+          points={{-76,40},{-88,40},{-88,-38.92},{-68,-38.92}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation (
@@ -3807,14 +3816,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 {26,-8}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
           annotation (Placement(transformation(extent={{-6,60},{14,80}})));
-        Components.Reaction electrodeReaction(nP=2,
+        Sensors.DissociationCoefficient
+                            electrodeReaction(nP=2,
           nS=4,
           s={1,1,3,2},
         p={1,2})                                             annotation (Placement(transformation(
               extent={{-10,10},{10,-10}},
               rotation=90,
               origin={-42,14})));
-        Components.Reaction electrodeReaction1(nS=2,
+        Sensors.DissociationCoefficient
+                            electrodeReaction1(nS=2,
           nP=3,
           p={1,1,2})                                       annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -3927,185 +3938,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
       end StandardLeadAcidPotential;
 
-      model Allosteric_Hemoglobin2_MWC
-      "Monod,Wyman,Changeux (1965) - The same allosteric hemoglobin model as Allosteric_Hemoglobin_MWC implemented by Speciation blocks"
-        extends Modelica.Icons.Example;
-
-        constant Modelica.SIunits.AmountOfSubstance THb = 0.001
-        "Total amount of hemoglobin";
-
-        constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
-        constant Real RT=Modelica.Constants.R*T;
-
-        constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
-        "Amount of solution used for molarity to mole fraction conversion";
-
-        constant Modelica.SIunits.Volume OneLiter = 0.001;
-
-        parameter Real L=7.0529*10^6
-        "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
-        parameter Real c=0.00431555
-        "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-        parameter Modelica.SIunits.Concentration KR=0.000671946
-        "oxygen dissociation on relaxed(R) hemoglobin subunit";
-                                                                    //*7.875647668393782383419689119171e-5
-                                                                  //10.500001495896 7.8756465463794e-05
-
-        parameter Modelica.SIunits.Concentration KT=KR/c
-        "oxygen dissociation on tensed(T) hemoglobin subunit";
-
-        parameter Modelica.SIunits.MoleFraction KRx = KR*OneLiter/AmountOfSolutionIn1L;
-        parameter Modelica.SIunits.MoleFraction KTx = KT*OneLiter/AmountOfSolutionIn1L;
-
-        parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
-        parameter Modelica.SIunits.ChemicalPotential DfG_uR = 0;
-        parameter Modelica.SIunits.ChemicalPotential DfG_uRO2 = DfG_uR + DfG_O2 + RT * log(KRx);
-        parameter Modelica.SIunits.ChemicalPotential DfG_uT = 0;
-        parameter Modelica.SIunits.ChemicalPotential DfG_uTO2 = DfG_uT + DfG_O2 + RT * log(KTx);
-        parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-        parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
-
-        parameter Real KC = 1e-3 "Slow down factor";
-                                 //0.000001
-
-        Sensors.DissociationCoefficient
-                            quaternaryForm
-          annotation (Placement(transformation(extent={{-4,-68},{16,-48}})));
-        Sensors.MacromoleculeGibbsEnergy
-                              R0_in_R(NumberOfSubunits=4)
-          annotation (Placement(transformation(extent={{-50,-68},{-30,-48}})));
-         // AmountOfSubstance_start=4e-11)
-        Sensors.MacromoleculeGibbsEnergy
-                              T0_in_T(NumberOfSubunits=4)
-          annotation (Placement(transformation(extent={{68,-68},{48,-48}})));
-         // AmountOfSubstance_start=totalAmountOfHemoglobin)
-        Sources.AmbientMoleFraction
-                             OxyRHm[4](
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(KRx) + DfG_tR/4),
-          each MoleFraction=1)
-        "Oxygenated subunit in R structure of hemoglobin tetramer"
-          annotation (Placement(transformation(extent={{-96,-18},{-76,2}})));
-
-        Sensors.DissociationCoefficient
-                            oxygenation_R[4](each nP=2)
-          annotation (Placement(transformation(extent={{-68,-18},{-48,2}})));
-        Sources.AmbientMoleFraction
-                             DeoxyRHm[4](
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          each substanceData(DfG_25degC_1bar=DfG_tR/4),
-          each MoleFraction=1)
-        "Deoxygenated subunit in R structure of hemoglobin tetramer"
-          annotation (Placement(transformation(extent={{0,-34},{-20,-14}})));
-
-        Sources.AmbientMoleFraction
-                             OxyTHm[4](
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(KTx) + DfG_tT/4),
-          each MoleFraction=1)
-        "Oxygenated subunit in T structure of hemoglobin tetramer"
-          annotation (Placement(transformation(extent={{14,-18},{34,2}})));
-
-        Sensors.DissociationCoefficient
-                            oxygenation_T[4](each nP=2)
-          annotation (Placement(transformation(extent={{42,-18},{62,2}})));
-        Sources.AmbientMoleFraction
-                             DeoxyTHm[4](
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          each substanceData(DfG_25degC_1bar=DfG_tT/4),
-          each MoleFraction=1)
-        "Deoxygenated subunit in T structure of hemoglobin tetramer"
-          annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
-
-        Sources.AmbientMoleFraction
-                             oxygen_unbound(        substanceData(DfG_25degC_1bar=DfG_O2),
-            MoleFraction=1)
-          annotation (Placement(transformation(extent={{-2,6},{18,26}})));
-
-        Real sO2 "Hemoglobin oxygen saturation";
-      equation
-        sO2 = (sum(OxyRHm.x) + sum(OxyTHm.x)) /
-        (sum(DeoxyRHm.x) + sum(DeoxyTHm.x) + sum(OxyRHm.x) + sum(OxyTHm.x));
-
-        connect(OxyTHm.port_a, oxygenation_T.substrates[1])
-                                                 annotation (Line(
-            points={{34,-8},{42,-8}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-        connect(oxygenation_T.products[1], DeoxyTHm.port_a)
-                                               annotation (Line(
-            points={{62,-8.5},{66,-8.5},{66,-24},{76,-24}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-
-        connect(OxyRHm.port_a, oxygenation_R.substrates[1]) annotation (Line(
-            points={{-76,-8},{-68,-8}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-        connect(DeoxyRHm.port_a, R0_in_R.subunits) annotation (Line(
-            points={{-20,-24},{-42,-24},{-42,-48}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-        connect(oxygenation_R.products[1], DeoxyRHm.port_a) annotation (Line(
-            points={{-48,-8.5},{-34,-8.5},{-34,-24},{-20,-24}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-
-        connect(T0_in_T.subunits, DeoxyTHm.port_a)   annotation (Line(
-            points={{60,-48},{60,-24},{76,-24}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-
-        connect(R0_in_R.port_a, quaternaryForm.substrates[1]) annotation (Line(
-            points={{-30,-68},{-18,-68},{-18,-58},{-4,-58}},
-            color={158,66,200},
-            thickness=1,
-            smooth=Smooth.None));
-        connect(quaternaryForm.products[1], T0_in_T.port_a) annotation (Line(
-            points={{16,-58},{32,-58},{32,-68},{48,-68}},
-            color={158,66,200},
-            thickness=1,
-            smooth=Smooth.None));
-
-        for i in 1:4 loop
-          connect(oxygenation_T[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{62,-7.5},{70,-7.5},{70,16},{18,16}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-          connect(oxygenation_R[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{-48,-7.5},{-12,-7.5},{-12,16},{18,16}},
-            color={107,45,134},
-            thickness=1,
-            smooth=Smooth.None));
-        end for;
-
-        annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                  -100},{100,100}}), graphics),
-          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
-          Documentation(revisions="<html>
-<p><i>2013-2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>", info="<html>
-<p>Before silumation in &QUOT;Dymola 2014 FD01&QUOT; please chose &QUOT;Euler&QUOT; method!</p>
-<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
-<p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
-<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms R and T.</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
-<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
-<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"));
-      end Allosteric_Hemoglobin2_MWC;
     end CheckSubstancesData;
   end Examples;
 
@@ -4759,7 +4591,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             origin={69,2},
             rotation=90)}));
     end Membrane;
-
 
     model Stream "Flow of whole solution"
       extends Interfaces.ConditionalSolutionFlow;
@@ -5447,136 +5278,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end DissociationCoefficient;
 
-    model MacromoleculeGibbsEnergy
-    "Quaternary macromolecule form defined by all its subunits"
-      extends Icons.Speciation;
-    //  extends Interfaces.PartialSubstance;
-
-      parameter Integer NumberOfSubunits=1
-      "Number of independent subunits occurring in macromolecule";
-
-      Interfaces.SubstanceUsePort subunits[NumberOfSubunits]
-      "Subunits of macromolecule"
-        annotation (Placement(transformation(extent={{-30,90},{-10,110}}),
-            iconTransformation(extent={{-30,90},{-10,110}})));
-
-    //  parameter Modelica.SIunits.AmountOfSubstance AmountOfSubstance_start=1e-8
-    //    "Initial value of the total amount of the macromolecules. It must be the same as the total amount of each its subunit!";
-
-    //   Real log10n(stateSelect=StateSelect.prefer)
-    //    "Decadic logarithm of the amount of the substance in solution";
-
-     //   Modelica.SIunits.ChemicalPotential uEq
-     //   "Chemical potential of the specific form of the macromolecule (in the conformation) at equilibrium";
-      Interfaces.SubstanceDefinitionPort port_a annotation (Placement(
-            transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent=
-               {{90,-110},{110,-90}})));
-    //initial equation
-    //  amountOfMacromolecule = AmountOfSubstance_start;
-    equation
-    //  der(log10n)=port_a.q/(log(10)*amountOfMacromolecule); //is the same as der(amountOfMacromolecule) = port_a.q;
-    //  amountOfMacromolecule = 10^log10n; //is the same as log10n=log10(amountOfMacromolecule);
-
-      //change of macromolecule = change of its subunits
-      subunits.q = -port_a.q * ones(NumberOfSubunits);
-
-      //port_a.u = kC * (uEq - port_a.u);
-
-      port_a.u = sum(subunits.u);
-
-      annotation (defaultComponentName="macromolecule",
-        Documentation(revisions="<html>
-<p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",     info="<html>
-<p><b>Macromolecule speciation in chemical equilibrium</b> </p>
-<p>The equilibrium of the conformation reactions of macromolecules can be simplified to the reactions of their selected electro-neutral forms of the selected conformation, because of the law of detailed balance.</p>
-<p>The assumptions of this calculation are:</p>
-<ol>
-<li><i>Initial total concentrations of each subunit must be set to the total macromolecule concentration (for the selected conformation).</i></li>
-<li><i>The charge, enthalpy of formation, entropy of formation and molar volume of each selected independent subunit form is zero. </i></li>
-<li><i>Subunits are connected to the same solution as the macromolecule. </i></li>
-</ol>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>x<sub>m</sub>&nbsp;</p></td>
-<td><p>the probability of macromolecule(of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub> = (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probalitivy of selected independent subunits forms (of the macromolecule in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= x<sub>m</sub>&middot; &Pi; f<sub>i</sub> = x<sub>m</sub>&middot; &Pi; (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probability of the selected form of macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>m</sub>) + &sum; (u<sub>i</sub> - R&middot;T&middot;ln(x<sub>m</sub>))</p></td>
-<td><p>final equation of the equilibrium of electro-chemical potential</p></td>
-</tr>
-</table>
-<p><br><br><br><b><font style=\"color: #008000; \">Notations</font></b></p>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>n<sub>T</sub></p></td>
-<td><p>total amount of substances in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>m</sub></p></td>
-<td><p>total amount of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>s</sub></p></td>
-<td><p>amount of the specific form of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>i</sub></p></td>
-<td><p>amount of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>x<sub>m </sub>= n<sub>m </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of macromolecule (of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= n<sub>s </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of the selected form of the whole macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i </sub>= n<sub>i </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of i-th macromolecule(of the selected conformation)&apos;s subunit form</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s</sub>&deg;</p></td>
-<td><p>base chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>s</sub>)</p></td>
-<td><p>chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i</sub>&deg; = 0</p></td>
-<td><p>base chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i </sub>= R&middot;T&middot;ln(x<sub>i</sub>)</p></td>
-<td><p>chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-</table>
-<p><br><br><br><br>For example: If the macromolecule M has four identical independent subunits and each subunit can occur in two form F1 and F2, then the probability of macromolecule form S composed only from four subunits in form F1 is P(S)=P(M)*P(F1)^4.</p>
-</html>"),
-        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-            graphics={                                                        Text(
-              extent={{-22,-106},{220,-140}},
-              lineColor={0,0,255},
-              textString="%name")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
-    end MacromoleculeGibbsEnergy;
   end Sensors;
 
 
   package Sources "Chemical sources"
     extends Modelica.Icons.SourcesPackage;
 
-    model AirSubstance "Substance with defined partial pressure"
+    model AmbientIdealGasSubstance
+    "Ideal gas substance with defined partial pressure"
       extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
             Interfaces.IdealGas);
 
@@ -5662,7 +5371,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-    end AirSubstance;
+    end AmbientIdealGasSubstance;
 
     model AmbientPureSubstance "Constant source of pure substance"
       extends Interfaces.PartialSubstance;
@@ -6219,6 +5928,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Is buffer value of the substance an input?"
           annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
 
+          extends Interfaces.ConditionalKinetics;
+
           Real bufferValue(final unit="1");
 
         Modelica.Blocks.Interfaces.RealInput bufferValueInput(
@@ -6227,24 +5938,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
              useBufferValueInput annotation (HideResult=true, Placement(transformation(
                 extent={{-120,-20},{-80,20}})));
 
-      //   parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution = 55.508
-      //    "Amount of all particles in the buffering solution";
-
-        parameter Modelica.SIunits.Time Tau = 1
-      "Time constant for other scaling of the buffering rate";
-          parameter Real KC = 1;
-
           Real xref;
         Modelica.SIunits.AmountOfSubstance nFreeBuffer;
         Modelica.SIunits.MoleFraction xFreeBuffer;
 
-      //  Real log10nFreeBuffer(stateSelect=StateSelect.prefer)
-      //    "Decadic logarithm of the amount of free buffer in solution";
   protected
         constant Real InvLog_10=1/log(10);
     initial equation
         xFreeBuffer = -log10(a_start)*(bufferValue/solution.n);
-      //  a = a_start;
+
     equation
         if not useBufferValueInput then
           bufferValue = BufferValue;
@@ -6256,16 +5958,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         //nFreeBuffer = 10^log10nFreeBuffer;
 
         xFreeBuffer = nFreeBuffer/solution.n;
-        port_a.q = (solution.n/Tau)*(xFreeBuffer - xref);
-       // port_a.q = KC*(log(xFreeBuffer) - log(xref)); //alternate log reference
+        port_a.q = (solution.n*KC)*(xFreeBuffer - xref);
+        //port_a.q = KC*(log(xFreeBuffer) - log(xref)); //alternate log reference
         xref = -log10(a)*(bufferValue/solution.n);
-        //solution properties at the port
-      /*  temperature = Temperature;
-  pressure = Pressure;
-  electricPotential = ElectricPotential;
-  moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
- // amountOfSolution = AmountOfSolution;
- */
 
       //solution flows
       solution.dH = molarEnthalpy*port_a.q - der(molarEnthalpy)*nFreeBuffer;
@@ -6479,8 +6174,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     //    "Molar heat capacity of the substance at constant pressure";
 
     equation
-      //define the substance
-
+      //aliases
       gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
       molarMass = stateOfMatter.molarMass(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
@@ -6504,6 +6198,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
     //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
+      //activity of the substance
       a = gamma*x;
 
       //electro-chemical potential of the substance in the solution
@@ -6540,7 +6235,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Amount of all solution particles";
 
     equation
-      //global properties of the solution
+      //aliases
       temperature = solution.T;
       pressure = solution.p;
       electricPotential = solution.v;
@@ -6981,7 +6676,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end Incompressible;
-
 
     connector SolutionPort
     "Only for connecting the one solution their substances. Please, do not use it in different way."
