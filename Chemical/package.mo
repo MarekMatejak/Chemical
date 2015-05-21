@@ -2726,8 +2726,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               origin={44,-16})));
       Chemical.Sources.Buffer H_E(
         substanceData=Chemical.Examples.Substances.Proton_aqueous,
-        BufferValue=0.063,
-        a_start=10^(-7.2))
+        a_start=10^(-7.2),
+        BufferValue=0.063)
         annotation (Placement(transformation(extent={{48,-84},{30,-66}})));
         Modelica.Blocks.Sources.Clock clock(offset=5000)
           annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
@@ -4158,7 +4158,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
   protected
       Modelica.SIunits.AmountOfSubstance amountOfSubstance(start=amountOfSubstance_start);
-      Real log10n(stateSelect=StateSelect.prefer)
+      Real log10n(stateSelect=StateSelect.prefer, start=log10(amountOfSubstance_start))
       "Decadic logarithm of the amount of the substance in solution";
       constant Real InvLog_10=1/log(10);
 
@@ -5889,7 +5889,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 extent={{-120,-20},{-80,20}})));
 
           Real xref;
-        Modelica.SIunits.AmountOfSubstance nFreeBuffer;
+        Modelica.SIunits.AmountOfSubstance nFreeBuffer(start=-log10(a_start)*BufferValue);
         Modelica.SIunits.MoleFraction xFreeBuffer;
 
   protected
