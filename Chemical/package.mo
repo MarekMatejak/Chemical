@@ -6390,7 +6390,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
        redeclare replaceable record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0
+          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
         "Molar weight of the substance in kg/mol or kDa";
 
           parameter Modelica.SIunits.ChargeNumberOfIon z=0
@@ -6484,7 +6484,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
        redeclare replaceable record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0
+          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
         "Molar weight of the substance in kg/mol or kDa";
 
           parameter Modelica.SIunits.ChargeNumberOfIon z=0
