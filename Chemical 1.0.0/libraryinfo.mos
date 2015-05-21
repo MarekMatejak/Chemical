@@ -1,0 +1,12 @@
+LibraryInfoMenuSeparator(
+	category = "libraries",
+	pos = 3000);
+LibraryInfoMenuCommand(
+    category = "libraries",
+    text = "Chemical",
+    reference = "Chemical",
+    isModel = true,
+    description = "Library of Electro-Chemical processes 1.0",
+    version = "1.0.0",
+    ModelicaVersion = ">=3.2",
+    pos = 3754);
