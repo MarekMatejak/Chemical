@@ -17,7 +17,7 @@ Modelica Library of Chemical processes
   * temperature dependences and heat flows from free enthalpies (from substances definitions)
   * new epoch making kinetics based with better fit with data
 * Electro-chemical cell (batteries)
-  * reduction-oxidation reactions with redirection of electron flows to electic circuits
+  * reduction-oxidation reactions with electron transfer to electic circuits
   * electrodes as solid chemical solutions
   * realistic disscharging curve without any lookup data
 * Gas Dissolution
@@ -40,7 +40,6 @@ Modelica Library of Chemical processes
 * ...
 
 * Based on equilibration of the electro-chemical potentials. 
-* With full support of thermodynamics of chemical solutions.
 
 ## License
 

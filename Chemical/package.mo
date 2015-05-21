@@ -2903,7 +2903,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=0.5,
             smooth=Smooth.None));
         annotation ( Documentation(info="<html>
-<p>CO2 in blood wiht linear H+ non-bicarbonates buffering without binding to hemoglobin.</p>
+<p>CO2 in blood with linear H+ non-bicarbonates buffering without binding to hemoglobin.</p>
 <p>The buffer values 0.063 mmol/L commes from Siggaard-Andersen.</p>
 </html>",      revisions="<html>
 <p><i>2014</i></p>
