@@ -2914,6 +2914,39 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           __Dymola_Algorithm="Lsodar"));
       end CarbonDioxideInBlood;
 
+      model AcidBaseBufferTest
+          extends Modelica.Icons.Example;
+
+        Chemical.Sources.Buffer buffer(
+          substanceData(z=1.045),
+          a_start=10^(-7.2),
+          BufferValue=3)
+          annotation (Placement(transformation(extent={{-50,4},{-30,24}})));
+        Chemical.Components.SimpleSolution simpleSolution
+          annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
+        Chemical.Sources.ExternalMoleFraction externalMoleFraction(substanceData=
+              Chemical.Examples.Substances.Proton_aqueous, MoleFraction=10^(-7.1))
+          annotation (Placement(transformation(extent={{0,-46},{20,-26}})));
+        Chemical.Components.Substance substance(substanceData=Chemical.Examples.Substances.Water_liquid,
+            amountOfSubstance_start=1)
+          annotation (Placement(transformation(extent={{52,-82},{72,-62}})));
+      equation
+        connect(buffer.solution, simpleSolution.solution) annotation (Line(
+            points={{-46,4},{-26,4},{-26,-98},{-4,-98}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(externalMoleFraction.port_a, buffer.port_a) annotation (Line(
+            points={{20,-36},{40,-36},{40,10},{-30,10},{-30,14}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(simpleSolution.solution, substance.solution) annotation (Line(
+            points={{-4,-98},{26,-98},{26,-82},{56,-82}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                  {100,100}}), graphics),
+                  experiment(StopTime=0.05));
+      end AcidBaseBufferTest;
     end AcidBase;
 
     package Hemoglobin "Hemoglobin blood gases binding"
@@ -5997,7 +6030,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         xFreeBuffer = nFreeBuffer/solution.n;
        // port_a.q = (solution.n*KC)*(xFreeBuffer - xref);
-        port_a.q = KC*(log(xFreeBuffer) - log(xref)); //alternative kinetics
+        port_a.q = KC*(Modelica.Constants.R*solution.T*log(xFreeBuffer) - Modelica.Constants.R*solution.T*log(xref)); //alternative kinetics
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
