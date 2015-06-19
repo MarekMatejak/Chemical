@@ -305,7 +305,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH_25degC=0,
         DfG_25degC_1bar=0,
         Cp=25.4,
-        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Ag(s)";
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Ag(s)";
 
       constant Interfaces.Incompressible.SubstanceData Silver_aqueous(
         MolarWeight=0.1078682,
@@ -369,30 +369,30 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH_25degC=0,
         DfG_25degC_1bar=0,
         Cp=0,
-        References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme","To solve standard electo-chemical cell potentials"}) "e-(s)";
+        References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials"}) "e-(s)";
 
       constant Interfaces.Incompressible.SubstanceData Iron2_aqueous(
         MolarWeight=0.05585,
         z=2,
         DfH_25degC=-87860,
         DfG_25degC_1bar=-87860 - 298.15*(-9.93),
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-        "}) "Fe++(aq)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      "Fe++(aq)";
 
       constant Interfaces.Incompressible.SubstanceData Iron3_aqueous(
         MolarWeight=0.05585,
         z=3,
         DfH_25degC=-47700,
         DfG_25degC_1bar=-47700 - 298.15*(-124.77),
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-  "}) "Fe+++(aq)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      "Fe+++(aq)";
 
       constant Interfaces.Incompressible.SubstanceData Glucose_solid(
         MolarWeight=0.1806,
         DfH_25degC=-1274500,
         DfG_25degC_1bar=-1274500 - 298.15*(-1220.66),
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-"}) "Glu(s)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      "Glu(s)";
 
       constant Interfaces.IdealGas.SubstanceData Hydrogen_gas(
         MolarWeight=0.00201588,
@@ -454,7 +454,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         MolarWeight=0.095,
         DfH_25degC=-1288000,
         DfG_25degC_1bar=-1288000 - 298.15*(-496.4),
-        References={"https://en.wikipedia.org/wiki/Phosphoric_acid","https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"})
+        References={"https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"})
       "H3PO4(aq)";
 
       constant Interfaces.Incompressible.SubstanceData Proton_aqueous(
@@ -512,8 +512,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         z=2,
         DfH_25degC=-461960,
         DfG_25degC_1bar=-461960 - 298.15*(-19.99),
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-",    "http://www.vias.org/genchem/standard_enthalpies_table.html"}) "Mg++(aq)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html"})
+      "Mg++(aq)";
 
       constant Interfaces.Incompressible.SubstanceData Sodium_aqueous(
         MolarWeight=0.02299,
@@ -528,8 +528,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         z=1,
         DfH_25degC=-132800,
         DfG_25degC_1bar=-132800 - 298.15*(-178.77),
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf
-"}) "NH4+(aq)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
+      "NH4+(aq)";
 
       constant Interfaces.IdealGas.SubstanceData Oxygen_gas(
         MolarWeight=0.032,
@@ -542,7 +542,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         MolarWeight=0.032,
         DfH_25degC=-11700,
         DfG_25degC_1bar=16320,
-        References={"http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf","https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"})
+        References={"http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"})
       "O2(aq)";
 
       constant Interfaces.Incompressible.SubstanceData Hydroxide_aqueous(
@@ -559,7 +559,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH_25degC=0,
         DfG_25degC_1bar=0,
         Cp=26.4,
-        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Pb(s)";
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "Pb(s)";
 
       constant Interfaces.Incompressible.SubstanceData LeadDioxide_solid(
         MolarWeight=0.2391988,
@@ -567,7 +567,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH_25degC=-276600,
         DfG_25degC_1bar=-219000,
         Cp=64.6,
-        References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
       "PbO2(s)";
 
       constant Interfaces.Incompressible.SubstanceData LeadSulfate_solid(
@@ -576,8 +576,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfH_25degC=-918400,
         DfG_25degC_1bar=-811200,
         Cp=103.2,
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf",
-            "http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}) "PbSO4(s)";
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"})
+      "PbSO4(s)";
 
       constant Interfaces.Incompressible.SubstanceData Phosphate_aqueous(
         MolarWeight=0.095,
@@ -602,8 +602,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         DfG_25degC_1bar=-174180,
         Cp=112.4,
         density=789,
-        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf",
-            "https://en.wikipedia.org/wiki/Ethanol_(data_page)"})
+        References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)"})
       "Ethanol C2H5OH(l)";
 
         //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
@@ -4585,7 +4584,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             rotation=90)}));
     end Membrane;
 
-
     model SubstancePump "Prescribed sunstance molar flow"
       extends Interfaces.OnePortParallel;
       extends Interfaces.ConditionalSubstanceFlow;
@@ -6116,7 +6114,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -6147,7 +6145,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -7093,6 +7091,7 @@ versionBuild=1,
 versionDate="2015-05-20",
 dateModified = "2015-05-20 17:14:41Z",
 conversion(
+  from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/Chemical_from_1.0_to_1.1.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/Chemical_from_1.0_to_1.1.mos")),
 uses(Modelica(version="3.2.1")),
   Documentation(revisions="<html>
