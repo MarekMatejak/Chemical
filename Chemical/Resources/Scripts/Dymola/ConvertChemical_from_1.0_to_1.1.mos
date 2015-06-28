@@ -3,6 +3,10 @@
 // clear
 convertClear();
 
+convertClass("Chemical.Interfaces.ChemicalPort","Chemical.Interfaces.SubstancePort")
+convertClass("Chemical.Interfaces.SubstanceDefinitionPort","Chemical.Interfaces.SubstancePort_a")
+convertClass("Chemical.Interfaces.SubstanceUsePort","Chemical.Interfaces.SubstancePort_b")
+
 convertClass("Chemical.Interfaces.PartialSubstanceModel","Chemical.Interfaces.StateOfMatter")
 convertClass("Chemical.Interfaces.SimpleSubstanceModel","Chemical.Interfaces.Incompressible")
 
