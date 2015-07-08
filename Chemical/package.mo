@@ -638,11 +638,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(A.solution, solution.solution) annotation (Line(
-          points={{-48,-8},{-48,-92},{0,-92},{0,-98}},
+          points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(B.solution, solution.solution) annotation (Line(points={{58,-8},{
-            58,-92},{0,-92},{0,-98}},    smooth=Smooth.None));
+            58,-92},{60,-92},{60,-98}},  smooth=Smooth.None));
       connect(A.port_a, reaction.substrates[1]) annotation (Line(
           points={{-32,2},{-10,2}},
           color={158,66,200},
@@ -687,13 +687,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(A.solution, solution.solution) annotation (Line(
-          points={{-30,2},{-30,-90},{0,-90},{0,-98}},
+          points={{-30,2},{-30,-90},{60,-90},{60,-98}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(C.solution, solution.solution) annotation (Line(points={{64,-8},{
-            66,-8},{66,-90},{0,-90},{0,-98}},    smooth=Smooth.None));
+            66,-8},{66,-90},{60,-90},{60,-98}},  smooth=Smooth.None));
       connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
-            {-30,-90},{0,-90},{0,-98}},  smooth=Smooth.None));
+            {-30,-90},{60,-90},{60,-98}},smooth=Smooth.None));
 
       connect(B.port_a, reaction.substrates[1]) annotation (Line(
           points={{-14,-14},{-10,-14},{-10,0},{4,0}},
@@ -722,29 +722,37 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             Chemical.Interfaces.Incompressible,
         substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=55.508)
-        annotation (Placement(transformation(extent={{-4,-16},{16,4}})));
+        annotation (Placement(transformation(extent={{56,-32},{76,-12}})));
       Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
-        annotation (Placement(transformation(extent={{28,-76},{48,-56}})));
+        annotation (Placement(transformation(extent={{-86,-72},{-66,-52}})));
       Modelica.Electrical.Analog.Basic.Ground ground
         annotation (Placement(transformation(extent={{-70,60},{-50,80}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
     equation
       connect(H2O.solution, solution.solution) annotation (Line(
-          points={{0,-16},{0,-98}},
+          points={{60,-32},{60,-98}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
-          points={{48,-66},{60,-66},{60,-98}},
+          points={{-66,-62},{-60,-62},{-60,-102}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(ground.p, solution.electricPin) annotation (Line(
           points={{-60,80},{-60,100}},
           color={0,0,255},
           smooth=Smooth.None));
+    connect(fixed1.flange, solution.bottom) annotation (Line(
+        points={{-18,-84},{0,-84},{0,-102}},
+        color={0,127,0},
+        smooth=Smooth.None));
       annotation (experiment(StopTime=1),
       Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
     end HeatingOfWater;
 
     model HeatingOfAlcohol "Heating of 50% ethanol"
@@ -761,7 +769,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       amountOfSubstance_start=55.508/2)
         annotation (Placement(transformation(extent={{-46,-8},{-26,12}})));
       Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
-        annotation (Placement(transformation(extent={{28,-76},{48,-56}})));
+        annotation (Placement(transformation(extent={{-86,-76},{-66,-56}})));
       Modelica.Electrical.Analog.Basic.Ground ground
         annotation (Placement(transformation(extent={{-70,62},{-50,82}})));
       Components.Substance Ethanol(
@@ -770,13 +778,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       substanceData=Chemical.Examples.Substances.Ethanol_liquid,
       amountOfSubstance_start=55.508/2)
       annotation (Placement(transformation(extent={{18,-8},{38,12}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
     equation
       connect(H2O.solution, solution.solution) annotation (Line(
-          points={{-42,-8},{-42,-34},{0,-34},{0,-98}},
+          points={{-42,-8},{-42,-34},{60,-34},{60,-98}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
-          points={{48,-66},{60,-66},{60,-98}},
+          points={{-66,-66},{-60,-66},{-60,-102}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(ground.p, solution.electricPin) annotation (Line(
@@ -784,13 +794,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={0,0,255},
           smooth=Smooth.None));
     connect(solution.solution, Ethanol.solution) annotation (Line(
-        points={{0,-98},{0,-34},{22,-34},{22,-8}},
+        points={{60,-98},{60,-34},{22,-34},{22,-8}},
         color={158,66,200},
+        smooth=Smooth.None));
+    connect(solution.bottom, fixed1.flange) annotation (Line(
+        points={{0,-102},{0,-84},{-18,-84}},
+        color={0,127,0},
         smooth=Smooth.None));
       annotation (experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
+</html>"),
+      Diagram(graphics));
     end HeatingOfAlcohol;
 
     model ExothermicReaction
@@ -823,11 +838,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.Temperature t
       "Temperature if the solution is ideally thermal isolated from environment";
       Modelica.Electrical.Analog.Basic.Ground ground
-        annotation (Placement(transformation(extent={{-58,-42},{-38,-22}})));
+        annotation (Placement(transformation(extent={{-86,56},{-66,76}})));
     Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=
           298.15) annotation (Placement(transformation(
-          extent={{10,-10},{-10,10}},
-          origin={82,50})));
+          extent={{-10,-10},{10,10}},
+          origin={-78,28})));
       Components.Substance H2O(
         redeclare package stateOfMatter =
             Chemical.Interfaces.Incompressible,
@@ -840,6 +855,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=55.508)
         annotation (Placement(transformation(extent={{20,-94},{40,-74}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed2
+        annotation (Placement(transformation(extent={{-26,-96},{-6,-76}})));
+      Modelica.Electrical.Analog.Basic.Ground ground1
+        annotation (Placement(transformation(extent={{-78,-32},{-58,-12}})));
     equation
       q = -solution_at_constant_temperature.heatPort.Q_flow;
 
@@ -856,11 +877,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(B.solution, thermal_isolated_solution.solution) annotation (Line(
-          points={{36,-60},{36,-64},{-1,-64},{-1,-99.06}},
+          points={{36,-60},{36,-64},{58.4,-64},{58.4,-99.06}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(A.solution, thermal_isolated_solution.solution) annotation (Line(
-            points={{-36,-60},{-36,-64},{-1,-64},{-1,-99.06}},
+            points={{-36,-60},{-36,-64},{58.4,-64},{58.4,-99.06}},
                                                              smooth=Smooth.None));
       connect(A1.port_a, reaction1.substrates[1]) annotation (Line(
           points={{-20,50},{-8,50}},
@@ -874,40 +895,51 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
       connect(B1.solution, solution_at_constant_temperature.solution) annotation (
           Line(
-          points={{36,40},{36,34},{-1,34},{-1,0.94}},
+          points={{36,40},{36,34},{58.4,34},{58.4,0.94}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(A1.solution, solution_at_constant_temperature.solution) annotation (
-          Line(points={{-36,40},{-36,34},{-1,34},{-1,0.94}},
+          Line(points={{-36,40},{-36,34},{58.4,34},{58.4,0.94}},
                                                           smooth=Smooth.None));
     connect(solution_at_constant_temperature.electricPin, ground.p) annotation (
        Line(
-        points={{-60.4,94},{-60,94},{-60,-22},{-48,-22}},
-        color={0,0,255},
-        smooth=Smooth.None));
-    connect(thermal_isolated_solution.electricPin, ground.p) annotation (Line(
-        points={{-60.4,-6},{-60,-6},{-60,-22},{-48,-22}},
+        points={{-60.4,94},{-60,94},{-60,76},{-76,76}},
         color={0,0,255},
         smooth=Smooth.None));
     connect(fixedTemperature.port, solution_at_constant_temperature.heatPort)
       annotation (Line(
-        points={{72,50},{58.4,50},{58.4,0.94}},
+        points={{-68,28},{-60.4,28},{-60.4,-0.94}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(solution_at_constant_temperature.solution, H2O.solution)
       annotation (Line(
-        points={{-1,0.94},{24,0.94},{24,4}},
+        points={{58.4,0.94},{24,0.94},{24,4}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(thermal_isolated_solution.solution, H2O1.solution) annotation (Line(
-        points={{-1,-99.06},{24,-99.06},{24,-94}},
+        points={{58.4,-99.06},{24,-99.06},{24,-94}},
         color={158,66,200},
+        smooth=Smooth.None));
+    connect(solution_at_constant_temperature.bottom, fixed1.flange) annotation (
+       Line(
+        points={{-1,-0.94},{0,-0.94},{0,14},{-18,14}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(thermal_isolated_solution.bottom, fixed2.flange) annotation (Line(
+        points={{-1,-100.94},{-1,-86},{-16,-86}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(thermal_isolated_solution.electricPin, ground1.p) annotation (Line(
+        points={{-60.4,-6},{-68,-6},{-68,-12}},
+        color={0,0,255},
         smooth=Smooth.None));
       annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment(StopTime=0.001));
+        experiment(StopTime=0.001),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
     end ExothermicReaction;
 
     model PowerGeneration "Hydrogen burning piston"
@@ -1025,7 +1057,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Components.Substance H2O_liquid(substanceData=Chemical.Examples.Substances.Water_liquid,
           amountOfSubstance_start=55.508) "Liquid water"
-        annotation (Placement(transformation(extent={{-54,-64},{-74,-44}})));
+        annotation (Placement(transformation(extent={{-30,-64},{-50,-44}})));
 
     Components.IdealGasSolution gas(temperature_start=T_start)
         annotation (Placement(transformation(extent={{-46,6},{46,96}})));
@@ -1036,7 +1068,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Substance H2O_gaseuous(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGas,               substanceData=Chemical.Examples.Substances.Water_gas,
       amountOfSubstance_start(displayUnit="mmol") = 0.001)
-        annotation (Placement(transformation(extent={{-4,54},{-24,74}})));
+        annotation (Placement(transformation(extent={{28,50},{8,70}})));
     Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                            fixedTemperature
                   annotation (Placement(transformation(
@@ -1048,26 +1080,30 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Components.Substance otherSubstances(substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{-36,14},{-16,34}})));
+      annotation (Placement(transformation(extent={{0,28},{20,48}})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(
-        G=1e6) annotation (Placement(transformation(extent={{48,-6},{68,14}})));
+        G=1e6) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-24,12},{-4,32}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed2
+        annotation (Placement(transformation(extent={{-74,-92},{-54,-72}})));
     equation
 
       connect(H2O_liquid.solution, liquid.solution) annotation (Line(
-          points={{-58,-64},{-58,-97.1},{-52,-97.1}},
+          points={{-34,-64},{-34,-97.1},{-24.4,-97.1}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(H2O_liquid.port_a, gasSolubility.liquid_port) annotation (Line(
-          points={{-74,-54},{-88,-54},{-88,24}},
+          points={{-50,-54},{-88,-54},{-88,24}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
       connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
-          points={{0,6.9},{-8,6.9},{-8,54}},
+          points={{27.6,6.9},{24,6.9},{24,50}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(H2O_gaseuous.port_a, gasSolubility.gas_port) annotation (Line(
-          points={{-24,64},{-88,64},{-88,44}},
+          points={{8,60},{-88,60},{-88,44}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -1080,20 +1116,28 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         color={0,0,127},
         smooth=Smooth.Bezier));
     connect(gas.solution, otherSubstances.solution) annotation (Line(
-        points={{0,6.9},{-24,6.9},{-24,14},{-32,14}},
+        points={{27.6,6.9},{4,6.9},{4,28}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
-        points={{74,8},{72,8},{72,4},{68,4}},
+        points={{74,8},{72,8},{72,2},{68,2}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(gas.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{27.6,6.9},{34,6.9},{34,4},{48,4}},
+        points={{-27.6,5.1},{-28,5.1},{-28,2},{48,2}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(liquid.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{-24.4,-97.1},{-2,-97.1},{-2,4},{48,4}},
+        points={{-79.6,-98.9},{-80,-98.9},{-80,-102},{-8,-102},{-8,2},{48,2}},
         color={191,0,0},
+        smooth=Smooth.None));
+    connect(liquid.bottom, fixed2.flange) annotation (Line(
+        points={{-52,-98.9},{-52,-82},{-64,-82}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(gas.bottom, fixed1.flange) annotation (Line(
+        points={{0,5.1},{0,22},{-14,22}},
+        color={0,127,0},
         smooth=Smooth.None));
       annotation (
         experiment(StopTime=100),
@@ -1102,7 +1146,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>", revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
     end WaterVaporization;
 
     model WaterSublimation "Sublimation of water"
@@ -1121,7 +1167,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Components.Substance H2O_gaseuous(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGas,               substanceData=Chemical.Examples.Substances.Water_gas,
       amountOfSubstance_start(displayUnit="mmol") = 0.001)
-        annotation (Placement(transformation(extent={{-4,54},{-24,74}})));
+        annotation (Placement(transformation(extent={{24,56},{4,76}})));
     Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                            fixedTemperature
                   annotation (Placement(transformation(
@@ -1131,7 +1177,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Components.Substance otherSubstances(substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{-36,14},{-16,34}})));
+      annotation (Placement(transformation(extent={{-4,36},{16,56}})));
     Components.Solution solid(temperature_start=T_start, AmbientPressure=600)
         annotation (Placement(transformation(extent={{8,-98},{100,-8}})));
       Components.Substance H2O_solid(amountOfSubstance_start=55.508, substanceData=
@@ -1143,11 +1189,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.Electrical.Analog.Basic.Ground ground1
         annotation (Placement(transformation(extent={{12,-38},{32,-18}})));
       Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=1e6)
-        annotation (Placement(transformation(extent={{48,-6},{68,14}})));
+        annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-18,14},{2,34}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed2
+        annotation (Placement(transformation(extent={{32,-92},{52,-72}})));
     equation
 
       connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
-          points={{0,6.9},{-8,6.9},{-8,54}},
+          points={{27.6,6.9},{20,6.9},{20,56}},
           color={158,66,200},
           smooth=Smooth.None));
     connect(fixedTemperature.T, clock.y) annotation (Line(
@@ -1155,15 +1205,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         color={0,0,127},
         smooth=Smooth.Bezier));
     connect(gas.solution, otherSubstances.solution) annotation (Line(
-        points={{0,6.9},{-24,6.9},{-24,14},{-32,14}},
+        points={{27.6,6.9},{12,6.9},{12,36},{0,36}},
         color={158,66,200},
         smooth=Smooth.None));
       connect(solid.solution, H2O_solid.solution) annotation (Line(
-          points={{54,-97.1},{60,-97.1},{60,-62},{66,-62}},
+          points={{81.6,-97.1},{60,-97.1},{60,-62},{66,-62}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(H2O_gaseuous.port_a, gasSolubility1.gas_port) annotation (Line(
-          points={{-24,64},{-66,64},{-66,38}},
+          points={{4,66},{-66,66},{-66,38}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -1177,17 +1227,25 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={0,0,255},
           smooth=Smooth.None));
       connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
-          points={{74,8},{72,8},{72,4},{68,4}},
+          points={{74,8},{72,8},{72,2},{68,2}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(gas.heatPort, thermalConductor.port_a) annotation (Line(
-          points={{27.6,6.9},{34,6.9},{34,4},{48,4}},
+          points={{-27.6,5.1},{-28,5.1},{-28,2},{48,2}},
           color={191,0,0},
           smooth=Smooth.None));
       connect(solid.heatPort, thermalConductor.port_a) annotation (Line(
-          points={{81.6,-97.1},{-2,-97.1},{-2,4},{48,4}},
+          points={{26.4,-98.9},{-2,-98.9},{-2,2},{48,2}},
           color={191,0,0},
           smooth=Smooth.None));
+    connect(solid.bottom, fixed2.flange) annotation (Line(
+        points={{54,-98.9},{54,-82},{42,-82}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(fixed1.flange, gas.bottom) annotation (Line(
+        points={{-8,24},{0,24},{0,5.1}},
+        color={0,127,0},
+        smooth=Smooth.None));
       annotation (
         experiment(StopTime=50.01),
         Documentation(info="<html>
@@ -1195,7 +1253,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>", revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
     end WaterSublimation;
 
     model GasSolubility "Dissolution of gases in liquids"
@@ -1287,16 +1347,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
     connect(CO2_unbound_plasma.solution, blood_plasma.solution) annotation (
         Line(
-        points={{-86,-24},{-86,-75.1},{-54,-75.1}},
+        points={{-86,-24},{-86,-75.1},{-26.4,-75.1}},
         color={0,0,0},
         smooth=Smooth.None));
     connect(O2_unbound_plasma.solution, blood_plasma.solution) annotation (Line(
-        points={{-46,-26},{-46,-75.1},{-54,-75.1}},
+        points={{-46,-26},{-46,-75.1},{-26.4,-75.1}},
         color={0,0,0},
         smooth=Smooth.None));
     connect(CO2_unbound_erythrocyte.solution, red_cells.solution) annotation (
         Line(
-        points={{22,-32},{22,-77.08},{55,-77.08}},
+        points={{22,-32},{22,-77.08},{83.2,-77.08}},
         color={0,0,0},
         smooth=Smooth.None));
     connect(O2_g_n1.port_a, O2_dissolutionE_NIST.gas_port) annotation (Line(
@@ -1312,16 +1372,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
     connect(O2_unbound_erythrocyte_NIST.solution, red_cells.solution)
       annotation (Line(
-        points={{62,-32},{62,-77.08},{55,-77.08}},
+        points={{62,-32},{62,-77.08},{83.2,-77.08}},
         color={0,0,0},
         smooth=Smooth.None));
     connect(blood_plasma.solution, otherSubstances.solution) annotation (Line(
-        points={{-54,-75.1},{-38,-75.1},{-38,-70}},
+        points={{-26.4,-75.1},{-38,-75.1},{-38,-70}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(red_cells.solution, otherSubstances_erythrocytes.solution)
       annotation (Line(
-        points={{55,-77.08},{68,-77.08},{68,-68}},
+        points={{83.2,-77.08},{68,-77.08},{68,-68}},
         color={158,66,200},
         smooth=Smooth.None));
       annotation (
@@ -1406,21 +1466,21 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(E.solution, solution.solution) annotation (Line(
-          points={{-6,38},{-8,38},{-8,-98},{0,-98}},
+          points={{-6,38},{-8,38},{-8,-98},{60,-98}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(ES.solution, solution.solution)
-        annotation (Line(points={{-8,-10},{-8,-98},{0,-98}},          smooth=Smooth.None));
+        annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         smooth=Smooth.None));
       connect(S.solution, solution.solution) annotation (Line(
-          points={{-88,-14},{-88,-98},{0,-98}},
+          points={{-88,-14},{-88,-98},{60,-98}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(P.solution, solution.solution) annotation (Line(
-          points={{88,-12},{88,-98},{0,-98}},
+          points={{88,-12},{88,-98},{60,-98}},
           color={158,66,200},
           smooth=Smooth.None));
     connect(solution.solution, otherSubstances.solution) annotation (Line(
-        points={{0,-98},{46,-98},{46,-76}},
+        points={{60,-98},{46,-98},{46,-76}},
         color={158,66,200},
         smooth=Smooth.None));
           annotation ( Documentation(revisions="<html>
@@ -2308,27 +2368,27 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(H2O.solution, solution.solution) annotation (Line(
-            points={{-36,36},{2,36},{2,2.94}},
+            points={{-36,36},{46.4,36},{46.4,2.94}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(OH.solution, solution.solution) annotation (Line(
-            points={{36,16},{36,2.94},{2,2.94}},
+            points={{36,16},{36,2.94},{46.4,2.94}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(H3O.solution, solution.solution) annotation (Line(
-            points={{36,60},{36,2.94},{2,2.94}},
+            points={{36,60},{36,2.94},{46.4,2.94}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(H2O_.solution, solution1.solution) annotation (Line(
-            points={{-38,-66},{0,-66},{0,-95.06}},
+            points={{-38,-66},{44.4,-66},{44.4,-95.06}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(OH_.solution, solution1.solution) annotation (Line(
-            points={{34,-86},{34,-95.06},{0,-95.06}},
+            points={{34,-86},{34,-95.06},{44.4,-95.06}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(H_.solution, solution1.solution) annotation (Line(
-            points={{34,-40},{34,-95.06},{0,-95.06}},
+            points={{34,-40},{34,-95.06},{44.4,-95.06}},
             color={0,0,0},
             smooth=Smooth.None));
         annotation ( Documentation(info="<html>
@@ -2433,17 +2493,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(CO2_liquid.solution, solution.solution) annotation (Line(
-            points={{-78,-6},{-78,-98.54},{0,-98.54}},
+            points={{-78,-6},{-78,-98.54},{60,-98.54}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(H2O.solution, solution.solution) annotation (Line(points={{-78,-50},
-              {-78,-98.54},{0,-98.54}}, smooth=Smooth.None));
+              {-78,-98.54},{60,-98.54}},smooth=Smooth.None));
         connect(HCO3.solution, solution.solution) annotation (Line(points={{-12,-4},
-              {-12,-98.54},{0,-98.54}}, smooth=Smooth.None));
+              {-12,-98.54},{60,-98.54}},smooth=Smooth.None));
         connect(H.solution, solution.solution) annotation (Line(points={{-12,-48},
-              {-12,-98.54},{0,-98.54}}, smooth=Smooth.None));
+              {-12,-98.54},{60,-98.54}},smooth=Smooth.None));
         connect(CO3.solution, solution.solution) annotation (Line(points={{66,-2},
-              {66,-98.54},{0,-98.54}},  smooth=Smooth.None));
+              {66,-98.54},{60,-98.54}}, smooth=Smooth.None));
         annotation ( Documentation(info="<html>
 <p>CO2 solution in water without any other acid-base buffers.</p>
 <pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&QUOT;pH&QUOT;,&nbsp;1);</b></pre>
@@ -2557,17 +2617,20 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(H3PO4.solution, solution.solution) annotation (Line(
-            points={{-86,-58},{-46,-58},{-46,-98},{1,-98}},
+            points={{-86,-58},{-46,-58},{-46,-98},{60.4,-98}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(H2PO4.solution, solution.solution) annotation (Line(points={{-36,-58},
-              {-36,-88},{1,-88},{1,-98}},    smooth=Smooth.None));
+              {-36,-88},{60.4,-88},{60.4,-98}},
+                                             smooth=Smooth.None));
         connect(HPO4.solution, solution.solution) annotation (Line(points={{20,-58},
-              {22,-58},{22,-88},{1,-88},{1,-98}},smooth=Smooth.None));
+              {22,-58},{22,-88},{60.4,-88},{60.4,-98}},
+                                                 smooth=Smooth.None));
         connect(PO4.solution, solution.solution) annotation (Line(points={{88,-58},
-              {88,-88},{1,-88},{1,-98}},smooth=Smooth.None));
+              {88,-88},{60.4,-88},{60.4,-98}},
+                                        smooth=Smooth.None));
         connect(H.solution, solution.solution) annotation (Line(points={{22,-24},
-              {22,-88},{1,-88},{1,-98}},
+              {22,-88},{60.4,-88},{60.4,-98}},
                                    smooth=Smooth.None));
       connect(chemicalReaction.substrates[1], H3PO4.port_a) annotation (Line(
           points={{-66,-48},{-70,-48}},
@@ -2575,7 +2638,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=1,
           smooth=Smooth.None));
       connect(H2O.solution, solution.solution) annotation (Line(
-          points={{52,-86},{52,-98},{1,-98}},
+          points={{52,-86},{52,-98},{60.4,-98}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation ( Documentation(info="<html>
@@ -2630,11 +2693,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               thickness=1,
               smooth=Smooth.None));
           connect(HA[i].solution, solution.solution) annotation (Line(
-            points={{-74,-2},{-74,-86},{0,-86},{0,-98}},
+            points={{-74,-2},{-74,-86},{60,-86},{60,-98}},
             color={0,0,0},
             smooth=Smooth.None));
           connect(A[i].solution, solution.solution) annotation (Line(
-            points={{20,-16},{20,-86},{0,-86},{0,-98}},
+            points={{20,-16},{20,-86},{60,-86},{60,-98}},
             color={0,0,0},
             smooth=Smooth.None));
         end for;
@@ -2645,11 +2708,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
 
       connect(solution.solution, H2O.solution) annotation (Line(
-          points={{0,-98},{56,-98},{56,-78}},
+          points={{60,-98},{56,-98},{56,-78}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(H.solution, solution.solution) annotation (Line(
-          points={{20,26},{20,14},{36,14},{36,-98},{0,-98}},
+          points={{20,26},{20,14},{36,14},{36,-98},{60,-98}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation ( Documentation(revisions="<html>
@@ -2787,29 +2850,29 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=0.5,
             smooth=Smooth.None));
       connect(CO2.solution, blood_plasma.solution) annotation (Line(
-          points={{-84,28},{-84,6.52},{0,6.52}},
+          points={{-84,28},{-84,6.52},{60,6.52}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(H2O.solution, blood_plasma.solution)
-        annotation (Line(points={{-56,12},{-56,6.52},{0,6.52}},
+        annotation (Line(points={{-56,12},{-56,6.52},{60,6.52}},
                                                           smooth=Smooth.None));
       connect(Cl.solution, blood_plasma.solution) annotation (Line(
-          points={{62,20},{62,6.52},{0,6.52}},
+          points={{62,20},{62,6.52},{60,6.52}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{-86,-82},{-86,-88},{0,-88},{0,-95.4}},
+          points={{-86,-82},{-86,-88},{60,-88},{60,-95.4}},
           color={0,0,0},
           smooth=Smooth.None));
         connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
-              points={{-56,-62},{-56,-88},{0,-88},{0,-95.4}},
+              points={{-56,-62},{-56,-88},{60,-88},{60,-95.4}},
                                                       smooth=Smooth.None));
         connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-            points={{62,-60},{62,-88},{0,-88},{0,-95.4}},
+            points={{62,-60},{62,-88},{60,-88},{60,-95.4}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
-              points={{24,-62},{24,-88},{0,-88},{0,-95.4}},
+              points={{24,-62},{24,-88},{60,-88},{60,-95.4}},
                                                     smooth=Smooth.None));
       connect(gasSolubility.liquid_port, CO2.port_a) annotation (Line(
           points={{-84,48},{-84,38},{-68,38}},
@@ -2852,7 +2915,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=0.5,
             smooth=Smooth.None));
       connect(HCO3.solution, blood_plasma.solution) annotation (Line(
-          points={{24,14},{24,6.52},{0,6.52}},
+          points={{24,14},{24,6.52},{60,6.52}},
           color={0,0,0},
           smooth=Smooth.None));
       connect(H_E.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
@@ -2861,11 +2924,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           thickness=0.5,
           smooth=Smooth.None));
       connect(blood_erythrocytes.solution, others_E.solution) annotation (Line(
-          points={{0,-95.4},{0,-88},{72,-88}},
+          points={{60,-95.4},{60,-88},{72,-88}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(blood_plasma.solution, others_P.solution) annotation (Line(
-          points={{0,6.52},{74,6.52},{74,14}},
+          points={{60,6.52},{74,6.52},{74,14}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(clock.y, CO2_gas.partialPressure) annotation (Line(
@@ -2873,7 +2936,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={0,0,127},
           smooth=Smooth.None));
       connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{44.4,-84},{44,-84},{44,-88},{0,-88},{0,-95.4}},
+          points={{44.4,-84},{44,-84},{44,-88},{60,-88},{60,-95.4}},
           color={158,66,200},
           smooth=Smooth.None));
         connect(CO2_E.port_a, diffusion.port_b) annotation (Line(
@@ -2887,7 +2950,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=0.5,
             smooth=Smooth.None));
         connect(blood_plasma.solution, H.solution) annotation (Line(
-            points={{0,6.52},{36,6.52},{36,38},{36.4,38}},
+            points={{60,6.52},{36,6.52},{36,38},{36.4,38}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(CO2.port_a, HendersonHasselbalch2.substrates[2]) annotation (Line(
@@ -2940,7 +3003,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           annotation (Placement(transformation(extent={{52,-82},{72,-62}})));
       equation
         connect(buffer.solution, simpleSolution.solution) annotation (Line(
-            points={{-46,4},{-26,4},{-26,-98},{-4,-98}},
+            points={{-46,4},{-26,4},{-26,-98},{56,-98}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(externalMoleFraction.port_a, buffer.port_a) annotation (Line(
@@ -2948,7 +3011,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             color={158,66,200},
             smooth=Smooth.None));
         connect(simpleSolution.solution, substance.solution) annotation (Line(
-            points={{-4,-98},{26,-98},{26,-82},{56,-82}},
+            points={{56,-98},{26,-98},{26,-82},{56,-82}},
             color={158,66,200},
             smooth=Smooth.None));
         annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
@@ -3128,7 +3191,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(R1.port_a,oxyR2. products[1]) annotation (Line(
-            points={{0,46},{0,32},{-10.5,32}},
+            points={{0,46},{0,32},{-12,32}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3143,12 +3206,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(oxyR3.products[1],R2. port_a) annotation (Line(
-            points={{-10.5,-14},{-10.5,-7},{0,-7},{0,0}},
+            points={{-12,-14},{-12,-7},{0,-7},{0,0}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(R3.port_a,oxyR4. products[1]) annotation (Line(
-            points={{0,-44},{0,-56},{-10.5,-56}},
+            points={{0,-44},{0,-56},{-12,-56}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3158,7 +3221,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(oxyT1.products[1],T0. port_a) annotation (Line(
-            points={{44.5,74},{44.5,88},{54,88}},
+            points={{46,74},{46,88},{54,88}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3168,7 +3231,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(T1.port_a,oxyT2. products[1]) annotation (Line(
-            points={{54,46},{54,32},{44.5,32}},
+            points={{54,46},{54,32},{46,32}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3178,7 +3241,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(T3.port_a,oxyT4. products[1]) annotation (Line(
-            points={{54,-44},{54,-56},{44.5,-56}},
+            points={{54,-44},{54,-56},{46,-56}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3193,7 +3256,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(R0.port_a,oxyR1. products[1]) annotation (Line(
-            points={{0,88},{0,74},{-8.5,74}},
+            points={{0,88},{0,74},{-10,74}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3234,49 +3297,49 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
         connect(oxyR1.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-7.5,74},{-42,74},{-42,-36}},
+            points={{-6,74},{-42,74},{-42,-36}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxyR2.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9.5,32},{-42,32},{-42,-36}},
+            points={{-8,32},{-42,32},{-42,-36}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxyR3.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9.5,-14},{-42,-14},{-42,-36}},
+            points={{-8,-14},{-42,-14},{-42,-36}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxyR4.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9.5,-56},{-42,-56},{-42,-36}},
+            points={{-8,-56},{-42,-56},{-42,-36}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxygen_unbound.port_a, oxyT1.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,74},{43.5,74}},
+            points={{-42,-36},{-42,74},{42,74}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxygen_unbound.port_a, oxyT2.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,32},{43.5,32}},
+            points={{-42,-36},{-42,32},{42,32}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxygen_unbound.port_a, oxyT3.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,-14},{43.5,-14}},
+            points={{-42,-36},{-42,-14},{42,-14}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxygen_unbound.port_a, oxyT4.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,-56},{43.5,-56}},
+            points={{-42,-36},{-42,-56},{42,-56}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3291,37 +3354,37 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(oxygen_unbound.solution, solution.solution) annotation (Line(
-            points={{-58,-46},{-58,-99.74},{17,-99.74}},
+            points={{-58,-46},{-58,-99.74},{66.8,-99.74}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(R0.solution, solution.solution) annotation (Line(
-            points={{-16,78},{-16,-99.74},{17,-99.74}},
+            points={{-16,78},{-16,-99.74},{66.8,-99.74}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(T0.solution, solution.solution) annotation (Line(
-            points={{38,78},{38,-99.74},{17,-99.74}},
+            points={{38,78},{38,-99.74},{66.8,-99.74}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(R1.solution, solution.solution) annotation (Line(points={{-16,36},
-              {-16,-99.74},{17,-99.74}},
+              {-16,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(T1.solution, solution.solution) annotation (Line(points={{38,36},
-              {38,-99.74},{17,-99.74}},
+              {38,-99.74},{66.8,-99.74}},
                             smooth=Smooth.None));
         connect(R2.solution, solution.solution) annotation (Line(points={{-16,-10},
-              {-16,-99.74},{17,-99.74}},
+              {-16,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(T3.solution, solution.solution) annotation (Line(points={{38,-54},
-              {38,-99.74},{17,-99.74}},
+              {38,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(R3.solution, solution.solution) annotation (Line(points={{-16,-54},
-              {-16,-99.74},{17,-99.74}},
+              {-16,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(R4.solution, solution.solution) annotation (Line(points={{-16,-92},
-              {-16,-99.74},{17,-99.74}},
+              {-16,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(T4.solution, solution.solution) annotation (Line(points={{38,-92},
-              {38,-99.74},{17,-99.74}},
+              {38,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(quaternaryForm2.products[1], T2.port_a) annotation (Line(
             points={{28,0},{54,0}},
@@ -3334,19 +3397,19 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(T2.port_a, oxyT3.products[1]) annotation (Line(
-            points={{54,0},{54,-14},{44.5,-14}},
+            points={{54,0},{54,-14},{46,-14}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(T2.solution, solution.solution) annotation (Line(points={{38,-10},
-              {38,-99.74},{17,-99.74}},
+              {38,-99.74},{66.8,-99.74}},
                                   smooth=Smooth.None));
         connect(clock.y, O2_in_air.partialPressure) annotation (Line(
             points={{-84,51},{-84,32}},
             color={0,0,127},
             smooth=Smooth.None));
       connect(H2O.solution, solution.solution) annotation (Line(
-          points={{-54,-88},{-54,-99.74},{17,-99.74}},
+          points={{-54,-88},{-54,-99.74},{66.8,-99.74}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation (          experiment(StopTime=15000, Tolerance=0.01),
@@ -3482,7 +3545,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             smooth=Smooth.None));
         connect(oxygenation_T.products[1], DeoxyTHm.port_a)
                                                annotation (Line(
-            points={{62,-8.5},{66,-8.5},{66,-24},{76,-24}},
+            points={{62,-10},{66,-10},{66,-24},{76,-24}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3497,18 +3560,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(DeoxyRHm.port_a, R0_in_R.subunits) annotation (Line(
-            points={{-20,-24},{-42,-24},{-42,-48}},
+            points={{-20,-24},{-42.8,-24},{-42.8,-47.8}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(oxygenation_R.products[1], DeoxyRHm.port_a) annotation (Line(
-            points={{-48,-8.5},{-34,-8.5},{-34,-24},{-20,-24}},
+            points={{-48,-10},{-34,-10},{-34,-24},{-20,-24}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
 
         connect(T0_in_T.subunits, DeoxyTHm.port_a)   annotation (Line(
-            points={{60,-48},{60,-24},{76,-24}},
+            points={{60.8,-47.8},{60.8,-24},{76,-24}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
@@ -3536,45 +3599,45 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         for i in 1:4 loop
           connect(oxygenation_T[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{62,-7.5},{70,-7.5},{70,16},{18,16}},
+            points={{62,-6},{70,-6},{70,16},{18,16}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
           connect(oxygenation_R[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{-48,-7.5},{-12,-7.5},{-12,16},{18,16}},
+            points={{-48,-6},{-12,-6},{-12,16},{18,16}},
             color={107,45,134},
             thickness=1,
             smooth=Smooth.None));
         connect(R0_in_R.subunitSolution, DeoxyRHm[i].solution) annotation (Line(
-            points={{-36,-48},{-36,-42},{-4,-42},{-4,-34}},
+            points={{-36,-52},{-36,-42},{-4,-42},{-4,-34}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(R0_in_R.subunitSolution, OxyRHm[i].solution) annotation (Line(
-            points={{-36,-48},{-36,-42},{-92,-42},{-92,-18}},
+            points={{-36,-52},{-36,-42},{-92,-42},{-92,-18}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(OxyTHm[i].solution, T0_in_T.subunitSolution) annotation (Line(
-            points={{18,-18},{18,-44},{54,-44},{54,-48}},
+            points={{18,-18},{18,-44},{54,-44},{54,-52}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(DeoxyTHm[i].solution, T0_in_T.subunitSolution) annotation (Line(
-            points={{92,-34},{92,-44},{54,-44},{54,-48}},
+            points={{92,-34},{92,-44},{54,-44},{54,-52}},
             color={158,66,200},
             smooth=Smooth.None));
         end for;
 
         connect(R0_in_R.solution, solution.solution) annotation (Line(
-            points={{-46,-68},{-46,-98.42},{0,-98.42}},
+            points={{-46,-68},{-46,-98.42},{60,-98.42}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(T0_in_T.solution, solution.solution) annotation (Line(
-            points={{64,-68},{64,-98.42},{0,-98.42}},
+            points={{64,-68},{64,-98.42},{60,-98.42}},
             color={0,0,0},
             smooth=Smooth.None));
         connect(oxygen_unbound.solution, solution.solution) annotation (Line(points={{2,6},{2,
-                -98.42},{0,-98.42}},             smooth=Smooth.None));
+              -98.42},{60,-98.42}},              smooth=Smooth.None));
         connect(solution.solution, H2O.solution) annotation (Line(
-            points={{0,-98.42},{72,-98.42},{72,-94}},
+            points={{60,-98.42},{72,-98.42},{72,-94}},
             color={158,66,200},
             smooth=Smooth.None));
 
@@ -3773,17 +3836,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       equation
         connect(Ag.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-            points={{-60,-18},{-42,-18},{-42,-4},{-40.5,-4}},
+            points={{-60,-18},{-42,-18},{-42,-4},{-42,-4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(Cl.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-            points={{-28,-26},{-39.5,-26},{-39.5,-4}},
+            points={{-28,-26},{-38,-26},{-38,-4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(AgCl.port_a, electrodeReaction1.products[1]) annotation (Line(
-            points={{-60,22},{-40.5,22},{-40.5,16}},
+            points={{-60,22},{-42,22},{-42,16}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
@@ -3793,17 +3856,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(H.port_a, electrodeReaction.products[1]) annotation (Line(
-            points={{38,-26},{52.5,-26},{52.5,-4}},
+            points={{38,-26},{54,-26},{54,-4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(electrodeReaction.products[2], electrone1.port_a) annotation (Line(
-            points={{51.5,-4},{51.5,-16},{66,-16}},
+            points={{50,-4},{50,-16},{66,-16}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(electrodeReaction1.products[2], electrone.port_a) annotation (Line(
-            points={{-39.5,16},{-39.5,50},{-60,50}},
+            points={{-38,16},{-38,50},{-60,50}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
@@ -3816,11 +3879,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             color={0,0,255},
             smooth=Smooth.None));
       connect(electrone1.solution, anode.solution) annotation (Line(
-          points={{82,-26},{80,-26},{80,-38.9},{78,-38.9}},
+          points={{82,-26},{80,-26},{80,-38.9},{88.8,-38.9}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(electrone.solution, cathode.solution) annotation (Line(
-          points={{-76,40},{-88,40},{-88,-38.92},{-68,-38.92}},
+          points={{-76,40},{-88,40},{-88,-38.92},{-54.8,-38.92}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation (
@@ -3885,47 +3948,47 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       equation
         connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-            points={{64,-24},{45.5,-24},{45.5,4},{44.5,4}},
+            points={{64,-24},{45.5,-24},{45.5,4},{46,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-            points={{-2,-48},{44,-48},{44,4},{43.5,4}},
+            points={{-2,-48},{44,-48},{44,4},{42,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
-            points={{64,14},{56,14},{56,28},{46,28},{46,24},{44.6667,24}},
+            points={{64,14},{56,14},{56,28},{46,28},{46,24},{46.6667,24}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
-            points={{-42.5,24},{-42.5,32},{-64,32}},
+            points={{-44,24},{-44,32},{-64,32}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
-            points={{-41.5,24},{-40,24},{-40,32},{-34,32},{-34,0},{-22,0}},
+            points={{-40,24},{-40,24},{-40,32},{-34,32},{-34,0},{-22,0}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
-            points={{-64,-30},{-42,-30},{-42,4},{-42.75,4}},
+            points={{-64,-30},{-42,-30},{-42,4},{-45,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
-            points={{-2,-48},{-40,-48},{-40,4},{-42.25,4}},
+            points={{-2,-48},{-40,-48},{-40,4},{-43,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
-            points={{26,-18},{-38,-18},{-38,4},{-41.75,4}},
+            points={{26,-18},{-38,-18},{-38,4},{-41,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
         connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
-            points={{-66,-2},{-44,-2},{-44,4},{-41.25,4}},
+            points={{-66,-2},{-44,-2},{-44,4},{-39,4}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
@@ -3935,7 +3998,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             thickness=1,
             smooth=Smooth.None));
         connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
-            points={{64,42},{44,42},{44,24},{43.3333,24}},
+            points={{64,42},{44,42},{44,24},{41.3333,24}},
             color={158,66,200},
             thickness=1,
             smooth=Smooth.None));
@@ -3948,11 +4011,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           color={0,0,255},
           smooth=Smooth.None));
       connect(electrone1.solution, cathode.solution) annotation (Line(
-          points={{-82,-12},{-82,-48.92},{-75,-48.92}},
+          points={{-82,-12},{-82,-48.92},{-63.6,-48.92}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(electrone.solution, anode.solution) annotation (Line(
-          points={{80,32},{80,-44.92},{73,-44.92}},
+          points={{80,32},{80,-44.92},{84.4,-44.92}},
           color={158,66,200},
           smooth=Smooth.None));
         annotation (
@@ -3965,6 +4028,220 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
     end CheckSubstancesData;
 
+    model FluidAdapter2
+     extends Modelica.Icons.Example;
+     /*
+ FluidAdapter2[end].fluidConversion2.der(molarEnthalpy[1])*FluidAdapter2[end].fluidConversion2.amountOfSolution+FluidAdapter2[end].fluidConversion2.molarEnthalpy[1]*FluidAdapter2[end].fluidConversion2.substances[1].q-FluidAdapter2[end].H2O2.der(molarEnthalpy)*FluidAdapter2[end].H2O2.amountOfSubstance+FluidAdapter2[end].H2O2.molarEnthalpy*FluidAdapter2[end].H2O2.port_a.q
+ */
+     package Medium = Chemical.Interfaces.SimpleChemicalMedium(substanceNames={"H2O(l)"},substanceData={Chemical.Examples.Substances.Water_liquid});
+
+      inner Modelica.Fluid.System system
+        annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
+      Chemical.Components.FluidAdapter fluidConversion1(
+        substanceNames={"H2O(l)"},
+        substanceData={Chemical.Examples.Substances.Water_liquid},
+        redeclare package Medium = Medium)
+        annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
+      Components.SimpleThermalSolution   simpleSolution1(ConstantPressure=110000)
+        annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
+      Chemical.Components.Substance H2O1(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55)
+        annotation (Placement(transformation(extent={{-80,-2},{-60,18}})));
+      Components.SimpleThermalSolution   simpleSolution2(temperature_start=299.15)
+        annotation (Placement(transformation(extent={{24,-20},{98,42}})));
+      Chemical.Components.Substance H2O2(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55)
+        annotation (Placement(transformation(extent={{84,-2},{64,18}})));
+      Chemical.Components.FluidAdapter fluidConversion2(
+        substanceNames={"H2O(l)"},
+        substanceData={Chemical.Examples.Substances.Water_liquid},
+        redeclare package Medium = Medium)
+        annotation (Placement(transformation(extent={{56,-2},{36,18}})));
+      Modelica.Fluid.Pipes.StaticPipe pipe1(
+        length=1,
+        diameter=0.005,
+        redeclare package Medium = Medium)
+        annotation (Placement(transformation(extent={{-10,-2},{10,18}})));
+    equation
+    connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
+        Line(
+        points={{-36,5},{-36,-8},{-40,-8},{-40,-19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O1.port_a, fluidConversion1.substances[1]) annotation (Line(
+        points={{-60,8},{-50,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(H2O1.solution, simpleSolution1.solution) annotation (Line(
+        points={{-76,-2},{-76,-8},{-40,-8},{-40,-19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
+        Line(
+        points={{42,5},{42,-8},{80,-8},{80,-20},{83.2,-20},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O2.solution, simpleSolution2.solution) annotation (Line(
+        points={{80,-2},{80,-19.38},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O2.port_a, fluidConversion2.substances[1]) annotation (Line(
+        points={{64,8},{56,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(fluidConversion1.fluid, pipe1.port_a) annotation (Line(
+        points={{-30,8},{-10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+    connect(fluidConversion2.fluid, pipe1.port_b) annotation (Line(
+        points={{36,8},{10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+      connect(simpleSolution1.heatPort, fluidConversion1.heatPort) annotation (Line(
+          points={{-82,-20.6},{-82,-6},{-44,-6},{-44,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(simpleSolution2.heatPort, fluidConversion2.heatPort) annotation (Line(
+          points={{38.8,-20.62},{38.8,-6},{50,-6},{50,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics),
+      experiment(
+          StopTime=31.1,
+          __Dymola_NumberOfIntervals=5000,
+          Tolerance=1e-012,
+          __Dymola_fixedstepsize=1e-007,
+          __Dymola_Algorithm="Lsodar"),
+      __Dymola_experimentSetupOutput(doublePrecision=true));
+    end FluidAdapter2;
+
+    model FluidAdapter3
+     extends Modelica.Icons.Example;
+     /*
+ FluidAdapter2[end].fluidConversion2.der(molarEnthalpy[1])*FluidAdapter2[end].fluidConversion2.amountOfSolution+FluidAdapter2[end].fluidConversion2.molarEnthalpy[1]*FluidAdapter2[end].fluidConversion2.substances[1].q-FluidAdapter2[end].H2O2.der(molarEnthalpy)*FluidAdapter2[end].H2O2.amountOfSubstance+FluidAdapter2[end].H2O2.molarEnthalpy*FluidAdapter2[end].H2O2.port_a.q
+ */
+     package Medium = Chemical.Interfaces.SimpleChemicalMedium(substanceNames={"H2O(l)","Ethanol"},substanceData={Chemical.Examples.Substances.Water_liquid,Chemical.Examples.Substances.Ethanol_liquid});
+
+      inner Modelica.Fluid.System system
+        annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
+      Chemical.Components.FluidAdapter fluidConversion1(
+      substanceData={Chemical.Examples.Substances.Water_liquid,Chemical.Examples.Substances.Ethanol_liquid},
+      substanceNames={"H2O(l)","Ethanol"},
+      redeclare package Medium = Medium)
+        annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
+
+      Components.SimpleThermalSolution   simpleSolution1(ConstantPressure=
+          110000)
+        annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
+      Chemical.Components.Substance H2O(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+      amountOfSubstance_start=5)
+        annotation (Placement(transformation(extent={{-90,-2},{-70,18}})));
+      Components.SimpleThermalSolution   simpleSolution2(temperature_start=299.15)
+        annotation (Placement(transformation(extent={{24,-20},{98,42}})));
+      Chemical.Components.Substance H2O_(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55)
+        annotation (Placement(transformation(extent={{80,-2},{60,18}})));
+      Chemical.Components.FluidAdapter fluidConversion2(
+      substanceNames={"H2O(l)","Ethanol"},
+      substanceData={Chemical.Examples.Substances.Water_liquid,Chemical.Examples.Substances.Ethanol_liquid},
+      redeclare package Medium =Medium)
+        annotation (Placement(transformation(extent={{56,-2},{36,18}})));
+
+      Modelica.Fluid.Pipes.StaticPipe pipe1(
+        length=1,
+      diameter=0.005,
+      redeclare package Medium =Medium)
+                    annotation (Placement(transformation(extent={{-10,-2},{10,
+              18}})));
+      Chemical.Components.Substance C2H5OH(
+      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      substanceData=Chemical.Examples.Substances.Ethanol_liquid,
+      amountOfSubstance_start=100)
+      annotation (Placement(transformation(extent={{-70,18},{-50,38}})));
+      Chemical.Components.Substance C2H5OH_(
+      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      amountOfSubstance_start=55,
+      substanceData=Chemical.Examples.Substances.Ethanol_liquid)
+      annotation (Placement(transformation(extent={{90,20},{70,40}})));
+    equation
+    connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
+        Line(
+        points={{-36,5},{-36,-8},{-40,-8},{-40,-19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+      connect(H2O.port_a, fluidConversion1.substances[1]) annotation (Line(
+          points={{-70,8},{-50,8}},
+          color={158,66,200},
+          smooth=Smooth.None));
+      connect(H2O.solution, simpleSolution1.solution) annotation (Line(
+          points={{-86,-2},{-86,-8},{-40,-8},{-40,-19.4}},
+          color={0,128,255},
+          smooth=Smooth.None));
+    connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
+        Line(
+        points={{42,5},{42,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O_.solution, simpleSolution2.solution) annotation (Line(
+        points={{76,-2},{76,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O_.port_a, fluidConversion2.substances[1]) annotation (Line(
+        points={{60,8},{56,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(fluidConversion1.fluid, pipe1.port_a) annotation (Line(
+        points={{-30,8},{-10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+    connect(fluidConversion2.fluid, pipe1.port_b) annotation (Line(
+        points={{36,8},{10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+      connect(simpleSolution1.heatPort, fluidConversion1.heatPort) annotation (Line(
+          points={{-82,-20.6},{-82,-6},{-44,-6},{-44,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(simpleSolution2.heatPort, fluidConversion2.heatPort) annotation (Line(
+          points={{38.8,-20.62},{38.8,-4},{50,-4},{50,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+    connect(C2H5OH.solution, simpleSolution1.solution) annotation (Line(
+        points={{-66,18},{-66,-8},{-40,-8},{-40,-19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(C2H5OH.port_a, fluidConversion1.substances[2]) annotation (Line(
+        points={{-50,28},{-50,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(C2H5OH_.solution, simpleSolution2.solution) annotation (Line(
+        points={{86,20},{86,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(C2H5OH_.port_a, fluidConversion2.substances[2]) annotation (Line(
+        points={{70,30},{56,30},{56,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics),
+      experiment(
+        StopTime=48,
+        __Dymola_NumberOfIntervals=5000,
+        Tolerance=1e-010,
+        __Dymola_fixedstepsize=1e-007,
+        __Dymola_Algorithm="Dassl"),
+      __Dymola_experimentSetupOutput(doublePrecision=true));
+    end FluidAdapter3;
+
     model FluidAdapter
      extends Modelica.Icons.Example;
 
@@ -3974,7 +4251,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         substanceNames={"H2O(l)"},
         substanceData={Chemical.Examples.Substances.Water_liquid})
         annotation (Placement(transformation(extent={{-16,26},{4,46}})));
-      Chemical.Components.SimpleSolution simpleSolution
+      Components.SimpleThermalSolution   simpleSolution
         annotation (Placement(transformation(extent={{-74,8},{16,70}})));
       Modelica.Fluid.Pipes.StaticPipe pipe(
         redeclare package Medium =
@@ -4001,15 +4278,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient,
         substanceNames={"H2O(l)"},
         substanceData={Chemical.Examples.Substances.Water_liquid})
-        annotation (Placement(transformation(extent={{-52,-56},{-32,-36}})));
-      Chemical.Components.SimpleSolution simpleSolution1
+        annotation (Placement(transformation(extent={{-50,-56},{-30,-36}})));
+      Components.SimpleThermalSolution   simpleSolution1
         annotation (Placement(transformation(extent={{-96,-74},{-26,-14}})));
       Chemical.Components.Substance H2O1(
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         substanceData=Chemical.Examples.Substances.Water_liquid,
         amountOfSubstance_start=55)
         annotation (Placement(transformation(extent={{-80,-56},{-60,-36}})));
-      Components.Solution                simpleSolution2(T(start=298))
+      Components.Solution                simpleSolution2
         annotation (Placement(transformation(extent={{24,-74},{98,-12}})));
       Chemical.Components.Substance H2O2(
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
@@ -4026,7 +4303,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         redeclare package Medium =
             Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient,
         length=1,
-        diameter=1) annotation (Placement(transformation(extent={{-10,-56},{10,
+      diameter=0.001)
+                    annotation (Placement(transformation(extent={{-10,-56},{10,
               -36}})));
       Modelica.Mechanics.Translational.Components.Fixed fixed1
         annotation (Placement(transformation(extent={{50,-90},{70,-70}})));
@@ -4045,7 +4323,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (Placement(transformation(extent={{26,-100},{6,-80}})));
     equation
       connect(fluidConversion.solution, simpleSolution.solution) annotation (Line(
-          points={{-6,31},{-6,8.62},{-2,8.62}},
+          points={{-2,33},{-2,8.62}},
           color={0,128,255},
           smooth=Smooth.None));
       connect(fluidConversion.fluid, pipe.port_a) annotation (Line(
@@ -4066,11 +4344,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
           smooth=Smooth.None));
     connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
         Line(
-        points={{-42,-51},{-42,-73.4},{-40,-73.4}},
+        points={{-36,-49},{-36,-62},{-40,-62},{-40,-73.4}},
         color={0,128,255},
         smooth=Smooth.None));
     connect(H2O1.port_a, fluidConversion1.substances[1]) annotation (Line(
-        points={{-60,-46},{-52,-46}},
+        points={{-60,-46},{-50,-46}},
         color={158,66,200},
         smooth=Smooth.None));
     connect(H2O1.solution, simpleSolution1.solution) annotation (Line(
@@ -4079,7 +4357,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         smooth=Smooth.None));
     connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
         Line(
-        points={{46,-51},{46,-73.38},{83.2,-73.38}},
+        points={{42,-49},{42,-73.38},{83.2,-73.38}},
         color={0,128,255},
         smooth=Smooth.None));
     connect(H2O2.solution, simpleSolution2.solution) annotation (Line(
@@ -4091,7 +4369,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         color={158,66,200},
         smooth=Smooth.None));
     connect(fluidConversion1.fluid, pipe1.port_a) annotation (Line(
-        points={{-32,-46},{-10,-46}},
+        points={{-30,-46},{-10,-46}},
         color={0,127,255},
         smooth=Smooth.None));
     connect(fluidConversion2.fluid, pipe1.port_b) annotation (Line(
@@ -4118,9 +4396,217 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         points={{14,-12},{38.8,-12}},
         color={0,0,255},
         smooth=Smooth.None));
+      connect(simpleSolution1.heatPort, fluidConversion1.heatPort) annotation (Line(
+          points={{-82,-74.6},{-82,-60},{-44,-60},{-44,-49}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(simpleSolution2.heatPort, fluidConversion2.heatPort) annotation (Line(
+          points={{38.8,-74.62},{38.8,-58},{50,-58},{50,-49}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(fluidConversion.heatPort, simpleSolution.heatPort) annotation (Line(
+          points={{-10,33},{-10,22},{-56,22},{-56,7.38}},
+          color={191,0,0},
+          smooth=Smooth.None));
       annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-              -100},{100,100}}),   graphics));
+                -100},{100,100}}), graphics));
     end FluidAdapter;
+
+    model HeatingOfWater2 "Heating of 1 kg water"
+      extends Modelica.Icons.Example;
+
+    Components.Solution solution
+      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+      Components.Substance H2O(
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55.508)
+        annotation (Placement(transformation(extent={{56,-10},{76,10}})));
+      Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
+        annotation (Placement(transformation(extent={{-86,-72},{-66,-52}})));
+      Modelica.Electrical.Analog.Basic.Ground ground
+        annotation (Placement(transformation(extent={{-70,60},{-50,80}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1
+        annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
+    Components.FluidAdapter fluidAdapter(redeclare package Medium =
+          Modelica.Media.Water.WaterIF97_R1ph, substanceData={Chemical.Examples.Substances.Water_liquid},
+      substanceNames={"H2O(l)"})
+      annotation (Placement(transformation(extent={{24,22},{44,42}})));
+    equation
+      connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
+          points={{-66,-62},{-60,-62},{-60,-102}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(ground.p, solution.electricPin) annotation (Line(
+          points={{-60,80},{-60,100}},
+          color={0,0,255},
+          smooth=Smooth.None));
+    connect(fixed1.flange, solution.bottom) annotation (Line(
+        points={{-18,-84},{0,-84},{0,-102}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(H2O.port_a, fluidAdapter.substances[1]) annotation (Line(
+        points={{76,0},{82,0},{82,58},{6,58},{6,32},{24,32}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(fluidAdapter.heatPort, solution.heatPort) annotation (Line(
+        points={{30,29},{30,-26},{-60,-26},{-60,-102}},
+        color={191,0,0},
+        smooth=Smooth.None));
+    connect(fluidAdapter.solution, solution.solution) annotation (Line(
+        points={{38,29},{38,-26},{60,-26},{60,-98}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O.solution, solution.solution) annotation (Line(
+        points={{60,-10},{60,-98}},
+        color={0,128,255},
+        smooth=Smooth.None));
+      annotation (experiment(StopTime=1),
+      Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics));
+    end HeatingOfWater2;
+
+    model FluidAdapter4
+     extends Modelica.Icons.Example;
+     /*
+ FluidAdapter2[end].fluidConversion2.der(molarEnthalpy[1])*FluidAdapter2[end].fluidConversion2.amountOfSolution+FluidAdapter2[end].fluidConversion2.molarEnthalpy[1]*FluidAdapter2[end].fluidConversion2.substances[1].q-FluidAdapter2[end].H2O2.der(molarEnthalpy)*FluidAdapter2[end].H2O2.amountOfSubstance+FluidAdapter2[end].H2O2.molarEnthalpy*FluidAdapter2[end].H2O2.port_a.q
+ */
+      inner Modelica.Fluid.System system
+        annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
+      Chemical.Components.FluidAdapter fluidConversion1(
+        substanceNames={"H2O(l)"},
+        substanceData={Chemical.Examples.Substances.Water_liquid},
+      redeclare package Medium =
+          Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient)
+        annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
+      Components.Solution                simpleSolution1
+        annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
+      Chemical.Components.Substance H2O1(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55)
+        annotation (Placement(transformation(extent={{-80,-2},{-60,18}})));
+      Components.Solution                simpleSolution2(temperature_start=
+          299.15)
+        annotation (Placement(transformation(extent={{24,-20},{98,42}})));
+      Chemical.Components.Substance H2O2(
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55)
+        annotation (Placement(transformation(extent={{84,-2},{64,18}})));
+      Chemical.Components.FluidAdapter fluidConversion2(
+        substanceNames={"H2O(l)"},
+        substanceData={Chemical.Examples.Substances.Water_liquid},
+      redeclare package Medium =
+          Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient)
+        annotation (Placement(transformation(extent={{56,-2},{36,18}})));
+      Modelica.Fluid.Pipes.StaticPipe pipe1(
+        length=1,
+      diameter=0.005,
+      redeclare package Medium =
+          Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient)
+                    annotation (Placement(transformation(extent={{-10,-2},{10,
+              18}})));
+      Modelica.Mechanics.Translational.Components.Spring spring(c=1)   annotation (
+          Placement(transformation(
+            extent={{10,-10},{-10,10}},
+            rotation=90,
+            origin={62,60})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed(s0=0.02)
+        annotation (Placement(transformation(extent={{78,58},{98,78}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed1(
+                                                              s0=1)
+        annotation (Placement(transformation(extent={{50,-36},{70,-16}})));
+      Modelica.Mechanics.Translational.Components.Fixed fixed2(
+                                                              s0=1)
+        annotation (Placement(transformation(extent={{-72,-36},{-52,-16}})));
+    Modelica.Electrical.Analog.Basic.Ground ground
+      annotation (Placement(transformation(extent={{-92,20},{-72,40}})));
+    Modelica.Electrical.Analog.Basic.Ground ground1
+      annotation (Placement(transformation(extent={{28,22},{48,42}})));
+    equation
+    connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
+        Line(
+        points={{-36,5},{-36,-8},{-40,-8},{-40,-19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O1.port_a, fluidConversion1.substances[1]) annotation (Line(
+        points={{-60,8},{-50,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(H2O1.solution, simpleSolution1.solution) annotation (Line(
+        points={{-76,-2},{-76,-8},{-40,-8},{-40,-14},{-40,-20},{-40,-20},{-40,
+            -19.4}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
+        Line(
+        points={{42,5},{42,-8},{80,-8},{80,-20},{83.2,-20},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O2.solution, simpleSolution2.solution) annotation (Line(
+        points={{80,-2},{80,-19.38},{83.2,-19.38}},
+        color={0,128,255},
+        smooth=Smooth.None));
+    connect(H2O2.port_a, fluidConversion2.substances[1]) annotation (Line(
+        points={{64,8},{56,8}},
+        color={158,66,200},
+        smooth=Smooth.None));
+    connect(fluidConversion1.fluid, pipe1.port_a) annotation (Line(
+        points={{-30,8},{-10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+    connect(fluidConversion2.fluid, pipe1.port_b) annotation (Line(
+        points={{36,8},{10,8}},
+        color={0,127,255},
+        smooth=Smooth.None));
+      connect(simpleSolution1.heatPort, fluidConversion1.heatPort) annotation (Line(
+          points={{-82,-20.6},{-82,-6},{-44,-6},{-44,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+      connect(simpleSolution2.heatPort, fluidConversion2.heatPort) annotation (Line(
+          points={{38.8,-20.62},{38.8,-6},{50,-6},{50,5}},
+          color={191,0,0},
+          smooth=Smooth.None));
+    connect(spring.flange_a,fixed. flange) annotation (Line(
+        points={{62,70},{76,70},{76,68},{88,68}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(spring.flange_b, simpleSolution2.surfaceFlange) annotation (Line(
+        points={{62,50},{62,42},{61,42}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(simpleSolution2.bottom, fixed1.flange) annotation (Line(
+        points={{61,-20.62},{60,-20.62},{60,-26}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(simpleSolution1.bottom, fixed2.flange) annotation (Line(
+        points={{-61,-20.6},{-62,-20.6},{-62,-26}},
+        color={0,127,0},
+        smooth=Smooth.None));
+    connect(simpleSolution2.electricPin, ground1.p) annotation (Line(
+        points={{38.8,42},{38,42}},
+        color={0,0,255},
+        smooth=Smooth.None));
+    connect(simpleSolution1.electricPin, ground.p) annotation (Line(
+        points={{-82,40},{-82,40}},
+        color={0,0,255},
+        smooth=Smooth.None));
+      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+              -100},{100,100}}),   graphics),
+      experiment(
+        StopTime=540,
+        __Dymola_NumberOfIntervals=5000,
+        Tolerance=1e-010,
+        __Dymola_fixedstepsize=1e-007,
+        __Dymola_Algorithm="Dassl"),
+      __Dymola_experimentSetupOutput(doublePrecision=true));
+    end FluidAdapter4;
   end Examples;
 
 
@@ -4192,57 +4678,40 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
     end SimpleSolution;
 
-    model Solution "Chemical solution as homogenous mixture of the substances"
+    model SimpleThermalSolution
+    "Chemical solution as homogenous mixture of the substances at constant pressure, grounded or electroneutral"
       extends Icons.Solution;
 
-      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=AmbientPressure));
+      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=ConstantPressure));
 
-      parameter Modelica.SIunits.Area SurfaceArea=0.01
-      "Area for surfacePort to connect MultiBody components";
-
-      parameter Modelica.SIunits.Pressure AmbientPressure=100000
-      "Ambient pressure if the force on port surfaceFlange is zero";
-
-       parameter Modelica.SIunits.Temperature temperature_start=298.15
+      parameter Modelica.SIunits.Temperature temperature_start=298.15
       "Initial temperature of the solution"
          annotation (Dialog(group="Initialization"));
 
-       parameter Boolean isPistonPositionAbsolute=false
-      "Relavite position has zero at initial state without force";
+      parameter Modelica.SIunits.Pressure ConstantPressure=100000
+      "Constant pressure of the solution";
+
+      parameter Boolean ElectricGround = true
+      "Is the solution electric potential equal to zero during simulation?";
 
       Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
           Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
               extent={{-62,-104},{-58,-100}})));
-      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
-            transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
-              extent={{-62,98},{-58,102}})));
-      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
-      "The pressure of solution generate force on prescribed surface."
-        annotation (Placement(transformation(extent={{-10,70},{10,90}}),
-            iconTransformation(extent={{-2,98},{2,102}})));
-
-  protected
-      parameter Modelica.SIunits.Position positionShift(fixed=false)
-      "=0 absolute, otherwise negative";
-  public
-      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom
-      "Fix of the cilinder on bottom."   annotation (Placement(transformation(
-              extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
-                -100}})));
     initial equation
       T=temperature_start;
-      positionShift= if
-                       (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
     equation
       //hydraulic
-      surfaceFlange.f+bottom.f = 0;
-      surfaceFlange.s-bottom.s = volume/SurfaceArea;
-      workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
-      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
+      solution.p = ConstantPressure;
+      workFromEnvironment = 0;
 
       //electric
-      electricPin.v=solution.v;
-      electricPin.i=solution.i;
+      if  ElectricGround then
+        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
+        solution.v = 0;
+      else
+        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
+        solution.i = 0;
+      end if;
 
       //thermal
       heatPort.T = T;
@@ -4250,7 +4719,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
                                                                                                         annotation (
         Icon(coordinateSystem(
-              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{100,100}}),
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
+              100,100}}),
             graphics={Text(
               extent={{-92,-86},{76,-94}},
               lineColor={0,0,255},
@@ -4259,15 +4729,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         Documentation(revisions="<html>
 <p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>
-<h4>amountOfSolution = &sum; amountOfSubstances</h4>
-<h4>mass = &sum; massOfSubstances</h4>
-<h4>volume = &sum; volumeOfSubstances</h4>
-<h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
-<p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
-    end Solution;
+<h4>amountOfSolution = &int; molarFlows</h4>
+<h4>mass = &int; massChanges</h4>
+<h4>volume = &int; volumeChanges</h4>
+<h4>freeEnthalpy = &int; enthalpyChanges</h4>
+<h4>freeEntropy = &int; entropyChanges</h4>
+<h4>freeGibbsEnergy = &int; freeGibbsEnergyChanges</h4>
+<p>Integration of all substances together into one homogenous mixture - the solution.</p>
+</html>"));
+    end SimpleThermalSolution;
 
     model IdealGasSolution
     "Chemical solution as gaseous homogenous mixture of the substances"
@@ -4353,9 +4823,88 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <h4>freeGibbsEnergy = &int; freeGibbsEnergyChanges</h4>
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
 </html>"),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}),
+                        graphics));
+    end IdealGasSolution;
+
+    model Solution "Chemical solution as homogenous mixture of the substances"
+      extends Icons.Solution;
+
+      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=AmbientPressure));
+
+      parameter Modelica.SIunits.Area SurfaceArea=0.01
+      "Area for surfacePort to connect MultiBody components";
+
+      parameter Modelica.SIunits.Pressure AmbientPressure=100000
+      "Ambient pressure if the force on port surfaceFlange is zero";
+
+       parameter Modelica.SIunits.Temperature temperature_start=298.15
+      "Initial temperature of the solution"
+         annotation (Dialog(group="Initialization"));
+
+       parameter Boolean isPistonPositionAbsolute=false
+      "Relavite position has zero at initial state without force";
+
+      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
+          Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
+              extent={{-62,-104},{-58,-100}})));
+      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin annotation (Placement(
+            transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
+              extent={{-62,98},{-58,102}})));
+      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange
+      "The pressure of solution generate force on prescribed surface."
+        annotation (Placement(transformation(extent={{-10,70},{10,90}}),
+            iconTransformation(extent={{-2,98},{2,102}})));
+
+  protected
+      parameter Modelica.SIunits.Position positionShift(fixed=false)
+      "=0 absolute, otherwise negative";
+  public
+      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom
+      "Fix of the cilinder on bottom."   annotation (Placement(transformation(
+              extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
+                -100}})));
+    initial equation
+      T=temperature_start;
+      positionShift= if
+                       (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
+    equation
+      //hydraulic
+      surfaceFlange.f+bottom.f = 0;
+      surfaceFlange.s-bottom.s = volume/SurfaceArea;
+      workFromEnvironment = der(surfaceFlange.f*surfaceFlange.s); //=der( (p-p0) * volume)
+      solution.p = AmbientPressure + surfaceFlange.f/SurfaceArea;
+
+      //electric
+      electricPin.v=solution.v;
+      electricPin.i=solution.i;
+
+      //thermal
+      heatPort.T = T;
+      heatPort.Q_flow = heatFromEnvironment;
+
+                                                                                                        annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
+              100,100}}),
+            graphics={Text(
+              extent={{-92,-86},{76,-94}},
+              lineColor={0,0,255},
+              textString="%name",
+              horizontalAlignment=TextAlignment.Left)}),
+        Documentation(revisions="<html>
+<p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<h4>amountOfSolution = &sum; amountOfSubstances</h4>
+<h4>mass = &sum; massOfSubstances</h4>
+<h4>volume = &sum; volumeOfSubstances</h4>
+<h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
+<p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
+</html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                 100}}), graphics));
-    end IdealGasSolution;
+    end Solution;
 
     model Substance "Substance in solution"
       extends Icons.Substance;
@@ -4402,6 +4951,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=amountOfSubstance*molarMass;
       solution.Vj=amountOfSubstance*molarVolume;
       solution.Gj=amountOfSubstance*port_a.u;
+      solution.Hj=amountOfSubstance*molarEnthalpy;
       solution.Qj=Modelica.Constants.F*amountOfSubstance*z;
       solution.Ij=(1/2) * ( amountOfSubstance * z^2);
 
@@ -4460,16 +5010,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Modelica.SIunits.MolarFlowRate rr(start=0) "Reaction molar flow rate";
 
-
-
       extends Interfaces.ConditionalKinetics;
 
     Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
           transformation(extent={{-110,-40},{-90,40}}), iconTransformation(
             extent={{-110,-40},{-90,40}})));
     Interfaces.SubstancePorts_b products[nP] annotation (Placement(
-          transformation(extent={{90,-40},{110,40}}), iconTransformation(extent
-            ={{90,-40},{110,40}})));
+          transformation(extent={{90,-40},{110,40}}), iconTransformation(extent=
+             {{90,-40},{110,40}})));
     equation
       //the main equation
       rr = kC * ((p * products.u) - (s * substrates.u));
@@ -4615,6 +5163,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=0;
       solution.Vj=0;
       solution.Gj=0;
+      solution.Hj=0;
       solution.Qj=0;
       solution.Ij=0;
 
@@ -4807,11 +5356,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Integer NumberOfSubunits=1
       "Number of independent subunits occurring in macromolecule";
 
-    Interfaces.SubstancePort_b subunits[NumberOfSubunits]
-      "Subunits of macromolecule" annotation (Placement(transformation(extent={
-              {-30,90},{-10,110}}), iconTransformation(extent={{-30,90},{-10,
-              110}})));
-
       Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{-70,
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
@@ -4825,10 +5369,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Interfaces.SolutionPort subunitSolution
       "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
-            iconTransformation(extent={{30,90},{50,110}})));
+            iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
             extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},
               {110,-90}})));
+    Interfaces.SubstancePorts_b subunits[NumberOfSubunits]
+      "Subunits of macromolecule" annotation (Placement(transformation(extent={
+              {-56,-14},{-36,66}}), iconTransformation(
+          extent={{-10,-40},{10,40}},
+          rotation=90,
+          origin={-28,102})));
     equation
       //amount of macromolecule (all forms in conformation)
       nm*NumberOfSubunits + subunitSolution.nj = 0;
@@ -4855,6 +5405,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.mj + solution.mj = 0;
       subunitSolution.Vj + solution.Vj = 0;
       subunitSolution.Gj + solution.Gj = 0;
+      subunitSolution.Hj + solution.Hj = 0;
       subunitSolution.dV + solution.dV = 0;
 
       //shift global solution status to subunits
@@ -4865,6 +5416,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.m = solution.m;
       subunitSolution.V = solution.V;
       subunitSolution.G = solution.G;
+      subunitSolution.H = solution.H;
       subunitSolution.Q = solution.Q;
       subunitSolution.I = solution.I;
 
@@ -4946,7 +5498,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </table>
 <p><br><br><br><br>For example: If the macromolecule M has four identical independent subunits and each subunit can occur in two form F1 and F2, then the probability of macromolecule form S composed only from four subunits in form F1 is P(S)=P(M)*P(F1)^4.</p>
 </html>"),
-        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
+        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}),
             graphics={                                                        Text(
               extent={{-22,-106},{220,-140}},
               lineColor={0,0,255},
@@ -5105,9 +5658,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
     model FluidAdapter
 
-      constant String substanceNames[:] annotation (Evaluate=true);
+      constant String substanceNames[:]= {""}
+      "To express number and order of substances"                                              annotation (Evaluate=true);
 
-      replaceable package Medium = Modelica.Media.Interfaces.PartialMedium (substanceNames=substanceNames)
+      replaceable package Medium = Interfaces.SimpleChemicalMedium (substanceNames=substanceNames)
       "Medium model"   annotation (choicesAllMatching=true);                                               //reducedX=true, fixedX=false,
 
       Modelica.Fluid.Interfaces.FluidPort_a fluid(redeclare package Medium = Medium)
@@ -5116,15 +5670,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               extent={{-110,-40},{-90,40}}), iconTransformation(extent={{-110,-40},{
                 -90,40}})));
       Interfaces.SolutionPort solution
-        annotation (Placement(transformation(extent={{-10,-60},{10,-40}}),
-            iconTransformation(extent={{-10,-60},{10,-40}})));
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics), Icon(coordinateSystem(
-              preserveAspectRatio=false, extent={{-100,-100},{100,100}}), graphics={Line(
-              points={{-90,0},{90,0}},
-              color={158,66,200},
-              thickness=1,
-              smooth=Smooth.None)}));
+        annotation (Placement(transformation(extent={{30,-40},{50,-20}}),
+            iconTransformation(extent={{30,-40},{50,-20}})));
       replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
       Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
@@ -5148,6 +5695,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       parameter Integer n=Medium.nS "Number of substances";
       Modelica.SIunits.MolarMass molarMass[n] "Molar mass of the substance";
 
+    /*  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp[n] 
+    "Molar heat capacity of the substance";
+*/
+      Modelica.SIunits.MolarEnthalpy molarEnthalpy[n]
+      "Molar enthalpy of the substance";
+    /*    
+    Modelica.SIunits.MolarVolume molarVolume[n] "Molar volume of the substance";
+*/
       Modelica.SIunits.Temperature temperature(start=298.15)
       "Temperature of the solution";
 
@@ -5163,23 +5718,40 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.AmountOfSubstance amountOfSolution
       "Amount of all solution particles";
 
+      Modelica.SIunits.Volume volume "Volume of solution";
+
+     // Modelica.SIunits.Mass mass "Mass of the solution";
+
     //  Medium.SpecificHeatCapacity Cp;
 
-    //  Medium.ThermodynamicState thermodynamicState;
+      Modelica.SIunits.SpecificEnthalpy h_out, h_out2;
+      Modelica.SIunits.SpecificEnergy u_outflow;
+
+      Medium.ThermodynamicState thermodynamicState;
+  public
+      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort annotation (
+          Placement(transformation(extent={{-50,-40},{-30,-20}}),iconTransformation(
+              extent={{-50,-40},{-30,-20}})));
+
+    //  Modelica.SIunits.HeatFlowRate dH; //dhi,dhs, dho, ddh, dH, dH2,  dH3;
+      //  Modelica.SIunits.VolumeFlowRate dV;
+     // Real Offset;
+
+    //  Modelica.Mechanics.Translational.Interfaces.Flange_a flange
+    //    "The change of volume must be pressented as work of solution." annotation (
+    //      Placement(transformation(extent={{-10,20},{10,40}}), iconTransformation(
+    //          extent={{-10,20},{10,40}})));
     equation
       //fluid
-      fluid.m_flow + molarMass*substances.q = 0;
+     // fluid.m_flow + molarMass*substances.q = 0;
       fluid.p = pressure;
-      solution.dH = if
-                      (fluid.m_flow >0) then inStream(fluid.h_outflow) * fluid.m_flow else 0;
-      fluid.h_outflow = 0; //outgoing substance does change solution.dH using substance components
 
-      for i in 1:n-1 loop
-       // actualStream(fluid.Xi_outflow[i]) = molarMass[i] * substances[i].q ./ fluid.m_flow;
-       // fluid.Xi_outflow[i] = x[i] * molarMass[i] / (x*molarMass);
+      for i in 1:n loop
+        actualStream(fluid.Xi_outflow[i]) * fluid.m_flow + molarMass[i] * substances[i].q = 0;
+        fluid.Xi_outflow[i] = x[i] * molarMass[i] / (x*molarMass);
 
-        substances[i].q = if
-                            (fluid.m_flow > 0) then fluid.m_flow*inStream(fluid.Xi_outflow[i]) / molarMass[i] else fluid.m_flow * (x[i] / (x*molarMass));
+    //    substances[i].q = if
+    //                        (fluid.m_flow > 0) then fluid.m_flow*inStream(fluid.Xi_outflow[i]) / molarMass[i] else fluid.m_flow * (x[i] / (x*molarMass));
       end for;
 
      // thermodynamicState = Medium.setState_pTX(pressure, temperature, actualStream(fluid.Xi_outflow));
@@ -5200,6 +5772,27 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         moleFractionBasedIonicStrength)
         + Modelica.Constants.R*temperature*log(a[i])
         + z[i]*Modelica.Constants.F*electricPotential;
+
+     /*  molarHeatCapacityCp[i] = stateOfMatter.molarHeatCapacityCp(
+    substanceData[i],
+    temperature,
+    pressure,
+    electricPotential,
+    moleFractionBasedIonicStrength);
+*/
+       molarEnthalpy[i] = stateOfMatter.molarEnthalpy(
+        substanceData[i],
+        temperature,
+        pressure,
+        electricPotential,
+        moleFractionBasedIonicStrength);
+    /*
+    molarVolume[i] = stateOfMatter.molarVolume(
+    substanceData[i],
+    temperature,
+    pressure,
+    electricPotential,
+    moleFractionBasedIonicStrength); */
       end for;
 
       //solution
@@ -5208,15 +5801,39 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       electricPotential = solution.v;
       amountOfSolution = solution.n;
       moleFractionBasedIonicStrength = solution.I;
+      volume = solution.V;
 
+      solution.dH = 0;
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
+      solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
       solution.Ij = 0;
       solution.Vj = 0;
+
+      //energy balance
+      //fluid.h_outflow = h_out;
+      fluid.h_outflow = solution.U / solution.m;
+
+      thermodynamicState = Medium.setState_phX(pressure, actualStream(fluid.h_outflow), fluid.Xi_outflow, electricPotential, moleFractionBasedIonicStrength);
+      //fluid.h_outflow
+      h_out = Medium.specificEnthalpy(thermodynamicState);
+      h_out2 = (molarEnthalpy*x)*solution.n / solution.m;
+      u_outflow = Medium.specificInternalEnergy(thermodynamicState);
+
+     //  heatPort.Q_flow = -u_outflow*fluid.m_flow;
+      heatPort.Q_flow = -(if (fluid.m_flow >0) then inStream(fluid.h_outflow) * fluid.m_flow else fluid.h_outflow * fluid.m_flow);
+
+      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+                -100},{100,100}}), graphics), Icon(coordinateSystem(
+              preserveAspectRatio=false, extent={{-100,-100},{100,100}}), graphics={Line(
+              points={{-90,0},{90,0}},
+              color={158,66,200},
+              thickness=1,
+              smooth=Smooth.None)}));
     end FluidAdapter;
   end Components;
 
@@ -6340,6 +6957,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=-nFreeBuffer*molarMass;
       solution.Vj=-nFreeBuffer*molarVolume;
       solution.Gj=-nFreeBuffer*port_a.u;
+      solution.Hj=-nFreeBuffer*molarEnthalpy;
       solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
       solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
 
@@ -6688,6 +7306,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
+      solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -6889,6 +7508,34 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
            I);
      end molarVolume;
 
+     replaceable function molarHeatCapacityCp
+      "Molar heat capacity at constant pressure"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
+        "Molar heat capacity at constant pressure";
+     end molarHeatCapacityCp;
+
+      replaceable function molarHeatCapacityCv
+      "Molar heat capacity at constant volume"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCv
+        "Molar heat capacity at constant volume";
+      end molarHeatCapacityCv;
+
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -6977,11 +7624,17 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
      end molarVolumePure;
 
-    /* redeclare function extends molarHeatCapacityCp
-    "Molar heat capacity of the substance at constant pressure"
- algorithm
-     molarHeatCapacity := substanceData.Cp;
-     end molarHeatCapacityCp; */
+     redeclare function extends molarHeatCapacityCp
+      "Molar heat capacity of the substance at constant pressure"
+     algorithm
+         molarHeatCapacityCp := substanceData.Cp;
+     end molarHeatCapacityCp;
+
+     redeclare function extends molarHeatCapacityCv
+      "Molar heat capacity of the substance at constant volume"
+     algorithm
+         molarHeatCapacityCv := substanceData.Cp - Modelica.Constants.R;
+     end molarHeatCapacityCv;
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -7083,28 +7736,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
          molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
      end molarVolumePure;
 
-    /* redeclare function extends molarHeatCapacityCp
-    "Molar heat capacity of the substance at constant pressure"
- algorithm
-     molarHeatCapacity := substanceData.Cp;
- end molarHeatCapacityCp;
+     redeclare function extends molarHeatCapacityCp
+      "Molar heat capacity of the substance at constant pressure"
+     algorithm
+         molarHeatCapacityCp := substanceData.Cp;
+     end molarHeatCapacityCp;
 
- function molarHeatCapacityCv
-    "Molar heat capacity of the substance at constant volume"
-    extends Modelica.Icons.Function;
-   input SubstanceData substanceData "Data record of substance";
-   input Modelica.SIunits.Temperature T=298.15 "Temperature";
-   input Modelica.SIunits.Pressure p=101325 "Pressure";
-   input Modelica.SIunits.ElectricPotential v=0
-      "Electric potential of the substance";
-   input Modelica.SIunits.MoleFraction I=0
-      "Ionic strengh (mole fraction based)";
-   output Modelica.SIunits.MolarHeatCapacity molarHeatCapacity
-      "Molar heat capacity";
- algorithm
-     molarHeatCapacity := substanceData.Cv;
- end molarHeatCapacityCv;
-*/
+     redeclare function extends molarHeatCapacityCv
+      "Molar heat capacity of the substance at constant volume"
+     algorithm
+         molarHeatCapacityCv := substanceData.Cp;
+     end molarHeatCapacityCv;
+
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -7151,6 +7794,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.SIunits.Energy G "Free Gibbs energy of the solution";
       flow Modelica.SIunits.Energy Gj
       "Free Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+      //free internal energy of the solution
+        Modelica.SIunits.Enthalpy U "Free internal energy of the solution";
+        flow Modelica.SIunits.Energy Hj
+      "Free enthalpy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //electric charge of the substance
       Modelica.SIunits.ElectricCharge Q "Electric charge of the solution";
@@ -7223,14 +7871,18 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Current electric charge of the solution";
                                               //(start=electricCharge_start)
 
+       Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
     initial equation
 
-      freeInternalEnergy = 0;
+     // freeInternalEnergy = 0;
+      freeEnthalpy + solution.Hj = 0;
+      //der(freeEnthalpy) = -solution.dH;
     equation
       //internal energy
       der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
 
       heatFromEnvironment + workFromEnvironment = (-solution.dH) - solution.p*(-solution.dV) - volume*der(solution.p);
+     // heatFromEnvironment + workFromEnvironment = der(freeEnthalpy) - solution.p*(-solution.dV) - volume*der(solution.p);
       //It is the same as: der(freeEnthalpy)=-solution.dH;
 
       //thermodinamics equations:
@@ -7241,8 +7893,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.p = p;
       solution.T = T;
       solution.G = freeGibbsEnergy;
+      solution.U = freeInternalEnergy;
       solution.Q = charge;
       solution.V = volume;
+      der_freeEnthalpy = der(freeEnthalpy);
 
       //Extensive properties of the solution:
 
@@ -7257,6 +7911,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       //free Gibs energy
       solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
+
+      //free enthalpy
+    //  solution.H + solution.Hj = 0;  //total free enthalpy of solution is the sum of enthalpies of each substance
 
       //ionic strength (mole fraction based)
       solution.I + solution.Ij = 0; //total ionic strength of solution is the ionic strengths of each substance
@@ -7402,6 +8059,255 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       end if;
 
     end ConditionalKinetics;
+
+    package SimpleChemicalMedium
+    "Mixture of chemical substances as homogenous solution in one state of matter"
+      extends Modelica.Media.Interfaces.PartialMedium(
+        final mediumName="ChemicalSolution",
+        final singleState=false,
+        final reducedX=false,
+        final fixedX=false,
+        Temperature(
+          min=273,
+          max=450,
+          start=298));
+
+      replaceable package stateOfMatter = Interfaces.Incompressible
+       constrainedby Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
+      // Provide medium constants here
+
+      constant stateOfMatter.SubstanceData substanceData[nS]
+      "Definition of the substances"
+         annotation (choicesAllMatching = true);
+
+      // Simplified properties - default values are for water 25degC from Modelica.Media.CompressibleLiquids.LinearWater_pT_Ambient
+      constant DynamicViscosity eta_const = 8.9e-4 "Constant dynamic viscosity";
+      constant ThermalConductivity lambda_const = 0.608
+      "Constant thermal conductivity";
+
+      constant Temperature T0=reference_T "Zero enthalpy temperature";
+
+      redeclare model extends BaseProperties(final standardOrderComponents=true)
+      "Base properties of medium"
+
+       input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the solution";
+       input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+       Modelica.SIunits.MolarMass molarMass[nS] "Molar mass";
+       Modelica.SIunits.MolarVolume molarVolume[nS] "Molar volume";
+       Modelica.SIunits.MolarEnthalpy molarEnthalpy[nS] "Molar enthalpy";
+       Modelica.SIunits.MolarHeatCapacity molarHeatCapacity[nS]
+        "Molar heat capacity";
+
+       SpecificHeatCapacity Cp "Specific heat capacity at constant pressure";
+      equation
+
+        molarMass = stateOfMatter.molarMass(substanceData,T,p,v,I);
+        molarVolume = stateOfMatter.molarVolume(substanceData,T,p,v,I);
+        molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,T,p,v,I);
+        molarHeatCapacity = stateOfMatter.molarHeatCapacityCp(substanceData,T,p,v,I);
+
+        MM = sum( molarMass ./ X);  //sum(MMj*nj)/sum(nj)
+        d = sum( molarMass ./ (molarVolume.*X)); //sum(MMj*nj)/sum(Vmj*nj), where xj=nj/nT, sum(Xj)=1
+        Cp = sum( molarHeatCapacity .* X ./ molarMass);   //sum(MMj*nj)/sum(nj)
+        h = sum( molarEnthalpy .* X ./ molarMass); //Cp*(T-T0);
+        u = h - p/d;
+        R = Modelica.Constants.R/MM;
+        state.p = p;
+        state.T = T;
+        state.X = X;
+        state.v = v; //electric potential
+        state.I = I; //ionic strength
+      end BaseProperties;
+
+      redeclare record ThermodynamicState
+      "A selection of variables that uniquely defines the thermodynamic state"
+        extends Modelica.Icons.Record;
+        AbsolutePressure p "Absolute pressure of medium";
+        Temperature T "Temperature of medium";
+
+        Modelica.SIunits.MassFraction X[nS] "Mass fractions";
+
+        Modelica.SIunits.ElectricPotential v
+        "Electric potential of the solution";
+        Modelica.SIunits.MoleFraction I "Ionic strengh (mole fraction based)";
+        annotation (Documentation(info="<html>
+
+</html>"));
+      end ThermodynamicState;
+
+      redeclare function setState_pTX
+      "Return thermodynamic state from p, T, and X or Xi"
+      extends Modelica.Icons.Function;
+      input AbsolutePressure p "Pressure";
+      input Temperature T "Temperature";
+      input MassFraction X[:]=reference_X "Mass fractions";
+      input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the solution";
+      input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output ThermodynamicState state "Thermodynamic state record";
+      algorithm
+        state := ThermodynamicState(p=p, T=T, X=X, v=v, I=I);
+        annotation (Documentation(info="<html>
+
+</html>"));
+      end setState_pTX;
+
+      redeclare function setState_phX
+      "Return thermodynamic state from p, h, and X or Xi"
+        extends Modelica.Icons.Function;
+        input AbsolutePressure p "Pressure";
+        input SpecificEnthalpy h "Specific enthalpy";
+        input MassFraction X[nS]=reference_X "Mass fractions";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the solution";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output ThermodynamicState state "Thermodynamic state record";
+    protected
+       Modelica.SIunits.MolarMass molarMass[nS] "Molar mass";
+       Modelica.SIunits.MolarEnthalpy molarEnthalpyT0[nS]
+        "Molar enthalpy at temperature T0";
+       Modelica.SIunits.MolarHeatCapacity molarHeatCapacity[nS]
+        "Molar heat capacity";
+
+       SpecificHeatCapacity Cp "Specific heat capacity at constant pressure";
+       Modelica.SIunits.SpecificEnthalpy hT0
+        "Molar enthalpy of solution at temperature T0";
+      algorithm
+        molarMass := stateOfMatter.molarMass(substanceData,T0,p,v,I);
+        molarEnthalpyT0 :=stateOfMatter.molarEnthalpy(
+            substanceData,
+            T0,
+            p,
+            v,
+            I);
+        hT0 := sum(molarEnthalpyT0 .* X ./ molarMass);
+        molarHeatCapacity := stateOfMatter.molarHeatCapacityCp(substanceData,T0,p,v,I);
+        Cp := sum( (molarHeatCapacity .* X) ./ molarMass);
+        state := ThermodynamicState(p=p, T=T0 + (h-hT0)/Cp, X=X, v=v, I=I);
+      end setState_phX;
+
+      redeclare function extends dynamicViscosity "Return dynamic viscosity"
+
+      algorithm
+        eta := eta_const;
+      end dynamicViscosity;
+
+      redeclare function extends thermalConductivity
+      "Return thermal conductivity"
+
+      algorithm
+        lambda := lambda_const;
+      end thermalConductivity;
+
+      redeclare function extends pressure "Return pressure"
+
+      algorithm
+        p := state.p;
+      end pressure;
+
+      redeclare function extends temperature "Return temperature"
+
+      algorithm
+        T := state.T;
+      end temperature;
+
+      redeclare function extends density "Return density"
+    protected
+       Modelica.SIunits.MolarMass molarMass[nS] "Molar mass";
+       Modelica.SIunits.MolarVolume molarVolume[nS] "Molar volume";
+      algorithm
+        molarMass := stateOfMatter.molarMass(substanceData,state.T,state.p,state.v,state.I);
+        molarVolume := stateOfMatter.molarVolume(substanceData,state.T,state.p,state.v,state.I);
+
+        d := sum( molarMass ./ (molarVolume.*state.X)); //sum(MMj*nj)/sum(Vmj*nj), where xj=nj/nT, sum(Xj)=1
+
+      end density;
+
+      redeclare function extends specificEnthalpy "Return specific enthalpy"
+      algorithm
+        h := sum( stateOfMatter.molarEnthalpy(substanceData,state.T,state.p,state.v,state.I) .* state.X ./ stateOfMatter.molarMass(substanceData,state.T,state.p,state.v,state.I));
+      end specificEnthalpy;
+
+      redeclare function extends specificEntropy
+      "Return the specific entropy from the thermodynamic state"
+    protected
+       Modelica.SIunits.MolarMass molarMass[nS] "Molar mass";
+       Modelica.SIunits.MolarEntropy molarEntropy[nS] "Molar entropies";
+       Modelica.SIunits.MoleFraction x[nS] "Mole fractions";
+       Modelica.SIunits.ChemicalPotential electrochemicalPotential[nS]
+        "electrochemical potentials";
+      algorithm
+        molarMass := stateOfMatter.molarMass(substanceData,state.T,state.p,state.v,state.I);
+
+        x := (state.X ./ molarMass) / sum(state.X ./ molarMass);
+        electrochemicalPotential :=
+          stateOfMatter.electroChemicalPotentialPure(substanceData,state.T,state.p,state.v,state.I) +
+          Modelica.Constants.R * state.T * log(x.*stateOfMatter.activityCoefficient(substanceData,state.T,state.p,state.v,state.I))
+          + Modelica.Constants.F * state.v * stateOfMatter.chargeNumberOfIon(substanceData,state.T,state.p,state.v,state.I);
+
+        molarEntropy := stateOfMatter.molarEntropy(electrochemicalPotential,substanceData,state.T,state.p,state.v,state.I);
+
+        s := sum( molarEntropy .* state.X ./ molarMass);
+      end specificEntropy;
+
+      redeclare function extends specificInternalEnergy
+      "Return the specific internal energy from the thermodynamic state"
+      algorithm
+        u := specificEnthalpy(state) - state.p/density(state);
+      end specificInternalEnergy;
+
+      redeclare function extends specificGibbsEnergy
+      "Return specific Gibbs energy from the thermodynamic state"
+        extends Modelica.Icons.Function;
+      algorithm
+        g := specificEnthalpy(state) - state.T*specificEntropy(state);
+      end specificGibbsEnergy;
+
+      redeclare function extends specificHelmholtzEnergy
+      "Return specific Helmholtz energy from the thermodynamic state"
+        extends Modelica.Icons.Function;
+      algorithm
+        f := specificInternalEnergy(state) - state.T*specificEntropy(state);
+      end specificHelmholtzEnergy;
+
+      redeclare function extends specificHeatCapacityCp
+      "Return specific heat capacity at constant pressure"
+      algorithm
+        cp := sum( stateOfMatter.molarHeatCapacityCp(substanceData,state.T,state.p,state.v,state.I) .* state.X ./ stateOfMatter.molarMass(substanceData,state.T,state.p,state.v,state.I));
+
+        annotation (Documentation(info="<html>
+
+</html>"));
+      end specificHeatCapacityCp;
+
+      redeclare function extends specificHeatCapacityCv
+      "Return specific heat capacity at constant volume"
+      algorithm
+        cv := sum( stateOfMatter.molarHeatCapacityCv(substanceData,state.T,state.p,state.v,state.I) .* state.X ./ stateOfMatter.molarMass(substanceData,state.T,state.p,state.v,state.I));
+
+        annotation (Documentation(info="<html>
+
+</html>"));
+      end specificHeatCapacityCv;
+
+      annotation (Documentation(info="<HTML>
+<p>
+This package is a <b>template</b> for <b>new medium</b> models. For a new
+medium model just make a copy of this package, remove the
+\"partial\" keyword from the package and provide
+the information that is requested in the comments of the
+Modelica source.
+</p>
+</HTML>"));
+    end SimpleChemicalMedium;
   end Interfaces;
 
 
