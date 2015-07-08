@@ -52,7 +52,20 @@ convertModifiers("Chemical.Sources.Buffer",{"ElectricPotential"}, fill("",0), tr
 
 
 convertClass("Chemical.Sources.PureElectricParticle","Chemical.Components.ElectronTransfer")
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+convertElement("Chemical.Sources.Buffer","xBuffered_start","a_start");
+convertClass("Chemical.Components.SimpleThermalSolution","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.SimpleThermalSolution", fill("",0) , {"useThermalPort=true"}, true);
+convertElement("Chemical.Components.Solution3","ConstantPressure","BasePressure");
+convertClass("Chemical.Components.IdealGasSolution","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.IdealGasSolution", fill("",0) , {"useThermalPort=true","useMechanicPorts=true"}, true);
+convertClass("Chemical.Components.Solution3","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.Solution3", fill("",0) , {"useThermalPort=true","useMechanicPorts=true","useElectricPort=true"}, true);
+convertElement("Chemical.Components.Solution3","AmbientPressure","BasePressure");
 
-convertClass("Chemical.Components.Solution","Chemical.Components.SimpleSolution")
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+
 convertModifiers("Chemical.Components.Speciation",{"AmountOfSubstance_start"},fill("",0), true);
 
+convertModifiers("Physiolibrary.Molar.FlowConcentrationMeasure", fill("",0) , {"useSolutionFlowInput=true","useAdditionalSoluteFlowInput=true"}, true);
