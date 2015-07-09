@@ -1140,7 +1140,7 @@ extends Modelica.Icons.ExamplesPackage;
       color={158,66,200},
       smooth=Smooth.None));
     annotation (
-      experiment(StopTime=1),
+      experiment(StopTime=1e-005),
       Documentation(info="<html>
 <p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
 </html>",
@@ -2155,7 +2155,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
       Chemical.Components.Reaction HendersonHasselbalch(nP=2, nS=2,
       useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
-        annotation (Placement(transformation(extent={{-50,-6},{-30,14}})));
+        annotation (Placement(transformation(extent={{-48,-6},{-28,14}})));
     Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
       substanceData=Chemical.Examples.Substances.CarbonDioxide_gas,
       PartialPressure=5332.8954966,
@@ -2197,12 +2197,12 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=1,
           smooth=Smooth.None));
       connect(HendersonHasselbalch.products[1], H.port_a) annotation (Line(
-          points={{-30,2},{-22,2},{-22,-38},{4,-38}},
+          points={{-28,2},{-22,2},{-22,-38},{4,-38}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
       connect(HendersonHasselbalch.products[2], HCO3.port_a) annotation (Line(
-          points={{-30,6},{-22,6},{-22,6},{4,6}},
+          points={{-28,6},{4,6}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2223,12 +2223,12 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
       connect(CO2_liquid.port_a, HendersonHasselbalch.substrates[2]) annotation (
           Line(
-          points={{-62,4},{-62,6},{-50,6}},
+          points={{-62,4},{-62,6},{-48,6}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
       connect(H2O.port_a, HendersonHasselbalch.substrates[1]) annotation (Line(
-          points={{-62,-40},{-56,-40},{-56,2},{-50,2}},
+          points={{-62,-40},{-56,-40},{-56,2},{-48,2}},
           color={158,66,200},
           thickness=1,
           smooth=Smooth.None));
@@ -2559,7 +2559,7 @@ extends Modelica.Icons.ExamplesPackage;
       a_start=10^(-7.4),
       BufferValue=0.0077)
         "buffer value 7.7 mmol/L for plasma is from (O. Siggaard-Andersen 1995)"
-      annotation (Placement(transformation(extent={{40,38},{22,56}})));
+      annotation (Placement(transformation(extent={{38,38},{20,56}})));
       Chemical.Components.Reaction HendersonHasselbalch2(nP=2, nS=2,
         KC=(1e-10)*KC) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
         annotation (Placement(transformation(extent={{-26,26},{-6,46}})));
@@ -2683,11 +2683,11 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
       connect(blood_plasma.solution, H.solution) annotation (Line(
-          points={{60,6.52},{36,6.52},{36,38},{36.4,38}},
+          points={{60,6.52},{36,6.52},{36,38},{34.4,38}},
           color={158,66,200},
           smooth=Smooth.None));
       connect(CO2.port_a, HendersonHasselbalch2.substrates[2]) annotation (Line(
-          points={{-68,38},{-34,38},{-34,38},{-26,38}},
+          points={{-68,38},{-26,38}},
           color={158,66,200},
           thickness=0.5,
           smooth=Smooth.None));
@@ -2702,7 +2702,7 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
       connect(HendersonHasselbalch2.products[2], H.port_a) annotation (Line(
-          points={{-6,38},{2,38},{2,48},{22,48},{22,47}},
+          points={{-6,38},{2,38},{2,48},{20,48},{20,47}},
           color={158,66,200},
           thickness=0.5,
           smooth=Smooth.None));
@@ -2752,6 +2752,452 @@ extends Modelica.Icons.ExamplesPackage;
                 {100,100}}), graphics),
                 experiment(StopTime=0.05));
     end AcidBaseBufferTest;
+
+    package Dev
+      model RedCellMembrane
+       // import Chemical;
+        extends Modelica.Icons.Example;
+
+        parameter Real KC=1;//e-6 "Slow down factor";
+
+        Chemical.Components.Solution blood_erythrocytes(ElectricGround=false)
+          annotation (Placement(transformation(extent={{-180,-100},{180,-10}})));
+        Chemical.Components.Solution blood_plasma
+          annotation (Placement(transformation(extent={{-180,12},{180,100}})));
+
+        Chemical.Components.Substance HCO3(substanceData=Substances.Bicarbonate_blood,
+            amountOfSubstance_start(displayUnit="mmol") = 0.024) annotation (
+            Placement(transformation(extent={{-10,-10},{10,10}}, origin={-18,30})));
+
+        Chemical.Components.Substance H2O(substanceData=Substances.Water_liquid,
+            amountOfSubstance_start=51.8*0.994648)
+          annotation (Placement(transformation(extent={{-146,44},{-166,64}})));
+        Chemical.Components.Substance HCO3_E(substanceData=Substances.Bicarbonate_blood,
+            amountOfSubstance_start(displayUnit="mmol") = 0.0116)
+          annotation (Placement(transformation(extent={{-28,-38},{-8,-18}})));
+        Chemical.Components.Substance H2O_E(substanceData=Substances.Water_liquid,
+            amountOfSubstance_start=38.7*0.994648)
+          annotation (Placement(transformation(extent={{-144,-38},{-164,-18}})));
+        Chemical.Components.Substance Cl_E(substanceData=Substances.Chloride_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.0499)
+          annotation (Placement(transformation(extent={{-4,-38},{16,-18}})));
+        Chemical.Components.Substance Cl(substanceData=Substances.Chloride_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.103)
+          annotation (Placement(transformation(extent={{-4,20},{16,40}})));
+        Chemical.Components.Substance albumin(substanceData(
+                MolarWeight=66.463,
+                z=-17,
+                density=1080), amountOfSubstance_start(displayUnit="mmol") = 0.0007)
+              annotation (Placement(transformation(extent={{112,76},{92,96}})));
+      //  Real pH_e; //,pH_p;
+
+        Chemical.Components.Membrane Aquapirin(KC=KC) annotation (Placement(
+              transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={-168,0})));
+        Chemical.Components.Membrane Band3(KC=KC) annotation (Placement(
+              transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={-6,0})));
+        Chemical.Components.Membrane Band3_(useKineticsInput=false, KC=KC)
+          annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={18,0})));
+        Chemical.Components.Substance permeableUncharged(amountOfSubstance_start(
+              displayUnit="mmol") = 0.0118)
+          annotation (Placement(transformation(extent={{166,20},{146,40}})));
+        Chemical.Components.Substance permeableUncharged_E(amountOfSubstance_start(
+              displayUnit="mmol") = 0.00903, substanceData(MolarWeight=0.1))
+          annotation (Placement(transformation(extent={{164,-38},{144,-18}})));
+        Chemical.Components.Substance chargedImpermeable_E(amountOfSubstance_start(
+              displayUnit="mmol") = 0.0165, substanceData(MolarWeight=1))
+          annotation (Placement(transformation(extent={{144,-62},{164,-42}})));
+        Chemical.Components.Membrane leak(useKineticsInput=false, KC=KC)
+          annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={140,0})));
+        Chemical.Components.Substance Lac_E(substanceData=Substances.Chloride_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00062)
+          annotation (Placement(transformation(extent={{56,-38},{76,-18}})));
+        Chemical.Components.Substance Lac(substanceData=Substances.Chloride_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00131)
+          annotation (Placement(transformation(extent={{56,20},{76,40}})));
+        Chemical.Components.Membrane MCT_(useKineticsInput=false, KC=KC)
+          "Monocarboxylate transporters" annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={78,0})));
+        Chemical.Components.Substance H_E(substanceData=Substances.Proton_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 38.7*10^(-7.2)) "H+"
+          annotation (Placement(transformation(extent={{30,-38},{50,-18}})));
+        Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 51.8*10^(-7.4))
+          "H+ in plasma"
+          annotation (Placement(transformation(extent={{30,20},{50,40}})));
+        Chemical.Components.Membrane MCT(useKineticsInput=false, KC=KC)
+          "Monocarboxylate transporters" annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={52,0})));
+        Chemical.Components.Substance CO2(substanceData=Substances.CarbonDioxide_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00167)
+          "free dissolved unbound CO2"
+          annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
+        Chemical.Components.Substance CO2_E(substanceData=Substances.CarbonDioxide_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00125)
+          "free dissolved unbound CO2"
+          annotation (Placement(transformation(extent={{-58,-38},{-38,-18}})));
+        Chemical.Components.Membrane freeCO2(KC=KC) annotation (Placement(
+              transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={-38,2})));
+        Chemical.Components.Substance O2(substanceData=Substances.Oxygen_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.000167)
+          "free dissolved undound oxygen"
+          annotation (Placement(transformation(extent={{96,20},{116,40}})));
+        Chemical.Components.Membrane freeO2(KC=KC) annotation (Placement(
+              transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=270,
+              origin={118,0})));
+        Chemical.Components.Substance O2_E(amountOfSubstance_start(displayUnit=
+                "mmol") = 0.000125, substanceData=Substances.Oxygen_aqueous)
+          "free dissolved undound O2"
+          annotation (Placement(transformation(extent={{96,-38},{116,-18}})));
+        Chemical.Components.Substance
+                             K(substanceData=Substances.Potassium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.004)
+          annotation (Placement(transformation(extent={{-100,20},{-120,40}})));
+        Chemical.Components.Substance
+                             Na(                               substanceData=
+              Substances.Sodium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.138)
+          annotation (Placement(transformation(extent={{-124,20},{-144,40}})));
+        Chemical.Components.Substance
+                             Na_E(substanceData=Substances.Sodium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.007)
+          annotation (Placement(transformation(extent={{-118,-38},{-138,-18}})));
+        Chemical.Components.Substance
+                             K_E(substanceData=Substances.Potassium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.096)
+          annotation (Placement(transformation(extent={{-112,-38},{-92,-18}})));
+        Chemical.Components.Substance H2PO4_E(substanceData=Substances.DihydrogenPhosphate_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.000175)
+          annotation (Placement(transformation(extent={{-84,-38},{-64,-18}})));
+        Chemical.Components.Substance ADP_E(substanceData(z=-3),
+            amountOfSubstance_start(displayUnit="mmol") = 9.6e-05)
+          annotation (Placement(transformation(extent={{-114,-62},{-94,-42}})));
+        Chemical.Components.Substance ATP_E(substanceData(
+            z=-4,
+            DfH_25degC=16700,
+            DfG_25degC_1bar=30500,
+            References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
+            amountOfSubstance_start(displayUnit="mmol") = 0.00128)
+          annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
+        Chemical.Components.Substance HPO4_E(substanceData=Substances.HydrogenPhosphate_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.000495)
+          annotation (Placement(transformation(extent={{-84,-62},{-64,-42}})));
+        Chemical.Components.Substance H2PO4(substanceData=Substances.DihydrogenPhosphate_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.000365)
+          annotation (Placement(transformation(extent={{-86,78},{-66,98}})));
+        Chemical.Components.Substance HPO4(substanceData=Substances.HydrogenPhosphate_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.001635)
+          annotation (Placement(transformation(extent={{-80,58},{-60,78}})));
+        Chemical.Components.Substance globulins(substanceData(
+            MolarWeight=34,
+            z=-2.43,
+            density=1080), amountOfSubstance_start(displayUnit="mmol") = 0.00082)
+          annotation (Placement(transformation(extent={{150,76},{130,96}})));
+        Chemical.Components.Substance Ca(substanceData=Substances.Calcium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00175) "Ca2+"
+          annotation (Placement(transformation(extent={{-78,20},{-98,40}})));
+        Chemical.Components.Substance Mg(substanceData=Substances.Magnesium_aqueous,
+            amountOfSubstance_start(displayUnit="mmol") = 0.00108) "Mg2+"
+          annotation (Placement(transformation(extent={{-112,-84},{-92,-64}})));
+        Chemical.Components.Substance DPG(amountOfSubstance_start(displayUnit=
+                "mmol") = 0.0051, substanceData(
+            MolarWeight=0.266,
+            z=-2.2,
+            density=1000))
+          annotation (Placement(transformation(extent={{128,-94},{108,-74}})));
+        Chemical.Components.Substance GSH(substanceData(
+            MolarWeight=0.2,
+            z=-1,
+            density=1000), amountOfSubstance_start(displayUnit="mmol") = 0.00223)
+          annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
+        Components.Reaction          chemicalReaction1(nP=2) "10^(-6.66 + 3)"
+          annotation (Placement(transformation(extent={{-56,78},{-36,98}})));
+        Components.Reaction          HendersonHasselbalch(nP=2, nS=2,
+        useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
+          annotation (Placement(transformation(extent={{-34,64},{-14,44}})));
+        Sources.Buffer Hemoglobin(
+          substanceData(z=1.045),
+          a_start=10^(-7.2),
+          BufferValue=3) annotation (Placement(transformation(
+              extent={{10,-10},{-10,10}},
+              rotation=0,
+              origin={82,-76})));
+      equation
+      //  pH_p = -log10(H.a);
+       // pH_e = -log10(H_E.a);
+      connect(H2O.solution, blood_plasma.solution)
+        annotation (Line(points={{-150,44},{-150,44},{-150,26},{-150,26},{-150,20},{108,
+                20},{108,12.88}}, color={28,108,200}));
+      connect(Cl.solution, blood_plasma.solution) annotation (Line(
+          points={{0,20},{0,16},{0,12.88},{108,12.88}},
+          color={0,0,0},
+          smooth=Smooth.None));
+        connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
+              points={{-148,-38},{108,-38},{108,-99.1}},
+                                                      smooth=Smooth.None));
+        connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
+            points={{0,-38},{0,-68},{0,-99.1},{108,-99.1}},
+            color={0,0,0},
+            smooth=Smooth.None));
+        connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
+              points={{-24,-38},{108,-38},{108,-99.1}},
+                                                    smooth=Smooth.None));
+        connect(Aquapirin.port_b, H2O_E.port_a) annotation (Line(
+            points={{-168,-10},{-168,-28},{-164,-28}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Aquapirin.port_a, H2O.port_a) annotation (Line(
+            points={{-168,10},{-168,54},{-166,54}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Band3.port_a, HCO3.port_a) annotation (Line(
+            points={{-6,10},{-6,30},{-8,30}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Band3.port_b, HCO3_E.port_a) annotation (Line(
+            points={{-6,-10},{-6,-28},{-8,-28}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Band3_.port_b, Cl_E.port_a) annotation (Line(
+            points={{18,-10},{18,-28},{16,-28}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Band3_.port_a, Cl.port_a) annotation (Line(
+            points={{18,10},{18,30},{16,30}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+      connect(HCO3.solution, blood_plasma.solution) annotation (Line(
+          points={{-24,20},{108,20},{108,12.88}},
+          color={0,0,0},
+          smooth=Smooth.None));
+        connect(blood_plasma.solution, permeableUncharged.solution) annotation (Line(
+            points={{108,12.88},{108,20},{162,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(blood_erythrocytes.solution, permeableUncharged_E.solution)
+          annotation (Line(
+            points={{108,-99.1},{108,-38},{160,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(blood_erythrocytes.solution,chargedImpermeable_E. solution)
+          annotation (Line(
+            points={{108,-99.1},{108,-38},{140,-38},{140,-62},{148,-62}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(permeableUncharged.port_a, leak.port_a) annotation (Line(
+            points={{146,30},{140,30},{140,10}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(permeableUncharged_E.port_a, leak.port_b) annotation (Line(
+            points={{144,-28},{140,-28},{140,-10}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(MCT_.port_a, Lac.port_a) annotation (Line(
+            points={{78,10},{78,30},{76,30}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(MCT_.port_b, Lac_E.port_a) annotation (Line(
+            points={{78,-10},{78,-28},{76,-28}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(Lac.solution, blood_plasma.solution) annotation (Line(
+            points={{60,20},{108,20},{108,12.88}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(blood_erythrocytes.solution, Lac_E.solution) annotation (Line(
+            points={{108,-99.1},{108,-38},{60,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
+            points={{34,-38},{108,-38},{108,-99.1}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H_E.port_a, MCT.port_b) annotation (Line(
+            points={{50,-28},{52,-28},{52,-10}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(MCT.port_a, H.port_a) annotation (Line(
+            points={{52,10},{52,30},{50,30}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(blood_plasma.solution, H.solution) annotation (Line(
+            points={{108,12.88},{108,20},{34,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(CO2.port_a, freeCO2.port_a) annotation (Line(
+            points={{-40,30},{-38,30},{-38,12}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(freeCO2.port_b, CO2_E.port_a) annotation (Line(
+            points={{-38,-8},{-38,-28}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(blood_plasma.solution, CO2.solution) annotation (Line(
+            points={{108,12.88},{108,20},{-56,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
+            points={{-54,-38},{108,-38},{108,-99.1}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(blood_plasma.solution, O2.solution) annotation (Line(
+            points={{108,12.88},{108,20},{100,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(O2_E.solution, blood_erythrocytes.solution) annotation (Line(
+            points={{100,-38},{108,-38},{108,-99.1}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(O2_E.port_a, freeO2.port_b) annotation (Line(
+            points={{116,-28},{118,-28},{118,-10}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(freeO2.port_a, O2.port_a) annotation (Line(
+            points={{118,10},{118,30},{116,30}},
+            color={158,66,200},
+            thickness=1,
+            smooth=Smooth.None));
+        connect(H2O.solution, K.solution) annotation (Line(
+            points={{-150,44},{-150,20},{-104,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2O.solution, Na.solution) annotation (Line(
+            points={{-150,44},{-150,20},{-128,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2O_E.solution, Na_E.solution) annotation (Line(
+            points={{-148,-38},{-122,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2O_E.solution, K_E.solution) annotation (Line(
+            points={{-148,-38},{-108,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2O_E.solution, H2PO4_E.solution) annotation (Line(
+            points={{-148,-38},{-80,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(ADP_E.solution, K_E.solution) annotation (Line(
+            points={{-110,-62},{-110,-38},{-108,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(ATP_E.solution, Na_E.solution) annotation (Line(
+            points={{-150,-62},{-150,-62},{-122,-62},{-122,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2O.solution, H2PO4.solution) annotation (Line(
+            points={{-150,44},{-150,44},{-150,20},{-82,20},{-82,78}},
+            color={28,108,200}));
+        connect(HPO4_E.solution, H2PO4_E.solution) annotation (Line(
+            points={{-80,-62},{-110,-62},{-110,-38},{-80,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(HPO4.solution, H2PO4.solution) annotation (Line(
+            points={{-76,58},{-82,58},{-82,78}},
+            color={28,108,200}));
+        connect(globulins.solution, permeableUncharged.solution) annotation (Line(
+            points={{146,76},{92,76},{92,20},{162,20}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(Ca.solution, CO2.solution) annotation (Line(
+            points={{-82,20},{-82,20},{-56,20}},
+            color={28,108,200}));
+        connect(Mg.solution, blood_erythrocytes.solution) annotation (Line(
+            points={{-108,-84},{-108,-38},{108,-38},{108,-99.1}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(DPG.solution, permeableUncharged_E.solution) annotation (Line(
+            points={{124,-94},{140,-94},{140,-38},{160,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(GSH.solution, permeableUncharged_E.solution) annotation (Line(
+            points={{160,-94},{140,-94},{140,-38},{160,-38}},
+            color={158,66,200},
+            smooth=Smooth.None));
+        connect(H2PO4.port_a, chemicalReaction1.substrates[1]) annotation (Line(
+            points={{-66,88},{-58,88},{-56,88}},
+            color={158,66,200},
+            thickness=1));
+        connect(HPO4.port_a, chemicalReaction1.products[1]) annotation (Line(
+            points={{-60,68},{-60,68},{-22,68},{-22,86},{-36,86}},
+            color={158,66,200},
+            thickness=1));
+        connect(H.port_a, chemicalReaction1.products[2]) annotation (Line(
+            points={{50,30},{50,30},{50,90},{50,90},{-36,90}},
+            color={158,66,200},
+            thickness=1));
+        connect(CO2.port_a, HendersonHasselbalch.substrates[2]) annotation (Line(
+            points={{-40,30},{-38,30},{-38,52},{-34,52}},
+            color={158,66,200},
+            thickness=1));
+        connect(HCO3.port_a, HendersonHasselbalch.products[2]) annotation (Line(
+            points={{-8,30},{-8,30},{-8,52},{-14,52}},
+            color={158,66,200},
+            thickness=1));
+        connect(HendersonHasselbalch.substrates[1], H2O.port_a) annotation (Line(
+            points={{-34,56},{-166,56},{-166,54}},
+            color={158,66,200},
+            thickness=1));
+        connect(HendersonHasselbalch.products[1], H.port_a) annotation (Line(
+            points={{-14,56},{18,56},{50,56},{50,30}},
+            color={158,66,200},
+            thickness=1));
+        connect(Hemoglobin.solution, blood_erythrocytes.solution) annotation (Line(
+              points={{88,-86},{94,-86},{108,-86},{108,-99.1}}, color={0,128,255}));
+        connect(Hemoglobin.port_a, H_E.port_a) annotation (Line(points={{72,-76},{64,-76},
+                {50,-76},{50,-28}}, color={158,66,200}));
+        connect(albumin.solution, permeableUncharged.solution) annotation (Line(
+              points={{108,76},{106,76},{92,76},{92,20},{162,20}}, color={0,128,
+                255}));
+        connect(globulins.solution, albumin.solution)
+          annotation (Line(points={{146,76},{108,76}}, color={0,128,255}));
+        annotation ( Documentation(info="<html>
+<p>Blood eqiulibrium across erythrocyte membrane bewteen blood plasma and intracellular fluid of erythrocytes.</p>
+<p>Data of blood status are from:</p>
+<p>Raftos, J.E., Bulliman, B.T. and Kuchel, P.W. Evaluation of an electrochemical model of erythrocyte pH buffering using 31P nuclear magnetic resonance data. <i>The Journal of general physiology</i> 1990;95(6):1183-1204. </p>
+</html>",      revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),experiment(StopTime=1e-008),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-180,-100},
+                  {180,100}})));
+      end RedCellMembrane;
+    end Dev;
   end AcidBase;
 
   package Hemoglobin "Hemoglobin blood gases binding"

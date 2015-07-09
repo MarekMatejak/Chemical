@@ -293,7 +293,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
  extends Modelica.Icons.Package;
 
 
-
   package Components "Chemical Components"
     model Solution "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
@@ -415,9 +414,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 100}}), graphics));
     end Solution;
     extends Modelica.Icons.Package;
-
-
-
 
     model Substance "Substance in solution"
       extends Icons.Substance;
@@ -2711,7 +2707,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment);
+        experiment,
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}})));
     end PartialSubstance;
 
     partial model PartialSubstanceInSolution
@@ -3846,6 +3844,7 @@ Modelica source.
   end Icons;
 
 
+
   annotation (
 preferredView="info",
 version="1.1.0",
@@ -3865,5 +3864,4 @@ uses(Modelica(version="3.2.1")),
 <p>The pattern is so strong, that the equilibriation of electro-chemical potential can be aplicated for almost all components: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
 <p>Please see the <a href=\"modelica://Chemical.UsersGuide.Overview\">overview</a>.</p>
 </html>"));
-
 end Chemical;
