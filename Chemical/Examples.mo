@@ -2401,7 +2401,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance A[n](
         each amountOfSubstance_start=0.00033, substanceData(each z=-1))
         "deprotonated acid groups"
-        annotation (Placement(transformation(extent={{24,-16},{4,4}})));
+        annotation (Placement(transformation(extent={{26,-16},{6,4}})));
       Chemical.Components.Reaction react[n](each nP=2)
         annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
@@ -2414,7 +2414,7 @@ extends Modelica.Icons.ExamplesPackage;
               extent={{-10,-10},{10,10}}, origin={62,-68})));
     equation
       connect(react.products[1], A.port_a) annotation (Line(
-          points={{-24,6},{-12,6},{-12,-6},{4,-6}},
+          points={{-24,6},{-12,6},{-12,-6},{6,-6}},
           color={107,45,134},
           thickness=1,
           smooth=Smooth.None));
@@ -2429,7 +2429,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={0,0,0},
           smooth=Smooth.None));
         connect(A[i].solution, solution.solution) annotation (Line(
-          points={{20,-16},{20,-86},{60,-86},{60,-98}},
+          points={{22,-16},{22,-86},{60,-86},{60,-98}},
           color={0,0,0},
           smooth=Smooth.None));
       end for;
