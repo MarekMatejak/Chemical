@@ -2994,10 +2994,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
 
           parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25°C";
+        "Enthalpy of formation of the substance at 25 degC";
 
           parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25°C,1bar";
+        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
 
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
@@ -3094,10 +3094,10 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
 
           parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25°C";
+        "Enthalpy of formation of the substance at 25 degC";
 
           parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25°C,1bar";
+        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
 
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";

@@ -1291,7 +1291,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>In the situation of doubled amount of enzyme should double also the maximal speed of the reaction, shouldn&apos;t?</p>
 <p>The assumptions of</p>
 </html>"),
-      experiment(StopTime=200000));
+      experiment(StopTime=199000));
   end EnzymeKinetics;
 
   model ElectrochemicalCell
@@ -1652,7 +1652,7 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start(displayUnit="mmol") = 0.0499)
       annotation (Placement(transformation(extent={{-4,-38},{16,-18}})));
     Chemical.Components.Substance Cl(substanceData=Substances.Chloride_aqueous,
-        amountOfSubstance_start(displayUnit="mmol") = 0.103)
+        amountOfSubstance_start(displayUnit="mmol") = 0.123)
       annotation (Placement(transformation(extent={{-4,20},{16,40}})));
 
   //  Real pH_e; //,pH_p;
@@ -1813,7 +1813,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Line(points={{-150,20},{108,20},{108,12.88}},
                                                       smooth=Smooth.None));
   connect(Cl.solution, blood_plasma.solution) annotation (Line(
-      points={{0,20},{0,16},{0,12.88},{108,12.88}},
+      points={{0,20},{0,12.88},{108,12.88}},
       color={0,0,0},
       smooth=Smooth.None));
     connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
