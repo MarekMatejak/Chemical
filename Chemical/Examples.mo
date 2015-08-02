@@ -377,6 +377,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
 </html>"),
       experiment(StopTime=0.001));
   end SimpleReaction;
@@ -435,6 +437,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
 </html>"),
       experiment(StopTime=0.001));
   end SimpleReaction2;
@@ -479,6 +483,9 @@ extends Modelica.Icons.ExamplesPackage;
     Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Heating of solution by one degree, using standard HeatPort from Modelica Standard Library.</p>
+<p>Observe Solution.T (or H2O.Solution.T) for temperature change.</p>
 </html>"),
     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
             100,100}}), graphics));
@@ -534,6 +541,9 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Heating of solution of water and ethanol, using standard HeatPort from Modelica Standard Library.</p>
+<p>Observe Solution.T (or H2O.Solution.T or Ethanol.Solution.T) for temperature change. Note, that we can heat all substances in solution at once and the results would differ from HeatingOfWater.</p>
 </html>"),
     Diagram(graphics));
   end HeatingOfAlcohol;
@@ -672,6 +682,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
 </html>"),
       experiment(StopTime=0.001),
     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
@@ -886,7 +898,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (
       experiment(StopTime=100),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstraiton of water vaporization between two solutions - liquid and gaseous. The temperature is increased in time to illustrate, how the vaporization rate rises in higher temperatures. See liquid.T and liquid.Volume, compared to gas.T and gas.volume.</p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -1003,7 +1015,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (
       experiment(StopTime=50.01),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstraiton of water sublimation between two solutions - solid and gaseous. The temperature is increased in time to illustrate, how the sublimation rate rises in higher temperatures. See solid.T and solid.Volume, compared to gas.T and gas.volume. Note, that the liquid phase is omitted here.</p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -1142,7 +1154,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (
       experiment(StopTime=1e-005),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstration of different blood gases solubility in erythrocytes and in plasma. The difference is governed by various amount of other substances in the solution. </p>
+<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts. </p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -4425,7 +4438,10 @@ extends Modelica.Icons.ExamplesPackage;
         Tolerance=1e-010,
         __Dymola_fixedstepsize=1e-007,
         __Dymola_Algorithm="Dassl"),
-    __Dymola_experimentSetupOutput(doublePrecision=true));
+    __Dymola_experimentSetupOutput(doublePrecision=true),
+      Documentation(info="<html>
+<p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
+</html>"));
   end FluidAdapter2;
 
   annotation (
