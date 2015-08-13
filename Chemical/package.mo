@@ -300,14 +300,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Interfaces.PartialSolution(T(start=temperature_start),p(start=BasePressure));
 
       parameter Boolean useElectricPort = false "Is electric port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Boolean ElectricGround = true
       "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
         annotation (HideResult=true, Dialog(enable=not useElectricPort));
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Area SurfaceArea=0.01
       "Area for surfacePort to connect MultiBody components"
@@ -318,7 +318,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 
       parameter Boolean useThermalPort = false "Is thermal port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Boolean ConstantTemperature = true
       "Has the solution constant temperature during simulation (if not useThermalPort)?"
@@ -710,7 +710,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useWaterCorrection = true
       "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true));
 
     Interfaces.SubstancePort_b gas_port "Gaseous solution"
       annotation (Placement(transformation(extent={{-10,90},{10,110}})));
@@ -1773,7 +1773,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Pressure PartialPressure=0
       "Fixed partial pressure if usePartialPressureInput=false"
@@ -1867,7 +1867,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMolalityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -1945,7 +1945,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMolarityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
        parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -2020,7 +2020,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMoleFractionInput = false
       "Is mole fraction of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -2091,7 +2091,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
        parameter Boolean usePotentialInput = false
       "Is electro-chemical potential of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u if
            usePotentialInput annotation (HideResult=true, Placement(transformation(
@@ -2349,7 +2349,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
          parameter Boolean useBufferValueInput = false
       "Is buffer value of the substance an input?"
-          annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+          annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
           extends Interfaces.ConditionalKinetics;
 
@@ -3416,7 +3416,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useSolutionFlowInput = false
       "Is solution flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
       "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
@@ -3452,7 +3452,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useSubstanceFlowInput = false
       "Is substance flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
       "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
@@ -3479,7 +3479,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useKineticsInput = false
       "Is kinetics coefficient as an input?"
-      annotation(Evaluate=true, HideResult=true, choices(__Dymola_checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Real KC(final unit="mol2.s-1.J-1")=1
       "Chemical kinetics coefficient if useKineticsInput=false"   annotation (
