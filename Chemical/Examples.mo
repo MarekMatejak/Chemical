@@ -365,10 +365,11 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(A.solution, solution.solution) annotation (Line(
         points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(B.solution, solution.solution) annotation (Line(points={{58,-8},{
-          58,-92},{60,-92},{60,-98}},  smooth=Smooth.None));
+          58,-92},{60,-92},{60,-98}},  smooth=Smooth.None,
+        color={127,127,0}));
     connect(A.port_a, reaction.substrates[1]) annotation (Line(
         points={{-32,2},{-10,2}},
         color={158,66,200},
@@ -377,6 +378,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
 </html>"),
       experiment(StopTime=0.001));
   end SimpleReaction;
@@ -415,12 +418,14 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(A.solution, solution.solution) annotation (Line(
         points={{-30,2},{-30,-90},{60,-90},{60,-98}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(C.solution, solution.solution) annotation (Line(points={{64,-8},{
-          66,-8},{66,-90},{60,-90},{60,-98}},  smooth=Smooth.None));
+          66,-8},{66,-90},{60,-90},{60,-98}},  smooth=Smooth.None,
+        color={127,127,0}));
     connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
-          {-30,-90},{60,-90},{60,-98}},smooth=Smooth.None));
+          {-30,-90},{60,-90},{60,-98}},smooth=Smooth.None,
+        color={127,127,0}));
 
     connect(B.port_a, reaction.substrates[1]) annotation (Line(
         points={{-14,-14},{-10,-14},{-10,0},{4,0}},
@@ -435,6 +440,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
 </html>"),
       experiment(StopTime=0.001));
   end SimpleReaction2;
@@ -461,7 +468,7 @@ extends Modelica.Icons.ExamplesPackage;
   equation
     connect(H2O.solution, solution.solution) annotation (Line(
         points={{60,-32},{60,-98}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
         points={{-66,-62},{-60,-62},{-60,-102}},
@@ -479,6 +486,9 @@ extends Modelica.Icons.ExamplesPackage;
     Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Heating of solution by one degree, using standard HeatPort from Modelica Standard Library.</p>
+<p>Observe Solution.T (or H2O.Solution.T) for temperature change.</p>
 </html>"),
     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
             100,100}}), graphics));
@@ -513,7 +523,7 @@ extends Modelica.Icons.ExamplesPackage;
   equation
     connect(H2O.solution, solution.solution) annotation (Line(
         points={{-42,-8},{-42,-34},{60,-34},{60,-98}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
         points={{-66,-66},{-60,-66},{-60,-102}},
@@ -525,7 +535,7 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
   connect(solution.solution, Ethanol.solution) annotation (Line(
       points={{60,-98},{60,-34},{22,-34},{22,-8}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(solution.bottom, fixed1.flange) annotation (Line(
       points={{0,-102},{0,-84},{-18,-84}},
@@ -534,6 +544,9 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Heating of solution of water and ethanol, using standard HeatPort from Modelica Standard Library.</p>
+<p>Observe Solution.T (or H2O.Solution.T or Ethanol.Solution.T) for temperature change. Note, that we can heat all substances in solution at once and the results would differ from HeatingOfWater.</p>
 </html>"),
     Diagram(graphics));
   end HeatingOfAlcohol;
@@ -614,11 +627,12 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(B.solution, thermal_isolated_solution.solution) annotation (Line(
         points={{36,-60},{36,-64},{58.4,-64},{58.4,-99.06}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(A.solution, thermal_isolated_solution.solution) annotation (Line(
           points={{-36,-60},{-36,-64},{58.4,-64},{58.4,-99.06}},
-                                                           smooth=Smooth.None));
+                                                           smooth=Smooth.None,
+        color={127,127,0}));
     connect(A1.port_a, reaction1.substrates[1]) annotation (Line(
         points={{-20,50},{-8,50}},
         color={158,66,200},
@@ -632,11 +646,12 @@ extends Modelica.Icons.ExamplesPackage;
     connect(B1.solution, solution_at_constant_temperature.solution) annotation (
         Line(
         points={{36,40},{36,34},{58.4,34},{58.4,0.94}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(A1.solution, solution_at_constant_temperature.solution) annotation (
         Line(points={{-36,40},{-36,34},{58.4,34},{58.4,0.94}},
-                                                        smooth=Smooth.None));
+                                                        smooth=Smooth.None,
+        color={127,127,0}));
   connect(solution_at_constant_temperature.electricPin, ground.p) annotation (
      Line(
       points={{-60.4,94},{-60,94},{-60,76},{-76,76}},
@@ -650,11 +665,11 @@ extends Modelica.Icons.ExamplesPackage;
   connect(solution_at_constant_temperature.solution, H2O.solution)
     annotation (Line(
       points={{58.4,0.94},{24,0.94},{24,4}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(thermal_isolated_solution.solution, H2O1.solution) annotation (Line(
       points={{58.4,-99.06},{24,-99.06},{24,-94}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(solution_at_constant_temperature.bottom, fixed1.flange) annotation (
      Line(
@@ -672,6 +687,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
 </html>"),
       experiment(StopTime=0.001),
     Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
@@ -695,88 +712,92 @@ extends Modelica.Icons.ExamplesPackage;
       SurfaceArea=A,
       useMechanicPorts=true,
       useThermalPort=true)
-      annotation (Placement(transformation(extent={{-50,-68},{50,32}})));
+      annotation (Placement(transformation(extent={{-50,-56},{50,44}})));
                      // AmbientPressure=p)
     //  volume_start=V,
     Chemical.Components.Substance H2_gas(
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       substanceData=Substances.Hydrogen_gas,
       amountOfSubstance_start(displayUnit="mmol") = 0.026)
-      annotation (Placement(transformation(extent={{-40,-44},{-20,-24}})));
+      annotation (Placement(transformation(extent={{-40,-32},{-20,-12}})));
     Chemical.Components.Substance O2_gas(
       substanceData=Substances.Oxygen_gas,
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       amountOfSubstance_start(displayUnit="mmol") = 0.013)
-      annotation (Placement(transformation(extent={{-40,-8},{-20,12}})));
+      annotation (Placement(transformation(extent={{-40,4},{-20,24}})));
     Chemical.Components.Substance H2O_gas(substanceData=Substances.Water_gas,
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas)
-      annotation (Placement(transformation(extent={{44,-26},{24,-6}})));
+      annotation (Placement(transformation(extent={{44,-14},{24,6}})));
     Chemical.Components.Reaction reaction(
       nS=2,
       s={2,1},
-      p={2}) annotation (Placement(transformation(extent={{-10,-26},{10,-6}})));
+      p={2}) annotation (Placement(transformation(extent={{-10,-14},{10,6}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
         Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=90,
-          origin={0,52})));
+          origin={0,58})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=2)
-      annotation (Placement(transformation(extent={{44,-96},{64,-76}})));
+      annotation (Placement(transformation(extent={{-40,-86},{-20,-66}})));
     Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
-      annotation (Placement(transformation(extent={{96,-96},{76,-76}})));
+      annotation (Placement(transformation(extent={{40,-86},{20,-66}})));
     Modelica.Mechanics.Translational.Components.Fixed fixed
-      annotation (Placement(transformation(extent={{8,72},{28,92}})));
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=180,
+          origin={0,72})));
     Modelica.Mechanics.Translational.Components.Fixed fixed1
-      annotation (Placement(transformation(extent={{-10,-98},{10,-78}})));
+      annotation (Placement(transformation(extent={{-10,-72},{10,-52}})));
   equation
   connect(reaction.products[1], H2O_gas.port_a) annotation (Line(
-      points={{10,-16},{24,-16}},
+      points={{10,-4},{24,-4}},
       color={158,66,200},
       thickness=1,
       smooth=Smooth.None));
   connect(H2_gas.port_a, reaction.substrates[1]) annotation (Line(
-      points={{-20,-34},{-16,-34},{-16,-18},{-10,-18}},
+      points={{-20,-22},{-16,-22},{-16,-6},{-10,-6}},
       color={158,66,200},
       thickness=1,
       smooth=Smooth.None));
   connect(O2_gas.port_a, reaction.substrates[2]) annotation (Line(
-      points={{-20,2},{-16,2},{-16,-14},{-10,-14}},
+      points={{-20,14},{-16,14},{-16,-2},{-10,-2}},
       color={158,66,200},
       thickness=1,
       smooth=Smooth.None));
   connect(H2_gas.solution, idealGas.solution) annotation (Line(
-      points={{-36,-44},{-44,-44},{-44,-67},{30,-67}},
-      color={158,66,200},
+      points={{-36,-32},{30,-32},{30,-55}},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(O2_gas.solution, idealGas.solution) annotation (Line(
-      points={{-36,-8},{-44,-8},{-44,-67},{30,-67}},
-      color={158,66,200},
+      points={{-36,4},{-44,4},{-44,-32},{30,-32},{30,-55}},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O_gas.solution, idealGas.solution) annotation (Line(
-      points={{40,-26},{40,-48},{30,-48},{30,-67}},
-      color={158,66,200},
+      points={{40,-14},{40,-32},{30,-32},{30,-55}},
+      color={127,127,0},
       smooth=Smooth.None));
     connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
-        points={{0,32},{0,42}},
+        points={{0,44},{0,48}},
         color={0,127,0},
         smooth=Smooth.None));
     connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{-30,-69},{-30,-86},{44,-86}},
+        points={{-30,-57},{-30,-62},{-48,-62},{-48,-76},{-40,-76}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
-        points={{64,-86},{76,-86}},
+        points={{-20,-76},{20,-76}},
         color={191,0,0},
         smooth=Smooth.None));
     connect(fixed.flange, spring.flange_b) annotation (Line(
-        points={{18,82},{18,88},{0,88},{0,62},{6.66134e-016,62}},
+        points={{0,72},{0,68}},
         color={0,127,0},
         smooth=Smooth.None));
   connect(idealGas.bottom, fixed1.flange) annotation (Line(
-      points={{0,-69},{0,-88}},
+      points={{0,-57},{0,-62}},
       color={0,127,0},
       smooth=Smooth.None));
-    annotation ( experiment(StopTime=1), Diagram(graphics));
+    annotation ( experiment(StopTime=1), Diagram(coordinateSystem(
+            preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
+                                                 graphics));
   end PowerGeneration;
 
   model WaterVaporization "Evaporation of water"
@@ -835,7 +856,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     connect(H2O_liquid.solution, liquid.solution) annotation (Line(
         points={{-34,-64},{-34,-97.1},{-24.4,-97.1}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H2O_liquid.port_a, gasSolubility.liquid_port) annotation (Line(
         points={{-50,-54},{-88,-54},{-88,24}},
@@ -844,7 +865,7 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
         points={{27.6,6.9},{24,6.9},{24,50}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H2O_gaseuous.port_a, gasSolubility.gas_port) annotation (Line(
         points={{8,60},{-88,60},{-88,44}},
@@ -861,7 +882,7 @@ extends Modelica.Icons.ExamplesPackage;
       smooth=Smooth.Bezier));
   connect(gas.solution, otherSubstances.solution) annotation (Line(
       points={{27.6,6.9},{4,6.9},{4,28}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
       points={{74,8},{72,8},{72,2},{68,2}},
@@ -886,7 +907,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (
       experiment(StopTime=100),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstraiton of water vaporization between two solutions - liquid and gaseous. The temperature is increased in time to illustrate, how the vaporization rate rises in higher temperatures. See liquid.T and liquid.Volume, compared to gas.T and gas.volume.</p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -952,19 +973,19 @@ extends Modelica.Icons.ExamplesPackage;
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
         points={{27.6,6.9},{20,6.9},{20,56}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
   connect(fixedTemperature.T, clock.y) annotation (Line(
       points={{96,8},{98,8},{98,46},{83,46}},
       color={0,0,127},
       smooth=Smooth.Bezier));
   connect(gas.solution, otherSubstances.solution) annotation (Line(
-      points={{27.6,6.9},{12,6.9},{12,36},{0,36}},
-      color={158,66,200},
+      points={{27.6,6.9},{24,6.9},{24,6},{20,6},{20,36},{0,36}},
+      color={127,127,0},
       smooth=Smooth.None));
     connect(solid.solution, H2O_solid.solution) annotation (Line(
         points={{81.6,-97.1},{60,-97.1},{60,-62},{66,-62}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H2O_gaseuous.port_a, gasSolubility1.gas_port) annotation (Line(
         points={{4,66},{-66,66},{-66,38}},
@@ -1003,7 +1024,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (
       experiment(StopTime=50.01),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstraiton of water sublimation between two solutions - solid and gaseous. The temperature is increased in time to illustrate, how the sublimation rate rises in higher temperatures. See solid.T and solid.Volume, compared to gas.T and gas.volume. Note, that the liquid phase is omitted here.</p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -1103,16 +1124,16 @@ extends Modelica.Icons.ExamplesPackage;
   connect(CO2_unbound_plasma.solution, blood_plasma.solution) annotation (
       Line(
       points={{-86,-24},{-86,-75.1},{-26.4,-75.1}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(O2_unbound_plasma.solution, blood_plasma.solution) annotation (Line(
       points={{-46,-26},{-46,-75.1},{-26.4,-75.1}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(CO2_unbound_erythrocyte.solution, red_cells.solution) annotation (
       Line(
       points={{22,-32},{22,-77.08},{83.2,-77.08}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(O2_g_n1.port_a, O2_dissolutionE_NIST.gas_port) annotation (Line(
       points={{42,86},{66,86},{66,70},{88,70},{88,64}},
@@ -1128,21 +1149,22 @@ extends Modelica.Icons.ExamplesPackage;
   connect(O2_unbound_erythrocyte_NIST.solution, red_cells.solution)
     annotation (Line(
       points={{62,-32},{62,-77.08},{83.2,-77.08}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(blood_plasma.solution, otherSubstances.solution) annotation (Line(
       points={{-26.4,-75.1},{-38,-75.1},{-38,-70}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(red_cells.solution, otherSubstances_erythrocytes.solution)
     annotation (Line(
       points={{83.2,-77.08},{68,-77.08},{68,-68}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
     annotation (
       experiment(StopTime=1e-005),
       Documentation(info="<html>
-<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts.  </p>
+<p>Demonstration of different blood gases solubility in erythrocytes and in plasma. The difference is governed by various amount of other substances in the solution. </p>
+<p>Please note, that the total content of CO2 and O2 in blood plasma and erythrocytes must be determined by including bicarbonate and hemoglobin connected amounts. </p>
 </html>",
         revisions="<html>
 <p><i>2015</i></p>
@@ -1226,21 +1248,23 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(E.solution, solution.solution) annotation (Line(
         points={{-6,38},{-8,38},{-8,-98},{60,-98}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         smooth=Smooth.None));
+      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         smooth=Smooth.None,
+        color={127,127,0}));
+
     connect(S.solution, solution.solution) annotation (Line(
-        points={{-88,-14},{-88,-98},{60,-98}},
-        color={158,66,200},
+        points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(P.solution, solution.solution) annotation (Line(
         points={{88,-12},{88,-98},{60,-98}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
   connect(solution.solution, otherSubstances.solution) annotation (Line(
       points={{60,-98},{46,-98},{46,-76}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
         annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -1382,22 +1406,23 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(Cl.solution, solution1.solution) annotation (Line(
         points={{-6,-36},{-6,-40},{24.4,-40},{24.4,-59.34}},
-        color={0,0,0},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H.solution, solution1.solution) annotation (Line(points={{10,-36},
           {10,-40},{24.4,-40},{24.4,-59.34}},
-                                       smooth=Smooth.None));
+                                       smooth=Smooth.None,
+        color={127,127,0}));
   connect(electrone.solution, cathode.solution) annotation (Line(
-      points={{-74,32},{-74,-42.84},{-54.4,-42.84}},
-      color={158,66,200},
+      points={{-74,32},{-74,-34},{-68,-34},{-68,-42.84},{-54.4,-42.84}},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(electrone1.solution, anode.solution) annotation (Line(
       points={{84,-26},{84,-49},{89.2,-49}},
-      color={158,66,200},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(AgCl.solution, cathode.solution) annotation (Line(
-      points={{-72,4},{-74,4},{-74,-42.84},{-54.4,-42.84}},
-      color={158,66,200},
+      points={{-72,4},{-74,4},{-74,-34},{-68,-34},{-68,-42.84},{-54.4,-42.84}},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(Ag.solution, cathode.solution) annotation (Line(
       points={{-68,-30},{-68,-42.84},{-54.4,-42.84}},
@@ -1421,208 +1446,6 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
   end ElectrochemicalCell;
-
-  model LeadAcidBattery
-    "The electrochemical cell: PbSO4(s) | Pb(s) | HSO4-(aq) , H+(aq) | PbO2(s) | PbSO4(s) + 2 H2O"
-   extends Modelica.Icons.Example;
-
-    Chemical.Components.Solution anode(ElectricGround=false)
-      annotation (Placement(transformation(extent={{24,-76},{58,32}})));
-
-    Chemical.Components.Solution cathode(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-80,-78},{-46,30}})));
-
-    Chemical.Components.Solution solution1(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
-
-    Chemical.Components.Substance Pb(substanceData=Substances.Lead_solid,
-        amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
-    Chemical.Components.Substance HSO4(substanceData=Substances.HydrogenSulfate_aqueous,
-        amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{-2,-70},{-22,-50}})));
-    Chemical.Components.Substance PbSO4_(substanceData=Substances.LeadSulfate_solid,
-        amountOfSubstance_start=0.01)
-      annotation (Placement(transformation(extent={{50,-32},{30,-12}})));
-    Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous,
-        amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{-2,-42},{-22,-22}})));
-    Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
-      annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
-    Chemical.Components.Reaction electrodeReaction(
-      nP=2,
-      nS=4,
-      s={1,1,3,2},
-      p={1,2}) annotation (Placement(transformation(
-          extent={{-10,10},{10,-10}},
-          rotation=90,
-          origin={-36,-14})));
-    Chemical.Components.Reaction electrodeReaction1(
-      nS=2,
-      nP=3,
-      p={1,1,2}) annotation (Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=90,
-          origin={14,-16})));
-
-  Chemical.Components.ElectronTransfer electrone
-      annotation (Placement(transformation(extent={{50,2},{30,22}})));
-  Chemical.Components.ElectronTransfer electrone1
-      annotation (Placement(transformation(extent={{-72,-38},{-52,-18}})));
-    Chemical.Components.Substance PbO2(substanceData=Substances.LeadDioxide_solid,
-        amountOfSubstance_start=1) annotation (Placement(transformation(extent=
-              {{-10,-10},{10,10}}, origin={-60,-58})));
-    Chemical.Components.Substance H2O(substanceData=Substances.Water_liquid,
-        amountOfSubstance_start=0.1)
-      annotation (Placement(transformation(extent={{-2,-8},{-22,12}})));
-    Chemical.Components.Substance PbSO4(substanceData=Substances.LeadSulfate_solid,
-        amountOfSubstance_start=0.01) annotation (Placement(transformation(
-            extent={{-10,-10},{10,10}}, origin={-60,6})));
-
-  Modelica.Electrical.Analog.Basic.Ground ground
-    annotation (Placement(transformation(extent={{16,30},{36,50}})));
-  Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
-    annotation (Placement(transformation(extent={{-14,40},{6,60}})));
-  Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
-    annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
-  equation
-    connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-        points={{30,-56},{15.5,-56},{15.5,-26},{16,-26}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-        points={{-22,-60},{12,-60},{12,-26},{12,-26}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
-        points={{30,-22},{26,-22},{26,-2},{16,-2},{16,-6},{16.6667,-6}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(HSO4.solution, solution1.solution) annotation (Line(
-        points={{-6,-70},{-6,-70},{-6,-78},{-3.6,-78},{-3.6,-79}},
-        color={0,0,0},
-        smooth=Smooth.None));
-    connect(H.solution, solution1.solution) annotation (Line(points={{-6,-42},
-          {-6,-78},{-3.6,-78},{-3.6,-79}},
-                                       smooth=Smooth.None));
-    connect(H2O.solution, solution1.solution) annotation (Line(
-        points={{-6,-8},{-6,-79},{-3.6,-79}},
-        color={158,66,200},
-        smooth=Smooth.None));
-    connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
-        points={{-38,-4},{-38,6},{-50,6}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
-        points={{-34,-4},{-34,-4},{-34,2},{-22,2}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
-        points={{-50,-58},{-36,-58},{-36,-24},{-39,-24}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
-        points={{-22,-60},{-34,-60},{-34,-24},{-37,-24}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
-        points={{-22,-32},{-32,-32},{-32,-24},{-35,-24}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
-        points={{-52,-28},{-38,-28},{-38,-24},{-33,-24}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(
-        points={{-22,-32},{2,-32},{2,2},{12,2},{12,-6},{14,-6}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-    connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
-        points={{30,12},{14,12},{14,-6},{11.3333,-6}},
-        color={158,66,200},
-        thickness=0.5,
-        smooth=Smooth.None));
-  connect(Pb.solution, anode.solution) annotation (Line(
-      points={{46,-66},{46,-74.92},{51.2,-74.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(PbSO4_.solution, anode.solution) annotation (Line(
-      points={{46,-32},{46,-74.92},{51.2,-74.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(PbO2.solution, cathode.solution) annotation (Line(
-      points={{-66,-68},{-66,-76.92},{-52.8,-76.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(PbSO4_.solution, Pb.solution) annotation (Line(
-      points={{46,-32},{46,-66}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(electrone1.pin, voltageSensor.p) annotation (Line(
-      points={{-72,-28},{-82,-28},{-82,50},{-64,50},{-64,82},{-32,82}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(electrone.pin, voltageSensor.n) annotation (Line(
-      points={{50,12},{50,50},{26,50},{26,82},{-12,82},{-12,82}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(electrone.solution, anode.solution) annotation (Line(
-      points={{46,2},{46,-74.92},{51.2,-74.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(electrone.pin, ground.p) annotation (Line(
-      points={{50,12},{50,50},{26,50}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(electrone1.pin, currentSensor.p) annotation (Line(
-      points={{-72,-28},{-82,-28},{-82,50},{-56,50}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(currentSensor.n, resistor.p) annotation (Line(
-      points={{-36,50},{-14,50}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(resistor.n, electrone.pin) annotation (Line(
-      points={{6,50},{50,50},{50,12}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(PbSO4.solution, cathode.solution) annotation (Line(
-      points={{-66,-4},{-66,-76.92},{-52.8,-76.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(electrone1.solution, cathode.solution) annotation (Line(
-      points={{-68,-38},{-66,-38},{-66,-76.92},{-52.8,-76.92}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(H2O.solution, H.solution) annotation (Line(
-      points={{-6,-8},{-6,-42}},
-      color={158,66,200},
-      smooth=Smooth.None));
-  connect(resistor.n, ground.p) annotation (Line(
-      points={{6,50},{26,50}},
-      color={0,0,255},
-      smooth=Smooth.None));
-  connect(electrone.solution, PbSO4_.solution) annotation (Line(
-      points={{46,2},{46,-32}},
-      color={158,66,200},
-      smooth=Smooth.None));
-    annotation (
-    experiment(StopTime=49500), Documentation(revisions=
-                      "<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-  end LeadAcidBattery;
 
   model RedCellMembrane
    // import Chemical;
@@ -1811,21 +1634,24 @@ extends Modelica.Icons.ExamplesPackage;
    // pH_e = -log10(H_E.a);
   connect(H2O.solution, blood_plasma.solution)
     annotation (Line(points={{-150,20},{108,20},{108,12.88}},
-                                                      smooth=Smooth.None));
+                                                      smooth=Smooth.None,
+        color={127,127,0}));
   connect(Cl.solution, blood_plasma.solution) annotation (Line(
       points={{0,20},{0,12.88},{108,12.88}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
     connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
           points={{-148,-38},{108,-38},{108,-99.1}},
-                                                  smooth=Smooth.None));
+                                                  smooth=Smooth.None,
+        color={127,127,0}));
     connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{0,-38},{0,-68},{0,-99.1},{108,-99.1}},
-        color={0,0,0},
+        points={{0,-38},{0,-99.1},{108,-99.1}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
           points={{-24,-38},{108,-38},{108,-99.1}},
-                                                smooth=Smooth.None));
+                                                smooth=Smooth.None,
+        color={127,127,0}));
     connect(Aquapirin.port_b, H2O_E.port_a) annotation (Line(
         points={{-168,-10},{-168,-28},{-164,-28}},
         color={158,66,200},
@@ -1858,21 +1684,21 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
   connect(HCO3.solution, blood_plasma.solution) annotation (Line(
       points={{-24,20},{108,20},{108,12.88}},
-      color={0,0,0},
+      color={127,127,0},
       smooth=Smooth.None));
     connect(blood_plasma.solution, permeableUncharged.solution) annotation (Line(
         points={{108,12.88},{108,20},{162,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(blood_erythrocytes.solution, permeableUncharged_E.solution)
       annotation (Line(
         points={{108,-99.1},{108,-38},{160,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(blood_erythrocytes.solution,chargedImpermeable_E. solution)
       annotation (Line(
         points={{108,-99.1},{108,-38},{140,-38},{140,-62},{148,-62}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(permeableUncharged.port_a, leak.port_a) annotation (Line(
         points={{146,30},{140,30},{140,10}},
@@ -1896,15 +1722,15 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(Lac.solution, blood_plasma.solution) annotation (Line(
         points={{60,20},{108,20},{108,12.88}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(blood_erythrocytes.solution, Lac_E.solution) annotation (Line(
         points={{108,-99.1},{108,-38},{60,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
         points={{34,-38},{108,-38},{108,-99.1}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H_E.port_a, MCT.port_b) annotation (Line(
         points={{50,-28},{52,-28},{52,-10}},
@@ -1918,7 +1744,7 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(blood_plasma.solution, H.solution) annotation (Line(
         points={{108,12.88},{108,20},{34,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(CO2.port_a, freeCO2.port_a) annotation (Line(
         points={{-40,30},{-36,30},{-36,10}},
@@ -1932,19 +1758,19 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(blood_plasma.solution, CO2.solution) annotation (Line(
         points={{108,12.88},{108,20},{-56,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
         points={{-54,-38},{108,-38},{108,-99.1}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(blood_plasma.solution, O2.solution) annotation (Line(
         points={{108,12.88},{108,20},{100,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(O2_E.solution, blood_erythrocytes.solution) annotation (Line(
         points={{100,-38},{108,-38},{108,-99.1}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(O2_E.port_a, freeO2.port_b) annotation (Line(
         points={{116,-28},{118,-28},{118,-10}},
@@ -1982,15 +1808,15 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(ATP_E.solution, Na_E.solution) annotation (Line(
         points={{-122,-62},{-122,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H2O.solution, H2PO4.solution) annotation (Line(
         points={{-150,20},{-82,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(HPO4_E.solution, H2PO4_E.solution) annotation (Line(
         points={{-80,-62},{-110,-62},{-110,-38},{-80,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(HPO4.solution, H2PO4.solution) annotation (Line(
         points={{-82,42},{-82,20}},
@@ -1998,19 +1824,19 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(albumin.solution, permeableUncharged.solution) annotation (Line(
         points={{112,76},{92,76},{92,20},{162,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(globulins.solution, permeableUncharged.solution) annotation (Line(
         points={{146,76},{92,76},{92,20},{162,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(Ca.solution, CO2.solution) annotation (Line(
         points={{-108,42},{-82,42},{-82,20},{-56,20}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(Mg.solution, blood_erythrocytes.solution) annotation (Line(
         points={{-108,-84},{-108,-38},{108,-38},{108,-99.1}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(DPG.solution, permeableUncharged_E.solution) annotation (Line(
         points={{124,-94},{140,-94},{140,-38},{160,-38}},
@@ -2018,11 +1844,11 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(hemoglobin.solution, permeableUncharged_E.solution) annotation (Line(
         points={{90,-94},{140,-94},{140,-38},{160,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(GSH.solution, permeableUncharged_E.solution) annotation (Line(
         points={{160,-94},{140,-94},{140,-38},{160,-38}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     annotation ( Documentation(info="<html>
 <p>Blood eqiulibrium across erythrocyte membrane bewteen blood plasma and intracellular fluid of erythrocytes.</p>
@@ -2037,6 +1863,210 @@ extends Modelica.Icons.ExamplesPackage;
                          graphics));
   end RedCellMembrane;
 
+  model LeadAcidBattery
+    "The electrochemical cell: PbSO4(s) | Pb(s) | HSO4-(aq) , H+(aq) | PbO2(s) | PbSO4(s) + 2 H2O"
+   extends Modelica.Icons.Example;
+
+    Chemical.Components.Solution anode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{24,-76},{58,32}})));
+
+    Chemical.Components.Solution cathode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-80,-78},{-46,30}})));
+
+    Chemical.Components.Solution solution1(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
+
+    Chemical.Components.Substance Pb(substanceData=Substances.Lead_solid,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
+    Chemical.Components.Substance HSO4(substanceData=Substances.HydrogenSulfate_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-2,-70},{-22,-50}})));
+    Chemical.Components.Substance PbSO4_(substanceData=Substances.LeadSulfate_solid,
+        amountOfSubstance_start=0.01)
+      annotation (Placement(transformation(extent={{50,-32},{30,-12}})));
+    Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-2,-42},{-22,-22}})));
+    Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
+      annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
+    Chemical.Components.Reaction electrodeReaction(
+      nP=2,
+      nS=4,
+      s={1,1,3,2},
+      p={1,2}) annotation (Placement(transformation(
+          extent={{-10,10},{10,-10}},
+          rotation=90,
+          origin={-36,-14})));
+    Chemical.Components.Reaction electrodeReaction1(
+      nS=2,
+      nP=3,
+      p={1,1,2}) annotation (Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={14,-16})));
+
+  Chemical.Components.ElectronTransfer electrone
+      annotation (Placement(transformation(extent={{50,2},{30,22}})));
+  Chemical.Components.ElectronTransfer electrone1
+      annotation (Placement(transformation(extent={{-72,-38},{-52,-18}})));
+    Chemical.Components.Substance PbO2(substanceData=Substances.LeadDioxide_solid,
+        amountOfSubstance_start=1) annotation (Placement(transformation(extent=
+              {{-10,-10},{10,10}}, origin={-60,-58})));
+    Chemical.Components.Substance H2O(substanceData=Substances.Water_liquid,
+        amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{-2,-8},{-22,12}})));
+    Chemical.Components.Substance PbSO4(substanceData=Substances.LeadSulfate_solid,
+        amountOfSubstance_start=0.01) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}}, origin={-60,6})));
+
+  Modelica.Electrical.Analog.Basic.Ground ground
+    annotation (Placement(transformation(extent={{16,30},{36,50}})));
+  Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
+    annotation (Placement(transformation(extent={{-14,40},{6,60}})));
+  Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
+    annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
+  equation
+    connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
+        points={{30,-56},{15.5,-56},{15.5,-26},{16,-26}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
+        points={{-22,-60},{12,-60},{12,-26},{12,-26}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
+        points={{30,-22},{26,-22},{26,-2},{16,-2},{16,-6},{16.6667,-6}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(HSO4.solution, solution1.solution) annotation (Line(
+        points={{-6,-70},{-6,-70},{-6,-78},{-3.6,-78},{-3.6,-79}},
+        color={127,127,0},
+        smooth=Smooth.None));
+    connect(H.solution, solution1.solution) annotation (Line(points={{-6,-42},
+          {-6,-78},{-3.6,-78},{-3.6,-79}},
+                                       smooth=Smooth.None,
+        color={127,127,0}));
+    connect(H2O.solution, solution1.solution) annotation (Line(
+        points={{-6,-8},{-6,-79},{-3.6,-79}},
+        color={127,127,0},
+        smooth=Smooth.None));
+    connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
+        points={{-38,-4},{-38,6},{-50,6}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
+        points={{-34,-4},{-34,-4},{-34,2},{-22,2}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
+        points={{-50,-58},{-36,-58},{-36,-24},{-39,-24}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
+        points={{-22,-60},{-34,-60},{-34,-24},{-37,-24}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
+        points={{-22,-32},{-32,-32},{-32,-24},{-35,-24}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
+        points={{-52,-28},{-38,-28},{-38,-24},{-33,-24}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(
+        points={{-22,-32},{2,-32},{2,2},{12,2},{12,-6},{14,-6}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+    connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
+        points={{30,12},{14,12},{14,-6},{11.3333,-6}},
+        color={158,66,200},
+        thickness=0.5,
+        smooth=Smooth.None));
+  connect(Pb.solution, anode.solution) annotation (Line(
+      points={{46,-66},{46,-74.92},{51.2,-74.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(PbSO4_.solution, anode.solution) annotation (Line(
+      points={{46,-32},{46,-74.92},{51.2,-74.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(PbO2.solution, cathode.solution) annotation (Line(
+      points={{-66,-68},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(PbSO4_.solution, Pb.solution) annotation (Line(
+      points={{46,-32},{46,-66}},
+      color={158,66,200},
+      smooth=Smooth.None));
+  connect(electrone1.pin, voltageSensor.p) annotation (Line(
+      points={{-72,-28},{-82,-28},{-82,50},{-64,50},{-64,82},{-32,82}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(electrone.pin, voltageSensor.n) annotation (Line(
+      points={{50,12},{50,50},{26,50},{26,82},{-12,82},{-12,82}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(electrone.solution, anode.solution) annotation (Line(
+      points={{46,2},{46,-74.92},{51.2,-74.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(electrone.pin, ground.p) annotation (Line(
+      points={{50,12},{50,50},{26,50}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(electrone1.pin, currentSensor.p) annotation (Line(
+      points={{-72,-28},{-82,-28},{-82,50},{-56,50}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(currentSensor.n, resistor.p) annotation (Line(
+      points={{-36,50},{-14,50}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(resistor.n, electrone.pin) annotation (Line(
+      points={{6,50},{50,50},{50,12}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(PbSO4.solution, cathode.solution) annotation (Line(
+      points={{-66,-4},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(electrone1.solution, cathode.solution) annotation (Line(
+      points={{-68,-38},{-66,-38},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,
+            -76.92}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(H2O.solution, H.solution) annotation (Line(
+      points={{-6,-8},{-6,-42}},
+      color={127,127,0},
+      smooth=Smooth.None));
+  connect(resistor.n, ground.p) annotation (Line(
+      points={{6,50},{26,50}},
+      color={0,0,255},
+      smooth=Smooth.None));
+  connect(electrone.solution, PbSO4_.solution) annotation (Line(
+      points={{46,2},{46,-32}},
+      color={127,127,0},
+      smooth=Smooth.None));
+    annotation (
+    experiment(StopTime=49500), Documentation(revisions=
+                      "<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end LeadAcidBattery;
+
   package AcidBase
 
     model WaterSelfIonization "H2O  <->  OH-   +   H+ "
@@ -2046,7 +2076,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Solution solution
         annotation (Placement(transformation(extent={{-72,2},{76,96}})));
       Chemical.Components.Solution solution1
-        annotation (Placement(transformation(extent={{-74,-96},{74,-2}})));
+        annotation (Placement(transformation(extent={{-76,-98},{72,-4}})));
       Chemical.Components.Substance H3O(amountOfSubstance_start=1e-7,
           substanceData=Chemical.Examples.Substances.Hydronium_aqueous)
         annotation (Placement(transformation(extent={{10,-10},{-10,10}}, origin=
@@ -2112,27 +2142,27 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
       connect(H2O.solution, solution.solution) annotation (Line(
           points={{-36,36},{46.4,36},{46.4,2.94}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(OH.solution, solution.solution) annotation (Line(
           points={{36,16},{36,2.94},{46.4,2.94}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(H3O.solution, solution.solution) annotation (Line(
           points={{36,60},{36,2.94},{46.4,2.94}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(H2O_.solution, solution1.solution) annotation (Line(
-          points={{-38,-66},{44.4,-66},{44.4,-95.06}},
-          color={0,0,0},
+          points={{-38,-66},{42.4,-66},{42.4,-97.06}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(OH_.solution, solution1.solution) annotation (Line(
-          points={{34,-86},{34,-95.06},{44.4,-95.06}},
-          color={0,0,0},
+          points={{34,-86},{34,-97.06},{42.4,-97.06}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(H_.solution, solution1.solution) annotation (Line(
-          points={{34,-40},{34,-95.06},{44.4,-95.06}},
-          color={0,0,0},
+          points={{34,-40},{34,-97.06},{42.4,-97.06}},
+          color={127,127,0},
           smooth=Smooth.None));
       annotation ( Documentation(info="<html>
 <p>Self-ionization of water.</p>
@@ -2234,16 +2264,20 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
       connect(CO2_liquid.solution, solution.solution) annotation (Line(
           points={{-78,-6},{-78,-98.54},{60,-98.54}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(H2O.solution, solution.solution) annotation (Line(points={{-78,-50},
-            {-78,-98.54},{60,-98.54}},smooth=Smooth.None));
+            {-78,-98.54},{60,-98.54}},smooth=Smooth.None,
+          color={127,127,0}));
       connect(HCO3.solution, solution.solution) annotation (Line(points={{-12,-4},
-            {-12,-98.54},{60,-98.54}},smooth=Smooth.None));
+            {-12,-98.54},{60,-98.54}},smooth=Smooth.None,
+          color={127,127,0}));
       connect(H.solution, solution.solution) annotation (Line(points={{-12,-48},
-            {-12,-98.54},{60,-98.54}},smooth=Smooth.None));
+            {-12,-98.54},{60,-98.54}},smooth=Smooth.None,
+          color={127,127,0}));
       connect(CO3.solution, solution.solution) annotation (Line(points={{66,-2},
-            {66,-98.54},{60,-98.54}}, smooth=Smooth.None));
+            {66,-98.54},{60,-98.54}}, smooth=Smooth.None,
+          color={127,127,0}));
       annotation ( Documentation(info="<html>
 <p>CO2 solution in water without any other acid-base buffers.</p>
 <pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&QUOT;pH&QUOT;,&nbsp;1);</b></pre>
@@ -2386,7 +2420,7 @@ extends Modelica.Icons.ExamplesPackage;
       extends Modelica.Icons.Example;
 
       Chemical.Components.Solution solution
-        annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+        annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
 
     Chemical.Sources.Buffer H(substanceData=Substances.Proton_aqueous, a_start=
             10^(-7.4)) "hydrogen ions activity" annotation (Placement(
@@ -2425,12 +2459,12 @@ extends Modelica.Icons.ExamplesPackage;
             thickness=1,
             smooth=Smooth.None));
         connect(HA[i].solution, solution.solution) annotation (Line(
-          points={{-74,-2},{-74,-86},{60,-86},{60,-98}},
-          color={0,0,0},
+          points={{-74,-2},{-74,-86},{56,-86},{56,-98}},
+          color={127,127,0},
           smooth=Smooth.None));
         connect(A[i].solution, solution.solution) annotation (Line(
-          points={{22,-16},{22,-86},{60,-86},{60,-98}},
-          color={0,0,0},
+          points={{22,-16},{22,-86},{56,-86},{56,-98}},
+          color={127,127,0},
           smooth=Smooth.None));
       end for;
       connect(HA.port_a, react.substrates[1]) annotation (Line(
@@ -2440,12 +2474,12 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
 
     connect(solution.solution, H2O.solution) annotation (Line(
-        points={{60,-98},{56,-98},{56,-78}},
-        color={158,66,200},
+        points={{56,-98},{56,-78}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H.solution, solution.solution) annotation (Line(
-        points={{20,26},{20,14},{36,14},{36,-98},{60,-98}},
-        color={158,66,200},
+        points={{20,26},{20,14},{36,14},{36,-98},{56,-98}},
+        color={127,127,0},
         smooth=Smooth.None));
       annotation ( Documentation(revisions="<html>
 <p><i>2014</i></p>
@@ -2466,9 +2500,9 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Components.Solution blood_erythrocytes(ElectricGround=false,
           temperature_start=310.15)
-        annotation (Placement(transformation(extent={{-100,-96},{100,-36}})));
+        annotation (Placement(transformation(extent={{-100,-98},{100,-38}})));
       Chemical.Components.Solution blood_plasma(temperature_start=310.15)
-        annotation (Placement(transformation(extent={{-100,6},{100,58}})));
+        annotation (Placement(transformation(extent={{-100,4},{100,56}})));
 
       Chemical.Components.Substance HCO3(amountOfSubstance_start=0.024,
           substanceData=Chemical.Examples.Substances.Bicarbonate_blood)
@@ -2506,10 +2540,10 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-60,-62},{-40,-42}})));
       Chemical.Components.Substance Cl_E(amountOfSubstance_start=0.0499,
           substanceData=Chemical.Examples.Substances.Chloride_aqueous)
-        annotation (Placement(transformation(extent={{66,-60},{46,-40}})));
+        annotation (Placement(transformation(extent={{64,-60},{44,-40}})));
       Chemical.Components.Substance Cl(amountOfSubstance_start=0.103,
           substanceData=Chemical.Examples.Substances.Chloride_aqueous)
-        annotation (Placement(transformation(extent={{66,20},{46,40}})));
+        annotation (Placement(transformation(extent={{64,20},{44,40}})));
 
       Real pH_e, pH_p;
 
@@ -2527,7 +2561,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
-            origin={44,-16})));
+            origin={42,-16})));
     Chemical.Sources.Buffer H_E(
       substanceData=Chemical.Examples.Substances.Proton_aqueous,
       a_start=10^(-7.2),
@@ -2583,30 +2617,33 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
     connect(CO2.solution, blood_plasma.solution) annotation (Line(
-        points={{-84,28},{-84,6.52},{60,6.52}},
-        color={0,0,0},
+        points={{-84,28},{-84,12},{60,12},{60,4.52}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H2O.solution, blood_plasma.solution)
-      annotation (Line(points={{-56,12},{-56,6.52},{60,6.52}},
-                                                        smooth=Smooth.None));
+      annotation (Line(points={{-56,12},{-56,12},{60,12},{60,10},{60,4},{60,4},
+              {60,4.52}},                               smooth=Smooth.None,
+          color={127,127,0}));
     connect(Cl.solution, blood_plasma.solution) annotation (Line(
-        points={{62,20},{62,6.52},{60,6.52}},
-        color={0,0,0},
+        points={{60,20},{60,4.52}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{-86,-82},{-86,-88},{60,-88},{60,-95.4}},
-        color={0,0,0},
+        points={{-86,-82},{-86,-88},{60,-88},{60,-97.4}},
+        color={127,127,0},
         smooth=Smooth.None));
       connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
-            points={{-56,-62},{-56,-88},{60,-88},{60,-95.4}},
-                                                    smooth=Smooth.None));
+            points={{-56,-62},{-56,-88},{60,-88},{60,-97.4}},
+                                                    smooth=Smooth.None,
+          color={127,127,0}));
       connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{62,-60},{62,-88},{60,-88},{60,-95.4}},
-          color={0,0,0},
+          points={{60,-60},{60,-97.4}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
-            points={{24,-62},{24,-88},{60,-88},{60,-95.4}},
-                                                  smooth=Smooth.None));
+            points={{24,-62},{24,-88},{60,-88},{60,-97.4}},
+                                                  smooth=Smooth.None,
+          color={127,127,0}));
     connect(gasSolubility.liquid_port, CO2.port_a) annotation (Line(
         points={{-84,48},{-84,38},{-68,38}},
         color={158,66,200},
@@ -2633,12 +2670,12 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
       connect(Band3_Cl.port_b, Cl_E.port_a) annotation (Line(
-          points={{44,-26},{44,-50},{46,-50}},
+          points={{42,-26},{42,-50},{44,-50}},
           color={158,66,200},
           thickness=0.5,
           smooth=Smooth.None));
       connect(Band3_Cl.port_a, Cl.port_a) annotation (Line(
-          points={{44,-6},{44,30},{46,30}},
+          points={{42,-6},{42,30},{44,30}},
           color={158,66,200},
           thickness=0.5,
           smooth=Smooth.None));
@@ -2648,8 +2685,8 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
     connect(HCO3.solution, blood_plasma.solution) annotation (Line(
-        points={{24,14},{24,6.52},{60,6.52}},
-        color={0,0,0},
+        points={{24,14},{24,12},{60,12},{60,8},{60,4},{60,4},{60,4.52}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(H_E.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
         points={{30,-75},{4,-75},{4,-56},{-6,-56}},
@@ -2657,20 +2694,20 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5,
         smooth=Smooth.None));
     connect(blood_erythrocytes.solution, others_E.solution) annotation (Line(
-        points={{60,-95.4},{60,-88},{72,-88}},
-        color={158,66,200},
+        points={{60,-97.4},{60,-88},{72,-88}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(blood_plasma.solution, others_P.solution) annotation (Line(
-        points={{60,6.52},{74,6.52},{74,14}},
-        color={158,66,200},
+        points={{60,4.52},{60,4},{60,4},{60,8},{60,12},{74,12},{74,14}},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(clock.y, CO2_gas.partialPressure) annotation (Line(
         points={{-33,72},{-24,72},{-24,98},{-84,98},{-84,94}},
         color={0,0,127},
         smooth=Smooth.None));
     connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{44.4,-84},{44,-84},{44,-88},{60,-88},{60,-95.4}},
-        color={158,66,200},
+        points={{44.4,-84},{44,-84},{44,-88},{60,-88},{60,-97.4}},
+        color={127,127,0},
         smooth=Smooth.None));
       connect(CO2_E.port_a, diffusion.port_b) annotation (Line(
           points={{-70,-72},{-66,-72},{-66,-26}},
@@ -2683,8 +2720,8 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=0.5,
           smooth=Smooth.None));
       connect(blood_plasma.solution, H.solution) annotation (Line(
-          points={{60,6.52},{36,6.52},{36,38},{34.4,38}},
-          color={158,66,200},
+          points={{60,4.52},{60,4.52},{60,12},{34,12},{34,38},{34.4,38}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(CO2.port_a, HendersonHasselbalch2.substrates[2]) annotation (Line(
           points={{-68,38},{-26,38}},
@@ -2716,7 +2753,9 @@ extends Modelica.Icons.ExamplesPackage;
         experiment(
         StopTime=1000,
         __Dymola_fixedstepsize=1e-005,
-        __Dymola_Algorithm="Lsodar"));
+        __Dymola_Algorithm="Lsodar"),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}), graphics));
     end CarbonDioxideInBlood;
 
     model AcidBaseBufferTest
@@ -2738,7 +2777,7 @@ extends Modelica.Icons.ExamplesPackage;
     equation
       connect(buffer.solution, simpleSolution.solution) annotation (Line(
           points={{-46,4},{-26,4},{-26,-98},{56,-98}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(externalMoleFraction.port_a, buffer.port_a) annotation (Line(
           points={{20,-36},{40,-36},{40,10},{-30,10},{-30,14}},
@@ -2746,7 +2785,7 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
       connect(simpleSolution.solution, substance.solution) annotation (Line(
           points={{56,-98},{26,-98},{26,-82},{56,-82}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics),
@@ -2947,21 +2986,23 @@ extends Modelica.Icons.ExamplesPackage;
        // pH_e = -log10(H_E.a);
       connect(H2O.solution, blood_plasma.solution)
         annotation (Line(points={{-150,44},{-150,44},{-150,26},{-150,26},{-150,20},{108,
-                20},{108,12.88}}, color={28,108,200}));
+                20},{108,12.88}}, color={127,127,0}));
       connect(Cl.solution, blood_plasma.solution) annotation (Line(
           points={{0,20},{0,16},{0,12.88},{108,12.88}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
         connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
               points={{-148,-38},{108,-38},{108,-99.1}},
-                                                      smooth=Smooth.None));
+                                                      smooth=Smooth.None,
+            color={127,127,0}));
         connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
             points={{0,-38},{0,-68},{0,-99.1},{108,-99.1}},
-            color={0,0,0},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
               points={{-24,-38},{108,-38},{108,-99.1}},
-                                                    smooth=Smooth.None));
+                                                    smooth=Smooth.None,
+            color={127,127,0}));
         connect(Aquapirin.port_b, H2O_E.port_a) annotation (Line(
             points={{-168,-10},{-168,-28},{-164,-28}},
             color={158,66,200},
@@ -2994,21 +3035,21 @@ extends Modelica.Icons.ExamplesPackage;
             smooth=Smooth.None));
       connect(HCO3.solution, blood_plasma.solution) annotation (Line(
           points={{-24,20},{108,20},{108,12.88}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
         connect(blood_plasma.solution, permeableUncharged.solution) annotation (Line(
             points={{108,12.88},{108,20},{162,20}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(blood_erythrocytes.solution, permeableUncharged_E.solution)
           annotation (Line(
             points={{108,-99.1},{108,-38},{160,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(blood_erythrocytes.solution,chargedImpermeable_E. solution)
           annotation (Line(
             points={{108,-99.1},{108,-38},{140,-38},{140,-62},{148,-62}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(permeableUncharged.port_a, leak.port_a) annotation (Line(
             points={{146,30},{140,30},{140,10}},
@@ -3032,15 +3073,15 @@ extends Modelica.Icons.ExamplesPackage;
             smooth=Smooth.None));
         connect(Lac.solution, blood_plasma.solution) annotation (Line(
             points={{60,20},{108,20},{108,12.88}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(blood_erythrocytes.solution, Lac_E.solution) annotation (Line(
             points={{108,-99.1},{108,-38},{60,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
             points={{34,-38},{108,-38},{108,-99.1}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(H_E.port_a, MCT.port_b) annotation (Line(
             points={{50,-28},{52,-28},{52,-10}},
@@ -3054,7 +3095,7 @@ extends Modelica.Icons.ExamplesPackage;
             smooth=Smooth.None));
         connect(blood_plasma.solution, H.solution) annotation (Line(
             points={{108,12.88},{108,20},{34,20}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(CO2.port_a, freeCO2.port_a) annotation (Line(
             points={{-40,30},{-38,30},{-38,12}},
@@ -3068,19 +3109,19 @@ extends Modelica.Icons.ExamplesPackage;
             smooth=Smooth.None));
         connect(blood_plasma.solution, CO2.solution) annotation (Line(
             points={{108,12.88},{108,20},{-56,20}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
             points={{-54,-38},{108,-38},{108,-99.1}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(blood_plasma.solution, O2.solution) annotation (Line(
             points={{108,12.88},{108,20},{100,20}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(O2_E.solution, blood_erythrocytes.solution) annotation (Line(
             points={{100,-38},{108,-38},{108,-99.1}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(O2_E.port_a, freeO2.port_b) annotation (Line(
             points={{116,-28},{118,-28},{118,-10}},
@@ -3110,44 +3151,44 @@ extends Modelica.Icons.ExamplesPackage;
             smooth=Smooth.None));
         connect(H2O_E.solution, H2PO4_E.solution) annotation (Line(
             points={{-148,-38},{-80,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(ADP_E.solution, K_E.solution) annotation (Line(
             points={{-110,-62},{-110,-38},{-108,-38}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(ATP_E.solution, Na_E.solution) annotation (Line(
-            points={{-150,-62},{-150,-62},{-122,-62},{-122,-38}},
-            color={158,66,200},
+            points={{-150,-62},{-122,-62},{-122,-38}},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(H2O.solution, H2PO4.solution) annotation (Line(
             points={{-150,44},{-150,44},{-150,20},{-82,20},{-82,78}},
-            color={28,108,200}));
+            color={127,127,0}));
         connect(HPO4_E.solution, H2PO4_E.solution) annotation (Line(
             points={{-80,-62},{-110,-62},{-110,-38},{-80,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(HPO4.solution, H2PO4.solution) annotation (Line(
             points={{-76,58},{-82,58},{-82,78}},
-            color={28,108,200}));
+            color={127,127,0}));
         connect(globulins.solution, permeableUncharged.solution) annotation (Line(
             points={{146,76},{92,76},{92,20},{162,20}},
             color={158,66,200},
             smooth=Smooth.None));
         connect(Ca.solution, CO2.solution) annotation (Line(
             points={{-82,20},{-82,20},{-56,20}},
-            color={28,108,200}));
+            color={127,127,0}));
         connect(Mg.solution, blood_erythrocytes.solution) annotation (Line(
             points={{-108,-84},{-108,-38},{108,-38},{108,-99.1}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(DPG.solution, permeableUncharged_E.solution) annotation (Line(
             points={{124,-94},{140,-94},{140,-38},{160,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(GSH.solution, permeableUncharged_E.solution) annotation (Line(
             points={{160,-94},{140,-94},{140,-38},{160,-38}},
-            color={158,66,200},
+            color={127,127,0},
             smooth=Smooth.None));
         connect(H2PO4.port_a, chemicalReaction1.substrates[1]) annotation (Line(
             points={{-66,88},{-58,88},{-56,88}},
@@ -3178,14 +3219,15 @@ extends Modelica.Icons.ExamplesPackage;
             color={158,66,200},
             thickness=1));
         connect(Hemoglobin.solution, blood_erythrocytes.solution) annotation (Line(
-              points={{88,-86},{94,-86},{108,-86},{108,-99.1}}, color={0,128,255}));
+              points={{88,-86},{94,-86},{108,-86},{108,-99.1}}, color={127,127,
+                0}));
         connect(Hemoglobin.port_a, H_E.port_a) annotation (Line(points={{72,-76},{64,-76},
                 {50,-76},{50,-28}}, color={158,66,200}));
         connect(albumin.solution, permeableUncharged.solution) annotation (Line(
-              points={{108,76},{106,76},{92,76},{92,20},{162,20}}, color={0,128,
-                255}));
+              points={{108,76},{106,76},{92,76},{92,20},{162,20}}, color={127,127,
+                0}));
         connect(globulins.solution, albumin.solution)
-          annotation (Line(points={{146,76},{108,76}}, color={0,128,255}));
+          annotation (Line(points={{146,76},{108,76}}, color={127,127,0}));
         annotation ( Documentation(info="<html>
 <p>Blood eqiulibrium across erythrocyte membrane bewteen blood plasma and intracellular fluid of erythrocytes.</p>
 <p>Data of blood status are from:</p>
@@ -3238,7 +3280,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 0.001 "Slow down factor";
 
       Chemical.Components.Solution solution
-        annotation (Placement(transformation(extent={{-66,-102},{100,124}})));
+        annotation (Placement(transformation(extent={{-72,-102},{94,124}})));
 
       Chemical.Components.Substance oxygen_unbound(substanceData(
             DfG_25degC_1bar=GO2aq), amountOfSubstance_start(displayUnit="mol")=
@@ -3536,38 +3578,45 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=1,
           smooth=Smooth.None));
       connect(oxygen_unbound.solution, solution.solution) annotation (Line(
-          points={{-58,-46},{-58,-99.74},{66.8,-99.74}},
-          color={0,0,0},
+          points={{-58,-46},{-58,-99.74},{60.8,-99.74}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(R0.solution, solution.solution) annotation (Line(
-          points={{-16,78},{-16,-99.74},{66.8,-99.74}},
-          color={0,0,0},
+          points={{-16,78},{-16,-99.74},{60.8,-99.74}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(T0.solution, solution.solution) annotation (Line(
-          points={{38,78},{38,-99.74},{66.8,-99.74}},
-          color={0,0,0},
+          points={{38,78},{38,-99.74},{60.8,-99.74}},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(R1.solution, solution.solution) annotation (Line(points={{-16,36},
-            {-16,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {-16,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(T1.solution, solution.solution) annotation (Line(points={{38,36},
-            {38,-99.74},{66.8,-99.74}},
-                          smooth=Smooth.None));
+              {38,-99.74},{60.8,-99.74}},
+                          smooth=Smooth.None,
+          color={127,127,0}));
       connect(R2.solution, solution.solution) annotation (Line(points={{-16,-10},
-            {-16,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {-16,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(T3.solution, solution.solution) annotation (Line(points={{38,-54},
-            {38,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {38,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(R3.solution, solution.solution) annotation (Line(points={{-16,-54},
-            {-16,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {-16,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(R4.solution, solution.solution) annotation (Line(points={{-16,-92},
-            {-16,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {-16,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(T4.solution, solution.solution) annotation (Line(points={{38,-92},
-            {38,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {38,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(quaternaryForm2.products[1], T2.port_a) annotation (Line(
           points={{28,0},{54,0}},
           color={158,66,200},
@@ -3584,15 +3633,16 @@ extends Modelica.Icons.ExamplesPackage;
           thickness=1,
           smooth=Smooth.None));
       connect(T2.solution, solution.solution) annotation (Line(points={{38,-10},
-            {38,-99.74},{66.8,-99.74}},
-                                smooth=Smooth.None));
+              {38,-99.74},{60.8,-99.74}},
+                                smooth=Smooth.None,
+          color={127,127,0}));
       connect(clock.y, O2_in_air.partialPressure) annotation (Line(
           points={{-84,51},{-84,32}},
           color={0,0,127},
           smooth=Smooth.None));
     connect(H2O.solution, solution.solution) annotation (Line(
-        points={{-54,-88},{-54,-99.74},{66.8,-99.74}},
-        color={158,66,200},
+        points={{-54,-88},{-54,-99.74},{60.8,-99.74}},
+        color={127,127,0},
         smooth=Smooth.None));
       annotation (          experiment(StopTime=15000, Tolerance=0.01),
                               Documentation(info="<html>
@@ -3792,35 +3842,36 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
       connect(R0_in_R.subunitSolution, DeoxyRHm[i].solution) annotation (Line(
           points={{-36,-52},{-36,-42},{-4,-42},{-4,-34}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(R0_in_R.subunitSolution, OxyRHm[i].solution) annotation (Line(
           points={{-36,-52},{-36,-42},{-92,-42},{-92,-18}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(OxyTHm[i].solution, T0_in_T.subunitSolution) annotation (Line(
           points={{18,-18},{18,-44},{54,-44},{54,-52}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(DeoxyTHm[i].solution, T0_in_T.subunitSolution) annotation (Line(
           points={{92,-34},{92,-44},{54,-44},{54,-52}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
       end for;
 
       connect(R0_in_R.solution, solution.solution) annotation (Line(
           points={{-46,-68},{-46,-98.42},{60,-98.42}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(T0_in_T.solution, solution.solution) annotation (Line(
           points={{64,-68},{64,-98.42},{60,-98.42}},
-          color={0,0,0},
+          color={127,127,0},
           smooth=Smooth.None));
       connect(oxygen_unbound.solution, solution.solution) annotation (Line(points={{2,6},{2,
-            -98.42},{60,-98.42}},              smooth=Smooth.None));
+            -98.42},{60,-98.42}},              smooth=Smooth.None,
+          color={127,127,0}));
       connect(solution.solution, H2O.solution) annotation (Line(
           points={{60,-98.42},{72,-98.42},{72,-94}},
-          color={158,66,200},
+          color={127,127,0},
           smooth=Smooth.None));
 
       annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
@@ -4067,11 +4118,11 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
     connect(electrone1.solution, anode.solution) annotation (Line(
         points={{82,-26},{80,-26},{80,-38.9},{88.8,-38.9}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(electrone.solution, cathode.solution) annotation (Line(
         points={{-76,40},{-88,40},{-88,-38.92},{-54.8,-38.92}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
       annotation (
       experiment(StopTime=1), Documentation(info=
@@ -4198,11 +4249,11 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(electrone1.solution, cathode.solution) annotation (Line(
         points={{-82,-12},{-82,-48.92},{-63.6,-48.92}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
     connect(electrone.solution, anode.solution) annotation (Line(
         points={{80,32},{80,-44.92},{84.4,-44.92}},
-        color={158,66,200},
+        color={127,127,0},
         smooth=Smooth.None));
       annotation (
       experiment(StopTime=100), Documentation(revisions=
@@ -4256,7 +4307,7 @@ extends Modelica.Icons.ExamplesPackage;
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
       Line(
       points={{-36,5},{-36,-8},{-40,-8},{-40,-19.4}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O1.port_a, fluidConversion1.substances[1]) annotation (Line(
       points={{-60,8},{-50,8}},
@@ -4264,16 +4315,16 @@ extends Modelica.Icons.ExamplesPackage;
       smooth=Smooth.None));
   connect(H2O1.solution, simpleSolution1.solution) annotation (Line(
       points={{-76,-2},{-76,-8},{-40,-8},{-40,-19.4}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
       Line(
       points={{42,5},{42,-8},{80,-8},{80,-20},{83.2,-20},{83.2,-19.38}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O2.solution, simpleSolution2.solution) annotation (Line(
       points={{80,-2},{80,-19.38},{83.2,-19.38}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O2.port_a, fluidConversion2.substances[1]) annotation (Line(
       points={{64,8},{56,8}},
@@ -4362,7 +4413,7 @@ extends Modelica.Icons.ExamplesPackage;
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
       Line(
       points={{-36,5},{-36,-8},{-40,-8},{-40,-19.4}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
     connect(H2O.port_a, fluidConversion1.substances[1]) annotation (Line(
         points={{-70,8},{-60,8},{-60,6},{-50,6}},
@@ -4370,16 +4421,16 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
     connect(H2O.solution, simpleSolution1.solution) annotation (Line(
         points={{-86,-2},{-86,-8},{-40,-8},{-40,-19.4}},
-        color={0,128,255},
+        color={127,127,0},
         smooth=Smooth.None));
   connect(fluidConversion2.solution, simpleSolution2.solution) annotation (
       Line(
       points={{42,5},{42,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O_.solution, simpleSolution2.solution) annotation (Line(
       points={{76,-2},{76,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(H2O_.port_a, fluidConversion2.substances[1]) annotation (Line(
       points={{60,8},{58,8},{58,6},{56,6}},
@@ -4403,7 +4454,7 @@ extends Modelica.Icons.ExamplesPackage;
         smooth=Smooth.None));
   connect(C2H5OH.solution, simpleSolution1.solution) annotation (Line(
       points={{-66,18},{-66,-8},{-40,-8},{-40,-19.4}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(C2H5OH.port_a, fluidConversion1.substances[2]) annotation (Line(
       points={{-50,28},{-50,10}},
@@ -4411,7 +4462,7 @@ extends Modelica.Icons.ExamplesPackage;
       smooth=Smooth.None));
   connect(C2H5OH_.solution, simpleSolution2.solution) annotation (Line(
       points={{86,20},{86,-6},{82,-6},{82,-19.38},{83.2,-19.38}},
-      color={0,128,255},
+      color={127,127,0},
       smooth=Smooth.None));
   connect(C2H5OH_.port_a, fluidConversion2.substances[2]) annotation (Line(
       points={{70,30},{56,30},{56,10}},
@@ -4425,7 +4476,10 @@ extends Modelica.Icons.ExamplesPackage;
         Tolerance=1e-010,
         __Dymola_fixedstepsize=1e-007,
         __Dymola_Algorithm="Dassl"),
-    __Dymola_experimentSetupOutput(doublePrecision=true));
+    __Dymola_experimentSetupOutput(doublePrecision=true),
+      Documentation(info="<html>
+<p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
+</html>"));
   end FluidAdapter2;
 
   annotation (
