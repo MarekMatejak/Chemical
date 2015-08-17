@@ -284,7 +284,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
   end Contact;
 
-  annotation (__Dymola_DocumentationClass=true, Documentation(info="<html>
+  annotation (DocumentationClass=true, Documentation(info="<html>
 <p>Package <b>Chemical </b>is a modelica package for <b>Electro-Chemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
 </html>"));
   end UsersGuide;
