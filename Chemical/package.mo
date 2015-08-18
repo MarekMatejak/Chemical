@@ -409,9 +409,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <h4>volume = &sum; volumeOfSubstances</h4>
 <h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
 <p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end Solution;
     extends Modelica.Icons.Package;
 
@@ -550,13 +548,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             Polygon(
               points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
               lineColor={0,0,0},
-              smooth=Smooth.None,
               fillColor={0,0,0},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
               lineColor={0,0,0},
-              smooth=Smooth.None,
               fillColor={0,0,0},
               fillPattern=FillPattern.Solid),
             Text(
@@ -1066,52 +1062,40 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       connect(port_b, moleFractionSensor1.port_a) annotation (Line(
           points={{-100,0},{-76,0}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(moleFractionSensor.port_a, port_a) annotation (Line(
           points={{76,0},{100,0}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(moleFractionSensor1.solution, solution) annotation (Line(
           points={{-60,-10},{-60,-100}},
-          color={0,128,255},
-          smooth=Smooth.None));
+          color={0,128,255}));
       connect(solution, moleFractionSensor.solution) annotation (Line(
           points={{-60,-100},{60,-100},{60,-10}},
-          color={0,128,255},
-          smooth=Smooth.None));
+          color={0,128,255}));
       connect(substancePump.substanceFlow, switch1.y) annotation (Line(
           points={{0,-60},{0,-49},{-2.22045e-015,-49}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(switch1.u2, greaterThreshold.y) annotation (Line(
           points={{2.22045e-015,-26},{0,-26},{0,-15}},
-          color={255,0,255},
-          smooth=Smooth.None));
+          color={255,0,255}));
       connect(product1.u1, moleFractionSensor.moleFraction) annotation (Line(
           points={{42,-32},{50,-32},{50,0},{56,0}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(product.u2, moleFractionSensor1.moleFraction) annotation (Line(
           points={{-42,-32},{-50,-32},{-50,0},{-56,0}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(port_b, substancePump.port_a) annotation (Line(
           points={{-100,0},{-86,0},{-86,-64},{-14,-64}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(substancePump.port_b, port_a) annotation (Line(
           points={{6,-64},{84,-64},{84,0},{100,0}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(product.y, switch1.u1) annotation (Line(
           points={{-19,-26},{-8,-26}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(product1.y, switch1.u3) annotation (Line(
           points={{19,-26},{8,-26}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
                             graphics={
@@ -1160,9 +1144,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </tr>
 </table>
 <br/>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+</html>"));
     end Stream;
 
     model FluidAdapter
@@ -1265,13 +1247,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.Ij = 0;
       solution.Vj = 0;
 
-      annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics), Icon(coordinateSystem(
+      annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false, extent={{-100,-100},{100,100}}), graphics={Line(
               points={{-90,0},{90,0}},
               color={158,66,200},
-              thickness=1,
-              smooth=Smooth.None)}));
+              thickness=1)}));
     end FluidAdapter;
   end Components;
 
@@ -1306,20 +1286,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
                 100,100}}), graphics={
             Line(
               points={{70,-10},{90,-10}},
-              color={127,0,127},
-              smooth=Smooth.None),
+              color={127,0,127}),
             Line(
               points={{70,10},{90,10}},
-              color={127,0,127},
-              smooth=Smooth.None),
+              color={127,0,127}),
             Line(
               points={{-90,10},{-70,10}},
-              color={127,0,127},
-              smooth=Smooth.None),
+              color={127,0,127}),
             Line(
               points={{-90,-10},{-70,-10}},
-              color={127,0,127},
-              smooth=Smooth.None),
+              color={127,0,127}),
             Text(
               extent={{-31,-5},{28,-64}},
               lineColor={0,0,0},
@@ -1355,8 +1331,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               textString="x"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1394,8 +1369,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             textString="u"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1436,8 +1410,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             textString="b"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1478,8 +1451,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             textString="c"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1518,8 +1490,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             textString="mx"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1556,8 +1527,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             textString="p"),
             Line(
               points={{70,0},{80,0}},
-              color={127,0,127},
-              smooth=Smooth.None)}),
+              color={127,0,127})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1823,7 +1793,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             fillPattern=FillPattern.Backward),
             Polygon(
               points={{-100,100},{100,-100},{100,100},{-100,100}},
-              smooth=Smooth.None,
               fillColor={159,159,223},
               fillPattern=FillPattern.Backward,
               pattern=LinePattern.None,
@@ -2280,37 +2249,31 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             Polygon(
               points={{54,24},{54,-24},{44,-22},{44,22},{54,24}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{30,20},{30,-20},{20,-18},{20,18},{30,20}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{8,16},{8,-16},{-2,-14},{-2,14},{8,16}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{-12,12},{-12,-12},{-22,-10},{-22,10},{-12,12}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{-34,8},{-34,-8},{-44,-6},{-44,6},{-34,8}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Polygon(
               points={{-56,4},{-56,-4},{-66,-2},{-66,2},{-56,4}},
               lineColor={0,0,127},
-              smooth=Smooth.None,
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid)}),
         Documentation(revisions="<html>
@@ -2707,9 +2670,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment,
-      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
-              100,100}})));
+        experiment);
     end PartialSubstance;
 
     partial model PartialSubstanceInSolution
@@ -3380,11 +3341,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <h4>freeEntropy = &int; EntropyChanges</h4>
 <h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
-</html>"),
-      Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-              100}}), graphics),
-      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
-              100,100}}), graphics));
+</html>"));
     end PartialSolution;
 
     partial model OnePortParallel
