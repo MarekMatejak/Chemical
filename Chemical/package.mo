@@ -18,7 +18,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Substance1.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Substance\">Chemical substance</a></p><p>The chemical substance integrates the amount of the chemical substance and from the properties of the connected solution it presents the electro-chemical potential of the substance using the <a href=\"modelica://Chemical.Interfaces.ChemicalPort\">SubstancePort</a>.</p><p>There are two basic <a href=\"modelica://Chemical.Interfaces.StateOfMatter\">states of matter</a>: <a href=\"modelica://Chemical.Interfaces.IdealGas\">ideal gas</a> and <a href=\"modelica://Chemical.Interfaces.Incompressible\">incompressible</a> substance. However, the user can easily (re)define their own state of matter by inserting the correct expressions for the pure substance <a href=\"modelica://Chemical.Interfaces.StateOfMatter.activityCoefficient\">activity coefficient</a>, <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarVolumePure\">molar volume</a>, <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarEntropyPure\">molar entropy</a> and <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarEnthalpyElectroneutral\">molar enthalpy</a>, based on the current solution state (temperature, pressure, electric potential and ionic strength) and the <a href=\"modelica://Chemical.Interfaces.StateOfMatter.SubstanceData\">substance data</a>. The object-oriented design allows users to define the substance data record as part of the state of matter package. Users can select substance parameters according to the state of matter, redefining the getter functions of substance properties.</p><p>The examples work with ideal gases in case of all gaseous substance and incompressible state of matter in case of liquid or solid. The definition data are the molar mass of the substance, the number of charges of the substance, the molar heat capacity of the substance at a constant pressure, free formation enthalpy, free formation Gibbs energy and density (if incompressible) &mdash; all at a temperature of 25&deg;C and pressure 1 bar. Since these parameters are usually recorded in chemical tables at this standard conditions. In this manner, more than 35 real chemical <a href=\"modelica://Chemical.Examples.Substances\">substances</a> in the example package of this chemical library have already been defined. The usage of these predefined substances&rsquo; data is very simple. In the parameter dialog of the chemical substance, the correct record with this data can be selected, as shown in Figure 1.</p><p>This setting is typically the most important setting of each chemical model. All equilibrium coefficients, standard voltages, dissolution coefficients, saturated vapor pressures and so on, are automatically solved using these substance data. As a result, for example, the chemical reaction component only needs to define the stoichiometry coefficients, and the connected substances reach equilibrium at the correct equilibrium coefficient.</p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Substance\">Chemical substance</a></p><p>The chemical substance integrates the amount of the chemical substance and from the properties of the connected solution it presents the electro-chemical potential of the substance using the <a href=\"modelica://Chemical.Interfaces.SubstancePort\">SubstancePort</a>.</p><p>There are two basic <a href=\"modelica://Chemical.Interfaces.StateOfMatter\">states of matter</a>: <a href=\"modelica://Chemical.Interfaces.IdealGas\">ideal gas</a> and <a href=\"modelica://Chemical.Interfaces.Incompressible\">incompressible</a> substance. However, the user can easily (re)define their own state of matter by inserting the correct expressions for the pure substance <a href=\"modelica://Chemical.Interfaces.StateOfMatter.activityCoefficient\">activity coefficient</a>, <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarVolumePure\">molar volume</a>, <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarEntropyPure\">molar entropy</a> and <a href=\"modelica://Chemical.Interfaces.StateOfMatter.molarEnthalpyElectroneutral\">molar enthalpy</a>, based on the current solution state (temperature, pressure, electric potential and ionic strength) and the <a href=\"modelica://Chemical.Interfaces.StateOfMatter.SubstanceData\">substance data</a>. The object-oriented design allows users to define the substance data record as part of the state of matter package. Users can select substance parameters according to the state of matter, redefining the getter functions of substance properties.</p><p>The examples work with ideal gases in case of all gaseous substance and incompressible state of matter in case of liquid or solid. The definition data are the molar mass of the substance, the number of charges of the substance, the molar heat capacity of the substance at a constant pressure, free formation enthalpy, free formation Gibbs energy and density (if incompressible) &mdash; all at a temperature of 25&deg;C and pressure 1 bar. Since these parameters are usually recorded in chemical tables at this standard conditions. In this manner, more than 35 real chemical <a href=\"modelica://Chemical.Examples.Substances\">substances</a> in the example package of this chemical library have already been defined. The usage of these predefined substances&rsquo; data is very simple. In the parameter dialog of the chemical substance, the correct record with this data can be selected, as shown in Figure 1.</p><p>This setting is typically the most important setting of each chemical model. All equilibrium coefficients, standard voltages, dissolution coefficients, saturated vapor pressures and so on, are automatically solved using these substance data. As a result, for example, the chemical reaction component only needs to define the stoichiometry coefficients, and the connected substances reach equilibrium at the correct equilibrium coefficient.</p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Reaction1.png\"/></p></td>
@@ -62,7 +62,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <td valign=\"middle\"><p>u .. electro-chemical potential of the chemical substance</p></td>
 <td valign=\"middle\"><p>q .. molar flow of the chemical substance</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.ChemicalPort\">Chemical.Interfaces.ChemicalPort</a> </p><p>ChemicalDefinitionPort, ChemicalUsePort</p></td>
+<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.SubstancePort\">Chemical.Interfaces.SubstancePort</a> </p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UsersGuide/ChemicalPorts.png\"/></p></td>
 </tr>
 <tr>
@@ -219,14 +219,13 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
   end Version_1_0;
 
-  class Version_1_1 "Version 1.1.0 (20.5.2015)"
+  class Version_1_1 "Version 1.1.0 (28.8.2015)"
     extends Modelica.Icons.ReleaseNotes;
 
   annotation (Documentation(info="<html>
 <ul>
-<li>new state of matter - ideal gas</li>
-<li>Solution with mechanical, thermal and electrical port </li>
-<li>Ideal gas solution</li>
+<li>New state of matter - ideal gas</li>
+<li>Solution with mechanical, thermal and electrical port for any state of matter</li>
 <li>Sensor of partial pressure</li>
 <li>Sensor of dissociation constant of chemical reaction for hypothetical pure substances&rsquo; scheme </li>
 <li>New Examples </li>
@@ -2393,12 +2392,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p>Definition of electro-chemical potential of the substance:</p>
-<p><b>u<sub>e-ch</sub>(x,T,V) = u&deg;(T) + R*T*ln(gamma*x) + z*F*V</b></p>
+<p><b>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</b></p>
 <h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
 <p>where</p>
 <p>x .. mole fraction of the substance in the solution</p>
 <p>T .. temperature in Kelvins</p>
-<p>V .. eletric potential of the substance</p>
+<p>v .. eletric potential of the substance</p>
 <p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
 <p>R .. gas constant</p>
 <p>F .. Faraday constant</p>
