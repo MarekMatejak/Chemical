@@ -882,7 +882,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
               {-56,-14},{-36,66}}), iconTransformation(
           extent={{-10,-40},{10,40}},
           rotation=90,
-          origin={-28,102})));
+          origin={-30,102})));
     equation
       //amount of macromolecule (all forms in conformation)
       nm*NumberOfSubunits + subunitSolution.nj = 0;
@@ -2459,7 +2459,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
             graphics={Rectangle(
               extent={{-40,40},{40,-40}},
               lineColor={158,66,200},
-              lineThickness=1),
+              lineThickness=1,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
        Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
