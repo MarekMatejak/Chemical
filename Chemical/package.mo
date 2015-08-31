@@ -356,17 +356,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       T=temperature_start;
       positionShift= if
                        (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
+      s=volume/SurfaceArea - positionShift;
     equation
 
       //hydraulic
-      if useMechanicPorts then
-        workFromEnvironment = der(f*s); //=der( (p-p0) * volume)
-        solution.p = BasePressure + f/SurfaceArea;
-      else
+      workFromEnvironment = -der(f*s); //=der( (p-p0) * volume)
+      solution.p = BasePressure - f/SurfaceArea;
+      if not useMechanicPorts then
         f=0;
         s=volume/SurfaceArea - positionShift;
-        solution.p = BasePressure;
-        workFromEnvironment = 0;
       end if;
 
       //electric
@@ -3248,7 +3246,8 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       Modelica.SIunits.Pressure p(start=100000) "Pressure";
 
-      Modelica.SIunits.Volume volume "Current volume of the solution";
+      Modelica.SIunits.Volume volume(stateSelect=StateSelect.prefer)
+      "Current volume of the solution";
 
       Interfaces.SolutionPort solution "Solution nonflows and flows"
                                       annotation (Placement(
