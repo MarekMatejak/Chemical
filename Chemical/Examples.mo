@@ -3481,9 +3481,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics));
+</html>"));
     end Allosteric_Hemoglobin2_MWC;
 
     model HemoglobinQuaternaryForm
@@ -3632,20 +3630,16 @@ extends Modelica.Icons.ExamplesPackage;
       for i in 1:4 loop
         connect(h[i].products[2], H) annotation (Line(
             points={{56,20},{60,20},{60,-2}},
-            color={158,66,200},
-            smooth=Smooth.None));
+            color={158,66,200}));
         connect(speciation.subunitSolution, HmA[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{84,-44},{84,12},{88,12},{88,14}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
         connect(speciation.subunitSolution, HmAH[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{84,-44},{84,12},{14,12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
         connect(HmA[i].port_a, speciation.subunits[i+4]) annotation (Line(
           points={{72,24},{72,-52},{-11,-52},{-11,-51.8}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
 
         connect(o[i].products[2], O2) annotation (Line(points={{-40,26},{-32,26},
                 {-32,42},{-18,42}},
@@ -3663,80 +3657,63 @@ extends Modelica.Icons.ExamplesPackage;
 
         connect(z[i].products[2], H) annotation (Line(
             points={{-34,-30},{-22,-30},{-22,-2},{60,-2}},
-            color={158,66,200},
-            smooth=Smooth.None));
+            color={158,66,200}));
         connect(speciation.subunitSolution, HmNH2[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{8,-44}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
         connect(HmNH2[i].port_a, speciation.subunits[i + 8]) annotation (Line(
           points={{-8,-34},{-11,-34},{-11,-51.8}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
         connect(HmNH3[i].solution, speciation.subunitSolution) annotation (Line(
           points={{-80,-42},{-80,-44},{-4,-44},{-4,-56}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
 
         connect(c[i].products[2], H) annotation (Line(
             points={{40,-30},{46,-30},{46,-2},{60,-2}},
-            color={158,66,200},
-            smooth=Smooth.None));
+            color={158,66,200}));
         connect(CO2, c[i].substrates[2]) annotation (Line(
             points={{2,-16},{16,-16},{16,-30},{20,-30}},
-            color={158,66,200},
-            smooth=Smooth.None));
+            color={158,66,200}));
         connect(HmNHCOO[i].solution, speciation.subunitSolution) annotation (Line(
           points={{66,-44},{-4,-44},{-4,-56}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       end for;
 
       connect(speciation.solution, solution) annotation (Line(
           points={{-14,-72},{-41,-72}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(speciation.port_a, selectedForm) annotation (Line(
           points={{2,-72},{36,-72}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(HmAH.port_a,h. substrates[1]) annotation (Line(
           points={{30,22},{36,22}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(h.products[1],HmA. port_a) annotation (Line(
           points={{56,24},{72,24}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
 
       connect(z.products[1], HmNH2.port_a) annotation (Line(
           points={{-34,-34},{-8,-34}},
-          color={107,45,134},
-          smooth=Smooth.None));
+          color={107,45,134}));
 
       connect(HmNH3.port_a, z.substrates[1]) annotation (Line(
           points={{-64,-32},{-54,-32}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
 
       connect(HmNH2.port_a, c.substrates[1]) annotation (Line(
           points={{-8,-34},{20,-34}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
 
       connect(HmNHCOO.port_a, c.products[1]) annotation (Line(
           points={{50,-34},{40,-34}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
 
       connect(solution, solution) annotation (Line(
           points={{-41,-72},{-41,-72}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(H, H) annotation (Line(
           points={{60,-2},{60,-2}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
@@ -3754,12 +3731,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}),
-                        graphics),
-        Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
-            graphics));
+</html>"));
     end HemoglobinQuaternaryForm;
 
     model HemoglobinMultipleAllostery
@@ -3836,7 +3808,6 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
             origin={-36,58})));
       Chemical.Components.GasSolubility partialPressure1(useWaterCorrection=
             false, KC=KC) annotation (Placement(transformation(extent={{-10,-10},
@@ -3883,7 +3854,6 @@ extends Modelica.Icons.ExamplesPackage;
           MoleFraction=initialH,
         Temperature=310.15)
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-            rotation=0,
             origin={-12,-18})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
             *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
@@ -3930,36 +3900,28 @@ extends Modelica.Icons.ExamplesPackage;
 
       connect(relaxed.solution, solution.solution) annotation (Line(
           points={{-48,-42},{-48,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(relaxed.O2, O2_free.port_a) annotation (Line(
           points={{-52,-26},{-52,10},{-56,10}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(relaxed.selectedForm, quaternaryForm.substrates[1]) annotation (Line(
           points={{-40,-42},{-22,-42}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.solution, solution.solution) annotation (Line(
           points={{26,-42},{26,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(tensed.O2, O2_free.port_a) annotation (Line(
           points={{30,-26},{30,10},{-56,10}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.selectedForm, quaternaryForm.products[1]) annotation (Line(
           points={{18,-42},{-2,-42}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, relaxed.H) annotation (Line(
           points={{-22,-18},{-36,-18},{-36,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, tensed.H) annotation (Line(
           points={{-22,-18},{14,-18},{14,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_gas.port_a, partialPressure2.gas_port) annotation (Line(
           points={{48,50},{48,42}},
           color={158,66,200}));
@@ -3967,16 +3929,13 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Line(points={{48,22},{48,2},{56,2}}, color={158,66,200}));
       connect(CO2_free.port_a, tensed.CO2) annotation (Line(
           points={{56,2},{22,2},{22,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.port_a, relaxed.CO2) annotation (Line(
           points={{56,2},{-44,2},{-44,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.solution, solution.solution) annotation (Line(
           points={{72,-8},{82,-8},{82,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
@@ -3993,10 +3952,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics),
-        __Dymola_experimentSetupOutput);
+</html>"));
     end HemoglobinMultipleAllostery;
 
     model HemoglobinCarboxylation "Multiple-ligand allosteric hemoglobin model"
@@ -4073,7 +4029,6 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
             origin={-36,58})));
       Chemical.Components.GasSolubility partialPressure1(useWaterCorrection=
             false, KC=KC) annotation (Placement(transformation(extent={{-10,-10},
@@ -4121,7 +4076,6 @@ extends Modelica.Icons.ExamplesPackage;
         useMoleFractionInput=true,
         Temperature=310.15)
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-            rotation=0,
             origin={-10,-14})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
             *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
@@ -4132,7 +4086,6 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15)                                   annotation (Placement(
             transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
             origin={34,56})));
       Chemical.Components.GasSolubility partialPressure2(useWaterCorrection=
             false, KC=KC) annotation (Placement(transformation(extent={{-10,-10},
@@ -4170,36 +4123,28 @@ extends Modelica.Icons.ExamplesPackage;
 
       connect(relaxed.solution, solution.solution) annotation (Line(
           points={{-48,-42},{-48,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(relaxed.O2, O2_free.port_a) annotation (Line(
           points={{-52,-26},{-52,10},{-56,10}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(relaxed.selectedForm, quaternaryForm.substrates[1]) annotation (Line(
           points={{-40,-42},{-22,-42}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.solution, solution.solution) annotation (Line(
           points={{26,-42},{26,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(tensed.O2, O2_free.port_a) annotation (Line(
           points={{30,-26},{30,10},{-56,10}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.selectedForm, quaternaryForm.products[1]) annotation (Line(
           points={{18,-42},{-2,-42}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, relaxed.H) annotation (Line(
           points={{-20,-14},{-36,-14},{-36,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, tensed.H) annotation (Line(
           points={{-20,-14},{-24,-14},{-24,-14},{-24,-14},{-24,-26},{14,-26},{14,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_gas.port_a, partialPressure2.gas_port) annotation (Line(
           points={{44,56},{44,56},{48,56},{48,42}},
           color={158,66,200}));
@@ -4207,28 +4152,22 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Line(points={{48,22},{48,2},{56,2}}, color={158,66,200}));
       connect(CO2_free.port_a, tensed.CO2) annotation (Line(
           points={{56,2},{22,2},{22,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.port_a, relaxed.CO2) annotation (Line(
           points={{56,2},{-44,2},{-44,-26}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.solution, solution.solution) annotation (Line(
           points={{72,-8},{82,-8},{82,-54},{60,-54},{60,-55.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(exp.y, H.moleFractionInput) annotation (Line(
           points={{25,-78},{42,-78},{42,-14},{0,-14}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(pHSource.y, gain.u) annotation (Line(
           points={{-39,-78},{-30,-78}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(exp.u, gain.y) annotation (Line(
           points={{2,-78},{-7,-78}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       annotation (          experiment(StopTime=0.6, __Dymola_Algorithm="Dassl"),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
@@ -4245,10 +4184,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics),
-        __Dymola_experimentSetupOutput);
+</html>"));
     end HemoglobinCarboxylation;
 
     model HemoglobinTitration "Multiple-ligand allosteric hemoglobin model"
@@ -4325,7 +4261,6 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
             origin={-36,86})));
       Chemical.Components.GasSolubility partialPressure1(useWaterCorrection=
             false, KC=KC) annotation (Placement(transformation(extent={{-10,-10},
@@ -4373,7 +4308,6 @@ extends Modelica.Icons.ExamplesPackage;
         useMoleFractionInput=true,
         Temperature=310.15)
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-            rotation=0,
             origin={-10,14})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
             *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
@@ -4384,7 +4318,6 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15)                                   annotation (Placement(
             transformation(
             extent={{-10,-10},{10,10}},
-            rotation=0,
             origin={34,84})));
       Chemical.Components.GasSolubility partialPressure2(useWaterCorrection=
             false, KC=KC) annotation (Placement(transformation(extent={{-10,-10},
@@ -4422,36 +4355,28 @@ extends Modelica.Icons.ExamplesPackage;
 
       connect(relaxed.solution, solution.solution) annotation (Line(
           points={{-48,-14},{-48,-26},{60,-26},{60,-27.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(relaxed.O2, O2_free.port_a) annotation (Line(
           points={{-52,2},{-52,38},{-56,38}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(relaxed.selectedForm, quaternaryForm.substrates[1]) annotation (Line(
           points={{-40,-14},{-22,-14}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.solution, solution.solution) annotation (Line(
           points={{26,-14},{26,-26},{60,-26},{60,-27.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(tensed.O2, O2_free.port_a) annotation (Line(
           points={{30,2},{30,38},{-56,38}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(tensed.selectedForm, quaternaryForm.products[1]) annotation (Line(
           points={{18,-14},{-2,-14}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, relaxed.H) annotation (Line(
           points={{-20,14},{-36,14},{-36,2}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(H.port_a, tensed.H) annotation (Line(
           points={{-20,14},{-24,14},{-24,2},{14,2}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_gas.port_a, partialPressure2.gas_port) annotation (Line(
           points={{44,84},{44,84},{48,84},{48,70}},
           color={158,66,200}));
@@ -4460,28 +4385,22 @@ extends Modelica.Icons.ExamplesPackage;
                                                          color={158,66,200}));
       connect(CO2_free.port_a, tensed.CO2) annotation (Line(
           points={{56,30},{22,30},{22,2}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.port_a, relaxed.CO2) annotation (Line(
           points={{56,30},{-44,30},{-44,2}},
-          color={158,66,200},
-          smooth=Smooth.None));
+          color={158,66,200}));
       connect(CO2_free.solution, solution.solution) annotation (Line(
           points={{72,20},{82,20},{82,-26},{60,-26},{60,-27.12}},
-          color={127,127,0},
-          smooth=Smooth.None));
+          color={127,127,0}));
       connect(exp.y, H.moleFractionInput) annotation (Line(
           points={{25,-50},{42,-50},{42,14},{0,14}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(pHSource.y, gain.u) annotation (Line(
           points={{-39,-50},{-30,-50}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       connect(exp.u, gain.y) annotation (Line(
           points={{2,-50},{-7,-50}},
-          color={0,0,127},
-          smooth=Smooth.None));
+          color={0,0,127}));
       annotation (          experiment(StopTime=0.6, __Dymola_Algorithm="Dassl"),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
@@ -4498,10 +4417,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
-</html>"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics),
-        __Dymola_experimentSetupOutput);
+</html>"));
     end HemoglobinTitration;
   end Hemoglobin;
 
