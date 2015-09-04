@@ -656,7 +656,7 @@ extends Modelica.Icons.ExamplesPackage;
       experiment(StopTime=0.001));
   end ExothermicReaction;
 
-  model HydrogenCombustion "Hydrogen burning piston"
+  model HydrogenCombustion "Hydrogen combustion in piston"
     extends Modelica.Icons.Example;
 
     parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
@@ -692,7 +692,9 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction(
       nS=2,
       s={2,1},
-      p={2}) annotation (Placement(transformation(extent={{-10,-14},{10,6}})));
+      p={2},
+      kE=4e-05)
+             annotation (Placement(transformation(extent={{-10,-14},{10,6}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
         Placement(transformation(
           extent={{-10,-10},{10,10}},
@@ -746,16 +748,16 @@ extends Modelica.Icons.ExamplesPackage;
       points={{0,-57},{0,-62}},
       color={0,127,0}));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
-<p>The gaseous reaction of burning hydrogen: </p>
-<table width=100%><tr>
-<th>2 H<sub>2</sub> + O<sub>2</sub> &LT;-&GT; 2 H<sub>2</sub>O</th>
-<td>(1)</td>
+<p>The gaseous reaction of hydrogen combustion: </p>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p align=\"center\"><b>2 H<sub>2</sub> + O<sub>2</sub> &LT;-&GT; 2 H<sub>2</sub>O</b></p></td>
+<td><p>(1)</p></td>
 </tr>
 </table>
-<p>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
+<p><br>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
 <p>Building this model using the Chemical library components is easy. First, we drag and drop the library class &lsquo;Components.Solution&rsquo; into the diagram of our new model, labeled &lsquo;idealGas&rsquo; in Figure 4. In parameter dialog of this solution we check &ldquo;useThermalPorts&rdquo; and &ldquo;useMechanicsPorts&rdquo; to enable the thermal and mechanical interface. In the same dialog we need to set the area of the piston (e.g., 1 dm<sup>2</sup>), where the pressure provides the force of the green mechanical port of the uppermost side. The next parameter is the ambient external pressure surrounding the system (e.g., 1 bar). All three chemical substances of the reaction (1) can be added by dragging and dropping the library class &lsquo;Components.Substance&rsquo;. Because this model uses gases, the state of matter must be changed to some gas, such as the ideal gas prepared as &lsquo;Interfaces.IdealGas&rsquo;. The substance data must be selected to define the appropriate substances such as &lsquo;Hydrogen_gas&rsquo;, &lsquo;.Oxygen_gas&rsquo; and &lsquo;.Water_gas&rsquo; in package &lsquo;Examples.Substances&rsquo;. In addition, the initial amounts of substances can be prepared for the ideal solution of hydrogen and oxygen gases at a ratio 2:1 to attain the chemical equation above, with the expectation that at the end of the burning process, only water vapor would be presented. Therefore, the initial values of H<sub>2</sub> particles could be set to 26 mmol and of O<sub>2</sub> particles as 13 mmol. All substances must be connected with the &lsquo;idealGas&rsquo; using the blue colored solution port situated on the bottom side of each substance and solution. Then, the chemical reaction is inserted into the diagram of this model as library class &lsquo;Components.Reaction&rsquo;, and it is set to two substrates (nS=2) with stoichiometry s={2,1} and one product with stoichiometry p={2} to represent the reaction (3). The substances are then connected using violet colored substance connectors with appropriate indexes: H<sub>2</sub> to substrates[1], O<sub>2</sub> to substrates[2] and H<sub>2</sub>O to products[1]. At this point, the model is prepared to simulate the conditions of an unconnected heat port and an unconnected mechanical port. This simulation reaches the theoretical ideal of thermally isolated (zero heat flow from/to the solution) and isobaric (zero force generated on piston) conditions. </p>
 <p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
-<p>Simulation of the hydrogen-burning experiment. The initial phase of the explosion occurs very rapidly &mdash; the temperature reaches immediately 3600&deg;C from 25&deg;C and the pressure reaches 10 bars from 1 bar. This pressure and this temperature are generated because of a very strong spring, which allows the volume to change only by about 8&percnt; during the explosion. </p>
+<p><font style=\"color: #222222; \">Mueller, M. A., Kim, T. J., Yetter, R. A., &AMP; Dryer, F. L. (1999). Flow reactor studies and kinetic modeling of the H2/O2 reaction.&nbsp;<i>International Journal of Chemical Kinetics</i>,&nbsp;<i>31</i>(2), 113-125.</font></p>
 <p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
 </html>"));
   end HydrogenCombustion;
@@ -1775,7 +1777,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-        points={{-22,-60},{12,-60},{12,-26},{12,-26}},
+        points={{-22,-60},{12,-60},{12,-26}},
         color={158,66,200},
         thickness=0.5));
     connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
@@ -3720,17 +3722,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p>Before silumation in &QUOT;Dymola 2014 FD01&QUOT; please chose &QUOT;Euler&QUOT; method!</p>
-<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
-<p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
-<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms R and T.</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
-<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
-<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
 </html>"));
     end HemoglobinQuaternaryForm;
 
@@ -3942,16 +3934,17 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
-<p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
-<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms relaxed(R) and tensed(T).</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
-<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
-<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p>Oxygen dissociation curve of hemoglobin.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_pH_CO2_Hb.png\"/></p>
+<p>J. W. Severinghaus, &QUOT;Simple, accurate equations for human blood O2 dissociation computations,&QUOT; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
+<p><br>pO2 .. partial pressure of oxygen in gas</p>
+<p>pCO2 .. partial pressure of carbon dioxide</p>
+<p>sO2 .. oxygen saturation of hemoglobin</p>
+<p>pH = log10(aH), where aH is mole fraction based activity of hydrogen ions</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_T_Hb.png\"/></p>
+<p>R. B. Reeves, &QUOT;The effect of temperature on the oxygen equilibrium curve of human blood,&QUOT; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
+<p><br>T .. temperature</p>
 </html>"));
     end HemoglobinMultipleAllostery;
 
@@ -4174,16 +4167,10 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
-<p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
-<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms relaxed(R) and tensed(T).</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
-<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
-<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p>Binding of carbon dioxide to hemoglobin</p>
+<p><br>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/Examples/CDDC_Hb.png\"/></p>
+<p>C. Bauer and E. Schr&ouml;der, &QUOT;Carbamino compounds of haemoglobin in human adult and foetal blood,&QUOT; Journal of Physiology, vol. 227, pp. 457-471, 1972.</p>
 </html>"));
     end HemoglobinCarboxylation;
 
@@ -4407,16 +4394,10 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
-<p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
-<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms relaxed(R) and tensed(T).</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
-<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
-<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p>Bohr&apos;s protons released during hemoglobin oxygenation</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/Examples/Bohr_Hb.png\"/></p>
+<p>O. Siggaard-Andersen, &QUOT;Oxygen-Linked Hydrogen Ion Binding of Human Hemoglobin. Effects of Carbon Dioxide and 2, 3-Diphosphoglycerate I. Studies on Erythrolysate,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, vol. 27, pp. 351-360, 1971.</p>
 </html>"));
     end HemoglobinTitration;
   end Hemoglobin;
