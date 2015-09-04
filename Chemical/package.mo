@@ -337,11 +337,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.Electrical.Analog.Interfaces.PositivePin electricPin(v=solution.v,i=solution.i) if useElectricPort annotation (Placement(
             transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
               extent={{-62,98},{-58,102}})));
-      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=s) if useMechanicPorts
+      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=top_s) if useMechanicPorts
       "The pressure of solution generate force on prescribed surface."
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
             iconTransformation(extent={{-2,98},{2,102}})));
-      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom(f=-f,s=s - volume/SurfaceArea + positionShift) if useMechanicPorts
+      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom(f=-f,s=top_s - ds) if useMechanicPorts
       "Fix of the cilinder on bottom."   annotation (Placement(transformation(
               extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
                 -100}})));
@@ -349,22 +349,23 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
   protected
       parameter Modelica.SIunits.Position positionShift(fixed=false)
       "=0 absolute, otherwise negative";
-       Modelica.SIunits.Position s;
+       Modelica.SIunits.Position top_s,ds;
        Modelica.SIunits.Force f;
 
     initial equation
       T=temperature_start;
       positionShift= if
                        (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
-      s=volume/SurfaceArea - positionShift;
+      //s=volume/SurfaceArea - positionShift;
     equation
 
       //hydraulic
-      workFromEnvironment = -der(f*s); //=der( (p-p0) * volume)
+      ds = volume/SurfaceArea - positionShift;
+      workFromEnvironment = -der(f*ds); //=der( (p-p0) * volume)
       solution.p = BasePressure - f/SurfaceArea;
       if not useMechanicPorts then
         f=0;
-        s=volume/SurfaceArea - positionShift;
+        top_s=ds; //equivalent for bottom_s==0
       end if;
 
       //electric
@@ -455,7 +456,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=amountOfSubstance*molarMass;
       solution.Vj=amountOfSubstance*molarVolume;
       solution.Gj=amountOfSubstance*port_a.u;
-      solution.Hj=amountOfSubstance*molarEnthalpy;
+    //  solution.Hj=amountOfSubstance*molarEnthalpy;
       solution.Qj=Modelica.Constants.F*amountOfSubstance*z;
       solution.Ij=(1/2) * ( amountOfSubstance * z^2);
 
@@ -665,7 +666,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=0;
       solution.Vj=0;
       solution.Gj=0;
-      solution.Hj=0;
+     // solution.Hj=0;
       solution.Qj=0;
       solution.Ij=0;
 
@@ -907,7 +908,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.mj + solution.mj = 0;
       subunitSolution.Vj + solution.Vj = 0;
       subunitSolution.Gj + solution.Gj = 0;
-      subunitSolution.Hj + solution.Hj = 0;
+    //  subunitSolution.Hj + solution.Hj = 0;
       subunitSolution.dV + solution.dV = 0;
 
       //shift global solution status to subunits
@@ -918,7 +919,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.m = solution.m;
       subunitSolution.V = solution.V;
       subunitSolution.G = solution.G;
-      subunitSolution.H = solution.H;
+    //  subunitSolution.H = solution.H;
       subunitSolution.Q = solution.Q;
       subunitSolution.I = solution.I;
 
@@ -1216,7 +1217,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         + Modelica.Constants.F*electricPotential*StateOfMatter.chargeNumberOfIon(Medium.substanceData,temperature,pressure,electricPotential,solution.I);
 
       //energy balance
-      fluid.h_outflow = solution.H / solution.m;
+      //fluid.h_outflow = solution.H / solution.m;
+      fluid.h_outflow = Medium.specificEnthalpy(Medium.setState_pTX(pressure, temperature, fluid.Xi_outflow, electricPotential, solution.I));
+
       actualStreamThermodynamicState = Medium.setState_phX(pressure, actualStream(fluid.h_outflow), actualStream(fluid.Xi_outflow), electricPotential, solution.I);
 
       //The first idea was to changne only the enthalpy as extensive energy, but it changes the temperature with change of volume during isobaric and isothermic conditions!!!
@@ -1237,7 +1240,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
-      solution.Hj = 0;
+    //  solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -2355,7 +2358,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=-nFreeBuffer*molarMass;
       solution.Vj=-nFreeBuffer*molarVolume;
       solution.Gj=-nFreeBuffer*port_a.u;
-      solution.Hj=-nFreeBuffer*molarEnthalpy;
+    //  solution.Hj=-nFreeBuffer*molarEnthalpy;
       solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
       solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
 
@@ -2390,12 +2393,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p>Definition of electro-chemical potential of the substance:</p>
-<p><b>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</b></p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
 <h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
 <p>where</p>
 <p>x .. mole fraction of the substance in the solution</p>
 <p>T .. temperature in Kelvins</p>
-<p>v .. eletric potential of the substance</p>
+<p>v .. eletric potential of the solution</p>
 <p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
 <p>R .. gas constant</p>
 <p>F .. Faraday constant</p>
@@ -2706,7 +2709,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
-      solution.Hj = 0;
+    //  solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -3199,9 +3202,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       //  Modelica.SIunits.Enthalpy U "Free internal energy of the solution";
 
       //free enthalpy of the solution
-      Modelica.SIunits.Enthalpy H "Free enthalpy of the solution";
-      flow Modelica.SIunits.Energy Hj
-      "Free enthalpy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+    //  Modelica.SIunits.Enthalpy H "Free enthalpy of the solution";
+    //  flow Modelica.SIunits.Energy Hj
+    //    "Free enthalpy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //electric charge of the substance
       Modelica.SIunits.ElectricCharge Q "Electric charge of the solution";
@@ -3275,11 +3278,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Current electric charge of the solution";
                                               //(start=electricCharge_start)
 
-       Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
+    //   Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
     initial equation
 
-     // freeInternalEnergy = 0;
-      freeEnthalpy + solution.Hj = 0;
+      freeInternalEnergy = 0;
+      //freeEnthalpy + solution.Hj = 0;
       //der(freeEnthalpy) = -solution.dH;
     equation
       //internal energy
@@ -3297,12 +3300,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.p = p;
       solution.T = T;
       solution.G = freeGibbsEnergy;
-      solution.H = freeEnthalpy;
+    //  solution.H = freeEnthalpy;
 
       //  solution.U = freeInternalEnergy;
       solution.Q = charge;
       solution.V = volume;
-      der_freeEnthalpy = der(freeEnthalpy);
+    //  der_freeEnthalpy = der(freeEnthalpy);
 
       //Extensive properties of the solution:
 

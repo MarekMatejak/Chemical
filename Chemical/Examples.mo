@@ -656,7 +656,7 @@ extends Modelica.Icons.ExamplesPackage;
       experiment(StopTime=0.001));
   end ExothermicReaction;
 
-  model PowerGeneration "Hydrogen burning piston"
+  model HydrogenCombustion "Hydrogen burning piston"
     extends Modelica.Icons.Example;
 
     parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
@@ -758,7 +758,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Simulation of the hydrogen-burning experiment. The initial phase of the explosion occurs very rapidly &mdash; the temperature reaches immediately 3600&deg;C from 25&deg;C and the pressure reaches 10 bars from 1 bar. This pressure and this temperature are generated because of a very strong spring, which allows the volume to change only by about 8&percnt; during the explosion. </p>
 <p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
 </html>"));
-  end PowerGeneration;
+  end HydrogenCombustion;
 
   model WaterVaporization "Evaporation of water"
      extends Modelica.Icons.Example;
@@ -4943,6 +4943,78 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
   end FluidAdapter2;
 
+  model HydrogenCombustion2 "Hydrogen burning piston"
+    extends Modelica.Icons.Example;
+
+    parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
+   // parameter Modelica.SIunits.Pressure p=100000 "Initial pressure";
+    parameter Modelica.SIunits.Temperature T=298.15 "Initial temperature";
+
+    parameter Modelica.SIunits.Area A=0.01 "Cross area of cylinder";
+
+    //p*V=n*R*T
+   // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
+   //   "Initial amount of substances in sulution";
+
+    Chemical.Components.Solution idealGas(
+      SurfaceArea=A,
+      useMechanicPorts=true,
+      useThermalPort=true,
+      temperature_start=303.15)
+      annotation (Placement(transformation(extent={{-50,-56},{50,44}})));
+                     // AmbientPressure=p)
+    //  volume_start=V,
+    Chemical.Components.Substance H2O_gas(substanceData=Substances.Water_gas,
+        redeclare package stateOfMatter = Chemical.Interfaces.IdealGas)
+      annotation (Placement(transformation(extent={{44,-14},{24,6}})));
+    Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
+        Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={0,58})));
+    Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=2)
+      annotation (Placement(transformation(extent={{-40,-86},{-20,-66}})));
+    Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
+      annotation (Placement(transformation(extent={{40,-86},{20,-66}})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=180,
+          origin={0,72})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed1
+      annotation (Placement(transformation(extent={{-10,-72},{10,-52}})));
+  equation
+  connect(H2O_gas.solution, idealGas.solution) annotation (Line(
+      points={{40,-14},{40,-32},{30,-32},{30,-55}},
+      color={127,127,0}));
+    connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
+        points={{0,44},{0,48}},
+        color={0,127,0}));
+    connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
+        points={{-30,-57},{-30,-62},{-48,-62},{-48,-76},{-40,-76}},
+        color={191,0,0}));
+    connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
+        points={{-20,-76},{20,-76}},
+        color={191,0,0}));
+    connect(fixed.flange, spring.flange_b) annotation (Line(
+        points={{0,72},{0,68}},
+        color={0,127,0}));
+  connect(idealGas.bottom, fixed1.flange) annotation (Line(
+      points={{0,-57},{0,-62}},
+      color={0,127,0}));
+    annotation ( experiment(StopTime=1), Documentation(info="<html>
+<p>The gaseous reaction of burning hydrogen: </p>
+<table width=100%><tr>
+<th>2 H<sub>2</sub> + O<sub>2</sub> &LT;-&GT; 2 H<sub>2</sub>O</th>
+<td>(1)</td>
+</tr>
+</table>
+<p>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
+<p>Building this model using the Chemical library components is easy. First, we drag and drop the library class &lsquo;Components.Solution&rsquo; into the diagram of our new model, labeled &lsquo;idealGas&rsquo; in Figure 4. In parameter dialog of this solution we check &ldquo;useThermalPorts&rdquo; and &ldquo;useMechanicsPorts&rdquo; to enable the thermal and mechanical interface. In the same dialog we need to set the area of the piston (e.g., 1 dm<sup>2</sup>), where the pressure provides the force of the green mechanical port of the uppermost side. The next parameter is the ambient external pressure surrounding the system (e.g., 1 bar). All three chemical substances of the reaction (1) can be added by dragging and dropping the library class &lsquo;Components.Substance&rsquo;. Because this model uses gases, the state of matter must be changed to some gas, such as the ideal gas prepared as &lsquo;Interfaces.IdealGas&rsquo;. The substance data must be selected to define the appropriate substances such as &lsquo;Hydrogen_gas&rsquo;, &lsquo;.Oxygen_gas&rsquo; and &lsquo;.Water_gas&rsquo; in package &lsquo;Examples.Substances&rsquo;. In addition, the initial amounts of substances can be prepared for the ideal solution of hydrogen and oxygen gases at a ratio 2:1 to attain the chemical equation above, with the expectation that at the end of the burning process, only water vapor would be presented. Therefore, the initial values of H<sub>2</sub> particles could be set to 26 mmol and of O<sub>2</sub> particles as 13 mmol. All substances must be connected with the &lsquo;idealGas&rsquo; using the blue colored solution port situated on the bottom side of each substance and solution. Then, the chemical reaction is inserted into the diagram of this model as library class &lsquo;Components.Reaction&rsquo;, and it is set to two substrates (nS=2) with stoichiometry s={2,1} and one product with stoichiometry p={2} to represent the reaction (3). The substances are then connected using violet colored substance connectors with appropriate indexes: H<sub>2</sub> to substrates[1], O<sub>2</sub> to substrates[2] and H<sub>2</sub>O to products[1]. At this point, the model is prepared to simulate the conditions of an unconnected heat port and an unconnected mechanical port. This simulation reaches the theoretical ideal of thermally isolated (zero heat flow from/to the solution) and isobaric (zero force generated on piston) conditions. </p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
+<p>Simulation of the hydrogen-burning experiment. The initial phase of the explosion occurs very rapidly &mdash; the temperature reaches immediately 3600&deg;C from 25&deg;C and the pressure reaches 10 bars from 1 bar. This pressure and this temperature are generated because of a very strong spring, which allows the volume to change only by about 8&percnt; during the explosion. </p>
+<p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
+</html>"));
+  end HydrogenCombustion2;
   annotation (
     conversion(from(
         version="1",
