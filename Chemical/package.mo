@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models (chemical reactions, diffusions, membrane channels, gas dissolutions, electrochemical cells, ...)"
+package Chemical "Library of Electro-Chemical models"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -219,7 +219,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
   end Version_1_0;
 
-  class Version_1_1 "Version 1.1.0 (28.8.2015)"
+  class Version_1_1 "Version 1.1.0 (5.9.2015)"
     extends Modelica.Icons.ReleaseNotes;
 
   annotation (Documentation(info="<html>
@@ -3815,8 +3815,8 @@ Modelica source.
 preferredView="info",
 version="1.1.0",
 versionBuild=1,
-versionDate="2015-05-20",
-dateModified = "2015-05-20 17:14:41Z",
+versionDate="2015-09-05",
+dateModified = "2015-09-05 17:14:41Z",
 conversion(
   from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos")),
@@ -3826,8 +3826,8 @@ uses(Modelica(version="3.2.1")),
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
 <p><br><i>This Modelica package is&nbsp;<u>free</u>&nbsp;software and the use is completely at&nbsp;<u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see&nbsp;<a href=\"modelica://Chemical.UsersGuide.ModelicaLicense2\">UsersGuide.ModelicaLicense2</a>&nbsp;or visit&nbsp;<a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i></p>
 </html>", info="<html>
-<p>At firs there was an equilibration of concentrations, but it does not work at all. In reality for almost all electro-chemical processes is equilibrated always the <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a>, not only the concentration.</p>
-<p>The pattern is so strong, that the equilibriation of electro-chemical potential can be aplicated for almost all components: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
+<p>During each electro-chemical process an <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a> of the substances is equilibrating and all thermodynamical properties of the homogenous chemical solutions are evaluated. </p>
+<p>Processes: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
 <p>Please see the <a href=\"modelica://Chemical.UsersGuide.Overview\">overview</a>.</p>
 </html>"));
 end Chemical;

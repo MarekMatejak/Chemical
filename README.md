@@ -1,6 +1,12 @@
 # Chemical
 Modelica Library of Chemical processes
 
+## Current release
+
+Download [Chemical 1.1.0 (2015-09-05)](../../archive/v1.1.0.zip)
+
+## Description
+
 * Chemical Solution 
   * full thermodynamical state support: amount of substances, pressure, volume, temperature, electric potential, enthalpy, entropy
   * thermal, electric and mechanic connectors from Modelica Standard Library 3.2
