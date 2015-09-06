@@ -2331,7 +2331,7 @@ package Chemical "Library of Electro-Chemical models"
       "Is buffer value of the substance an input?"
           annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
-          extends Interfaces.ConditionalKinetics;
+          extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
 
           Real bufferValue(final unit="1");
 

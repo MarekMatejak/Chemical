@@ -2283,8 +2283,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Solution blood_plasma(temperature_start=310.15)
         annotation (Placement(transformation(extent={{-100,4},{100,56}})));
 
-      Chemical.Components.Substance HCO3(amountOfSubstance_start=0.024,
-          substanceData=Chemical.Examples.Substances.Bicarbonate_blood)
+      Chemical.Components.Substance HCO3(
+          substanceData=Chemical.Examples.Substances.Bicarbonate_blood,
+          amountOfSubstance_start=0.024)
         annotation (Placement(transformation(extent={{10,-10},{-10,10}}, origin=
                {18,24})));
     Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
@@ -2292,7 +2293,8 @@ extends Modelica.Icons.ExamplesPackage;
       TotalPressure(displayUnit="mmHg") = 101325.0144354,
       PartialPressure(displayUnit="mmHg") = 5332.8954966,
       usePartialPressureInput=true,
-      Temperature=310.15) annotation (Placement(transformation(
+        Temperature=310.15)
+                          annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=270,
           origin={-84,84})));
@@ -2300,29 +2302,32 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-94,48},{-74,68}})));
 
       Chemical.Components.Substance CO2(substanceData=Chemical.Examples.Substances.CarbonDioxide_aqueous,
-          amountOfSubstance_start=0.0017) "Free dissolved CO2 in plasma"
+          amountOfSubstance_start=0.00148) "Free dissolved CO2 in plasma"
         annotation (Placement(transformation(extent={{-88,28},{-68,48}})));
       Chemical.Components.Substance H2O(substanceData=Chemical.Examples.Substances.Water_liquid,
-          amountOfSubstance_start=51.8*0.994648)
+          amountOfSubstance_start=51.6159)
         annotation (Placement(transformation(extent={{-60,12},{-40,32}})));
-      Chemical.Components.Substance HCO3_E(amountOfSubstance_start=0.0116,
-          substanceData=Chemical.Examples.Substances.Bicarbonate_blood)
-        annotation (Placement(transformation(extent={{28,-62},{8,-42}})));
+      Chemical.Components.Substance HCO3_E(
+          substanceData=Chemical.Examples.Substances.Bicarbonate_blood,
+          amountOfSubstance_start=0.0116)
+        annotation (Placement(transformation(extent={{28,-60},{8,-40}})));
       Chemical.Components.Reaction HendersonHasselbalch1(nP=2, nS=2,
       KC=KC) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
         annotation (Placement(transformation(extent={{-26,-68},{-6,-48}})));
       Chemical.Components.Substance CO2_E(substanceData=Chemical.Examples.Substances.CarbonDioxide_aqueous,
-          amountOfSubstance_start=0.00123) "Free dissolved CO2 in erythrocyte"
+          amountOfSubstance_start=0.0011) "Free dissolved CO2 in erythrocyte"
         annotation (Placement(transformation(extent={{-90,-82},{-70,-62}})));
       Chemical.Components.Substance H2O_E(substanceData=Chemical.Examples.Substances.Water_liquid,
-          amountOfSubstance_start=38.7*0.994648)
+          amountOfSubstance_start=38.4008)
         annotation (Placement(transformation(extent={{-60,-62},{-40,-42}})));
-      Chemical.Components.Substance Cl_E(amountOfSubstance_start=0.0499,
-          substanceData=Chemical.Examples.Substances.Chloride_aqueous)
-        annotation (Placement(transformation(extent={{64,-60},{44,-40}})));
-      Chemical.Components.Substance Cl(amountOfSubstance_start=0.103,
-          substanceData=Chemical.Examples.Substances.Chloride_aqueous)
-        annotation (Placement(transformation(extent={{64,20},{44,40}})));
+      Chemical.Components.Substance Cl_E(
+          substanceData=Chemical.Examples.Substances.Chloride_aqueous,
+          amountOfSubstance_start=0.0499)
+        annotation (Placement(transformation(extent={{68,-60},{48,-40}})));
+      Chemical.Components.Substance Cl(
+          substanceData=Chemical.Examples.Substances.Chloride_aqueous,
+          amountOfSubstance_start=0.103)
+        annotation (Placement(transformation(extent={{68,20},{48,40}})));
 
       Real pH_e, pH_p;
 
@@ -2340,28 +2345,26 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
-            origin={42,-16})));
+            origin={46,-16})));
     Chemical.Sources.Buffer H_E(
       substanceData=Chemical.Examples.Substances.Proton_aqueous,
-      a_start=10^(-7.2),
-      BufferValue=0.063)
+      BufferValue=0.063,
+        a_start=10^(-7.2))
       annotation (Placement(transformation(extent={{48,-84},{30,-66}})));
       Modelica.Blocks.Sources.Clock clock(offset=5000)
         annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
-      Chemical.Components.Substance others_E(amountOfSubstance_start=38.7*(1 -
-            0.994648) - 0.0499 - 0.0116 - 0.00123, substanceData(
+      Chemical.Components.Substance others_E(      substanceData(
           density=(1.045 - 0.695523)*1000/(1 - 0.697583),
           References={"erythrocyte intracellular fluid density 1045kg/m3"},
           MolarWeight=(1.045 - 0.695523)/(38.7*(1 - 0.994648) - 0.0499 - 0.0116
-               - 0.00123)))
+               - 0.00123)), amountOfSubstance_start=0.1444)
         annotation (Placement(transformation(extent={{68,-88},{88,-68}})));
-      Chemical.Components.Substance others_P(amountOfSubstance_start=51.8*(1 -
-            0.994648) - 0.103 - 0.024 - 0.0017, substanceData(
+      Chemical.Components.Substance others_P(   substanceData(
           References={
               "to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
           density=(1.024 - 0.933373)*1000/(1 - 0.936137),
           MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024
-               - 0.0017)))
+               - 0.0017)), amountOfSubstance_start=0.1487)
         annotation (Placement(transformation(extent={{70,14},{90,34}})));
       Chemical.Components.Diffusion diffusion annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
@@ -2369,8 +2372,8 @@ extends Modelica.Icons.ExamplesPackage;
             origin={-66,-16})));
     Chemical.Sources.Buffer H(
       substanceData=Chemical.Examples.Substances.Proton_aqueous,
-      a_start=10^(-7.4),
-      BufferValue=0.0077)
+      BufferValue=0.0077,
+        a_start=10^(-7.4))
         "buffer value 7.7 mmol/L for plasma is from (O. Siggaard-Andersen 1995)"
       annotation (Placement(transformation(extent={{38,38},{20,56}})));
       Chemical.Components.Reaction HendersonHasselbalch2(nP=2, nS=2,
@@ -2380,7 +2383,7 @@ extends Modelica.Icons.ExamplesPackage;
       pH_p = -log10(H.a);
       pH_e = -log10(H_E.a);
       connect(HendersonHasselbalch1.products[1], HCO3_E.port_a) annotation (Line(
-          points={{-6,-60},{2,-60},{2,-52},{8,-52}},
+          points={{-6,-60},{2,-60},{2,-50},{8,-50}},
           color={107,45,134},
           thickness=0.5));
     connect(CO2_E.port_a, HendersonHasselbalch1.substrates[1]) annotation (
@@ -2396,10 +2399,10 @@ extends Modelica.Icons.ExamplesPackage;
         points={{-84,28},{-84,12},{60,12},{60,4.52}},
         color={127,127,0}));
     connect(H2O.solution, blood_plasma.solution)
-      annotation (Line(points={{-56,12},{-56,12},{60,12},{60,10},{60,4},{60,4},
-              {60,4.52}},                               color={127,127,0}));
+      annotation (Line(points={{-56,12},{-56,12},{60,12},{60,10},{60,4},{60,
+              4.52}},                                   color={127,127,0}));
     connect(Cl.solution, blood_plasma.solution) annotation (Line(
-        points={{60,20},{60,4.52}},
+        points={{64,20},{64,12},{60,12},{60,4.52}},
         color={127,127,0}));
     connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
         points={{-86,-82},{-86,-88},{60,-88},{60,-97.4}},
@@ -2408,10 +2411,10 @@ extends Modelica.Icons.ExamplesPackage;
             points={{-56,-62},{-56,-88},{60,-88},{60,-97.4}},
                                                     color={127,127,0}));
       connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{60,-60},{60,-97.4}},
+          points={{64,-60},{64,-78},{60,-78},{60,-97.4}},
           color={127,127,0}));
       connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
-            points={{24,-62},{24,-88},{60,-88},{60,-97.4}},
+            points={{24,-60},{24,-88},{60,-88},{60,-97.4}},
                                                   color={127,127,0}));
     connect(gasSolubility.liquid_port, CO2.port_a) annotation (Line(
         points={{-84,48},{-84,38},{-68,38}},
@@ -2430,15 +2433,15 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
       connect(Band3_HCO3.port_b, HCO3_E.port_a) annotation (Line(
-          points={{4,-26},{4,-52},{8,-52}},
+          points={{4,-26},{4,-50},{8,-50}},
           color={158,66,200},
           thickness=0.5));
       connect(Band3_Cl.port_b, Cl_E.port_a) annotation (Line(
-          points={{42,-26},{42,-50},{44,-50}},
+          points={{46,-26},{46,-38},{46,-50},{48,-50}},
           color={158,66,200},
           thickness=0.5));
       connect(Band3_Cl.port_a, Cl.port_a) annotation (Line(
-          points={{42,-6},{42,30},{44,30}},
+          points={{46,-6},{46,12},{46,30},{48,30}},
           color={158,66,200},
           thickness=0.5));
       connect(gasSolubility.gas_port, CO2_gas.port_a) annotation (Line(
@@ -2446,7 +2449,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
     connect(HCO3.solution, blood_plasma.solution) annotation (Line(
-        points={{24,14},{24,12},{60,12},{60,8},{60,4},{60,4},{60,4.52}},
+        points={{24,14},{24,12},{60,12},{60,8},{60,4},{60,4.52}},
         color={127,127,0}));
     connect(H_E.port_a, HendersonHasselbalch1.products[2]) annotation (Line(
         points={{30,-75},{4,-75},{4,-56},{-6,-56}},
@@ -2456,7 +2459,7 @@ extends Modelica.Icons.ExamplesPackage;
         points={{60,-97.4},{60,-88},{72,-88}},
         color={127,127,0}));
     connect(blood_plasma.solution, others_P.solution) annotation (Line(
-        points={{60,4.52},{60,4},{60,4},{60,8},{60,12},{74,12},{74,14}},
+        points={{60,4.52},{60,4},{60,8},{60,12},{74,12},{74,14}},
         color={127,127,0}));
     connect(clock.y, CO2_gas.partialPressure) annotation (Line(
         points={{-33,72},{-24,72},{-24,98},{-84,98},{-84,94}},
@@ -2492,7 +2495,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
       annotation ( Documentation(info="<html>
-<p><a name=\"_x0000_t75\"><a name=\"obrázek_x0020_7\">The mature red blood cell (erythrocyte) is the simplest cell in the human body. Its primary function is the transportation of blood gases, such as oxygen O<sub>2</sub> (from the lungs to tissues) and carbon dioxide CO<sub>2</sub> (from tissues to the lungs). The chemical processes behind the gases&rsquo; transportation are complex because the capacity of water to transport their freely dissolved forms is very low. To transport sufficient amounts of O<sub>2</sub> and CO<sub>2</sub>, the gases must be chemically bound to hemoglobin such as described in (Matej&aacute;k, et al., 2015) and/or transported as different substances, which can be present in water in much higher concentrations than their freely dissolved forms allow. Therefore, to transport a sufficient amount of CO<sub>2</sub>, it must be changed to HCO<sub>3</sub><sup>-</sup> using the chemical reaction: </a></p>
+<p>The mature red blood cell (erythrocyte) is the simplest cell in the human body. Its primary function is the transportation of blood gases, such as oxygen O<sub>2</sub> (from the lungs to tissues) and carbon dioxide CO<sub>2</sub> (from tissues to the lungs). The chemical processes behind the gases&rsquo; transportation are complex because the capacity of water to transport their freely dissolved forms is very low. To transport sufficient amounts of O<sub>2</sub> and CO<sub>2</sub>, the gases must be chemically bound to hemoglobin such as described in (Matej&aacute;k, et al., 2015) and/or transported as different substances, which can be present in water in much higher concentrations than their freely dissolved forms allow. Therefore, to transport a sufficient amount of CO<sub>2</sub>, it must be changed to HCO<sub>3</sub><sup>-</sup> using the chemical reaction: </p>
 <table width=100%><tr>
 <th><p align=\"center\"><b>CO<sub>2</sub> + H<sub>2</sub>O &LT;-&GT; HCO<sub>3</sub><sup>-</sup> + H<sup>+</b></sup></p></th>
 <td><p>(1)</p></td>
@@ -2500,7 +2503,7 @@ extends Modelica.Icons.ExamplesPackage;
 </table>
 <p><br>This reaction takes place mainly inside the red blood cell, because only here it is presented with the enzyme carbonic anhydrase. Therefore, the increase of total carbon dioxide content of blood in tissues and its decrease in lungs are always connected with the chloride shift between blood plasma and the intracellular fluid of erythrocytes, as represented in followin Figure: </p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/CO2inBlood.png\"/></p>
-<p><a name=\"_x0000_t202\">F</a>igure: Chloride shift with carbon dioxide hydration with assumption of non-bicarbonate linear acid-base buffering properties of plasma and erythrocytes. </p>
+<p>Figure: Chloride shift with carbon dioxide hydration with assumption of non-bicarbonate linear acid-base buffering properties of plasma and erythrocytes. </p>
 <p><br>The blood plasma and intracellular fluid are divided by the cellular membrane composed of a special, very compact lipid double-layer. A lipophobic compound (not soluble in lipids) cannot cross the membrane without special proteins called membrane channels. Even water molecules must have membrane channels (called aquaporins) in order to cross the cellular membrane. In addition, the chloride shift (also known as the Hamburger shift) is exchanging an aqueous chloride Cl<sup>-</sup> for an aqueous bicarbonate HCO<sub>3</sub><sup>-</sup> in both directions across the cellular membranes of red blood cells using the membrane channel &ldquo;Band 3&rdquo;. Each passive membrane channel only allows the equilibration of the electrochemical potentials of the specific permeable ions on both sides of membrane. The different electric potentials on each side of membrane allow their different concentrations to achieve equilibrium. </p>
 <p>Conversely, the solution&rsquo;s equilibrium of different ions&rsquo; compositions on both sides of the membrane creates the measurable electric membrane potential. This process is not so intuitive, because even though neither solution needs to have an electric charge, there can be a non-zero electric potential for permeable ions. This potential for permeable ions at equilibrium is called the Nernst membrane potential and, in the Chemical library, it is a direct mathematical result of the equality of the electrochemical potential of the ion in both solutions. </p>
 <p>The intracellular solution must be set at the possible nonzero electric potential (ElectricalGround=false) because, as a result, the membrane potential of the erythrocytes is calculated as -12mV, which agrees with experimental data by Gedde and Huestis (Gedde and Huestis, 1997) in the electrolytes&rsquo; setting by Raftos et al. (Raftos, et al., 1990). </p>
@@ -2512,9 +2515,9 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
         experiment(
-        StopTime=1000,
-        __Dymola_fixedstepsize=1e-005,
-        __Dymola_Algorithm="Lsodar"));
+        StopTime=1000),
+        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}), graphics));
     end CarbonDioxideInBlood;
 
     model AcidBaseBufferTest
@@ -3466,13 +3469,12 @@ extends Modelica.Icons.ExamplesPackage;
           points={{60,-98.58},{36,-98.58},{36,-92}},
           color={127,127,0}));
 
-      annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
+      annotation (          experiment(StopTime=15000),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p>Before silumation in &QUOT;Dymola 2014 FD01&QUOT; please chose &QUOT;Euler&QUOT; method!</p>
 <p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
@@ -3716,7 +3718,7 @@ extends Modelica.Icons.ExamplesPackage;
       connect(H, H) annotation (Line(
           points={{60,-2},{60,-2}},
           color={158,66,200}));
-      annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
+      annotation (          experiment(StopTime=15000),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3928,7 +3930,7 @@ extends Modelica.Icons.ExamplesPackage;
       connect(CO2_free.solution, solution.solution) annotation (Line(
           points={{72,-8},{82,-8},{82,-54},{60,-54},{60,-55.12}},
           color={127,127,0}));
-      annotation (          experiment(StopTime=15000, __Dymola_Algorithm="Dassl"),
+      annotation (          experiment(StopTime=15000),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -4161,7 +4163,7 @@ extends Modelica.Icons.ExamplesPackage;
       connect(exp.u, gain.y) annotation (Line(
           points={{2,-78},{-7,-78}},
           color={0,0,127}));
-      annotation (          experiment(StopTime=0.6, __Dymola_Algorithm="Dassl"),
+      annotation (          experiment(StopTime=0.6),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -4388,7 +4390,7 @@ extends Modelica.Icons.ExamplesPackage;
       connect(exp.u, gain.y) annotation (Line(
           points={{2,-50},{-7,-50}},
           color={0,0,127}));
-      annotation (          experiment(StopTime=0.6, __Dymola_Algorithm="Dassl"),
+      annotation (          experiment(StopTime=0.6),
         Documentation(revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -4806,13 +4808,7 @@ extends Modelica.Icons.ExamplesPackage;
     connect(simpleSolution2.heatPort, fluidConversion2.heatPort) annotation (Line(
         points={{38.8,-20.62},{38.8,-6},{50,-6},{50,5}},
         color={191,0,0}));
-    annotation (    experiment(
-        StopTime=31.1,
-        __Dymola_NumberOfIntervals=5000,
-        Tolerance=1e-012,
-        __Dymola_fixedstepsize=1e-007,
-        __Dymola_Algorithm="Lsodar"),
-    __Dymola_experimentSetupOutput(doublePrecision=true));
+    annotation (    experiment(StopTime=31));
   end FluidAdapter;
 
   model FluidAdapter2
@@ -4913,89 +4909,12 @@ extends Modelica.Icons.ExamplesPackage;
       points={{70,30},{56,30},{56,10}},
       color={158,66,200}));
     annotation (    experiment(
-        StopTime=18.4,
-        __Dymola_NumberOfIntervals=5000,
-        Tolerance=1e-010,
-        __Dymola_fixedstepsize=1e-007,
-        __Dymola_Algorithm="Dassl"),
-    __Dymola_experimentSetupOutput(doublePrecision=true),
+        StopTime=18.4),
       Documentation(info="<html>
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
   end FluidAdapter2;
 
-  model HydrogenCombustion2 "Hydrogen burning piston"
-    extends Modelica.Icons.Example;
-
-    parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
-   // parameter Modelica.SIunits.Pressure p=100000 "Initial pressure";
-    parameter Modelica.SIunits.Temperature T=298.15 "Initial temperature";
-
-    parameter Modelica.SIunits.Area A=0.01 "Cross area of cylinder";
-
-    //p*V=n*R*T
-   // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
-   //   "Initial amount of substances in sulution";
-
-    Chemical.Components.Solution idealGas(
-      SurfaceArea=A,
-      useMechanicPorts=true,
-      useThermalPort=true,
-      temperature_start=303.15)
-      annotation (Placement(transformation(extent={{-50,-56},{50,44}})));
-                     // AmbientPressure=p)
-    //  volume_start=V,
-    Chemical.Components.Substance H2O_gas(substanceData=Substances.Water_gas,
-        redeclare package stateOfMatter = Chemical.Interfaces.IdealGas)
-      annotation (Placement(transformation(extent={{44,-14},{24,6}})));
-    Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
-        Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=90,
-          origin={0,58})));
-    Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=2)
-      annotation (Placement(transformation(extent={{-40,-86},{-20,-66}})));
-    Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
-      annotation (Placement(transformation(extent={{40,-86},{20,-66}})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed
-      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
-          rotation=180,
-          origin={0,72})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed1
-      annotation (Placement(transformation(extent={{-10,-72},{10,-52}})));
-  equation
-  connect(H2O_gas.solution, idealGas.solution) annotation (Line(
-      points={{40,-14},{40,-32},{30,-32},{30,-55}},
-      color={127,127,0}));
-    connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
-        points={{0,44},{0,48}},
-        color={0,127,0}));
-    connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{-30,-57},{-30,-62},{-48,-62},{-48,-76},{-40,-76}},
-        color={191,0,0}));
-    connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
-        points={{-20,-76},{20,-76}},
-        color={191,0,0}));
-    connect(fixed.flange, spring.flange_b) annotation (Line(
-        points={{0,72},{0,68}},
-        color={0,127,0}));
-  connect(idealGas.bottom, fixed1.flange) annotation (Line(
-      points={{0,-57},{0,-62}},
-      color={0,127,0}));
-    annotation ( experiment(StopTime=1), Documentation(info="<html>
-<p>The gaseous reaction of burning hydrogen: </p>
-<table width=100%><tr>
-<th>2 H<sub>2</sub> + O<sub>2</sub> &LT;-&GT; 2 H<sub>2</sub>O</th>
-<td>(1)</td>
-</tr>
-</table>
-<p>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
-<p>Building this model using the Chemical library components is easy. First, we drag and drop the library class &lsquo;Components.Solution&rsquo; into the diagram of our new model, labeled &lsquo;idealGas&rsquo; in Figure 4. In parameter dialog of this solution we check &ldquo;useThermalPorts&rdquo; and &ldquo;useMechanicsPorts&rdquo; to enable the thermal and mechanical interface. In the same dialog we need to set the area of the piston (e.g., 1 dm<sup>2</sup>), where the pressure provides the force of the green mechanical port of the uppermost side. The next parameter is the ambient external pressure surrounding the system (e.g., 1 bar). All three chemical substances of the reaction (1) can be added by dragging and dropping the library class &lsquo;Components.Substance&rsquo;. Because this model uses gases, the state of matter must be changed to some gas, such as the ideal gas prepared as &lsquo;Interfaces.IdealGas&rsquo;. The substance data must be selected to define the appropriate substances such as &lsquo;Hydrogen_gas&rsquo;, &lsquo;.Oxygen_gas&rsquo; and &lsquo;.Water_gas&rsquo; in package &lsquo;Examples.Substances&rsquo;. In addition, the initial amounts of substances can be prepared for the ideal solution of hydrogen and oxygen gases at a ratio 2:1 to attain the chemical equation above, with the expectation that at the end of the burning process, only water vapor would be presented. Therefore, the initial values of H<sub>2</sub> particles could be set to 26 mmol and of O<sub>2</sub> particles as 13 mmol. All substances must be connected with the &lsquo;idealGas&rsquo; using the blue colored solution port situated on the bottom side of each substance and solution. Then, the chemical reaction is inserted into the diagram of this model as library class &lsquo;Components.Reaction&rsquo;, and it is set to two substrates (nS=2) with stoichiometry s={2,1} and one product with stoichiometry p={2} to represent the reaction (3). The substances are then connected using violet colored substance connectors with appropriate indexes: H<sub>2</sub> to substrates[1], O<sub>2</sub> to substrates[2] and H<sub>2</sub>O to products[1]. At this point, the model is prepared to simulate the conditions of an unconnected heat port and an unconnected mechanical port. This simulation reaches the theoretical ideal of thermally isolated (zero heat flow from/to the solution) and isobaric (zero force generated on piston) conditions. </p>
-<p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
-<p>Simulation of the hydrogen-burning experiment. The initial phase of the explosion occurs very rapidly &mdash; the temperature reaches immediately 3600&deg;C from 25&deg;C and the pressure reaches 10 bars from 1 bar. This pressure and this temperature are generated because of a very strong spring, which allows the volume to change only by about 8&percnt; during the explosion. </p>
-<p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
-</html>"));
-  end HydrogenCombustion2;
   annotation (
     conversion(from(
         version="1",
