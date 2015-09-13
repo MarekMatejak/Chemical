@@ -64,6 +64,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## Development and contribution
 Release manager: [Marek Mateják] (https://github.com/MarekMatejak)
+
 Contributor: 
-[Filip Ježek] (https://github.com/filip-jezek)
+[Filip Ježek] (https://github.com/filip-jezek), 
 [tbeu] (https://github.com/tbeu)

@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models"
+package Chemical "Library of Electro-Chemical models (version 1.1.0)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -77,7 +77,6 @@ package Chemical "Library of Electro-Chemical models"
 </html>"));
   end Connectors;
 
-
   package ReleaseNotes "Release notes"
     extends Modelica.Icons.ReleaseNotes;
 
@@ -104,7 +103,8 @@ package Chemical "Library of Electro-Chemical models"
 <li>Sensor of dissociation constant of chemical reaction for hypothetical pure substances&rsquo; scheme </li>
 <li>New Examples </li>
 <li>New icon for electron transfer</li>
-<li>New icon for chemical buffer </li>
+<li>New icon for chemical buffer</li>
+<li>New chemical kinetics with speed turnover</li>
 </ul>
 </html>"));
   end Version_1_1;
@@ -113,7 +113,6 @@ package Chemical "Library of Electro-Chemical models"
 </html>"));
 
   end ReleaseNotes;
-
 
   class Contact "Contact"
     extends Modelica.Icons.Contact;
@@ -2344,7 +2343,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -2375,7 +2374,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -3134,7 +3133,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               fillColor={127,127,0},
               fillPattern=FillPattern.Solid)}),
       Diagram(graphics={
-       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
+       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString=  "%name",
             fillColor={127,127,0},
             fillPattern=FillPattern.Solid),
                       Rectangle(
@@ -3711,8 +3710,8 @@ Modelica source.
 preferredView="info",
 version="1.1.0",
 versionBuild=1,
-versionDate="2015-09-05",
-dateModified = "2015-09-05 17:14:41Z",
+versionDate="2015-09-15",
+dateModified = "2015-09-15 17:14:41Z",
 conversion(
   from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos")),
