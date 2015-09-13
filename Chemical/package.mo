@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models (chemical reactions, diffusions, membrane channels, gas dissolutions, electrochemical cells, ...)"
+package Chemical "Library of Electro-Chemical models"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -219,7 +219,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 </html>"));
   end Version_1_0;
 
-  class Version_1_1 "Version 1.1.0 (28.8.2015)"
+  class Version_1_1 "Version 1.1.0 (5.9.2015)"
     extends Modelica.Icons.ReleaseNotes;
 
   annotation (Documentation(info="<html>
@@ -299,14 +299,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Interfaces.PartialSolution(T(start=temperature_start),p(start=BasePressure));
 
       parameter Boolean useElectricPort = false "Is electric port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Boolean ElectricGround = true
       "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
         annotation (HideResult=true, Dialog(enable=not useElectricPort));
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Area SurfaceArea=0.01
       "Area for surfacePort to connect MultiBody components"
@@ -317,7 +317,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 
       parameter Boolean useThermalPort = false "Is thermal port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Boolean ConstantTemperature = true
       "Has the solution constant temperature during simulation (if not useThermalPort)?"
@@ -337,11 +337,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       Modelica.Electrical.Analog.Interfaces.PositivePin electricPin(v=solution.v,i=solution.i) if useElectricPort annotation (Placement(
             transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
               extent={{-62,98},{-58,102}})));
-      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=s) if useMechanicPorts
+      Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=top_s) if useMechanicPorts
       "The pressure of solution generate force on prescribed surface."
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
             iconTransformation(extent={{-2,98},{2,102}})));
-      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom(f=-f,s=s - volume/SurfaceArea + positionShift) if useMechanicPorts
+      Modelica.Mechanics.Translational.Interfaces.Flange_b bottom(f=-f,s=top_s - ds) if useMechanicPorts
       "Fix of the cilinder on bottom."   annotation (Placement(transformation(
               extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
                 -100}})));
@@ -349,22 +349,23 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
   protected
       parameter Modelica.SIunits.Position positionShift(fixed=false)
       "=0 absolute, otherwise negative";
-       Modelica.SIunits.Position s;
+       Modelica.SIunits.Position top_s,ds;
        Modelica.SIunits.Force f;
 
     initial equation
       T=temperature_start;
       positionShift= if
                        (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
-      s=volume/SurfaceArea - positionShift;
+      //s=volume/SurfaceArea - positionShift;
     equation
 
       //hydraulic
-      workFromEnvironment = -der(f*s); //=der( (p-p0) * volume)
+      ds = volume/SurfaceArea - positionShift;
+      workFromEnvironment = -der(f*ds); //=der( (p-p0) * volume)
       solution.p = BasePressure - f/SurfaceArea;
       if not useMechanicPorts then
         f=0;
-        s=volume/SurfaceArea - positionShift;
+        top_s=ds; //equivalent for bottom_s==0
       end if;
 
       //electric
@@ -455,7 +456,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=amountOfSubstance*molarMass;
       solution.Vj=amountOfSubstance*molarVolume;
       solution.Gj=amountOfSubstance*port_a.u;
-      solution.Hj=amountOfSubstance*molarEnthalpy;
       solution.Qj=Modelica.Constants.F*amountOfSubstance*z;
       solution.Ij=(1/2) * ( amountOfSubstance * z^2);
 
@@ -522,9 +522,15 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
     Interfaces.SubstancePorts_b products[nP] annotation (Placement(
           transformation(extent={{90,-40},{110,40}}), iconTransformation(extent=
              {{90,-40},{110,40}})));
+
+      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+
+  protected
+      Modelica.SIunits.ChemicalPotential du;
     equation
       //the main equation
-      rr = kC * ((p * products.u) - (s * substrates.u));
+      du = ((p * products.u) - (s * substrates.u));
+      rr = kC * du * exp(-kE*abs(du));
 
       //reaction molar rates
       rr*s = -substrates.q;
@@ -665,7 +671,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=0;
       solution.Vj=0;
       solution.Gj=0;
-      solution.Hj=0;
       solution.Qj=0;
       solution.Ij=0;
 
@@ -687,8 +692,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Interfaces.OnePortParallel;
       extends Interfaces.ConditionalKinetics;
 
+      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+
+  protected
+      Modelica.SIunits.ChemicalPotential du;
     equation
-      port_b.q = kC * (port_b.u - port_a.u);
+      //the main equation
+      du = (port_b.u - port_a.u);
+      port_b.q = kC * du * exp(-kE*abs(du));
 
        annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -703,7 +714,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useWaterCorrection = true
       "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true));
 
     Interfaces.SubstancePort_b gas_port "Gaseous solution"
       annotation (Placement(transformation(extent={{-10,90},{10,110}})));
@@ -714,11 +725,16 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
        extends Interfaces.ConditionalKinetics;
 
+      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+
+  protected
+      Modelica.SIunits.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
 
+      du = (liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
       // the main equation
-      liquid_port.q = kC *(liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
+      liquid_port.q = kC * du * exp(-kE*abs(du));
 
        annotation (Documentation(revisions="<html>
 <p><i>2009-2015 </i></p>
@@ -798,9 +814,14 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       extends Interfaces.OnePortParallel;
       extends Interfaces.ConditionalKinetics;
 
+      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+
+  protected
+      Modelica.SIunits.ChemicalPotential du;
     equation
       //the main equation
-      port_a.q = kC * (port_a.u - port_b.u);
+      du = (port_a.u - port_b.u);
+      port_a.q = kC * du * exp(-kE*abs(du));
 
       annotation ( Documentation(info="<html>
 <p><u><b><font style=\"color: #008000; \">Filtration throught semipermeable membrane.</font></b></u></p>
@@ -907,7 +928,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.mj + solution.mj = 0;
       subunitSolution.Vj + solution.Vj = 0;
       subunitSolution.Gj + solution.Gj = 0;
-      subunitSolution.Hj + solution.Hj = 0;
       subunitSolution.dV + solution.dV = 0;
 
       //shift global solution status to subunits
@@ -918,7 +938,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       subunitSolution.m = solution.m;
       subunitSolution.V = solution.V;
       subunitSolution.G = solution.G;
-      subunitSolution.H = solution.H;
       subunitSolution.Q = solution.Q;
       subunitSolution.I = solution.I;
 
@@ -1216,7 +1235,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
         + Modelica.Constants.F*electricPotential*StateOfMatter.chargeNumberOfIon(Medium.substanceData,temperature,pressure,electricPotential,solution.I);
 
       //energy balance
-      fluid.h_outflow = solution.H / solution.m;
+      //fluid.h_outflow = solution.H / solution.m;
+      fluid.h_outflow = Medium.specificEnthalpy(Medium.setState_pTX(pressure, temperature, fluid.Xi_outflow, electricPotential, solution.I));
+
       actualStreamThermodynamicState = Medium.setState_phX(pressure, actualStream(fluid.h_outflow), actualStream(fluid.Xi_outflow), electricPotential, solution.I);
 
       //The first idea was to changne only the enthalpy as extensive energy, but it changes the temperature with change of volume during isobaric and isothermic conditions!!!
@@ -1237,7 +1258,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
-      solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -1740,7 +1760,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Pressure PartialPressure=0
       "Fixed partial pressure if usePartialPressureInput=false"
@@ -1833,7 +1853,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMolalityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -1911,7 +1931,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMolarityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
        parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -1986,7 +2006,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
         parameter Boolean useMoleFractionInput = false
       "Is mole fraction of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=298.15 "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=101325 "Pressure";
@@ -2057,7 +2077,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
        parameter Boolean usePotentialInput = false
       "Is electro-chemical potential of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u if
            usePotentialInput annotation (HideResult=true, Placement(transformation(
@@ -2309,9 +2329,9 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
          parameter Boolean useBufferValueInput = false
       "Is buffer value of the substance an input?"
-          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+          annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
-          extends Interfaces.ConditionalKinetics;
+          extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
 
           Real bufferValue(final unit="1");
 
@@ -2355,7 +2375,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.mj=-nFreeBuffer*molarMass;
       solution.Vj=-nFreeBuffer*molarVolume;
       solution.Gj=-nFreeBuffer*port_a.u;
-      solution.Hj=-nFreeBuffer*molarEnthalpy;
       solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
       solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
 
@@ -2390,12 +2409,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p>Definition of electro-chemical potential of the substance:</p>
-<p><b>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</b></p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
 <h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
 <p>where</p>
 <p>x .. mole fraction of the substance in the solution</p>
 <p>T .. temperature in Kelvins</p>
-<p>v .. eletric potential of the substance</p>
+<p>v .. eletric potential of the solution</p>
 <p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
 <p>R .. gas constant</p>
 <p>F .. Faraday constant</p>
@@ -2706,7 +2725,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.i = 0;
       solution.dV = 0;
       solution.Gj = 0;
-      solution.Hj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -3195,14 +3213,6 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       flow Modelica.SIunits.Energy Gj
       "Free Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
-      //free internal energy of the solution
-      //  Modelica.SIunits.Enthalpy U "Free internal energy of the solution";
-
-      //free enthalpy of the solution
-      Modelica.SIunits.Enthalpy H "Free enthalpy of the solution";
-      flow Modelica.SIunits.Energy Hj
-      "Free enthalpy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
       //electric charge of the substance
       Modelica.SIunits.ElectricCharge Q "Electric charge of the solution";
       flow Modelica.SIunits.ElectricCharge Qj
@@ -3275,11 +3285,11 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       "Current electric charge of the solution";
                                               //(start=electricCharge_start)
 
-       Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
+    //   Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
     initial equation
 
-     // freeInternalEnergy = 0;
-      freeEnthalpy + solution.Hj = 0;
+      freeInternalEnergy = 0;
+      //freeEnthalpy + solution.Hj = 0;
       //der(freeEnthalpy) = -solution.dH;
     equation
       //internal energy
@@ -3297,12 +3307,12 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
       solution.p = p;
       solution.T = T;
       solution.G = freeGibbsEnergy;
-      solution.H = freeEnthalpy;
+    //  solution.H = freeEnthalpy;
 
       //  solution.U = freeInternalEnergy;
       solution.Q = charge;
       solution.V = volume;
-      der_freeEnthalpy = der(freeEnthalpy);
+    //  der_freeEnthalpy = der(freeEnthalpy);
 
       //Extensive properties of the solution:
 
@@ -3373,7 +3383,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useSolutionFlowInput = false
       "Is solution flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
       "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
@@ -3409,7 +3419,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useSubstanceFlowInput = false
       "Is substance flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
       "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
@@ -3436,7 +3446,7 @@ package Chemical "Library of Electro-Chemical models (chemical reactions, diffus
 
       parameter Boolean useKineticsInput = false
       "Is kinetics coefficient as an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
       parameter Real KC(final unit="mol2.s-1.J-1")=1
       "Chemical kinetics coefficient if useKineticsInput=false"   annotation (
@@ -3805,8 +3815,8 @@ Modelica source.
 preferredView="info",
 version="1.1.0",
 versionBuild=1,
-versionDate="2015-05-20",
-dateModified = "2015-05-20 17:14:41Z",
+versionDate="2015-09-05",
+dateModified = "2015-09-05 17:14:41Z",
 conversion(
   from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos")),
@@ -3816,8 +3826,8 @@ uses(Modelica(version="3.2.1")),
 <p>Copyright &copy; 2008-2015, Marek Matejak, Charles University in Prague.</p>
 <p><br><i>This Modelica package is&nbsp;<u>free</u>&nbsp;software and the use is completely at&nbsp;<u>your own risk</u>; it can be redistributed and/or modified under the terms of the Modelica License 2. For license conditions (including the disclaimer of warranty) see&nbsp;<a href=\"modelica://Chemical.UsersGuide.ModelicaLicense2\">UsersGuide.ModelicaLicense2</a>&nbsp;or visit&nbsp;<a href=\"http://www.modelica.org/licenses/ModelicaLicense2\">http://www.modelica.org/licenses/ModelicaLicense2</a>.</i></p>
 </html>", info="<html>
-<p>At firs there was an equilibration of concentrations, but it does not work at all. In reality for almost all electro-chemical processes is equilibrated always the <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a>, not only the concentration.</p>
-<p>The pattern is so strong, that the equilibriation of electro-chemical potential can be aplicated for almost all components: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
+<p>During each electro-chemical process an <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a> of the substances is equilibrating and all thermodynamical properties of the homogenous chemical solutions are evaluated. </p>
+<p>Processes: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
 <p>Please see the <a href=\"modelica://Chemical.UsersGuide.Overview\">overview</a>.</p>
 </html>"));
 end Chemical;
