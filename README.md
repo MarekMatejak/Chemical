@@ -5,6 +5,15 @@ Modelica Library of Chemical processes
 
 Download [Chemical 1.1.0 (2015-09-15)](../../archive/v1.1.0.zip)
 
+## Main references
+ * Documentations
+   * [Theoretical background] (https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/Chemical.pdf)
+ * Dissertation thesis
+   * [Fromalization of Integrative Physiology] (https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
+ * Preface of book
+   * [Medical Physiology in Modelica] (http://book.physiovalues.org)
+   * You can support this book by [crowdfunding] (http://igg.me/at/mephymo/x/12038359) until 2nd November 2015.
+
 ## Description
 
 * Chemical Solution 
@@ -60,7 +69,6 @@ Redistribution and use in source and binary forms, with or without modification,
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission. 
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 ## Development and contribution
 Release manager: [Marek Mateják] (https://github.com/MarekMatejak)
