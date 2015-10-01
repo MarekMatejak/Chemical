@@ -12,7 +12,7 @@ Download [Chemical 1.1.0 (2015-09-15)](../../archive/v1.1.0.zip)
    * [Fromalization of Integrative Physiology] (https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
  * Preface of book
    * [Medical Physiology in Modelica] (http://book.physiovalues.org)
-   * You can support this book by [crowdfunding] (http://igg.me/at/mephymo/x/12038359) until 2nd November 2015.
+   * You can support this book by [crowdfunding] (http://igg.me/at/mephysmo) until 2nd November 2015.
 
 ## Description
 
