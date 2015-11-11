@@ -1,6 +1,9 @@
 # Chemical
 Modelica Library of Chemical processes
 
+[1st Price, Modelica Library Award, 11th International Modelica Conference, Sept. 21-23, 2015 in Versailles, France] (http://patf-biokyb.lf1.cuni.cz/wiki/_media/wiki/user/chemical_library_-_1st_price.pdf)
+
+
 ## Current release
 
 Download [Chemical 1.1.0 (2015-09-15)](../../archive/v1.1.0.zip)
@@ -10,10 +13,7 @@ Download [Chemical 1.1.0 (2015-09-15)](../../archive/v1.1.0.zip)
    * [Theoretical background] (https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/Chemical.pdf)
  * Dissertation thesis
    * [Fromalization of Integrative Physiology] (https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
- * Preface of book
-   * [Medical Physiology in Modelica] (http://book.physiovalues.org)
-   * You can support this book by [crowdfunding] (http://igg.me/at/mephysmo) until 2nd November 2015.
-
+ 
 ## Description
 
 * Chemical Solution 
