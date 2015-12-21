@@ -173,7 +173,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 <li>Prepare release in &QUOT;master&QUOT; branch</li>
 <li>Install, Check, Test, Test, Test.. </li>
 <li>Draft a new <a href=\"
-https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/impact.md#impact-on-library-developers\">release from &QUOT;master&QUOT;</a> branch with number &QUOT;vX.Y.Z&QUOT; and with release notes. </li>
+https://github.com/impact/impact/blob/master/resources/docs/modelica2015/paper/impact.md#impact-on-library-developers\">release from &QUOT;master&QUOT;</a> branch with number &QUOT;vX.Y.Z&QUOT; and with release notes. </li>
 </ul>
 </html>"));
   end NewRelease;
