@@ -766,14 +766,14 @@ extends Modelica.Icons.ExamplesPackage;
     annotation ( experiment(StopTime=1), Documentation(info="<html>
 <p>The gaseous reaction of hydrogen combustion: </p>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p align=\"center\"><b>2 H<sub>2</sub> + O<sub>2</sub> &LT;-&GT; 2 H<sub>2</sub>O</b></p></td>
+<td><p align=\"center\"><b>2 H<sub>2</sub> + O<sub>2</sub> &lt;-&gt; 2 H<sub>2</sub>O</b></p></td>
 <td><p>(1)</p></td>
 </tr>
 </table>
 <p><br>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
 <p>Building this model using the Chemical library components is easy. First, we drag and drop the library class &lsquo;Components.Solution&rsquo; into the diagram of our new model, labeled &lsquo;idealGas&rsquo; in Figure 4. In parameter dialog of this solution we check &ldquo;useThermalPorts&rdquo; and &ldquo;useMechanicsPorts&rdquo; to enable the thermal and mechanical interface. In the same dialog we need to set the area of the piston (e.g., 1 dm<sup>2</sup>), where the pressure provides the force of the green mechanical port of the uppermost side. The next parameter is the ambient external pressure surrounding the system (e.g., 1 bar). All three chemical substances of the reaction (1) can be added by dragging and dropping the library class &lsquo;Components.Substance&rsquo;. Because this model uses gases, the state of matter must be changed to some gas, such as the ideal gas prepared as &lsquo;Interfaces.IdealGas&rsquo;. The substance data must be selected to define the appropriate substances such as &lsquo;Hydrogen_gas&rsquo;, &lsquo;.Oxygen_gas&rsquo; and &lsquo;.Water_gas&rsquo; in package &lsquo;Examples.Substances&rsquo;. In addition, the initial amounts of substances can be prepared for the ideal solution of hydrogen and oxygen gases at a ratio 2:1 to attain the chemical equation above, with the expectation that at the end of the burning process, only water vapor would be presented. Therefore, the initial values of H<sub>2</sub> particles could be set to 26 mmol and of O<sub>2</sub> particles as 13 mmol. All substances must be connected with the &lsquo;idealGas&rsquo; using the blue colored solution port situated on the bottom side of each substance and solution. Then, the chemical reaction is inserted into the diagram of this model as library class &lsquo;Components.Reaction&rsquo;, and it is set to two substrates (nS=2) with stoichiometry s={2,1} and one product with stoichiometry p={2} to represent the reaction (3). The substances are then connected using violet colored substance connectors with appropriate indexes: H<sub>2</sub> to substrates[1], O<sub>2</sub> to substrates[2] and H<sub>2</sub>O to products[1]. At this point, the model is prepared to simulate the conditions of an unconnected heat port and an unconnected mechanical port. This simulation reaches the theoretical ideal of thermally isolated (zero heat flow from/to the solution) and isobaric (zero force generated on piston) conditions. </p>
 <p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
-<p><font style=\"color: #222222; \">Mueller, M. A., Kim, T. J., Yetter, R. A., &AMP; Dryer, F. L. (1999). Flow reactor studies and kinetic modeling of the H2/O2 reaction.&nbsp;<i>International Journal of Chemical Kinetics</i>,&nbsp;<i>31</i>(2), 113-125.</font></p>
+<p><font style=\"color: #222222; \">Mueller, M. A., Kim, T. J., Yetter, R. A., &amp; Dryer, F. L. (1999). Flow reactor studies and kinetic modeling of the H2/O2 reaction.&nbsp;<i>International Journal of Chemical Kinetics</i>,&nbsp;<i>31</i>(2), 113-125.</font></p>
 <p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
 </html>"));
   end HydrogenCombustion;
@@ -1198,12 +1198,12 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &GT;&GT; Km) &AMP;&AMP; ([P] &LT;&LT; K2)</p>
+<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
 <p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&GT; 55.508 kg/mol for water):</p>
+<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
 <p>x(Km) = Km/MM</p>
 <p>x(tE) = tE/MM</p>
 <p>xS = S/MM = Km/MM</p>
@@ -1231,11 +1231,11 @@ extends Modelica.Icons.ExamplesPackage;
 <p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
 <p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&LT;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&LT;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&LT;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&LT;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&LT;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
+<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
+<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
+<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 <h4>The increasing of the amount of the enzyme</h4>
@@ -2000,7 +2000,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation ( Documentation(info="<html>
 <p>Self-ionization of water.</p>
 <p>Ions difference (SID) in water causes the acidity/basicity, where pH = -log10(aH+). An activity of hydrogen ions aH+ is approximated with concentration (mol/l) of the oxonium cations H3O+.</p>
-<pre><b>plotExpression(apply(-log10(WaterSelfIonization.H3O.solute)),&nbsp;false,&nbsp;&QUOT;pH&QUOT;,&nbsp;1);</b></pre>
+<pre><b>plotExpression(apply(-log10(WaterSelfIonization.H3O.solute)),&nbsp;false,&nbsp;&quot;pH&quot;,&nbsp;1);</b></pre>
 <p><br>The titration slope der(pH)/der(SID)=1.48e+6 1/(mol/L) at pH=7.4.</p>
 </html>",    revisions="<html>
 <p><i>2014</i></p>
@@ -2099,9 +2099,9 @@ extends Modelica.Icons.ExamplesPackage;
             {66,-98.54},{60,-98.54}}, color={127,127,0}));
       annotation ( Documentation(info="<html>
 <p>CO2 solution in water without any other acid-base buffers.</p>
-<pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&QUOT;pH&QUOT;,&nbsp;1);</b></pre>
+<pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&quot;pH&quot;,&nbsp;1);</b></pre>
 <p><br>Please note, that OH- (and CO3^-2) can be neglected from electroneutrality calculation, because of very small concentrations (in physiological pH) anyway. </p>
-<p>And if SID&GT;0 then also H3O+ can be also neglected from electroneutrality, because only bicarbonate anions HCO3- (or CO3^-2) are needed there to balance the electroneutrality.</p>
+<p>And if SID&gt;0 then also H3O+ can be also neglected from electroneutrality, because only bicarbonate anions HCO3- (or CO3^-2) are needed there to balance the electroneutrality.</p>
 <p><br>The partial pressure of CO2 in gas are input parameter. Outputs are an amount of free dissolved CO2 in liquid and an amount of HCO3-.</p>
 <p><br>The titration slope der(pH)/der(SID)=17.5 1/(mol/L) at pH=7.4 and pCO2=40 mmHg.</p>
 <p><br>Molar heat of formation (aqueous):</p>
@@ -2109,8 +2109,8 @@ extends Modelica.Icons.ExamplesPackage;
 <p>H2O:        -285.8 kJ/mol</p>
 <p>HCO3-:        -692.0 kJ/mol</p>
 <p>CO3^-2:        -677.1 kJ/mol</p>
-<p><br>Enthalphy of reaction H2O + CO2 &LT;-&GT; HCO3- + H+  :         7.3 kJ/mol</p>
-<p>Enthalphy of reaction HCO3- &LT;-&GT; CO3^-2 + H+  :        14.9 kJ/mol</p>
+<p><br>Enthalphy of reaction H2O + CO2 &lt;-&gt; HCO3- + H+  :         7.3 kJ/mol</p>
+<p>Enthalphy of reaction HCO3- &lt;-&gt; CO3^-2 + H+  :        14.9 kJ/mol</p>
 </html>",    revisions="<html>
 <p><i>2014</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -2513,7 +2513,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation ( Documentation(info="<html>
 <p>The mature red blood cell (erythrocyte) is the simplest cell in the human body. Its primary function is the transportation of blood gases, such as oxygen O<sub>2</sub> (from the lungs to tissues) and carbon dioxide CO<sub>2</sub> (from tissues to the lungs). The chemical processes behind the gases&rsquo; transportation are complex because the capacity of water to transport their freely dissolved forms is very low. To transport sufficient amounts of O<sub>2</sub> and CO<sub>2</sub>, the gases must be chemically bound to hemoglobin such as described in (Matej&aacute;k, et al., 2015) and/or transported as different substances, which can be present in water in much higher concentrations than their freely dissolved forms allow. Therefore, to transport a sufficient amount of CO<sub>2</sub>, it must be changed to HCO<sub>3</sub><sup>-</sup> using the chemical reaction: </p>
 <table width=100%><tr>
-<th><p align=\"center\"><b>CO<sub>2</sub> + H<sub>2</sub>O &LT;-&GT; HCO<sub>3</sub><sup>-</sup> + H<sup>+</b></sup></p></th>
+<th><p align=\"center\"><b>CO<sub>2</sub> + H<sub>2</sub>O &lt;-&gt; HCO<sub>3</sub><sup>-</sup> + H<sup>+</sup></b></p></th>
 <td><p>(1)</p></td>
 </tr>
 </table>
@@ -3291,7 +3291,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (          experiment(StopTime=15000, Tolerance=0.01),
                               Documentation(info="<html>
 <p>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
+<p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
 <p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
 <p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
@@ -3299,7 +3299,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 %).</p>
 </html>", revisions="<html>
 <p><i>2013-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3492,7 +3492,7 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
-<p>[1] Monod,Wyman,Changeux (1965). &QUOT;On the nature of allosteric transitions: a plausible model.&QUOT; Journal of molecular biology 12(1): 88-118.</p>
+<p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
 <p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
 <p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
@@ -3500,7 +3500,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
-<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 &percnt;).</p>
+<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 %).</p>
 </html>"));
     end Allosteric_Hemoglobin2_MWC;
 
@@ -3752,7 +3752,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}),
@@ -3975,15 +3975,15 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p>Oxygen dissociation curve of hemoglobin.</p>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_pH_CO2_Hb.png\"/></p>
-<p>J. W. Severinghaus, &QUOT;Simple, accurate equations for human blood O2 dissociation computations,&QUOT; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
+<p>J. W. Severinghaus, &quot;Simple, accurate equations for human blood O2 dissociation computations,&quot; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
 <p><br>pO2 .. partial pressure of oxygen in gas</p>
 <p>pCO2 .. partial pressure of carbon dioxide</p>
 <p>sO2 .. oxygen saturation of hemoglobin</p>
 <p>pH = log10(aH), where aH is mole fraction based activity of hydrogen ions</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_T_Hb.png\"/></p>
-<p>R. B. Reeves, &QUOT;The effect of temperature on the oxygen equilibrium curve of human blood,&QUOT; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
+<p>R. B. Reeves, &quot;The effect of temperature on the oxygen equilibrium curve of human blood,&quot; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
 <p><br>T .. temperature</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
@@ -4272,7 +4272,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                 100}}),
@@ -4534,15 +4534,15 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p>Oxygen dissociation curve of hemoglobin.</p>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_pH_CO2_Hb.png\"/></p>
-<p>J. W. Severinghaus, &QUOT;Simple, accurate equations for human blood O2 dissociation computations,&QUOT; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
+<p>J. W. Severinghaus, &quot;Simple, accurate equations for human blood O2 dissociation computations,&quot; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
 <p><br>pO2 .. partial pressure of oxygen in gas</p>
 <p>pCO2 .. partial pressure of carbon dioxide</p>
 <p>sO2 .. oxygen saturation of hemoglobin</p>
 <p>pH = log10(aH), where aH is mole fraction based activity of hydrogen ions</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_T_Hb.png\"/></p>
-<p>R. B. Reeves, &QUOT;The effect of temperature on the oxygen equilibrium curve of human blood,&QUOT; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
+<p>R. B. Reeves, &quot;The effect of temperature on the oxygen equilibrium curve of human blood,&quot; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
 <p><br>T .. temperature</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
@@ -4798,7 +4798,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",
         info="<html>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                 100}}),
@@ -5027,15 +5027,15 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p>Oxygen dissociation curve of hemoglobin.</p>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_pH_CO2_Hb.png\"/></p>
-<p>J. W. Severinghaus, &QUOT;Simple, accurate equations for human blood O2 dissociation computations,&QUOT; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
+<p>J. W. Severinghaus, &quot;Simple, accurate equations for human blood O2 dissociation computations,&quot; Journal of Applied Physiology, vol. 46, pp. 599-602, 1979.</p>
 <p><br>pO2 .. partial pressure of oxygen in gas</p>
 <p>pCO2 .. partial pressure of carbon dioxide</p>
 <p>sO2 .. oxygen saturation of hemoglobin</p>
 <p>pH = log10(aH), where aH is mole fraction based activity of hydrogen ions</p>
 <p><img src=\"modelica://Chemical/Resources/Images/Examples/ODC_T_Hb.png\"/></p>
-<p>R. B. Reeves, &QUOT;The effect of temperature on the oxygen equilibrium curve of human blood,&QUOT; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
+<p>R. B. Reeves, &quot;The effect of temperature on the oxygen equilibrium curve of human blood,&quot; Respiration physiology, vol. 42, pp. 317-328, 1980.</p>
 <p><br>T .. temperature</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
@@ -5281,9 +5281,9 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p>Bohr&apos;s protons released during hemoglobin oxygenation</p>
-<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 <p><br><img src=\"modelica://Chemical/Resources/Images/Examples/Bohr_Hb.png\"/></p>
-<p>O. Siggaard-Andersen, &QUOT;Oxygen-Linked Hydrogen Ion Binding of Human Hemoglobin. Effects of Carbon Dioxide and 2, 3-Diphosphoglycerate I. Studies on Erythrolysate,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, vol. 27, pp. 351-360, 1971.</p>
+<p>O. Siggaard-Andersen, &quot;Oxygen-Linked Hydrogen Ion Binding of Human Hemoglobin. Effects of Carbon Dioxide and 2, 3-Diphosphoglycerate I. Studies on Erythrolysate,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, vol. 27, pp. 351-360, 1971.</p>
 </html>"));
     end HemoglobinTitration;
 
@@ -5507,9 +5507,9 @@ extends Modelica.Icons.ExamplesPackage;
 </html>",
         info="<html>
 <p>Binding of carbon dioxide to hemoglobin</p>
-<p><br>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &QUOT;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&QUOT; Scandinavian Journal of Clinical &AMP; Laboratory Investigation, pp. 1-8, 2015.</p>
+<p><br>M. Matej&aacute;k, T. Kulh&aacute;nek, and S. Matou&scaron;ek, &quot;Adair-based hemoglobin equilibrium with oxygen, carbon dioxide and hydrogen ion activity,&quot; Scandinavian Journal of Clinical &amp; Laboratory Investigation, pp. 1-8, 2015.</p>
 <p><br><img src=\"modelica://Chemical/Resources/Images/Examples/CDDC_Hb.png\"/></p>
-<p>C. Bauer and E. Schr&ouml;der, &QUOT;Carbamino compounds of haemoglobin in human adult and foetal blood,&QUOT; Journal of Physiology, vol. 227, pp. 457-471, 1972.</p>
+<p>C. Bauer and E. Schr&ouml;der, &quot;Carbamino compounds of haemoglobin in human adult and foetal blood,&quot; Journal of Physiology, vol. 227, pp. 457-471, 1972.</p>
 </html>"));
     end HemoglobinCarboxylation;
   end Hemoglobin;

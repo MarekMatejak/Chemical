@@ -9,8 +9,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
    annotation (Documentation(info="<html>
 <p>The Chemical library can describe the following phenomena.</p>
 <table cellspacing=\"0\" cellpadding=\"2\" border=\"1\"><tr>
-<td><p align=\"center\"><h4>Chemical Components</h4></p></td>
-<td><p align=\"center\"><h4>Description</h4></p></td>
+<td><h4>Chemical Components</h4></td>
+<td><h4>Description</h4></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Solution1.png\"/></p></td>
@@ -22,7 +22,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Reaction1.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&LT;-&GT;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5&percnt; of maximal rate. </p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Diffusion1.png\"/></p></td>
@@ -51,7 +51,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 <p>The Chemical defines the two important <b>elementary connectors</b> for substance and for solution:</p>
 <table cellspacing=\"0\" cellpadding=\"1\" border=\"1\"><tr>
 <td valign=\"top\"></td>
-<td valign=\"top\"><p><br><h4>potential</h4></p><p>variables</p></td>
+<td valign=\"top\"><h4>potential</h4><p>variables</p></td>
 <td valign=\"top\"><h4>flow</h4><p>variables</p></td>
 <td valign=\"top\"><h4>stream</h4><p>variables</p></td>
 <td valign=\"top\"><h4>connector definition</h4></td>
@@ -129,7 +129,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     class License "BSD 3-Clause License"
        extends Modelica.Icons.Information;
       annotation (Documentation(info="<html>
-<p>All files in this directory (Physiolibrary) and in all subdirectories, especially all files that build package &QUOT;Physiolibrary&QUOT; are licensed by <u><b>Marek Matejak</b></u> under the <a href=\"http://opensource.org/licenses/BSD-3-Clause\">BSD 3-Clause License</a> (with exception of files &QUOT;Resources/*&QUOT;). </p>
+<p>All files in this directory (Physiolibrary) and in all subdirectories, especially all files that build package &quot;Physiolibrary&quot; are licensed by <u><b>Marek Matejak</b></u> under the <a href=\"http://opensource.org/licenses/BSD-3-Clause\">BSD 3-Clause License</a> (with exception of files &quot;Resources/*&quot;). </p>
 <h4>Licensor:</h4>
 <p>Marek Matej&aacute;k,</p>
 <p>Hviezdoslavova 632/41,</p>
@@ -139,14 +139,14 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 <h4><span style=\"color:#008000\">Organization: </span></h4>
 <p>Institute of Pathological Physiology, First Faculty of Medicine, Charles University in Prague,</p>
 <p>U Nemocnice 5, 128 53 Prague 2, Czech Republic</p>
-<p><br><h4>Copyright notices of the files:</h4></p>
+<br><h4>Copyright notices of the files:</h4>
 <p>Copyright (c) 2008-2015, Marek Matej&aacute;k, Charles University in Prague</p>
 <p><br>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. </p>
 <p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. </p>
 <p>3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission. </p>
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &QUOT;AS IS&QUOT; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 </html>"));
     end License;
 
@@ -155,25 +155,24 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 
    annotation (Documentation(info="<html>
 <p><br>New release must be numbered by Semantic Versioning 2.0.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
-<p><br>If minor version, then the conversion script must be written and connected with package Chemical using &QUOT;annotation(conversion(from(version=..)))&QUOT;! </p>
+<p><br>If minor version, then the conversion script must be written and connected with package Chemical using &quot;annotation(conversion(from(version=..)))&quot;! </p>
 <p><br>To clean the code from dummy annotations try to use script <a href=\"https://github.com/dietmarw/trimtrailingwhitespaces\">ttws</a>. </p>
 <p>To check english spelling try to use <a href=\"https://github.com/vlajos/misspell_fixer\">missspell_fixer</a>.</p>
-<p><br>Update version number to &QUOT;X.Y.Z&QUOT;: </p>
+<p><br>Update version number to &quot;X.Y.Z&quot;: </p>
 <ul>
-<li>At package Chemical annotation: (version=&QUOT;X.Y.Z&QUOT;) together with &QUOT;versionBuild&QUOT;, &QUOT;versionDate&QUOT; and &QUOT;dateModified&QUOT; attribute </li>
-<li>At file &QUOT;./Chemical/libraryinfo.mos&QUOT; </li>
+<li>At package Chemical annotation: (version=&quot;X.Y.Z&quot;) together with &quot;versionBuild&quot;, &quot;versionDate&quot; and &quot;dateModified&quot; attribute </li>
+<li>At file &quot;./Chemical/libraryinfo.mos&quot; </li>
 </ul>
 <p><br>Update release notes: </p>
 <ul>
 <li>At UsersGuide.ReleaseNotes</li>
-<li>At file &QUOT;./README.md&QUOT;, together with update of &QUOT;Current release&QUOT; section.</li>
+<li>At file &quot;./README.md&quot;, together with update of &quot;Current release&quot; section.</li>
 </ul>
 <p><br>Publish release in GitHub: </p>
 <ul>
-<li>Prepare release in &QUOT;master&QUOT; branch</li>
+<li>Prepare release in &quot;master&quot; branch</li>
 <li>Install, Check, Test, Test, Test.. </li>
-<li>Draft a new <a href=\"
-https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/impact.md#impact-on-library-developers\">release from &QUOT;master&QUOT;</a> branch with number &QUOT;vX.Y.Z&QUOT; and with release notes. </li>
+<li>Draft a new <a href=\"https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/impact.md#impact-on-library-developers\">release from &quot;master&quot;</a> branch with number &quot;vX.Y.Z&quot; and with release notes. </li>
 </ul>
 </html>"));
   end NewRelease;
@@ -358,15 +357,15 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
         Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
             graphics={Text(
-              extent={{-84,20},{94,60}},
+              extent={{-84,22},{92,64}},
               lineColor={0,0,255},
-              textString="%name")}),
+            textString="%name")}),
         Documentation(revisions="<html>
 <p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>
 <h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
 <p>where n is amount of the substance and x is mole fraction.</p>
-<p>The main class from &ldquo;Chemical&rdquo; package is called &QUOT;Substance&QUOT;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &QUOT;n&QUOT; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &QUOT;n(solution)&QUOT; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
 <p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
 <p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
 <p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
@@ -440,9 +439,9 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               fillColor={255,255,255},
               fillPattern=FillPattern.Solid),
             Text(
-              extent={{-100,40},{100,66}},
-              textString="%name",
-              lineColor={0,0,255}),
+              extent={{-100,-72},{100,-40}},
+              lineColor={0,0,255},
+            textString="%name"),
             Polygon(
               points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
               lineColor={0,0,0},
@@ -452,19 +451,11 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
               lineColor={0,0,0},
               fillColor={0,0,0},
-              fillPattern=FillPattern.Solid),
-            Text(
-              extent={{-170,-70},{-22,-44}},
-              lineColor={0,0,0},
-            textString="%s"),
-            Text(
-              extent={{12,-68},{160,-42}},
-              lineColor={0,0,0},
-            textString="%p")}),
+              fillPattern=FillPattern.Solid)}),
         Documentation(revisions="<html>
 <p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &LT;-&GT; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</b></sub> </p>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
 <p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
@@ -819,7 +810,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
       subunitSolution.Ij + solution.Ij = 0;
 
       //properties of macromolecule as a whole
-      subunitSolution.nj + solution.nj*NumberOfSubunits = 0;
+      subunitSolution.nj + solution.nj*NumberOfSubunits = 0; //only amount of substance is necessery to express between sites' solution and real solution
       subunitSolution.mj + solution.mj = 0;
       subunitSolution.Vj + solution.Vj = 0;
       subunitSolution.Gj + solution.Gj = 0;
@@ -1031,25 +1022,25 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
         Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
-<p><h4><font color=\"#008000\">Bidirectional mass flow by concentration</font></h4></p>
+<h4><font color=\"#008000\">Bidirectional mass flow by concentration</font></h4>
 <p>Possible field values: </p>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0.1\"><tr>
 <td></td>
-<td><p align=\"center\"><h4>forward flow</h4></p></td>
-<td><p align=\"center\"><h4>backward flow</h4></p></td>
+<td><h4>forward flow</h4></td>
+<td><h4>backward flow</h4></td>
 </tr>
 <tr>
-<td><p align=\"center\"><h4>solutionFlow</h4></p></td>
-<td><p align=\"center\">&GT;=0</p></td>
-<td><p align=\"center\">&LT;=0</p></td>
+<td><h4>solutionFlow</h4></td>
+<td><p align=\"center\">&gt;=0</p></td>
+<td><p align=\"center\">&lt;=0</p></td>
 </tr>
 <tr>
-<td><p align=\"center\"><h4>q_in.q</h4></p></td>
+<td><h4>q_in.q</h4></td>
 <td><p align=\"center\">=solutionFlow*q_in.conc</p></td>
 <td><p align=\"center\">=-q_out.q</p></td>
 </tr>
 <tr>
-<td><p align=\"center\"><h4>q_out.q</h4></p></td>
+<td><h4>q_out.q</h4></td>
 <td><p align=\"center\">=-q_in.q</p></td>
 <td><p align=\"center\">=solutionFlow*q_out.conc</p></td>
 </tr>
@@ -1517,7 +1508,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
         Documentation(revisions="<html>
 <p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &LT;-&GT; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</b></sub> </p>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
 <p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
@@ -2343,7 +2334,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
+       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -2374,7 +2365,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
+       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -2966,22 +2957,22 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
           parameter Modelica.SIunits.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
 
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25 degC";
-
           parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
         "Gibbs enerfy of formation of the substance at 25 degC,1bar";
+
+          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=DfG_25degC_1bar
+        "Enthalpy of formation of the substance at 25 degC";
 
           parameter Modelica.SIunits.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
 
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 75.3
+          parameter Modelica.SIunits.MolarHeatCapacity Cp = 0
         "Molar heat capacity of the substance at constant pressure";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
         //      "Molar heat capacity of the substance at constant volume";
 
-          parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=997.0479
+          parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
         "Density of the pure substance (default density of water at 25degC)";
 
           parameter String References[:]={""}
@@ -3133,7 +3124,7 @@ https://github.com/xogeny/impact/blob/master/resources/docs/modelica2015/paper/i
               fillColor={127,127,0},
               fillPattern=FillPattern.Solid)}),
       Diagram(graphics={
-       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString=  "%name",
+       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
             fillColor={127,127,0},
             fillPattern=FillPattern.Solid),
                       Rectangle(
@@ -3725,7 +3716,7 @@ uses(Modelica(version="3.2.1")),
 <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. </li>
 <li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission. </li>
 </ol>
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &QUOT;AS IS&QUOT; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 </html>", info="<html>
 <p>During each electro-chemical process an <a href=\"modelica://Chemical.Components.Substance\">electro-chemical potential</a> of the substances is equilibrating and all thermodynamical properties of the homogenous chemical solutions are evaluated. </p>
 <p>Processes: chemical reactions, gas dissolution, diffusion, membrane transports, osmotic fluxes, electrochemical cells, electrodes, ..</p>
