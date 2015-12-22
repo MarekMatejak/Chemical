@@ -605,7 +605,7 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Electrical.Analog.Basic.Ground ground1
       annotation (Placement(transformation(extent={{-78,-32},{-58,-12}})));
   equation
-    q = -solution_at_constant_temperature.heatPort.Q_flow;
+    q = fixedTemperature.port.Q_flow;
 
     t = thermal_isolated_solution.solution.T;
 
@@ -669,7 +669,9 @@ extends Modelica.Icons.ExamplesPackage;
 </html>", info="<html>
 <p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
 </html>"),
-      experiment(StopTime=0.001));
+      experiment(StopTime=0.001),
+      Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+              100}}), graphics));
   end ExothermicReaction;
 
   model HydrogenCombustion "Hydrogen combustion in piston"
@@ -1850,9 +1852,6 @@ extends Modelica.Icons.ExamplesPackage;
   connect(PbO2.solution, cathode.solution) annotation (Line(
       points={{-66,-68},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
       color={127,127,0}));
-  connect(PbSO4_.solution, Pb.solution) annotation (Line(
-      points={{46,-32},{46,-66}},
-      color={158,66,200}));
   connect(electrone1.pin, voltageSensor.p) annotation (Line(
       points={{-72,-28},{-82,-28},{-82,50},{-64,50},{-64,82},{-32,82}},
       color={0,0,255}));
@@ -1881,15 +1880,7 @@ extends Modelica.Icons.ExamplesPackage;
       points={{-68,-38},{-66,-38},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,
             -76.92}},
       color={127,127,0}));
-  connect(H2O.solution, H.solution) annotation (Line(
-      points={{-6,-8},{-6,-42}},
-      color={127,127,0}));
-  connect(resistor.n, ground.p) annotation (Line(
-      points={{6,50},{26,50}},
-      color={0,0,255}));
-  connect(electrone.solution, PbSO4_.solution) annotation (Line(
-      points={{46,2},{46,-32}},
-      color={127,127,0}));
+
     annotation (
     experiment(StopTime=49500), Documentation(revisions=
                       "<html>
@@ -2903,9 +2894,6 @@ extends Modelica.Icons.ExamplesPackage;
         connect(HPO4.solution, H2PO4.solution) annotation (Line(
             points={{-76,58},{-82,58},{-82,78}},
             color={127,127,0}));
-        connect(globulins.solution, permeableUncharged.solution) annotation (Line(
-            points={{146,76},{92,76},{92,20},{162,20}},
-            color={158,66,200}));
         connect(Ca.solution, CO2.solution) annotation (Line(
             points={{-82,20},{-82,20},{-56,20}},
             color={127,127,0}));
@@ -2951,11 +2939,15 @@ extends Modelica.Icons.ExamplesPackage;
                 0}));
         connect(Hemoglobin.port_a, H_E.port_a) annotation (Line(points={{72,-76},{64,-76},
                 {50,-76},{50,-28}}, color={158,66,200}));
-        connect(albumin.solution, permeableUncharged.solution) annotation (Line(
-              points={{108,76},{106,76},{92,76},{92,20},{162,20}}, color={127,127,
-                0}));
-        connect(globulins.solution, albumin.solution)
-          annotation (Line(points={{146,76},{108,76}}, color={127,127,0}));
+
+        connect(albumin.solution, blood_plasma.solution) annotation (Line(
+            points={{108,76},{126,76},{126,20},{108,20},{108,12.88}},
+            color={127,127,0},
+            smooth=Smooth.None));
+        connect(globulins.solution, blood_plasma.solution) annotation (Line(
+            points={{146,76},{126,76},{126,20},{108,20},{108,12.88}},
+            color={127,127,0},
+            smooth=Smooth.None));
         annotation ( Documentation(info="<html>
 <p>Blood eqiulibrium across erythrocyte membrane bewteen blood plasma and intracellular fluid of erythrocytes.</p>
 <p>Data of blood status are from:</p>
@@ -2965,7 +2957,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),experiment(StopTime=1e-008),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-180,-100},
-                  {180,100}})));
+                  {180,100}}), graphics));
       end RedCellMembrane;
     end Dev;
   end AcidBase;
@@ -3706,7 +3698,6 @@ extends Modelica.Icons.ExamplesPackage;
           points={{66,-44},{-4,-44},{-4,-56}},
           color={127,127,0}));
 
-
       end for;
 
       connect(speciation.solution, solution) annotation (Line(
@@ -3744,7 +3735,6 @@ extends Modelica.Icons.ExamplesPackage;
       connect(H, H) annotation (Line(
           points={{60,-2},{60,-2}},
           color={158,66,200}));
-
 
       annotation (          experiment(StopTime=15000),
         Documentation(revisions="<html>
@@ -3989,7 +3979,6 @@ extends Modelica.Icons.ExamplesPackage;
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
                 100}}), graphics));
     end HemoglobinMultipleAllostery;
-
 
     model HemoglobinQuaternaryFormCO
       "Hemoglobib quaternary form - part of multiple-ligand allosteric hemoglobin model"
@@ -5086,6 +5075,9 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
       parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
 
+      parameter Modelica.SIunits.MoleFraction KRco37 = (KR/218)*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KTco37 = (KT/218)*OneLiter/AmountOfSolutionIn1L;
+
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  + Chemical.Examples.Substances.CarbonDioxide_gas.DfG_25degC_1bar;
 
@@ -5158,7 +5150,8 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC,
         Hc(displayUnit="kJ/mol") = -41000,
         Hz=8000,
-        Hh=127000)
+        Hh=127000,
+        Kco37=KRco37)
         annotation (Placement(transformation(extent={{-54,-16},{-34,4}})));
       HemoglobinQuaternaryForm                              tensed(
         Ko37=KTo37,
@@ -5175,7 +5168,9 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC,
         Hc(displayUnit="kJ/mol") = 59000,
         Hz=-51000,
-        Hh=59000) annotation (Placement(transformation(extent={{32,-16},{12,4}})));
+        Hh=59000,
+        Kco37=KTco37)
+                  annotation (Placement(transformation(extent={{32,-16},{12,4}})));
       Chemical.Sources.ExternalMoleFraction H(substanceData=Chemical.Examples.Substances.Proton_aqueous,
           MoleFraction=initialH,
         useMoleFractionInput=true,
@@ -5313,6 +5308,9 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
       parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
 
+      parameter Modelica.SIunits.MoleFraction KRco37 = (KR/218)*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KTco37 = (KT/218)*OneLiter/AmountOfSolutionIn1L;
+
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  + Chemical.Examples.Substances.CarbonDioxide_gas.DfG_25degC_1bar;
 
@@ -5385,7 +5383,8 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC,
         Hc(displayUnit="kJ/mol") = -41000,
         Hz=8000,
-        Hh=127000)
+        Hh=127000,
+        Kco37=KRco37)
         annotation (Placement(transformation(extent={{-54,-44},{-34,-24}})));
       HemoglobinQuaternaryForm                              tensed(
         Ko37=KTo37,
@@ -5402,7 +5401,9 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC,
         Hc(displayUnit="kJ/mol") = 59000,
         Hz=-51000,
-        Hh=59000) annotation (Placement(transformation(extent={{32,-44},{12,-24}})));
+        Hh=59000,
+        Kco37=KTco37)
+                  annotation (Placement(transformation(extent={{32,-44},{12,-24}})));
       Chemical.Sources.ExternalMoleFraction H(substanceData=Chemical.Examples.Substances.Proton_aqueous,
           MoleFraction=initialH,
         useMoleFractionInput=true,
@@ -5475,7 +5476,7 @@ extends Modelica.Icons.ExamplesPackage;
           points={{-20,-14},{-36,-14},{-36,-26}},
           color={158,66,200}));
       connect(H.port_a, tensed.H) annotation (Line(
-          points={{-20,-14},{-24,-14},{-24,-14},{-24,-14},{-24,-26},{14,-26},{14,-26}},
+          points={{-20,-14},{-24,-14},{-24,-26},{14,-26}},
           color={158,66,200}));
       connect(CO2_gas.port_a, partialPressure2.gas_port) annotation (Line(
           points={{44,56},{44,56},{48,56},{48,42}},
