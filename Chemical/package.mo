@@ -3361,6 +3361,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     package SimpleChemicalMedium
     "Mixture of chemical substances as homogenous solution in one state of matter"
       extends Modelica.Media.Interfaces.PartialMedium(
+        substanceNames={"H2O(l)"},
         final mediumName="ChemicalSolution",
         final singleState=false,
         final reducedX=false,
@@ -3377,7 +3378,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
          annotation (choicesAllMatching = true);
 
       // Provide medium constants here
-      constant stateOfMatter.SubstanceData substanceData[nS]
+      constant stateOfMatter.SubstanceData substanceData[nS] = {Examples.Substances.Water_liquid}
       "Definition of the substances"
          annotation (choicesAllMatching = true);
 
