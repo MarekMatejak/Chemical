@@ -543,7 +543,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     equation
       //electric
       pin.v = electricPotential;
-      pin.i + z*Modelica.Constants.F*port_a.q = 0;
+      pin.i + z*Modelica.Constants.F*port_a.q + solution.i = 0;
 
       //pure substance
       x = 1;
@@ -2334,7 +2334,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
+       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -2365,7 +2365,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
+       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -3124,7 +3124,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               fillColor={127,127,0},
               fillPattern=FillPattern.Solid)}),
       Diagram(graphics={
-       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString=  "%name",
+       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
             fillColor={127,127,0},
             fillPattern=FillPattern.Solid),
                       Rectangle(
