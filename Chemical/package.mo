@@ -352,6 +352,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       solution.Gj=amountOfSubstance*port_a.u;
       solution.Qj=Modelica.Constants.F*amountOfSubstance*z;
       solution.Ij=(1/2) * ( amountOfSubstance * z^2);
+      solution.otherPropertiesOfSubstance=amountOfSubstance * otherPropertiesPerSubstance;
 
                                                                                                         annotation (
         Icon(coordinateSystem(
@@ -559,6 +560,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       solution.Gj=0;
       solution.Qj=0;
       solution.Ij=0;
+      solution.otherPropertiesOfSubstance=zeros(stateOfMatter.OtherPropertiesCount);
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -762,10 +764,16 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     "Quaternary macromolecule form defined by all its subunits"
       extends Icons.Speciation;
 
+      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
+      Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
       parameter Integer NumberOfSubunits=1
       "Number of independent subunits occurring in macromolecule";
 
-      Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{-70,
+      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
+            stateOfMatter)                                                              annotation (Placement(transformation(extent={{-70,
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
 
@@ -775,8 +783,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution
-      "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
+        =   stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -815,6 +823,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       subunitSolution.Vj + solution.Vj = 0;
       subunitSolution.Gj + solution.Gj = 0;
       subunitSolution.dV + solution.dV = 0;
+      subunitSolution.otherPropertiesOfSubstance = -solution.otherPropertiesOfSubstance;
 
       //shift global solution status to subunits
       subunitSolution.T = solution.T;
@@ -826,6 +835,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       subunitSolution.G = solution.G;
       subunitSolution.Q = solution.Q;
       subunitSolution.I = solution.I;
+      subunitSolution.otherProperties = solution.otherProperties;
 
       annotation (defaultComponentName="macromolecule",
         Documentation(revisions="<html>
@@ -955,7 +965,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
             origin={30,-26})));
     Interfaces.SubstancePort_b port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-      Interfaces.SolutionPort solution
+      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
+          stateOfMatter)
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
     equation
       product.u1=q;
@@ -1071,7 +1082,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       "All chemical substances of the solution"                                           annotation (Placement(transformation(
               extent={{-110,-40},{-90,40}}), iconTransformation(extent={{-110,-40},{
                 -90,40}})));
-      Interfaces.SolutionPort solution "Chemical solution"
+      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
+            Medium.stateOfMatter) "Chemical solution"
         annotation (Placement(transformation(extent={{30,-40},{50,-20}}),
             iconTransformation(extent={{30,-40},{50,-20}})));
        Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort
@@ -1149,6 +1161,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       solution.Qj = 0;
       solution.Ij = 0;
       solution.Vj = 0;
+      solution.otherPropertiesOfSubstance = zeros(Medium.stateOfMatter.OtherPropertiesCount);
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false, extent={{-100,-100},{100,100}}), graphics={Line(
@@ -1593,6 +1606,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       "Electric potential";
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
       "Ionic strength";
+      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
+      "Other extensive properties of the solution";
 
     equation
       x = 1;
@@ -1602,6 +1617,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+      otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -1671,6 +1687,9 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       parameter Modelica.SIunits.Volume Volume = 0.001
       "Volume of gaseous solution";
 
+      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
+      "Other extensive properties of the solution";
+
     equation
       if not usePartialPressureInput then
         p=PartialPressure;
@@ -1684,6 +1703,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       pressure = TotalPressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = 0;
+      otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -1748,6 +1768,9 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
       "Electric potential";
 
+      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
+      "Other extensive properties of the solution";
+
       Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG if
            useMolalityInput
         annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
@@ -1768,6 +1791,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+      otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -1825,6 +1849,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
       "Electric potential";
+      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
+      "Other extensive properties of the solution";
 
       Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L if
            useMolarityInput
@@ -1846,6 +1872,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+      otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -1900,6 +1927,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       "Ionic strength";
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
       "Electric potential";
+      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
+      "Other extensive properties of the solution";
 
       Modelica.Blocks.Interfaces.RealInput moleFractionInput(
         final unit="mol/mol",
@@ -1917,6 +1946,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       pressure = Pressure;
       electricPotential = ElectricPotential;
       moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+      otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -2263,6 +2293,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       solution.Gj=-nFreeBuffer*port_a.u;
       solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
       solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
+      solution.otherPropertiesOfSubstance=-nFreeBuffer*otherPropertiesPerSubstance;
 
         annotation ( Icon(coordinateSystem(
                 preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -2531,30 +2562,34 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
     //    "Molar heat capacity of the substance at constant pressure";
 
+      Real otherProperties[stateOfMatter.OtherPropertiesCount];
+      Real otherPropertiesPerSubstance[stateOfMatter.OtherPropertiesCount];
+
     equation
       //aliases
-      gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      molarMass = stateOfMatter.molarMass(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      molarMass = stateOfMatter.molarMass(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
 
-      molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+      molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
       u0 = stateOfMatter.chemicalPotentialPure(
         substanceData,
         temperature,
         pressure,
         electricPotential,
-        moleFractionBasedIonicStrength);
+        moleFractionBasedIonicStrength,otherProperties);
       uPure = stateOfMatter.electroChemicalPotentialPure(
         substanceData,
         temperature,
         pressure,
         electricPotential,
-        moleFractionBasedIonicStrength);
-      molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-      molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-    //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+        moleFractionBasedIonicStrength,otherProperties);
+      molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+      otherPropertiesPerSubstance = stateOfMatter.otherPropertiesPerSubstance(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
       //activity of the substance
       a = gamma*x;
@@ -2565,7 +2600,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         temperature,
         pressure,
         electricPotential,
-        moleFractionBasedIonicStrength)
+        moleFractionBasedIonicStrength,otherProperties)
         + Modelica.Constants.R*temperature*log(a)
         + z*Modelica.Constants.F*electricPotential;
 
@@ -2580,7 +2615,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     partial model PartialSubstanceInSolution
     "Substance properties for components, where the substance is connected with the solution"
 
-      SolutionPort            solution
+      SolutionPort            solution(redeclare package stateOfMatter =
+            stateOfMatter)
       "To connect substance with solution, where is pressented"                                  annotation (Placement(transformation(
               extent={{-70,-110},{-50,-90}}),iconTransformation(extent={{-70,-110},{
                 -50,-90}})));
@@ -2598,6 +2634,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       electricPotential = solution.v;
       amountOfSolution = solution.n;
       moleFractionBasedIonicStrength = solution.I;
+      otherProperties = solution.otherProperties;
 
     end PartialSubstanceInSolution;
 
@@ -2616,6 +2653,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       solution.Qj = 0;
       solution.Ij = 0;
       solution.Vj = 0;
+      solution.otherPropertiesOfSubstance = zeros(stateOfMatter.OtherPropertiesCount);
     end PartialSubstanceSensor;
 
     partial package StateOfMatter "Abstract package for all state of matters"
@@ -2623,6 +2661,9 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
      replaceable record SubstanceData
       "Definition data of the chemical substance"
      end SubstanceData;
+
+     constant Integer OtherPropertiesCount=0
+      "Number of other extensive properties";
 
      replaceable function activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -2634,6 +2675,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Real activityCoefficient "Activity Coefficient";
      end activityCoefficient;
 
@@ -2647,6 +2690,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.ChargeNumberOfIon chargeNumberOfIon
         "Charge number of ion";
      end chargeNumberOfIon;
@@ -2661,6 +2706,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarEnthalpy molarEnthalpyElectroneutral
         "Molar enthalpy";
      end molarEnthalpyElectroneutral;
@@ -2675,10 +2722,12 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarEnthalpy molarEnthalpy "Molar enthalpy";
      algorithm
-        molarEnthalpy := molarEnthalpyElectroneutral(substanceData,T,p) +
-             Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
+        molarEnthalpy := molarEnthalpyElectroneutral(substanceData,T,p,v,I,r) +
+             Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I,r)*v;
      end molarEnthalpy;
 
      replaceable function molarEntropyPure
@@ -2691,6 +2740,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarEntropy molarEntropyPure
         "Molar entropy of the pure substance";
      end molarEntropyPure;
@@ -2706,9 +2757,11 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
             input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+            input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
             output Modelica.SIunits.MolarEntropy molarEntropy "Molar entropy";
       algorithm
-          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
+          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I,r))/T;
       end molarEntropy;
 
      function chemicalPotentialPure "Chemical potential of the pure substance"
@@ -2720,10 +2773,12 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.ChemicalPotential chemicalPotentialPure
         "Base chemical potential";
      algorithm
-         chemicalPotentialPure :=  molarEnthalpyElectroneutral(substanceData,T,p) - T*molarEntropyPure(substanceData,T,p,v,I);
+         chemicalPotentialPure :=  molarEnthalpyElectroneutral(substanceData,T,p,v,I,r) - T*molarEntropyPure(substanceData,T,p,v,I,r);
      end chemicalPotentialPure;
 
      function electroChemicalPotentialPure
@@ -2736,6 +2791,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.ChemicalPotential electroChemicalPotentialPure
         "Base electro-chemical potential";
      algorithm
@@ -2744,7 +2801,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
            T,
            p,
            v,
-           I) + Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
+           I,r) + Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I,r)*v;
      end electroChemicalPotentialPure;
 
      replaceable function molarMass "Molar mass of the substance"
@@ -2756,6 +2813,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarMass molarMass "Molar mass";
      end molarMass;
 
@@ -2768,6 +2827,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
      end molarVolumePure;
 
@@ -2781,11 +2842,13 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarVolume molarVolumeExcess
         "Excess molar volume of the substance in the solution";
      algorithm
-        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
-           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
+        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I,r)*
+           log(activityCoefficient(substanceData,T,p,v,I,r)); //zero if activityCoefficient==1
      end molarVolumeExcess;
 
      replaceable function molarVolume "Molar volume of the substance"
@@ -2797,6 +2860,9 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
+
         output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
      algorithm
       molarVolume :=molarVolumePure(
@@ -2804,12 +2870,12 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
            T,
            p,
            v,
-           I) + molarVolumeExcess(
+           I,r) + molarVolumeExcess(
            substanceData,
            T,
            p,
            v,
-           I);
+           I,r);
      end molarVolume;
 
      replaceable function molarHeatCapacityCp
@@ -2822,6 +2888,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
         "Molar heat capacity at constant pressure";
      end molarHeatCapacityCp;
@@ -2836,9 +2904,26 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
         "Electric potential of the substance";
         input Modelica.SIunits.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
         output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCv
         "Molar heat capacity at constant volume";
       end molarHeatCapacityCv;
+
+      replaceable function otherPropertiesPerSubstance
+      "Other extensive properties of the substance in the solution per one mol of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        output Real rj[OtherPropertiesCount] = zeros(OtherPropertiesCount)
+        "Properties of the substance";
+      algorithm
+      end otherPropertiesPerSubstance;
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -3110,6 +3195,17 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       flow Modelica.SIunits.MoleFraction Ij
       "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
+      //suport for structural properties
+      replaceable package stateOfMatter = Incompressible                    constrainedby
+      StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
+      Real otherProperties[stateOfMatter.OtherPropertiesCount]
+      "Other extensive properties of the solution";
+      flow Real otherPropertiesOfSubstance[stateOfMatter.OtherPropertiesCount]
+      "Other extensive properties of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
       annotation (
       defaultComponentName="solution",
       Documentation(revisions="<html>
@@ -3138,6 +3234,11 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     partial model PartialSolution
     "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
+     replaceable package stateOfMatter = Incompressible                    constrainedby
+      StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
       Modelica.SIunits.Temperature T(start=298.15) "Temperature";
 
       Modelica.SIunits.Pressure p(start=100000) "Pressure";
@@ -3145,7 +3246,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       Modelica.SIunits.Volume volume(stateSelect=StateSelect.prefer)
       "Current volume of the solution";
 
-      Interfaces.SolutionPort solution "Solution nonflows and flows"
+      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
+            stateOfMatter) "Solution nonflows and flows"
                                       annotation (Placement(
             transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
               {62,-96}})));
@@ -3226,6 +3328,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       //volume
       volume + solution.Vj = 0; //total volume of solution is the sum of volumes of each substance
 
+      //structural properties
+      solution.otherProperties = solution.otherPropertiesOfSubstance;
                                                                                                         annotation (
         Documentation(revisions="<html>
 <p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>

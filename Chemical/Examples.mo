@@ -690,7 +690,8 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution idealGas(
       SurfaceArea=A,
       useMechanicPorts=true,
-      useThermalPort=true)
+      useThermalPort=true,
+      redeclare package stateOfMatter = Interfaces.IdealGas)
       annotation (Placement(transformation(extent={{-50,-56},{50,44}})));
                      // AmbientPressure=p)
     //  volume_start=V,
@@ -802,7 +803,8 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution gas(
       temperature_start=T_start,
       useMechanicPorts=true,
-      useThermalPort=true)
+      useThermalPort=true,
+      redeclare package stateOfMatter = Interfaces.IdealGas)
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
@@ -894,9 +896,10 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Components.Solution gas(
       temperature_start=T_start,
-      BasePressure=600,
       useMechanicPorts=true,
-      useThermalPort=true)
+      useThermalPort=true,
+      redeclare package stateOfMatter = Interfaces.IdealGas,
+      BasePressure=600)
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
