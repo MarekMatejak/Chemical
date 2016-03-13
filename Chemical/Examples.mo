@@ -1,4 +1,4 @@
-within Chemical;
+﻿within Chemical;
 package Examples "Examples that demonstrate usage of chemical library"
 extends Modelica.Icons.ExamplesPackage;
 
@@ -274,6 +274,32 @@ extends Modelica.Icons.ExamplesPackage;
       Cp=29.4,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}) "O2(g)";
 
+    constant Chemical.Interfaces.IdealGasShomate.SubstanceData Oxygen_gas_Shomate_298_6000(
+      MolarWeight=0.032,
+      DfH_25degC=0,
+      DfG_25degC_1bar=0,
+      cp_25degC=29.4,
+      B=6.137261,
+      C=-1.186521,
+      D=0.09578,
+      E=-0.219663,
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"})
+      "O2(g) Shomate 298K–6000K";
+
+    constant Chemical.Interfaces.IdealGasShomate.SubstanceData Oxygen_gas_Shomate_200_5000(
+      MolarWeight=0.032,
+      DfH_25degC=0,
+      DfG_25degC_1bar=0,
+      cp_25degC=29.4,
+      B=-21.55543,
+      C=2.456517,
+      D=-0.16151,
+      E=0.175056,
+      X=44.837013,
+      References={"http://www.vias.org/genchem/standard_enthalpies_table.html","http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"})
+      "O2(g) Shomate 200K–5000K";
+      //A=8.99044,
+
     constant Chemical.Interfaces.Incompressible.SubstanceData Oxygen_aqueous(
       MolarWeight=0.032,
       DfH_25degC=-11700,
@@ -350,6 +376,20 @@ extends Modelica.Icons.ExamplesPackage;
 
       //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
       //Other source: http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf
+    model OxygenGasOnTemperature
+      Real cp1,cp2;
+      Real H1,H2;
+      Real S1,S2;
+      Real T;
+    equation
+      T=200+time;
+      cp1 = Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(Chemical.Examples.Substances.Oxygen_gas_Shomate_298_6000,T);
+      cp2 = Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(Chemical.Examples.Substances.Oxygen_gas_Shomate_200_5000,T);
+      H1 = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(Chemical.Examples.Substances.Oxygen_gas_Shomate_298_6000,T);
+      H2 = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(Chemical.Examples.Substances.Oxygen_gas_Shomate_200_5000,T);
+      S1 = Chemical.Interfaces.IdealGasShomate.molarEntropyPure(Chemical.Examples.Substances.Oxygen_gas_Shomate_298_6000,T);
+      S2 = Chemical.Interfaces.IdealGasShomate.molarEntropyPure(Chemical.Examples.Substances.Oxygen_gas_Shomate_200_5000,T);
+    end OxygenGasOnTemperature;
   end Substances;
 
   model SimpleReaction

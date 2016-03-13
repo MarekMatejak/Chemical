@@ -2926,12 +2926,12 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       end otherPropertiesPerSubstance;
 
       annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
+<p><i>2015-2016</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end StateOfMatter;
 
-    package IdealGas "Ideal gas as basic state of matter"
+    package IdealGas "Ideal gas with constant heat capacity"
        extends StateOfMatter;
 
        redeclare replaceable record extends SubstanceData "Base substance data"
@@ -3030,6 +3030,167 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end IdealGas;
+
+    package IdealGasShomate "Ideal gas based on Shomate equations"
+       extends StateOfMatter;
+
+     redeclare replaceable record extends SubstanceData
+      "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
+
+          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
+        "Molar weight of the substance in kg/mol or kDa";
+
+          parameter Modelica.SIunits.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
+
+          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
+        "Enthalpy of formation of the substance at 25 degC";
+
+          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
+
+          parameter Modelica.SIunits.ActivityCoefficient gamma=1
+        "Activity coefficient of the substance";
+
+          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
+        "Heat capacity at 25 degC";
+
+          parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
+          parameter Real C(unit="J.mol-1")=0 "Shomate parameter C";
+          parameter Real D(unit="J.K.mol-1")=0 "Shomate parameter D";
+          parameter Real E(unit="J.K2.mol-1")=0 "Shomate parameter E";
+          parameter Real X=0 "Shomate parameter X";
+          parameter Real A_(unit="J.K-1.mol-1")=0 "Shomate parameter A'";
+          parameter Real E_(unit="K")=1e-8 "Shomate parameter E'";
+
+          parameter String References[:]={"http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"}
+        "References of these thermodynamical values";
+        annotation (Documentation(revisions="<html>
+<p><i>2016</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+     end SubstanceData;
+
+     redeclare function extends activityCoefficient
+      "Return activity coefficient of the substance in the solution"
+     algorithm
+         activityCoefficient := substanceData.gamma;
+     end activityCoefficient;
+
+     redeclare function extends chargeNumberOfIon
+      "Return charge number of the substance in the solution"
+     algorithm
+        chargeNumberOfIon := substanceData.z;
+     end chargeNumberOfIon;
+
+     redeclare function extends molarEnthalpyElectroneutral
+      "Molar enthalpy of the pure substance in electroneutral solution, where der(Hm)=cp*der(T)"
+    protected
+       parameter Real T0=298.15;
+       Real t=T/1000;
+       parameter Real A=substanceData.cp_25degC
+         - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
+         - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
+         - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
+
+       parameter Real H=substanceData.DfH_25degC
+         - 1000*(substanceData.A_/((-1 + exp((1000*substanceData.E_)/T0))*substanceData.E_)
+         - (1000*substanceData.E)/T0 + 0.001*A*T0
+         + 5.*10^(-7)*substanceData.B*T0^2 + (1/3)*10^(-9)*substanceData.C*T0^3
+         + 2.5*10^(-13)*substanceData.D*T0^4 + (1/1000)^(1.5)/1.5 * T0^1.5 * substanceData.X);
+
+     algorithm
+         //Molar enthalpy:
+         // - temperature shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - R*dT)
+         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
+         //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
+         molarEnthalpyElectroneutral :=
+         H + 1000*(A*t + substanceData.B*t^2/2 + substanceData.C*t^3/3
+         + substanceData.D*t^4/4 - substanceData.E/t + substanceData.X*t^1.5/1.5
+         + substanceData.A_/substanceData.E_/(exp(substanceData.E_/t) - 1));
+
+     end molarEnthalpyElectroneutral;
+
+     redeclare function extends molarEntropyPure
+      "Molar entropy of the pure substance, where der(Sm) = cp*der(T)/T"
+    protected
+       parameter Real T0=298.15;
+       Real t=T/1000;
+       parameter Real A= substanceData.cp_25degC
+         - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
+         - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
+         - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
+
+       parameter Real G= (((substanceData.DfH_25degC - substanceData.DfG_25degC_1bar)/298.15)
+         + (500000.* substanceData.E)/T0^2
+         - (1000*substanceData.A_)/((-1 + exp((1000*substanceData.E_)/T0))*substanceData.E_*T0)
+         - 0.001*substanceData.B*T0 - 5*10^(-7) * substanceData.C * T0^2
+         - (1/3)*10^(-9)*substanceData.D*T0^3 - sqrt(0.004*T0)* substanceData.X
+         + (substanceData.A_*log(1 - exp(-((1000*substanceData.E_)/T0))))/substanceData.E_^2
+         - A*log(0.001*T0));
+
+     algorithm
+       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+       //+ (substanceData.Cp+Modelica.Constants.R)*log(T/298.15);
+
+         //Molar entropy:
+         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
+         // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
+         molarEntropyPure := G
+           + A*log(t) + substanceData.B*t + substanceData.C*t^2/2 + substanceData.D*t^3/3
+           - substanceData.E/(2*t^2)
+           + 2*substanceData.X*t^0.5 + substanceData.A_/substanceData.E_/t/(exp(substanceData.E_/t) - 1)
+           - substanceData.A_/substanceData.E_^2*log(1 - exp(-substanceData.E_/t))
+         - Modelica.Constants.R*log(p/100000);
+
+     /*    AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 + G + 
+ AAA/EEE/t/(Exp[EEE/t] - 1) - AAA/EEE^2*Log[1 - Exp[-EEE/t]]
+ 
+ G + AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 + 
+ AAA/EEE/t/(Exp[EEE/t] - 1) - AAA/EEE^2*Log[1 - Exp[-EEE/t]]
+ */
+
+         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
+     end molarEntropyPure;
+
+     redeclare function extends molarMass "Molar mass of the substance"
+     algorithm
+         molarMass := substanceData.MolarWeight;
+     end molarMass;
+
+     redeclare function extends molarVolumePure
+      "Molar volume of the pure substance"
+     algorithm
+         molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
+     end molarVolumePure;
+
+     redeclare function extends molarHeatCapacityCp
+      "Molar heat capacity of the substance at constant pressure"
+    protected
+       parameter Real T0=298.15;
+       Real t=T/1000;
+       parameter Real A= substanceData.cp_25degC
+         - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
+         - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
+         - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
+     algorithm
+         molarHeatCapacityCp := (A + substanceData.B*t + substanceData.C*t^2 +
+         substanceData.D*t^3 + substanceData.E/t^2 + substanceData.X*t^0.5 +
+         substanceData.A_/t^2*exp(substanceData.E_/t)/(exp(substanceData.E_/t)-1)^2);
+     end molarHeatCapacityCp;
+
+     redeclare function extends molarHeatCapacityCv
+      "Molar heat capacity of the substance at constant volume"
+     algorithm
+         molarHeatCapacityCv := molarHeatCapacityCp(substanceData,T,p,v,I,r) - Modelica.Constants.R;
+     end molarHeatCapacityCv;
+
+      annotation (Documentation(revisions="<html>
+<p><i>2016</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end IdealGasShomate;
 
     package Incompressible "Incompressible as basic state of matter"
        extends StateOfMatter;
@@ -3209,7 +3370,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
       annotation (
       defaultComponentName="solution",
       Documentation(revisions="<html>
-<p><i>2015</i></p>
+<p><i>2015-2016</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p>Solution port integrates all substances of the solution:</p>
