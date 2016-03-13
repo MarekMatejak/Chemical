@@ -6026,9 +6026,4 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
   end FluidAdapter2;
 
-  annotation (
-    conversion(from(
-        version="1",
-        script="ConvertFromExamples_1.mos",
-        version="")));
 end Examples;
