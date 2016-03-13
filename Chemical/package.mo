@@ -2334,7 +2334,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -2365,7 +2365,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent=  {{-160,110},{40,50}}, lineColor={172,72,218},   textString=  "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -3124,7 +3124,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
               fillColor={127,127,0},
               fillPattern=FillPattern.Solid)}),
       Diagram(graphics={
-       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
+       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString=  "%name",
             fillColor={127,127,0},
             fillPattern=FillPattern.Solid),
                       Rectangle(
@@ -3619,7 +3619,7 @@ Modelica source.
 
     partial class Diffusion
 
-      annotation (Icon(graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
+      annotation (Icon(graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
                   "modelica://Chemical/Resources/Icons/diffusion.png")}));
 
     end Diffusion;
@@ -3628,7 +3628,7 @@ Modelica source.
 
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
+            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
                   "modelica://Chemical/Resources/Icons/Substance.png")}));
     end Substance;
 
@@ -3636,14 +3636,15 @@ Modelica source.
 
       annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
+            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
                   "modelica://Chemical/Resources/Icons/Speciation.png")}));
     end Speciation;
 
     class GasSolubility
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics={Bitmap(extent={{-100,100},{100,-100}},
+                -100},{100,100}}), graphics={Bitmap(extent={{-100,-100},{100,
+                100}},
                 fileName=
                   "modelica://Chemical/Resources/Icons/GasSolubility.png")}));
     end GasSolubility;
@@ -3658,7 +3659,7 @@ Modelica source.
     class EnzymeKinetics
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics={Bitmap(extent={{-80,84},{86,-26}},
+                -100},{100,100}}), graphics={Bitmap(extent={{-80,-26},{86,84}},
                 fileName=
                   "modelica://Chemical/Resources/Icons/EnzymeKinetics.png")}));
     end EnzymeKinetics;
@@ -3683,7 +3684,7 @@ Modelica source.
 
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
+            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
                   "modelica://Chemical/Resources/Icons/buffer.png")}));
     end Buffer;
 
@@ -3691,7 +3692,7 @@ Modelica source.
 
         annotation ( Icon(coordinateSystem(
               preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,100},{100,-100}}, fileName=
+            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
                 "modelica://Chemical/Resources/Icons/electron.png")}));
     end ElectronTransfer;
     annotation (Documentation(revisions=""));
