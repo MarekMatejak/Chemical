@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models (version 1.1.0)"
+package Chemical "Library of Electro-Chemical models (version 1.1.1-beta)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -176,12 +176,10 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 </ul>
 </html>"));
   end NewRelease;
-
   annotation (DocumentationClass=true, Documentation(info="<html>
 <p>Package <b>Chemical </b>is a modelica package for <b>Electro-Chemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
 </html>"));
   end UsersGuide;
-
 
  extends Modelica.Icons.Package;
 
@@ -1171,7 +1169,6 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
     end FluidAdapter;
   end Components;
 
-
   package Sensors "Chemical sensors"
     extends Modelica.Icons.SensorsPackage;
 
@@ -1590,9 +1587,7 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 </table>
 </html>"));
     end DissociationCoefficient;
-
   end Sensors;
-
 
   package Sources "Chemical sources"
     extends Modelica.Icons.SourcesPackage;
@@ -2308,7 +2303,6 @@ package Chemical "Library of Electro-Chemical models (version 1.1.0)"
 </html>"));
     end Buffer;
   end Sources;
-
 
   package Interfaces "Chemical interfaces"
     extends Modelica.Icons.InterfacesPackage;
@@ -3877,7 +3871,6 @@ Modelica source.
     end SimpleChemicalMedium;
   end Interfaces;
 
-
   package Icons "Icons for chemical models"
     //extends Modelica.Icons.IconsPackage;
     extends Modelica.Icons.Package;
@@ -3963,17 +3956,17 @@ Modelica source.
     annotation (Documentation(revisions=""));
   end Icons;
 
-
   annotation (
 preferredView="info",
-version="1.1.0",
+version="1.1.1-beta",
 versionBuild=1,
 versionDate="2015-09-15",
 dateModified = "2015-09-15 17:14:41Z",
 conversion(
   from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
-  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos")),
-uses(Modelica(version="3.2.1")),
+  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
+      noneFromVersion="1.1.0"),
+uses(Modelica(version="3.2.2")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2015, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>

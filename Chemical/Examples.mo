@@ -6068,5 +6068,4 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
   end FluidAdapter2;
-
 end Examples;
