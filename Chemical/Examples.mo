@@ -229,6 +229,7 @@ extends Modelica.Icons.ExamplesPackage;
       z=-1,
       DfH_25degC=-885750,
       DfG_25degC_1bar=-752870,
+      density=1800,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"})
       "HSO4-(aq)";
@@ -6068,4 +6069,219 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
   end FluidAdapter2;
+
+  model GlassElectrode
+    "The electrochemical cell: Ag(s) | AgCl(s) | Cl-(aq) || H+(aq,unknown) |glass| H+(aq,ref), Cl-(aq,ref) | AgCl(s) | Ag(s)"
+   extends Modelica.Icons.Example;
+
+    Chemical.Components.Solution inner_electrode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{64,-80},{98,28}})));
+
+    Chemical.Components.Solution outer_electrode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-98,-80},{-64,28}})));
+
+    Chemical.Components.Solution outer_solution(ElectricGround=false)
+      "Outer reference solution"
+      annotation (Placement(transformation(extent={{-60,-82},{-32,18}})));
+
+    Chemical.Components.Substance AgCl(amountOfSubstance_start=1, substanceData=
+         Substances.SilverChloride_solid)
+      annotation (Placement(transformation(extent={{90,-70},{70,-50}})));
+    Chemical.Components.Substance Cl_o(substanceData=Substances.HydrogenSulfate_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-36,-28},{-56,-8}})));
+    Chemical.Components.Substance Ag_i(amountOfSubstance_start=0.01,
+        substanceData=Substances.Silver_solid)
+      annotation (Placement(transformation(extent={{90,-4},{70,16}})));
+    Chemical.Components.Substance H_o(substanceData=Substances.Proton_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-34,-80},{-54,-60}})));
+    Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
+      annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
+    Chemical.Components.Reaction electrodeReaction(
+      nP=2,
+      nS=4,
+      s={1,1,3,2},
+      p={1,2}) annotation (Placement(transformation(
+          extent={{-10,10},{10,-10}},
+          rotation=90,
+          origin={-62,-30})));
+    Chemical.Components.Reaction electrodeReaction1(
+      nS=2,
+      nP=3,
+      p={1,1,2}) annotation (Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={62,-24})));
+
+  Chemical.Components.ElectronTransfer electrone
+      annotation (Placement(transformation(extent={{92,-34},{72,-14}})));
+  Chemical.Components.ElectronTransfer electrone_o
+      annotation (Placement(transformation(extent={{-90,-58},{-70,-38}})));
+    Chemical.Components.Substance AgCl_o(amountOfSubstance_start=1,
+        substanceData=Substances.SilverChloride_solid) annotation (Placement(
+          transformation(extent={{-10,-10},{10,10}}, origin={-78,-66})));
+    Chemical.Components.Substance H2O_o(substanceData=Substances.Water_liquid,
+        amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{-34,-60},{-54,-40}})));
+    Chemical.Components.Substance Ag_o(amountOfSubstance_start=0.01,
+        substanceData=Substances.Silver_solid) annotation (Placement(
+          transformation(extent={{-10,-10},{10,10}}, origin={-78,4})));
+
+  Modelica.Electrical.Analog.Basic.Ground ground
+    annotation (Placement(transformation(extent={{16,30},{36,50}})));
+  Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
+    annotation (Placement(transformation(extent={{-14,40},{6,60}})));
+  Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
+    annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
+    Chemical.Components.Solution solution(ElectricGround=false, useElectricPort=
+         true)
+      annotation (Placement(transformation(extent={{-14,-80},{14,20}})));
+    Chemical.Components.Substance Cl_s(substanceData=Substances.HydrogenSulfate_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{10,-70},{-10,-50}})));
+    Chemical.Components.Substance H_s(substanceData=Substances.Proton_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{10,-44},{-10,-24}})));
+    Chemical.Components.Substance H2O_s(substanceData=Substances.Water_liquid,
+        amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{10,-8},{-10,12}})));
+    Chemical.Components.Solution inner_solution(ElectricGround=false,
+        useElectricPort=true) "Inner reference solution"
+      annotation (Placement(transformation(extent={{28,-76},{56,24}})));
+    Chemical.Components.Substance Cl_i(substanceData=Substances.HydrogenSulfate_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{34,-68},{54,-48}})));
+    Chemical.Components.Substance H_i(substanceData=Substances.Proton_aqueous,
+        amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{34,-40},{54,-20}})));
+    Chemical.Components.Substance H2O_i(substanceData=Substances.Water_liquid,
+        amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{34,-6},{54,14}})));
+    Components.Membrane membrane
+      annotation (Placement(transformation(extent={{-34,-44},{-14,-24}})));
+    Chemical.Components.Substance K_o(amountOfSubstance_start=1, substanceData=
+          Substances.Potassium_aqueous)
+      annotation (Placement(transformation(extent={{-36,-6},{-56,14}})));
+  equation
+    connect(AgCl.port_a, electrodeReaction1.substrates[1]) annotation (Line(
+        points={{70,-60},{63.5,-60},{63.5,-34},{64,-34}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(Ag_i.port_a, electrodeReaction1.products[1]) annotation (Line(
+        points={{70,6},{70,-4},{60,-4},{60,-14},{64.6667,-14}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(Cl_o.solution, outer_solution.solution) annotation (Line(points={{
+            -40,-28},{-40,-80},{-37.6,-80},{-37.6,-81}}, color={127,127,0}));
+    connect(H_o.solution, outer_solution.solution) annotation (Line(points={{
+            -38,-80},{-37.6,-80},{-37.6,-81}}, color={127,127,0}));
+    connect(H2O_o.solution, outer_solution.solution) annotation (Line(points={{
+            -38,-60},{-38,-81},{-37.6,-81}}, color={127,127,0}));
+    connect(electrodeReaction.products[1], Ag_o.port_a) annotation (Line(
+        points={{-64,-20},{-64,4},{-68,4}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(AgCl_o.port_a, electrodeReaction.substrates[1]) annotation (Line(
+        points={{-68,-66},{-64,-66},{-64,-40},{-65,-40}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H_o.port_a, electrodeReaction.substrates[3]) annotation (Line(
+        points={{-54,-70},{-58,-70},{-58,-40},{-61,-40}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
+        points={{72,-24},{68,-24},{68,-14},{59.3333,-14}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(AgCl.solution, inner_electrode.solution) annotation (Line(points={{
+            86,-70},{86,-78.92},{91.2,-78.92}}, color={127,127,0}));
+    connect(Ag_i.solution, inner_electrode.solution) annotation (Line(points={{
+            86,-4},{86,-78.92},{91.2,-78.92}}, color={127,127,0}));
+    connect(AgCl_o.solution, outer_electrode.solution) annotation (Line(points=
+            {{-84,-76},{-84,-72},{-78,-72},{-78,-78.92},{-70.8,-78.92}}, color=
+            {127,127,0}));
+    connect(electrone_o.pin, voltageSensor.p) annotation (Line(points={{-90,-48},
+            {-100,-48},{-100,48},{-82,48},{-82,82},{-32,82}}, color={0,0,255}));
+  connect(electrone.pin, voltageSensor.n) annotation (Line(
+      points={{92,-24},{92,46},{66,46},{66,78},{-12,78},{-12,82}},
+      color={0,0,255}));
+    connect(electrone.solution, inner_electrode.solution) annotation (Line(
+          points={{88,-34},{88,-78.92},{91.2,-78.92}}, color={127,127,0}));
+  connect(electrone.pin, ground.p) annotation (Line(
+      points={{92,-24},{92,50},{26,50}},
+      color={0,0,255}));
+    connect(electrone_o.pin, currentSensor.p) annotation (Line(points={{-90,-48},
+            {-100,-48},{-100,50},{-56,50}}, color={0,0,255}));
+  connect(currentSensor.n, resistor.p) annotation (Line(
+      points={{-36,50},{-14,50}},
+      color={0,0,255}));
+  connect(resistor.n, electrone.pin) annotation (Line(
+      points={{6,50},{92,50},{92,-24}},
+      color={0,0,255}));
+    connect(Ag_o.solution, outer_electrode.solution) annotation (Line(points={{
+            -84,-6},{-84,-72},{-78,-72},{-78,-78.92},{-70.8,-78.92}}, color={
+            127,127,0}));
+    connect(electrone_o.solution, outer_electrode.solution) annotation (Line(
+          points={{-86,-58},{-82,-58},{-82,-72},{-78,-72},{-78,-78.92},{-70.8,
+            -78.92}}, color={127,127,0}));
+
+    connect(Cl_s.solution, solution.solution) annotation (Line(points={{6,-70},
+            {6,-78},{8.4,-78},{8.4,-79}}, color={127,127,0}));
+    connect(H_s.solution, solution.solution) annotation (Line(points={{6,-44},{
+            6,-78},{8.4,-78},{8.4,-79}}, color={127,127,0}));
+    connect(H2O_s.solution, solution.solution)
+      annotation (Line(points={{6,-8},{6,-79},{8.4,-79}}, color={127,127,0}));
+    connect(Cl_i.port_a, electrodeReaction1.substrates[2]) annotation (Line(
+        points={{54,-58},{60,-58},{60,-34}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(Cl_i.solution, inner_solution.solution) annotation (Line(points={{
+            38,-68},{38,-74},{50.4,-74},{50.4,-75}}, color={127,127,0}));
+    connect(H_i.solution, inner_solution.solution) annotation (Line(points={{38,
+            -40},{38,-76},{50.4,-76},{50.4,-75}}, color={127,127,0}));
+    connect(H2O_i.solution, inner_solution.solution) annotation (Line(points={{
+            38,-6},{38,-75},{50.4,-75}}, color={127,127,0}));
+    connect(H_i.port_a, electrodeReaction1.products[2]) annotation (Line(
+        points={{54,-30},{56,-30},{56,-6},{66,-6},{66,-14},{62,-14}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H_o.port_a, membrane.port_a) annotation (Line(points={{-54,-70},{
+            -46,-70},{-46,-34},{-34,-34}}, color={158,66,200}));
+    connect(membrane.port_b, H_s.port_a)
+      annotation (Line(points={{-14,-34},{-10,-34}}, color={158,66,200}));
+    connect(H2O_s.solution, H_s.solution) annotation (Line(points={{6,-8},{6,
+            -18},{10,-18},{10,-44},{6,-44}}, color={127,127,0}));
+    connect(Ag_i.solution, electrone.solution)
+      annotation (Line(points={{86,-4},{86,-34},{88,-34}}, color={127,127,0}));
+    connect(solution.electricPin, inner_solution.electricPin) annotation (Line(
+          points={{-8.4,20},{12,20},{12,24},{33.6,24}}, color={0,0,255}));
+    connect(Cl_o.solution, H_o.solution) annotation (Line(points={{-40,-28},{
+            -40,-80},{-38,-80}}, color={127,127,0}));
+    connect(Cl_o.port_a, electrodeReaction.products[2]) annotation (Line(points=
+           {{-56,-18},{-60,-18},{-60,-20},{-60,-20}}, color={158,66,200}));
+    connect(electrone_o.port_a, electrodeReaction.substrates[2]) annotation (
+        Line(points={{-70,-48},{-62,-48},{-62,-40},{-63,-40}}, color={158,66,
+            200}));
+    annotation (
+    experiment(StopTime=49500), Documentation(revisions=
+                      "<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>The lead-acid electrochemical cells are characterized by two chemical reactions:</p>
+<table width=100%>
+<tr><th>PbO2 + HSO4- + 3 H+ +2 e- &harr; PbSO4 + 2 H2O</th><td>(1)</td></tr>
+<tr><th>Pb + HSO4- &harr; PbSO4 + H+ + 2 e-</th><td>(2)</td></tr>
+</table>
+<p>The building of one cell of a lead-acid battery starts with the definition of three solutions: two for the lead elec-trodes and one for the liquid-acid solution (Figure 1A). This can be done by dragging and dropping the library class &lsquo;Components.Solution&rsquo; into the diagram. We called the first instance &ldquo;cathode&rdquo;, the second &ldquo;solution&rdquo; and the last &ldquo;anode&rdquo;. We set the parameter &lsquo;Electri-calGround&rsquo; as &ldquo;false&rdquo; for all of these solutions in order to attain the possibility of non-zero voltages. Now we can specify the chemical substances inside the chemical solutions. We drag and drop the library class &lsquo;Compo-nents.Substance&rsquo; into the &ldquo;solution&rdquo; as chemical sub-stances (Figure 1B). H2O(liquid), H+(aqueous) and HSO4-(aqueous) representing the liquid aqueous solu-tion of sulfuric acid. PbSO4(solid) and PbO2(solid) are placed in the &ldquo;cathode&rdquo;, representing the elements of the positive electrode. The substances Pb(solid) and aP-bSO4(solid) are placed into the &ldquo;anode&rdquo;, representing the elements of the negative electrode. All of these sub-stances must be given unique names (e.g., &ldquo;PbSO4&rdquo; for the cathode and &ldquo;aPbSO4&rdquo; for the anode), because the Modelica language does not support two instances with the same name in a single class.</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/LeadAcidBatterry1.png\"/></p>
+<p>Figure 1) The building of one electro-chemical cell of a lead-acid battery in four steps: A) adding chemical solutions, B) adding chemical substances, C) adding electron transfers and D) adding chemical reactions.</p>
+<p>As mentioned above, the appropriate substance data for all these substances must be selected as predefined parametric records, e.g., &lsquo;Exam-ples.Substances.Water_liquid&rsquo;, &lsquo;.Lead_solid&rsquo;, &lsquo;.Lead_dioxide_solid&rsquo;, &lsquo;.Lead_sulfate_solid&rsquo;, and so on. The last, very special substance to be included is an electron. This class is called &lsquo;Compo-nents.ElectronTransfer&rsquo; and it must be added in order for each electrode to transfer electron from the chemical reaction to the electric circuit (Figure 1C). Each of these substances must be connected to the appropriate solu-tion using a solution port situated in the bottom of the component&rsquo;s icons to indicate that they are all mixed in the solution. By having all these substances, it is possi-ble to implement the chemical reactions. Dragging and dropping the library class &lsquo;Components.Reaction&rsquo; for both chemical reactions, and setting their parameters as an appropriate number of reactants, products and stoi-chiometry, allows the connection of each substance with the reaction, as expressed in reaction (1) and reaction (2). This setting can be done using the parameter dialog of the cathode chemical reaction (1) as there are four types of substrates (nS=4) with stoichiometric coeffi-cients: one for the first and second reactant, three for the third reactant and two for the fourth reactant (s={1,1,3,2}). There are also two types of products (nP=2) with stoichiometry: one for PbSO4 and two for water (p={1,2}), following the chemical scheme of the first chemical reaction above. After setting the number of reactants and products, it is possible to connect the substances with reactions. Each instance of reaction has an array of connectors for substrates and an array of con-nectors for products; the user must be very careful to connect each element of these arrays in the same order as defined by stoichiometric coefficients. This means that, for example, the water must be connected in index 2 to products of the first chemical reaction, because we had already selected the order of products by setting the array of stoichiometric coefficients in reaction (1). The chemical reaction (2) must be set analogically as nS=2, nP=3, p={1,1,2} with connections of substance ports of Pb to substrate[1], HSO4- to substrate[2], PbSO4 to prod-uct[1], H+ to product[2] and e- to product[3], as repre-sented in Figure 1D.</p>
+<p>The electrochemical cell has already been imple-mented at this stage. However, the simulation requires the initial state of substances, which for the fully charged battery means that almost all elements of the cathode are PbO2 and almost all elements of the anode are Pb. In this state, the sulfuric acid can be concen-trated, which increases the effectiveness of the electro-chemical cell. To set this state, it is possible to just dou-ble-click on PbO2 and Pb and set the amount, e.g., 1mol. To set the pure concentrated sulfuric acid we can also set the amount of SO4- and H+ as 1mol. This fully charged ideal state is ready to simulate when it is con-nected to the electric ground via one of the electric ports of the one electron transfer component.</p>
+<p>These batteries can be connected to any electrical cir-cuit that is slowly discharging. For example, if we only connect the simple electric resistance of 1 Ohm as ex-pressed in Figure 1D, then the simulation of the dis-charging process over 13 hours and 45 minutes gives the results of electric current and electric potential, as can be seen in Figure 2. The exchange of the resistor with a voltage source can simulate the charging process for a discharged cell.</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/LeadAcidBatterry2.png\"/></p>
+<p>Figure 2) Discharging simulation of the lead-acid battery cell from Figure 2D, with the initial amount of substances as described in the text.</p>
+</html>"));
+  end GlassElectrode;
 end Examples;
