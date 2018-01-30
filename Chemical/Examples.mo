@@ -176,6 +176,7 @@ extends Modelica.Icons.ExamplesPackage;
     constant Chemical.Interfaces.Incompressible.SubstanceData Hydronium_aqueous(
       MolarWeight=0.019022,
       z=1,
+      gamma=55.345,
       DfH_25degC=-285840,
       DfG_25degC_1bar=-285840 - 298.15*(-163.17),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
@@ -192,6 +193,7 @@ extends Modelica.Icons.ExamplesPackage;
     constant Chemical.Interfaces.Incompressible.SubstanceData Proton_aqueous(
       MolarWeight=0.001007,
       z=1,
+      gamma=55.345,
       DfH_25degC=0,
       DfG_25degC_1bar=0,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
@@ -312,6 +314,7 @@ extends Modelica.Icons.ExamplesPackage;
     constant Chemical.Interfaces.Incompressible.SubstanceData Hydroxide_aqueous(
       MolarWeight=0.017006,
       z=-1,
+      gamma=55.345,
       DfH_25degC=-229940,
       DfG_25degC_1bar=-157300,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"})
@@ -1284,9 +1287,6 @@ extends Modelica.Icons.ExamplesPackage;
 <p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-<h4>The increasing of the amount of the enzyme</h4>
-<p>In the situation of doubled amount of enzyme should double also the maximal speed of the reaction, shouldn&apos;t?</p>
-<p>The assumptions of</p>
 </html>"),
       experiment(StopTime=199000));
   end EnzymeKinetics;
@@ -1833,7 +1833,14 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Placement(transformation(extent={{-14,40},{6,60}})));
   Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
     annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
+
+    Real density, molality, totalmolality, voltage;
   equation
+    density = solution1.solution.m/solution1.solution.V;
+    totalmolality = solution1.solution.n/((H2O.x*solution1.solution.n)*H2O.substanceData.MolarWeight);
+    molality = HSO4.x*solution1.solution.n/((H2O.x*solution1.solution.n)*H2O.substanceData.MolarWeight);
+    voltage = voltageSensor.v;
+
     connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
         points={{30,-56},{15.5,-56},{15.5,-26},{16,-26}},
         color={158,66,200},
@@ -1926,7 +1933,7 @@ extends Modelica.Icons.ExamplesPackage;
       color={127,127,0}));
 
     annotation (
-    experiment(StopTime=49500), Documentation(revisions=
+    experiment(StopTime=47600), Documentation(revisions=
                       "<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
