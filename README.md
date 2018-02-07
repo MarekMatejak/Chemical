@@ -1,7 +1,7 @@
 # Chemical
 Modelica Library of Chemical processes
 
-[1st Price, Modelica Library Award, 11th International Modelica Conference, Sept. 21-23, 2015 in Versailles, France] (http://patf-biokyb.lf1.cuni.cz/wiki/_media/wiki/user/chemical_library_-_1st_price.pdf)
+[1st Price, Modelica Library Award, 11th International Modelica Conference, Sept. 21-23, 2015 in Versailles, France](http://patf-biokyb.lf1.cuni.cz/wiki/_media/wiki/user/chemical_library_-_1st_price.pdf)
 
 
 ## Current release
@@ -10,9 +10,9 @@ Download [Chemical 1.1.0 (2015-09-15)](../../archive/v1.1.0.zip)
 
 ## Main references
  * Documentations
-   * [Theoretical background] (https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/Chemical.pdf)
+   * [Theoretical background](https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/Chemical.pdf)
  * Dissertation thesis
-   * [Fromalization of Integrative Physiology] (https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
+   * [Fromalization of Integrative Physiology](https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
  
 ## Description
 
@@ -71,8 +71,8 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## Development and contribution
-Release manager: [Marek Mateják] (https://github.com/MarekMatejak)
+Release manager: [Marek Mateják](https://github.com/MarekMatejak)
 
 Contributor: 
-[Filip Ježek] (https://github.com/filip-jezek), 
-[tbeu] (https://github.com/tbeu)
+[Filip Ježek](https://github.com/filip-jezek), 
+[tbeu](https://github.com/tbeu)
