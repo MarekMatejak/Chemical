@@ -6291,4 +6291,98 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Figure 2) Discharging simulation of the lead-acid battery cell from Figure 2D, with the initial amount of substances as described in the text.</p>
 </html>"));
   end GlassElectrode;
+
+  model WaterElectrolysis "Water electrolysis"
+    extends Modelica.Icons.Example;
+
+    Chemical.Components.Substance H2_gas(
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+      substanceData=Chemical.Examples.Substances.Hydrogen_gas,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001)
+      annotation (Placement(transformation(extent={{16,-6},{36,14}})));
+    Chemical.Components.Substance O2_gas(
+      substanceData=Chemical.Examples.Substances.Oxygen_gas,
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001)
+      annotation (Placement(transformation(extent={{-22,-6},{-2,14}})));
+    Chemical.Components.Solution anode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{58,-78},{92,30}})));
+    Chemical.Components.Solution cathode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-90,-80},{-56,28}})));
+    Chemical.Components.Solution water
+      annotation (Placement(transformation(extent={{-28,-80},{18,-46}})));
+    Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
+      annotation (Placement(transformation(extent={{-42,70},{-22,90}})));
+    Chemical.Components.Reaction reaction(
+      nS=2,
+      s={2,4},
+      nP=3,
+      p={2,1,4}) annotation (Placement(transformation(
+          extent={{11,11},{-11,-11}},
+          rotation=180,
+          origin={-23,-31})));
+  Chemical.Components.ElectronTransfer electrone
+      annotation (Placement(transformation(extent={{84,-38},{64,-18}})));
+  Chemical.Components.ElectronTransfer electrone1
+      annotation (Placement(transformation(extent={{-84,-34},{-64,-14}})));
+    Chemical.Components.Substance H2O(substanceData=Chemical.Examples.Substances.Water_liquid,
+        amountOfSubstance_start=55.51)
+      annotation (Placement(transformation(extent={{6,-72},{-14,-52}})));
+  Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
+    annotation (Placement(transformation(extent={{-36,38},{-16,58}})));
+  Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
+    annotation (Placement(transformation(extent={{-66,38},{-46,58}})));
+    Chemical.Components.Solution air(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas)
+      annotation (Placement(transformation(extent={{-40,-16},{50,26}})));
+    Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
+      annotation (Placement(transformation(extent={{18,38},{-2,58}})));
+    Modelica.Electrical.Analog.Basic.Ground ground
+      annotation (Placement(transformation(extent={{38,26},{58,46}})));
+  equation
+    connect(H2O.solution, water.solution) annotation (Line(points={{2,-72},{2,-79.66},
+            {8.8,-79.66}}, color={127,127,0}));
+  connect(electrone1.pin,voltageSensor. p) annotation (Line(
+      points={{-84,-24},{-92,-24},{-92,48},{-74,48},{-74,80},{-42,80}},
+      color={0,0,255}));
+  connect(electrone.pin,voltageSensor. n) annotation (Line(
+      points={{84,-28},{84,48},{60,48},{60,80},{-22,80}},
+      color={0,0,255}));
+  connect(electrone.solution,anode. solution) annotation (Line(
+      points={{80,-38},{80,-76.92},{85.2,-76.92}},
+      color={127,127,0}));
+  connect(electrone1.pin,currentSensor. p) annotation (Line(
+      points={{-84,-24},{-92,-24},{-92,48},{-66,48}},
+      color={0,0,255}));
+  connect(currentSensor.n,resistor. p) annotation (Line(
+      points={{-46,48},{-36,48}},
+      color={0,0,255}));
+  connect(electrone1.solution,cathode. solution) annotation (Line(
+      points={{-80,-34},{-80,-66},{-74,-66},{-74,-78.92},{-62.8,-78.92}},
+      color={127,127,0}));
+    connect(O2_gas.solution, air.solution) annotation (Line(points={{-18,-6},{-16,
+            -6},{-16,-15.58},{32,-15.58}}, color={127,127,0}));
+    connect(H2_gas.solution, air.solution) annotation (Line(points={{20,-6},{20,-15.58},
+            {32,-15.58}}, color={127,127,0}));
+    connect(H2O.port_a, reaction.substrates[1]) annotation (Line(points={{-14,-62},
+            {-44,-62},{-44,-33.2},{-34,-33.2}}, color={158,66,200}));
+    connect(electrone1.port_a, reaction.substrates[2]) annotation (Line(points={{-64,
+            -24},{-48,-24},{-48,-28.8},{-34,-28.8}}, color={158,66,200}));
+    connect(H2_gas.port_a, reaction.products[1]) annotation (Line(points={{36,4},{
+            42,4},{42,-34},{-12,-34},{-12,-33.9333}}, color={158,66,200}));
+    connect(O2_gas.port_a, reaction.products[2]) annotation (Line(points={{-2,4},{
+            2,4},{2,-31},{-12,-31}}, color={158,66,200}));
+    connect(electrone.port_a, reaction.products[3]) annotation (Line(points={{64,-28},
+            {26,-28},{26,-28.0667},{-12,-28.0667}}, color={158,66,200}));
+    connect(constantVoltage.p, voltageSensor.n) annotation (Line(points={{18,48},{
+            60,48},{60,80},{-22,80}}, color={0,0,255}));
+    connect(resistor.n, constantVoltage.n)
+      annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
+    connect(constantVoltage.p, ground.p)
+      annotation (Line(points={{18,48},{48,48},{48,46}}, color={0,0,255}));
+    annotation ( experiment(StopTime=1), Documentation(info="<html>
+<p>The water ecectrolysis: </p>
+<p><b>2 H<sub>2</sub>O +&nbsp;&nbsp;4 e<sup>-</sup><sub>(catode)</sub>&nbsp;&lt;-&gt;  2 H<sub>2</sub> + O<sub>2</sub>&nbsp;+&nbsp;&nbsp;4 e<sup>-</sup><sub>(anode)</sub>&nbsp;</b></p>
+</html>"));
+  end WaterElectrolysis;
 end Examples;
