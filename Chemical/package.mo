@@ -1170,12 +1170,12 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     end FluidAdapter;
 
     model LiquidWater
-      "Liquid water clusters accessible using free water molecule"
+      "Liquid water with hydrogen bonds"
       extends Chemical.Icons.Substance;
 
       extends Chemical.Interfaces.PartialSubstanceInSolution(
          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-         final substanceData=Chemical.Examples.Substances.FreeH2O_liquid);
+         final substanceData=Chemical.Examples.Substances.FreeH2O_liquid());
 
       parameter Modelica.SIunits.Mass mass_start=1
       "Initial mass of water"   annotation(HideResult=true);
@@ -1192,7 +1192,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       Modelica.SIunits.Concentration c_FreeH2O(displayUnit="mol/l") "Molar concentration of free H2O molecule";
 
       Modelica.SIunits.AmountOfSubstance amountOfTotalH2O(start=mass_start/substanceData.MolarWeight) "Amount of water molecules inside all clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfFreeH2O(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of water molecules inside all clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfFreeH2O(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of free water molecules in compartment";
       Modelica.SIunits.AmountOfSubstance amountOfClusters "Amount of base cluster in compartment";
 
       Real K = exp(-dG/(Modelica.Constants.R*solution.T)) "Dissociation constant of hydrogen bond between H2O molecules";
@@ -2359,7 +2359,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
          parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.001
       "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
-          annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
+          annotation (HideResult=true, Dialog(enable=not useBufferValueInput));
 
          parameter Boolean useBufferValueInput = false
       "Is buffer value of the substance an input?"
@@ -2775,8 +2775,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
     partial package StateOfMatter "Abstract package for all state of matters"
 
-     replaceable record SubstanceData
-      "Definition data of the chemical substance"
+     replaceable partial record SubstanceData
+        "Definition data of the chemical substance"
+     annotation (preferredView = "info");
      end SubstanceData;
 
      constant Integer OtherPropertiesCount=0
@@ -2867,7 +2868,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
             extends Modelica.Icons.Function;
             input Modelica.SIunits.ChemicalPotential u
         "Electro-chemical potential of the substance";
-            input SubstanceData substanceData "Data record of substance";
+        input SubstanceData substanceData "Data record of substance";
             input Modelica.SIunits.Temperature T=298.15 "Temperature";
             input Modelica.SIunits.Pressure p=100000 "Pressure";
             input Modelica.SIunits.ElectricPotential v=0
@@ -3051,7 +3052,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package IdealGas "Ideal gas with constant heat capacity"
        extends StateOfMatter;
 
-       redeclare replaceable record extends SubstanceData "Base substance data"
+       redeclare record extends SubstanceData "Base substance data"
 
           parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
         "Molar weight of the substance in kg/mol or kDa";
@@ -3073,9 +3074,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
           parameter String References[:]={""}
         "References of these thermodynamical values";
-
-        annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
+        annotation ( preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
        end SubstanceData;
@@ -3151,7 +3151,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package IdealGasShomate "Ideal gas based on Shomate equations"
        extends StateOfMatter;
 
-     redeclare replaceable record extends SubstanceData
+     redeclare  record extends SubstanceData
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
           parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
@@ -3182,8 +3182,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
           parameter String References[:]={"http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"}
         "References of these thermodynamical values";
-        annotation (Documentation(revisions="<html>
-<p><i>2016</i></p>
+        annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2016-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
      end SubstanceData;
@@ -3312,7 +3312,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package Incompressible "Incompressible as basic state of matter"
        extends StateOfMatter;
 
-       redeclare replaceable record extends SubstanceData "Base substance data"
+       redeclare record extends SubstanceData "Base substance data"
 
           parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
         "Molar weight of the substance in kg/mol or kDa";
@@ -3341,8 +3341,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
           parameter String References[:]={""}
         "References of these thermodynamical values";
 
-        annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
+        annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
        end SubstanceData;
@@ -3760,7 +3760,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
          annotation (choicesAllMatching = true);
 
       // Provide medium constants here
-      constant stateOfMatter.SubstanceData substanceData[nS] = {Examples.Substances.Water_liquid}
+      constant stateOfMatter.SubstanceData substanceData[nS] = {Examples.Substances.Water_liquid()}
       "Definition of the substances"
          annotation (choicesAllMatching = true);
 
