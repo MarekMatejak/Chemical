@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models (version 1.1.1-beta)"
+package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -598,10 +598,10 @@ package Chemical "Library of Electro-Chemical models (version 1.1.1-beta)"
 
       extends Icons.GasSolubility;
 
-      parameter Boolean useWaterCorrection = true
-      "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true));
-
+    /*  parameter Boolean useWaterCorrection = true
+  "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
+  annotation(Evaluate=true, HideResult=true, choices(checkbox=true));
+*/
     Interfaces.SubstancePort_b gas_port "Gaseous solution"
       annotation (Placement(transformation(extent={{-10,90},{10,110}})));
 
@@ -618,7 +618,8 @@ package Chemical "Library of Electro-Chemical models (version 1.1.1-beta)"
     equation
       gas_port.q + liquid_port.q = 0;
 
-      du = (liquid_port.u - gas_port.u - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
+      du = (liquid_port.u - gas_port.u);
+      // - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
       // the main equation
       liquid_port.q = kC * du * exp(-kE*abs(du));
 
@@ -1167,6 +1168,128 @@ package Chemical "Library of Electro-Chemical models (version 1.1.1-beta)"
               color={158,66,200},
               thickness=1)}));
     end FluidAdapter;
+
+    model LiquidWater
+      "Liquid water clusters accessible using free water molecule"
+      extends Chemical.Icons.Substance;
+
+      extends Chemical.Interfaces.PartialSubstanceInSolution(
+         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+         final substanceData=Chemical.Examples.Substances.FreeH2O_liquid);
+
+      parameter Modelica.SIunits.Mass mass_start=1
+      "Initial mass of water"   annotation(HideResult=true);
+
+      Modelica.SIunits.Mass mass=amountOfTotalH2O*substanceData.MolarWeight
+      "Mass of water";
+
+  protected
+      Modelica.SIunits.Concentration c(displayUnit="mol/l") "Molar concentration of all water clusters";
+
+     /* parameter Modelica.SIunits.AmountOfSubstance amountOfTotalH2O_start=mass_start/substanceData.MolarWeight
+  "Initial total amount of water molecules"   annotation(HideResult=true);
+*/
+      Modelica.SIunits.Concentration c_FreeH2O(displayUnit="mol/l") "Molar concentration of free H2O molecule";
+
+      Modelica.SIunits.AmountOfSubstance amountOfTotalH2O(start=mass_start/substanceData.MolarWeight) "Amount of water molecules inside all clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfFreeH2O(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of water molecules inside all clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfClusters "Amount of base cluster in compartment";
+
+      Real K = exp(-dG/(Modelica.Constants.R*solution.T)) "Dissociation constant of hydrogen bond between H2O molecules";
+
+      constant Real K_25degC = (55.345-1)/1 "Dissociation constant of hydrogen bond between H2O molecules at 25degC, 1 bar";
+      constant Modelica.SIunits.ChemicalPotential dG_25degC = -Modelica.Constants.R*(273.15+25)*log(K_25degC) "Gibbs energy of hydrogen bond between H2O molecules at 25degC, 1 bar";
+      constant Modelica.SIunits.ChemicalPotential dH = 0 "Enthalpy of hydrogen bond between H2O molecules at 25degC, 1 bar"; //-20000
+      constant Modelica.SIunits.MolarEntropy dS = (dH-dG_25degC)/(273.15+25) "Entropy of hydrogen bond between H2O molecules at 25degC, 1 bar";
+
+      Modelica.SIunits.ChemicalPotential dG = dH-solution.T*dS "Gibbs energy of hydrogen bond between H2O molecules";
+      Modelica.SIunits.AmountOfSubstance amountOfHydrogenBonds "Amount of hydrogen bonds between H2O molecules in compartment";
+
+
+      Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/substanceData.MolarWeight))
+      "Decadic logarithm of the amount of all clusters in solution";
+      constant Real InvLog_10=1/log(10);
+
+    initial equation
+
+      amountOfTotalH2O = mass_start/substanceData.MolarWeight;
+      // amountOfTotalH2O = amountOfTotalH2O_start;
+      // amountOfFreeH2O = 1/amountOfTotalH2O_start;
+
+    equation
+      //The main accumulation equation is "der(amountOfH2O)=port_a.q"
+      // However, the numerical solvers can handle it in form of log10n much better. :-)
+      der(log10n)=(InvLog_10)*(port_a.q/amountOfTotalH2O);
+      amountOfTotalH2O = 10^log10n;
+
+      //Liquid water cluster theory - equilibrium:
+      //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i H2O molecules
+      //amountOfClusters/solution.n = x/(1-K*x);                //sum(x[i])
+      //amountOfTotalH2O/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
+      //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+      amountOfClusters*(1-K*x) = x*solution.n;
+      amountOfTotalH2O*(1-K*x) = amountOfClusters;
+      amountOfHydrogenBonds = amountOfTotalH2O * x * K;
+
+      //Molar Concentration of all water clusters
+      c = amountOfClusters/solution.V;
+      //Molar Concentration of free H2O molecule
+      c_FreeH2O = amountOfFreeH2O/solution.V;
+
+      //Mole fraction is an analogy of molar concentration or molality.
+      x = amountOfFreeH2O/solution.n;
+
+      //solution flows
+      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)* amountOfTotalH2O
+       + dH*der(amountOfHydrogenBonds);
+      solution.i = 0;
+      solution.dV = molarVolume * port_a.q + der(molarVolume)* amountOfTotalH2O;
+
+      //extensive properties
+      solution.nj=amountOfClusters;
+      solution.mj=amountOfTotalH2O*molarMass;
+      solution.Vj=amountOfTotalH2O*molarVolume; //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      solution.Gj=amountOfTotalH2O*port_a.u + amountOfHydrogenBonds*dG;
+      solution.Qj=0;
+      solution.Ij=0;
+      solution.otherPropertiesOfSubstance=amountOfTotalH2O * otherPropertiesPerSubstance; //TODO: more precise calculation of other properties
+
+     annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={Text(
+              extent={{-84,22},{92,64}},
+              lineColor={0,0,255},
+            textString="%name")}),
+        Documentation(revisions="<html>
+<p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end LiquidWater;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -3958,7 +4081,7 @@ Modelica source.
 
   annotation (
 preferredView="info",
-version="1.1.1-beta",
+version="1.2.0-alpha",
 versionBuild=1,
 versionDate="2015-09-15",
 dateModified = "2015-09-15 17:14:41Z",
