@@ -3651,8 +3651,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     "Input of solution molar flow vs. parametric solution molar flow"
 
       parameter Boolean useSolutionFlowInput = false
-      "Is solution flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      "=true, if solution flow is provided via input"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+              Dialog(group="Conditional inputs", __Dymola_compact=true));
 
       parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
       "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
@@ -3687,8 +3688,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     "Input of substance molar flow vs. parametric substance molar flow"
 
       parameter Boolean useSubstanceFlowInput = false
-      "Is substance flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      "=true, if substance flow is provided via input"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+              Dialog(__Dymola_compact=true));
 
       parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
       "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
