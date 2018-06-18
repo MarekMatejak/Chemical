@@ -9,8 +9,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.1078682,
       z=0,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       Cp=25.4,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
@@ -21,8 +21,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.1078682,
       z=1,
-      DfH_25degC=105900,
-      DfG_25degC_1bar=77100,
+      DfH=105900,
+      DfG=77100,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -32,8 +32,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.14332,
       z=0,
-      DfH_25degC=-127030,
-      DfG_25degC_1bar=-109720,
+      DfH=-127030,
+      DfG=-109720,
       Cp=50.8,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -43,8 +43,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.0401,
       z=2,
-      DfH_25degC=-542960,
-      DfG_25degC_1bar=-542960 - 298.15*(33.67),
+      DfH=-542960,
+      DfG=-542960 - 298.15*(33.67),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -55,8 +55,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.03545,
       z=-1,
-      DfH_25degC=-167460,
-      DfG_25degC_1bar=-131170,
+      DfH=-167460,
+      DfG=-131170,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Chloride_aqueous;
@@ -64,8 +64,8 @@ extends Modelica.Icons.ExamplesPackage;
     record CarbonMonoxide_gas "CO(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
       MolarWeight=0.02801,
-      DfH_25degC=-110500,
-      DfG_25degC_1bar=-137300,
+      DfH=-110500,
+      DfG=-137300,
       Cp=29.13,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.engineeringtoolbox.com/carbon-monoxide-d_975.html"});
@@ -75,18 +75,18 @@ extends Modelica.Icons.ExamplesPackage;
     record CarbonMonoxide_aqueous "CO(aq*)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.02801,
-      DfH_25degC=-276900,
-      DfG_25degC_1bar=-110200,
+      DfH=-276900,
+      DfG=-110200,
       References={"Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10"});
       annotation (preferredView = "info");
     end CarbonMonoxide_aqueous;
-      //  DfG_25degC_1bar = -8.314*298.15*log(0.00099/55.508)  +  -137300
+      //  DfG = -8.314*298.15*log(0.00099/55.508)  +  -137300
 
     record CarbonDioxide_gas "CO2(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
       MolarWeight=0.044,
-      DfH_25degC=-393500,
-      DfG_25degC_1bar=-394400,
+      DfH=-393500,
+      DfG=-394400,
       Cp=37.1,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
@@ -96,8 +96,8 @@ extends Modelica.Icons.ExamplesPackage;
     record CarbonDioxide_aqueous "CO2(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.044,
-      DfH_25degC=-412900,
-      DfG_25degC_1bar=-386200,
+      DfH=-412900,
+      DfG=-386200,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end CarbonDioxide_aqueous;
@@ -106,8 +106,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.06001,
       z=-2,
-      DfH_25degC=-676300,
-      DfG_25degC_1bar=-676300 - 298.15*(-497.065),
+      DfH=-676300,
+      DfG=-676300 - 298.15*(-497.065),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Carbonate_aqueous;
@@ -117,8 +117,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=5.4857990946e-7,
       z=-1,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       Cp=0,
       References={
           "http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials"});
@@ -129,8 +129,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.05585,
       z=2,
-      DfH_25degC=-87860,
-      DfG_25degC_1bar=-87860 - 298.15*(-9.93),
+      DfH=-87860,
+      DfG=-87860 - 298.15*(-9.93),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -141,8 +141,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.05585,
       z=3,
-      DfH_25degC=-47700,
-      DfG_25degC_1bar=-47700 - 298.15*(-124.77),
+      DfH=-47700,
+      DfG=-47700 - 298.15*(-124.77),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -152,8 +152,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Glucose_solid "Glu(s)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.1806,
-      DfH_25degC=-1274500,
-      DfG_25degC_1bar=-1274500 - 298.15*(-1220.66),
+      DfH=-1274500,
+      DfG=-1274500 - 298.15*(-1220.66),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -164,8 +164,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.IdealGas.SubstanceData(
       MolarWeight=0.00201588,
       z=0,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       Cp=28.8,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -174,8 +174,8 @@ extends Modelica.Icons.ExamplesPackage;
     record CarbonicAcid_aqueous "H2CO3(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.062027,
-      DfH_25degC=-699700,
-      DfG_25degC_1bar=-699700 - 298.15*(-256.582),
+      DfH=-699700,
+      DfG=-699700 - 298.15*(-256.582),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end CarbonicAcid_aqueous;
@@ -184,8 +184,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Water_gas "H2O(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
       MolarWeight=0.018015,
-      DfH_25degC=-241830,
-      DfG_25degC_1bar=-228590,
+      DfH=-241830,
+      DfG=-228590,
       Cp=33.6,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -194,8 +194,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Water_liquid "H2O(l)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.018015,
-      DfH_25degC=-285830,
-      DfG_25degC_1bar=-237190,
+      DfH=-285830,
+      DfG=-237190,
       Cp=75.3,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -205,8 +205,8 @@ extends Modelica.Icons.ExamplesPackage;
     record FreeH2O_liquid "fH2O(l)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.018015,
-      DfH_25degC=-285830,
-      DfG_25degC_1bar=-227230,
+      DfH=-285830,
+      DfG=-227230,
       Cp=75.3,
       References={"Recalculated using water cluster theory from http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -216,8 +216,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Water_IceIh "H2O(s) - Ice I h"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.018015,
-      DfH_25degC=-292639,
-      DfG_25degC_1bar=-236590,
+      DfH=-292639,
+      DfG=-236590,
       Cp=37.77,
       References={"http://www1.lsbu.ac.uk/water/water_properties.html#pot"});
       annotation (preferredView = "info");
@@ -227,8 +227,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.095,
       z=-1,
-      DfH_25degC=-1302480,
-      DfG_25degC_1bar=-1302480 - 298.15*(-561.395),
+      DfH=-1302480,
+      DfG=-1302480 - 298.15*(-561.395),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -239,8 +239,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.019022,
       z=1,
-      DfH_25degC=-285840,
-      DfG_25degC_1bar=-285840 - 298.15*(-163.17),
+      DfH=-285840,
+      DfG=-285840 - 298.15*(-163.17),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Hydronium_aqueous;
@@ -249,8 +249,8 @@ extends Modelica.Icons.ExamplesPackage;
     record PhosphoricAcid_aqueous "H3PO4(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.095,
-      DfH_25degC=-1288000,
-      DfG_25degC_1bar=-1288000 - 298.15*(-496.4),
+      DfH=-1288000,
+      DfG=-1288000 - 298.15*(-496.4),
       References={
           "https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"});
           annotation (preferredView = "info");
@@ -261,8 +261,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.001007,
       z=1,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Proton_aqueous;
@@ -272,8 +272,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.06102,
       z=-1,
-      DfH_25degC=-691100,
-      DfG_25degC_1bar=-691100 - 298.15*(-348.82),
+      DfH=-691100,
+      DfG=-691100 - 298.15*(-348.82),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Bicarbonate_aqueous;
@@ -283,8 +283,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.06102,
       z=-1,
-      DfH_25degC=-691100,
-      DfG_25degC_1bar=-691100 - 298.15*(-348.82),
+      DfH=-691100,
+      DfG=-691100 - 298.15*(-348.82),
       gamma=0.79,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -295,8 +295,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.095,
       z=-2,
-      DfH_25degC=-1298700,
-      DfG_25degC_1bar=-1298700 - 298.15*(-686.232),
+      DfH=-1298700,
+      DfG=-1298700 - 298.15*(-686.232),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -307,8 +307,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.097,
       z=-1,
-      DfH_25degC=-885750,
-      DfG_25degC_1bar=-752870,
+      DfH=-885750,
+      DfG=-752870,
       density=1800,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
@@ -319,8 +319,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.0391,
       z=1,
-      DfH_25degC=-251200,
-      DfG_25degC_1bar=-251200 - 298.15*(103.97),
+      DfH=-251200,
+      DfG=-251200 - 298.15*(103.97),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Potassium_aqueous;
@@ -330,8 +330,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.0243,
       z=2,
-      DfH_25degC=-461960,
-      DfG_25degC_1bar=-461960 - 298.15*(-19.99),
+      DfH=-461960,
+      DfG=-461960 - 298.15*(-19.99),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html"});
           annotation (preferredView = "info");
@@ -342,8 +342,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.02299,
       z=1,
-      DfH_25degC=-239660,
-      DfG_25degC_1bar=-239660 - 298.15*(74.49),
+      DfH=-239660,
+      DfG=-239660 - 298.15*(74.49),
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Sodium_aqueous;
@@ -353,8 +353,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.01804,
       z=1,
-      DfH_25degC=-132800,
-      DfG_25degC_1bar=-132800 - 298.15*(-178.77),
+      DfH=-132800,
+      DfG=-132800 - 298.15*(-178.77),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -364,8 +364,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Oxygen_gas "O2(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
       MolarWeight=0.032,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       Cp=29.4,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
@@ -374,9 +374,9 @@ extends Modelica.Icons.ExamplesPackage;
     record Oxygen_gas_Shomate_298_6000 "O2(g) Shomate 298K–6000K"
      extends Chemical.Interfaces.IdealGasShomate.SubstanceData(
       MolarWeight=0.032,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
-      cp_25degC=29.4,
+      DfH=0,
+      DfG=0,
+      Cp=29.4,
       B=6.137261,
       C=-1.186521,
       D=0.09578,
@@ -388,9 +388,9 @@ extends Modelica.Icons.ExamplesPackage;
     record Oxygen_gas_Shomate_200_5000 "O2(g) Shomate 200K–5000K"
      extends Chemical.Interfaces.IdealGasShomate.SubstanceData(
       MolarWeight=0.032,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
-      cp_25degC=29.4,
+      DfH=0,
+      DfG=0,
+      Cp=29.4,
       B=-21.55543,
       C=2.456517,
       D=-0.16151,
@@ -404,8 +404,8 @@ extends Modelica.Icons.ExamplesPackage;
     record Oxygen_aqueous "O2(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.032,
-      DfH_25degC=-11700,
-      DfG_25degC_1bar=16320,
+      DfH=-11700,
+      DfG=16320,
       References={
           "http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"});
           annotation (preferredView = "info");
@@ -416,8 +416,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.017006,
       z=-1,
-      DfH_25degC=-229940,
-      DfG_25degC_1bar=-157300,
+      DfH=-229940,
+      DfG=-157300,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Hydroxide_aqueous;
@@ -426,8 +426,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.2072,
       z=0,
-      DfH_25degC=0,
-      DfG_25degC_1bar=0,
+      DfH=0,
+      DfG=0,
       Cp=26.4,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
@@ -438,8 +438,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.2391988,
       z=0,
-      DfH_25degC=-276600,
-      DfG_25degC_1bar=-219000,
+      DfH=-276600,
+      DfG=-219000,
       Cp=64.6,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
@@ -450,8 +450,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.30326,
       z=0,
-      DfH_25degC=-918400,
-      DfG_25degC_1bar=-811200,
+      DfH=-918400,
+      DfG=-811200,
       Cp=103.2,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
@@ -462,8 +462,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.095,
       z=-3,
-      DfH_25degC=-1284070,
-      DfG_25degC_1bar=-1284070 - 298.15*(-866.946),
+      DfH=-1284070,
+      DfG=-1284070 - 298.15*(-866.946),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -474,8 +474,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.09607,
       z=-2,
-      DfH_25degC=-907500,
-      DfG_25degC_1bar=-907500 - 298.15*(-555.123),
+      DfH=-907500,
+      DfG=-907500 - 298.15*(-555.123),
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
           annotation (preferredView = "info");
@@ -486,8 +486,8 @@ extends Modelica.Icons.ExamplesPackage;
      extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.04607,
       z=0,
-      DfH_25degC=-276980,
-      DfG_25degC_1bar=-174180,
+      DfH=-276980,
+      DfG=-174180,
       Cp=112.4,
       density=789,
       References={
@@ -537,7 +537,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Components.Reaction reaction
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-    Chemical.Components.Substance B(substanceData(DfG_25degC_1bar=-R*T_25degC*
+    Chemical.Components.Substance B(substanceData(DfG=-R*T_25degC*
             log(K)), amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
 
@@ -586,7 +586,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Components.Substance B(amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-    Chemical.Components.Substance C(substanceData(DfG_25degC_1bar=-R*T_25degC*
+    Chemical.Components.Substance C(substanceData(DfG=-R*T_25degC*
             log(Kx)), amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{68,-8},{48,12}})));
 
@@ -722,7 +722,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction
       annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
     Chemical.Components.Substance B(amountOfSubstance_start=0.1, substanceData(
-          DfH_25degC=ReactionEnthalpy))
+          DfH=ReactionEnthalpy))
       annotation (Placement(transformation(extent={{40,-60},{20,-40}})));
 
     Chemical.Components.Solution solution_at_constant_temperature(
@@ -735,7 +735,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction1
       annotation (Placement(transformation(extent={{-8,40},{12,60}})));
     Chemical.Components.Substance B1(amountOfSubstance_start=0.1, substanceData(
-          DfH_25degC=ReactionEnthalpy))
+          DfH=ReactionEnthalpy))
       annotation (Placement(transformation(extent={{40,40},{20,60}})));
 
     Modelica.SIunits.HeatFlowRate q
@@ -1265,7 +1265,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Components.Substance P(substanceData(DfG_25degC_1bar=-Modelica.Constants.R
+    Chemical.Components.Substance P(substanceData(DfG=-Modelica.Constants.R
             *298.15*50))
       annotation (Placement(transformation(extent={{92,-12},{72,8}})));
     Chemical.Components.Substance S(amountOfSubstance_start=1)
@@ -1283,7 +1283,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolution= 55.508
       "Amount of solution used in kinetics";
 
-        Chemical.Components.Substance ES(substanceData(DfG_25degC_1bar=-
+        Chemical.Components.Substance ES(substanceData(DfG=-
             Modelica.Constants.R*298.15*log(2/Km)), amountOfSubstance_start=tE/
           2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
         Chemical.Components.Substance E(amountOfSubstance_start=tE/2)
@@ -1640,8 +1640,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-114,-62},{-94,-42}})));
     Chemical.Components.Substance ATP_E(substanceData(
         z=-4,
-        DfH_25degC=16700,
-        DfG_25degC_1bar=30500,
+        DfH=16700,
+        DfG=30500,
         References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
         amountOfSubstance_start(displayUnit="mmol") = 0.00128)
       annotation (Placement(transformation(extent={{-118,-62},{-138,-42}})));
@@ -2377,7 +2377,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Reaction react[n](each nP=2)
         annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
-      Chemical.Components.Substance HA[n](substanceData(DfG_25degC_1bar=DfG), each amountOfSubstance_start=
+      Chemical.Components.Substance HA[n](substanceData(DfG=DfG), each amountOfSubstance_start=
            0.00033) "protonated acid groups"
         annotation (Placement(transformation(extent={{-78,-2},{-58,18}})));
 
@@ -2839,8 +2839,8 @@ extends Modelica.Icons.ExamplesPackage;
           annotation (Placement(transformation(extent={{-114,-62},{-94,-42}})));
         Chemical.Components.Substance ATP_E(substanceData(
             z=-4,
-            DfH_25degC=16700,
-            DfG_25degC_1bar=30500,
+            DfH=16700,
+            DfG=30500,
             References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
             amountOfSubstance_start(displayUnit="mmol") = 0.00128)
           annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
@@ -3145,47 +3145,47 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-72,-102},{94,124}})));
 
       Chemical.Components.Substance oxygen_unbound(substanceData(
-            DfG_25degC_1bar=GO2aq), amountOfSubstance_start(displayUnit="mol")=
+            DfG=GO2aq), amountOfSubstance_start(displayUnit="mol")=
              1e-5)
         annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
 
-      Chemical.Components.Substance T0(substanceData(DfG_25degC_1bar=GT0),
+      Chemical.Components.Substance T0(substanceData(DfG=GT0),
           amountOfSubstance_start=THb)
         annotation (Placement(transformation(extent={{34,78},{54,98}})));
 
-      Chemical.Components.Substance T1(substanceData(DfG_25degC_1bar=GT1),
+      Chemical.Components.Substance T1(substanceData(DfG=GT1),
           amountOfSubstance_start=THb*1e-4)
         annotation (Placement(transformation(extent={{34,36},{54,56}})));
 
-      Chemical.Components.Substance T2(substanceData(DfG_25degC_1bar=GT2),
+      Chemical.Components.Substance T2(substanceData(DfG=GT2),
           amountOfSubstance_start=THb*1e-8)
         annotation (Placement(transformation(extent={{34,-10},{54,10}})));
 
-      Chemical.Components.Substance R1(substanceData(DfG_25degC_1bar=GR1),
+      Chemical.Components.Substance R1(substanceData(DfG=GR1),
           amountOfSubstance_start=THb*1e-8)
         annotation (Placement(transformation(extent={{-20,36},{0,56}})));
 
-      Chemical.Components.Substance R2(substanceData(DfG_25degC_1bar=GR2),
+      Chemical.Components.Substance R2(substanceData(DfG=GR2),
           amountOfSubstance_start=THb*1e-10)
         annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
 
-      Chemical.Components.Substance T3(substanceData(DfG_25degC_1bar=GT3),
+      Chemical.Components.Substance T3(substanceData(DfG=GT3),
           amountOfSubstance_start=THb*1e-12)
         annotation (Placement(transformation(extent={{34,-54},{54,-34}})));
 
-      Chemical.Components.Substance R3(substanceData(DfG_25degC_1bar=GR3),
+      Chemical.Components.Substance R3(substanceData(DfG=GR3),
           amountOfSubstance_start=THb*1e-12)
         annotation (Placement(transformation(extent={{-20,-54},{0,-34}})));
 
-      Chemical.Components.Substance T4(substanceData(DfG_25degC_1bar=GT4),
+      Chemical.Components.Substance T4(substanceData(DfG=GT4),
           amountOfSubstance_start=THb*1e-17)
         annotation (Placement(transformation(extent={{34,-92},{54,-72}})));
 
-      Chemical.Components.Substance R4(substanceData(DfG_25degC_1bar=GR4),
+      Chemical.Components.Substance R4(substanceData(DfG=GR4),
           amountOfSubstance_start=THb*1e-14)
         annotation (Placement(transformation(extent={{-20,-92},{0,-72}})));
 
-      Chemical.Components.Substance R0(substanceData(DfG_25degC_1bar=GR0),
+      Chemical.Components.Substance R0(substanceData(DfG=GR0),
           amountOfSubstance_start=THb*1e-7)
         annotation (Placement(transformation(extent={{-20,78},{0,98}})));
 
@@ -3493,7 +3493,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance OxyRHm[4](
         each amountOfSubstance_start=5.88e-9,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(KRx) + DfG_tR/4))
+        each substanceData(DfG=DfG_O2 + RT*log(KRx) + DfG_tR/4))
         "Oxygenated subunit in R structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{-96,-18},{-76,2}})));
 
@@ -3502,14 +3502,14 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance DeoxyRHm[4](
         each amountOfSubstance_start=1.58e-7,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_tR/4))
+        each substanceData(DfG=DfG_tR/4))
         "Deoxygenated subunit in R structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{-8,-20},{-28,0}})));
 
       Chemical.Components.Substance OxyTHm[4](
         each amountOfSubstance_start=1e-4,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(KTx) + DfG_tT/4))
+        each substanceData(DfG=DfG_O2 + RT*log(KTx) + DfG_tT/4))
         "Oxygenated subunit in T structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{14,-18},{34,2}})));
 
@@ -3518,12 +3518,12 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance DeoxyTHm[4](
         each amountOfSubstance_start=THb - 1e-4 - 1.58e-7 - 5.88e-9,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_tT/4))
+        each substanceData(DfG=DfG_tT/4))
         "Deoxygenated subunit in T structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{96,-20},{76,0}})));
 
       Chemical.Components.Substance oxygen_unbound(substanceData(
-            DfG_25degC_1bar=DfG_O2), amountOfSubstance_start=2e-8)
+            DfG=DfG_O2), amountOfSubstance_start=2e-8)
         annotation (Placement(transformation(extent={{-2,6},{18,26}})));
       Modelica.Blocks.Sources.Clock clock(offset=100)
         annotation (Placement(transformation(extent={{-40,74},{-20,94}})));
@@ -3674,7 +3674,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG_25degC_1bar
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -3702,8 +3702,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N,
-              DfH_25degC=DfH_O2 -Ho + DfH_selectedForm/N),
+        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N,
+              DfH=DfH_O2 -Ho + DfH_selectedForm/N),
         each amountOfSubstance_start=initialO2*initialHb/(Ko37 +
             initialO2)) "Oxygenated subunit"
         annotation (Placement(transformation(extent={{-88,14},{-68,34}})));
@@ -3712,8 +3712,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=Ko37*initialHb/(Ko37 + initialO2))
         "Deoxygenated subunit"
         annotation (Placement(transformation(extent={{-8,12},{-28,32}})));
@@ -3729,8 +3729,8 @@ extends Modelica.Icons.ExamplesPackage;
             iconTransformation(extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kh25) + DfG_selectedForm/N,
-              DfH_25degC=-Hh+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N,
+              DfH=-Hh+DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*initialHb/(Kh37 + initialH))
         "Protonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{10,12},{30,32}})));
@@ -3738,16 +3738,16 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
         "Deprotonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
       Chemical.Components.Substance HmNH3[
                                          4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kz25) + DfG_selectedForm/N,
-              DfH_25degC=-Hz+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N,
+              DfH=-Hz+DfH_selectedForm/N),
         each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Protonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -3756,8 +3756,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Deprotonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -3773,9 +3773,9 @@ extends Modelica.Icons.ExamplesPackage;
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 +
             initialH*Kz37 + Kz37*Kc37*initialCO2),
-        each substanceData(DfG_25degC_1bar=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
+        each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
               N,
-              DfH_25degC=DfH_CO2+Hc+DfH_selectedForm/N))
+              DfH=DfH_CO2+Hc+DfH_selectedForm/N))
         "Carboxylated c site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{70,-44},{50,-24}})));
       Interfaces.SubstancePort_b H annotation (Placement(transformation(extent={{50,-12},
@@ -3958,8 +3958,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
       Chemical.Components.Substance O2_free(amountOfSubstance_start=initialO2*
-            AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_O2,
-            DfH_25degC=-11700))
+            AmountOfSolutionIn1L, substanceData(DfG=DfG_O2,
+            DfH=-11700))
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -4017,8 +4017,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
             origin={-12,-18})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
-            *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
-            DfH_25degC=-412900))
+            *AmountOfSolutionIn1L, substanceData(DfG=DfG_CO2,
+            DfH=-412900))
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
         PartialPressure(displayUnit="kPa") = 5330,
@@ -4158,7 +4158,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG_25degC_1bar
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -4188,8 +4188,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N,
-              DfH_25degC=DfH_O2 -Ho + DfH_selectedForm/N),
+        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N,
+              DfH=DfH_O2 -Ho + DfH_selectedForm/N),
         each amountOfSubstance_start=(initialO2/Ko37)*initialHb/(1 + initialO2/Ko37 +
             initialCO/Kco37)) "Oxygenated subunit"
         annotation (Placement(transformation(extent={{-88,14},{-68,34}})));
@@ -4198,8 +4198,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=initialHb/(1 + initialO2/Ko37 + initialCO/
             Kco37)) "Deoxygenated subunit"
         annotation (Placement(transformation(extent={{-8,12},{-28,32}})));
@@ -4215,8 +4215,8 @@ extends Modelica.Icons.ExamplesPackage;
             iconTransformation(extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kh25) + DfG_selectedForm/N,
-              DfH_25degC=-Hh+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N,
+              DfH=-Hh+DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*initialHb/(Kh37 + initialH))
         "Protonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{10,12},{30,32}})));
@@ -4224,16 +4224,16 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
         "Deprotonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
       Chemical.Components.Substance HmNH3[
                                          4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kz25) + DfG_selectedForm/N,
-              DfH_25degC=-Hz+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N,
+              DfH=-Hz+DfH_selectedForm/N),
         each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Protonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -4242,8 +4242,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Deprotonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -4259,9 +4259,9 @@ extends Modelica.Icons.ExamplesPackage;
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 +
             initialH*Kz37 + Kz37*Kc37*initialCO2),
-        each substanceData(DfG_25degC_1bar=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
+        each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
               N,
-              DfH_25degC=DfH_CO2+Hc+DfH_selectedForm/N))
+              DfH=DfH_CO2+Hc+DfH_selectedForm/N))
         "Carboxylated c site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{70,-44},{50,-24}})));
       Interfaces.SubstancePort_b H annotation (Placement(transformation(extent={{50,-12},
@@ -4270,8 +4270,8 @@ extends Modelica.Icons.ExamplesPackage;
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each amountOfSubstance_start=(initialCO/Kco37)*initialHb/(1 + initialO2/
             Ko37 + initialCO/Kco37),
-        each substanceData(DfH_25degC=DfH_CO - Hco + DfH_selectedForm/N,
-            DfG_25degC_1bar=DfG_CO + RT*log(Kco25) + DfG_selectedForm/N))
+        each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N,
+            DfG=DfG_CO + RT*log(Kco25) + DfG_selectedForm/N))
         "Subunit with Carbon Monoxide"
         annotation (Placement(transformation(extent={{78,44},{58,64}})));
       Chemical.Components.Reaction o1[
@@ -4474,8 +4474,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
       Chemical.Components.Substance O2_free(amountOfSubstance_start=initialO2*
-            AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_O2,
-            DfH_25degC=-11700))
+            AmountOfSolutionIn1L, substanceData(DfG=DfG_O2,
+            DfH=-11700))
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -4535,8 +4535,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
             origin={-12,-18})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
-            *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
-            DfH_25degC=-412900))
+            *AmountOfSolutionIn1L, substanceData(DfG=DfG_CO2,
+            DfH=-412900))
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
         PartialPressure(displayUnit="kPa") = 5330,
@@ -4679,10 +4679,10 @@ extends Modelica.Icons.ExamplesPackage;
         "Number of distinguished independent sides in quaternary structure";
       constant Real RT=Modelica.Constants.R*298.15;
     /*
-  parameter Modelica.SIunits.MolarEnthalpy Ho = 59000 
+  parameter Modelica.SIunits.MolarEnthalpy Ho = 59000
     "Enthalpy of deoxygenation";
   parameter Modelica.SIunits.MoleFraction Ko37 "KRx and KTx at 37degC";
-  parameter Modelica.SIunits.MoleFraction Ko25 = Ko37*exp((Ho/Modelica.Constants.R)*(1/310.15 - 1/298.15)) 
+  parameter Modelica.SIunits.MoleFraction Ko25 = Ko37*exp((Ho/Modelica.Constants.R)*(1/310.15 - 1/298.15))
     "KRx and KTx at 25degC";
 */
       parameter Modelica.SIunits.MolarEnthalpy Hco = 59000
@@ -4709,10 +4709,10 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRcx and KTcx at 25degC";
 
-    //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG_25degC_1bar;
-    //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH_25degC;
+    //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
+    //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG_25degC_1bar
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -4742,8 +4742,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance COHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfH_25degC=DfH_CO - Hco + DfH_selectedForm/N,
-            DfG_25degC_1bar=DfG_CO + RT*log(Kco25) + DfG_selectedForm/N),
+        each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N,
+            DfG=DfG_CO + RT*log(Kco25) + DfG_selectedForm/N),
         each amountOfSubstance_start=initialCO*initialHb/(Kco37 + initialCO))
         "Carboxysubunit"
         annotation (Placement(transformation(extent={{-88,14},{-68,34}})));
@@ -4752,8 +4752,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=Kco37*initialHb/(Kco37 + initialCO))
         "Deoxygenated subunit"
         annotation (Placement(transformation(extent={{-8,12},{-28,32}})));
@@ -4769,8 +4769,8 @@ extends Modelica.Icons.ExamplesPackage;
             iconTransformation(extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kh25) + DfG_selectedForm/N,
-              DfH_25degC=-Hh+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N,
+              DfH=-Hh+DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*initialHb/(Kh37 + initialH))
         "Protonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{10,12},{30,32}})));
@@ -4778,16 +4778,16 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
         "Deprotonated h site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
       Chemical.Components.Substance HmNH3[
                                          4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=RT*log(Kz25) + DfG_selectedForm/N,
-              DfH_25degC=-Hz+DfH_selectedForm/N),
+        each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N,
+              DfH=-Hz+DfH_selectedForm/N),
         each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Protonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -4796,8 +4796,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        each substanceData(DfG_25degC_1bar=DfG_selectedForm/N,
-              DfH_25degC=DfH_selectedForm/N),
+        each substanceData(DfG=DfG_selectedForm/N,
+              DfH=DfH_selectedForm/N),
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*
             Kz37 + Kz37*Kc37*initialCO2))
         "Deprotonated z site of subunit in quaternary structure of hemoglobin tetramer"
@@ -4813,9 +4813,9 @@ extends Modelica.Icons.ExamplesPackage;
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 +
             initialH*Kz37 + Kz37*Kc37*initialCO2),
-        each substanceData(DfG_25degC_1bar=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
+        each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/
               N,
-              DfH_25degC=DfH_CO2+Hc+DfH_selectedForm/N))
+              DfH=DfH_CO2+Hc+DfH_selectedForm/N))
         "Carboxylated c site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{70,-44},{50,-24}})));
       Interfaces.SubstancePort_b H annotation (Placement(transformation(extent={{50,-12},
@@ -5055,8 +5055,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
             origin={-12,-18})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
-            *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
-            DfH_25degC=-412900))
+            *AmountOfSolutionIn1L, substanceData(DfG=DfG_CO2,
+            DfH=-412900))
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
         PartialPressure(displayUnit="kPa") = pCO2,
@@ -5246,8 +5246,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-24},{-2,-4}})));
 
       Chemical.Components.Substance O2_free(amountOfSubstance_start=initialO2*
-            AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_O2,
-            DfH_25degC=-11700))
+            AmountOfSolutionIn1L, substanceData(DfG=DfG_O2,
+            DfH=-11700))
         annotation (Placement(transformation(extent={{-76,28},{-56,48}})));
       Modelica.Blocks.Sources.Clock pHSource(offset=6.9)
         annotation (Placement(transformation(extent={{-60,-60},{-40,-40}})));
@@ -5307,8 +5307,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
             origin={-10,14})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
-            *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
-            DfH_25degC=-412900))
+            *AmountOfSolutionIn1L, substanceData(DfG=DfG_CO2,
+            DfH=-412900))
         annotation (Placement(transformation(extent={{76,20},{56,40}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
         PartialPressure(displayUnit="kPa") = 5330,
@@ -5476,8 +5476,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
       Chemical.Components.Substance O2_free(amountOfSubstance_start=initialO2*
-            AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_O2,
-            DfH_25degC=-11700))
+            AmountOfSolutionIn1L, substanceData(DfG=DfG_O2,
+            DfH=-11700))
         annotation (Placement(transformation(extent={{-76,0},{-56,20}})));
       Modelica.Blocks.Sources.Clock pHSource(offset=6.9)
         annotation (Placement(transformation(extent={{-60,-88},{-40,-68}})));
@@ -5537,8 +5537,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{10,-10},{-10,10}},
             origin={-10,-14})));
       Chemical.Components.Substance CO2_free(amountOfSubstance_start=initialCO2
-            *AmountOfSolutionIn1L, substanceData(DfG_25degC_1bar=DfG_CO2,
-            DfH_25degC=-412900))
+            *AmountOfSolutionIn1L, substanceData(DfG=DfG_CO2,
+            DfH=-412900))
         annotation (Placement(transformation(extent={{76,-8},{56,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
         PartialPressure(displayUnit="kPa") = 5330,
@@ -5655,7 +5655,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Sources.PureSubstance A
         annotation (Placement(transformation(extent={{-56,-10},{-36,10}})));
     Chemical.Sources.PureSubstance B(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible, substanceData(DfG_25degC_1bar=-
+            Chemical.Interfaces.Incompressible, substanceData(DfG=-
               R*T_25degC*log(K)))
         annotation (Placement(transformation(extent={{60,-10},{40,10}})));
     equation
@@ -5693,7 +5693,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Sources.PureSubstance B
         annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-    Chemical.Sources.PureSubstance C(substanceData(DfG_25degC_1bar=-R*T_25degC*
+    Chemical.Sources.PureSubstance C(substanceData(DfG=-R*T_25degC*
               log(Kx)))
         annotation (Placement(transformation(extent={{68,-8},{48,12}})));
 
