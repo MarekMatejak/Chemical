@@ -530,8 +530,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       extends Interfaces.PartialSubstanceInSolution(final stateOfMatter, final substanceData(
         MolarWeight=5.4857990946e-7,
         z=-1,
-        DfH_25degC=0,
-        DfG_25degC_1bar=0,
+        DfH=0,
+        DfG=0,
         Cp=0,
         density=1e20));
 
@@ -2777,7 +2777,36 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
      replaceable partial record SubstanceData
         "Definition data of the chemical substance"
-     annotation (preferredView = "info");
+
+       parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
+         "Molar weight of the substance";
+
+       parameter Modelica.SIunits.ChargeNumberOfIon z=0
+         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
+         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
+         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.ActivityCoefficient gamma=1
+         "Activity coefficient of the substance";
+
+       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
+         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+       parameter String References[:]={""}
+         "References of these thermodynamical values";
+
+       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfH instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfG instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       annotation (preferredView="info");
      end SubstanceData;
 
      constant Integer OtherPropertiesCount=0
@@ -3054,26 +3083,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
        redeclare record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 33.6
-        "Molar heat capacity of the substance";
-
-          parameter String References[:]={""}
-        "References of these thermodynamical values";
         annotation ( preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3099,21 +3108,21 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
          // - temperature shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - R*dT)
          //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
          //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
-         molarEnthalpyElectroneutral := substanceData.DfH_25degC
+         molarEnthalpyElectroneutral := substanceData.DfH
            +(T-298.15)*(substanceData.Cp);
      end molarEnthalpyElectroneutral;
 
      redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
      algorithm
-       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
        //+ (substanceData.Cp+Modelica.Constants.R)*log(T/298.15);
 
          //Molar entropy:
          // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
          // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
-         molarEntropyPure := (substanceData.Cp)*log(T/298.15) - Modelica.Constants.R*log(p/100000) + ((substanceData.DfH_25degC
-          - substanceData.DfG_25degC_1bar)/298.15);
+         molarEntropyPure := (substanceData.Cp)*log(T/298.15) - Modelica.Constants.R*log(p/100000) + ((substanceData.DfH
+          - substanceData.DfG)/298.15);
 
          //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
          //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
@@ -3151,26 +3160,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package IdealGasShomate "Ideal gas based on Shomate equations"
        extends StateOfMatter;
 
-     redeclare  record extends SubstanceData
+     redeclare record extends  SubstanceData(Cp=cp_25degC)
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
-
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
-        "Heat capacity at 25 degC";
 
           parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
           parameter Real C(unit="J.mol-1")=0 "Shomate parameter C";
@@ -3180,8 +3171,10 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
           parameter Real A_(unit="J.K-1.mol-1")=0 "Shomate parameter A'";
           parameter Real E_(unit="K")=1e-8 "Shomate parameter E'";
 
-          parameter String References[:]={"http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"}
-        "References of these thermodynamical values";
+          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
+           "Obsolete parameter use Cp instead"
+           annotation (Dialog(tab="Obsolete"));
+
         annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2016-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3205,12 +3198,12 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     protected
        parameter Real T0=298.15;
        Real t=T/1000;
-       parameter Real A=substanceData.cp_25degC
+       parameter Real A=substanceData.Cp
          - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
          - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
          - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
 
-       parameter Real H=substanceData.DfH_25degC
+       parameter Real H=substanceData.DfH
          - 1000*(substanceData.A_/((-1 + exp((1000*substanceData.E_)/T0))*substanceData.E_)
          - (1000*substanceData.E)/T0 + 0.001*A*T0
          + 5.*10^(-7)*substanceData.B*T0^2 + (1/3)*10^(-9)*substanceData.C*T0^3
@@ -3233,12 +3226,12 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     protected
        parameter Real T0=298.15;
        Real t=T/1000;
-       parameter Real A= substanceData.cp_25degC
+       parameter Real A= substanceData.Cp
          - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
          - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
          - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
 
-       parameter Real G= (((substanceData.DfH_25degC - substanceData.DfG_25degC_1bar)/298.15)
+       parameter Real G= (((substanceData.DfH - substanceData.DfG)/298.15)
          + (500000.* substanceData.E)/T0^2
          - (1000*substanceData.A_)/((-1 + exp((1000*substanceData.E_)/T0))*substanceData.E_*T0)
          - 0.001*substanceData.B*T0 - 5*10^(-7) * substanceData.C * T0^2
@@ -3247,7 +3240,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
          - A*log(0.001*T0));
 
      algorithm
-       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
        //+ (substanceData.Cp+Modelica.Constants.R)*log(T/298.15);
 
          //Molar entropy:
@@ -3260,10 +3253,10 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
            - substanceData.A_/substanceData.E_^2*log(1 - exp(-substanceData.E_/t))
          - Modelica.Constants.R*log(p/100000);
 
-     /*    AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 + G + 
+     /*    AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 + G +
  AAA/EEE/t/(Exp[EEE/t] - 1) - AAA/EEE^2*Log[1 - Exp[-EEE/t]]
- 
- G + AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 + 
+
+ G + AA*Log[t] + BB*t + CC*t^2/2 + DD*t^3/3 - EE/(2*t^2) + 2*X*t^0.5 +
  AAA/EEE/t/(Exp[EEE/t] - 1) - AAA/EEE^2*Log[1 - Exp[-EEE/t]]
  */
 
@@ -3287,7 +3280,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     protected
        parameter Real T0=298.15;
        Real t=T/1000;
-       parameter Real A= substanceData.cp_25degC
+       parameter Real A= substanceData.Cp
          - ((10^6 * substanceData.A_* exp(1000*substanceData.E_)/T0)) / ((-1 + exp((1000*substanceData.E_)/T0))^2 * T0^2)
          - (10^6 * substanceData.E)/T0^2 - 0.001*substanceData.B*T0 - 10^(-6) * substanceData.C * T0^2
          - 10^(-9) * substanceData.D * T0^3 - sqrt(1/1000)* T0^0.5 * substanceData.X;
@@ -3314,32 +3307,13 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
        redeclare record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=DfG_25degC_1bar
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 0
-        "Molar heat capacity of the substance at constant pressure";
+         parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
+          "Density of the pure substance (default density of water at 25degC)";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
         //      "Molar heat capacity of the substance at constant volume";
 
-          parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
-        "Density of the pure substance (default density of water at 25degC)";
 
-          parameter String References[:]={""}
-        "References of these thermodynamical values";
 
         annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -3366,7 +3340,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
          // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
          //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
 
-         molarEnthalpyElectroneutral :=  substanceData.DfH_25degC
+         molarEnthalpyElectroneutral :=  substanceData.DfH
          + (T - 298.15) * substanceData.Cp;
       //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
      end molarEnthalpyElectroneutral;
@@ -3374,7 +3348,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
       algorithm
-         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG_25degC_1bar)/298.15)
+         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
          //+ substanceData.Cv*log(T/298.15);
 
          //Molar entropy shift:
@@ -3385,7 +3359,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
            T,
            p,
            v,
-           I)/T)*(p - 100000) + ((substanceData.DfH_25degC - substanceData.DfG_25degC_1bar)/298.15);
+           I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
 
          //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
          //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
