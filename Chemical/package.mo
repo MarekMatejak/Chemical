@@ -390,33 +390,34 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     end Substance;
 
     model Reaction "Chemical Reaction"
+      extends Interfaces.ConditionalKinetics;
 
-      parameter Integer nS=1 "Number of substrates types"
+      parameter Integer nS=1 "Number of substrate types"
         annotation ( HideResult=true);
 
       parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
         annotation (HideResult=true);
 
-      parameter Integer nP=1 "Number of products types"
+      parameter Integer nP=1 "Number of product types"
         annotation ( HideResult=true);
 
       parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
         annotation (HideResult=true);
 
+      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
+        annotation(Dialog(group="Chemical kinetics"));
+
       Modelica.SIunits.MolarFlowRate rr(start=0) "Reaction molar flow rate";
 
-      extends Interfaces.ConditionalKinetics;
-
-    Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
+      Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
           transformation(extent={{-110,-40},{-90,40}}), iconTransformation(
             extent={{-110,-40},{-90,40}})));
-    Interfaces.SubstancePorts_b products[nP] annotation (Placement(
+
+      Interfaces.SubstancePorts_b products[nP] annotation (Placement(
           transformation(extent={{90,-40},{110,40}}), iconTransformation(extent=
              {{90,-40},{110,40}})));
-
-      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
   protected
       Modelica.SIunits.ChemicalPotential du;
@@ -3624,8 +3625,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     "Input of solution molar flow vs. parametric solution molar flow"
 
       parameter Boolean useSolutionFlowInput = false
-      "Is solution flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      "=true, if solution flow is provided via input"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+              Dialog(group="Conditional inputs", __Dymola_compact=true));
 
       parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
       "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
@@ -3660,8 +3662,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     "Input of substance molar flow vs. parametric substance molar flow"
 
       parameter Boolean useSubstanceFlowInput = false
-      "Is substance flow an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      "=true, if substance flow is provided via input"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+              Dialog(__Dymola_compact=true));
 
       parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
       "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
@@ -3684,15 +3687,16 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     end ConditionalSubstanceFlow;
 
     partial model ConditionalKinetics
-    "Input of kinetics coefficient vs. parametric kinetics coefficient"
+      "Input of kinetics coefficient vs. parametric kinetics coefficient"
 
       parameter Boolean useKineticsInput = false
-      "Is kinetics coefficient as an input?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+        "= true, if kinetics coefficient is provided via input"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+          Dialog(group="Chemical kinetics", __Dymola_compact=true));
 
       parameter Real KC(final unit="mol2.s-1.J-1")=1
-      "Chemical kinetics coefficient if useKineticsInput=false"   annotation (
-          HideResult=true, Dialog(enable=not useKineticsInput));
+        "Chemical kinetics coefficient if useKineticsInput=false"
+        annotation (HideResult=true, Dialog(group="Chemical kinetics", enable=not useKineticsInput));
 
       Modelica.Blocks.Interfaces.RealInput kineticsCoefficientInput(start=KC, final unit="mol2.s-1.J-1")=
          kC if useKineticsInput
