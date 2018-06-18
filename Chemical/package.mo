@@ -2777,7 +2777,36 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
      replaceable partial record SubstanceData
         "Definition data of the chemical substance"
-     annotation (preferredView = "info");
+
+       parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
+         "Molar weight of the substance";
+
+       parameter Modelica.SIunits.ChargeNumberOfIon z=0
+         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
+         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
+         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.ActivityCoefficient gamma=1
+         "Activity coefficient of the substance";
+
+       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
+         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+       parameter String References[:]={""}
+         "References of these thermodynamical values";
+
+       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfH instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfG instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       annotation (preferredView="info");
      end SubstanceData;
 
      constant Integer OtherPropertiesCount=0
@@ -3054,26 +3083,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
        redeclare record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 33.6
-        "Molar heat capacity of the substance";
-
-          parameter String References[:]={""}
-        "References of these thermodynamical values";
         annotation ( preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3151,26 +3160,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package IdealGasShomate "Ideal gas based on Shomate equations"
        extends StateOfMatter;
 
-     redeclare  record extends SubstanceData
+     redeclare record extends  SubstanceData(Cp=cp_25degC)
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
-
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
-        "Heat capacity at 25 degC";
 
           parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
           parameter Real C(unit="J.mol-1")=0 "Shomate parameter C";
@@ -3180,8 +3171,10 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
           parameter Real A_(unit="J.K-1.mol-1")=0 "Shomate parameter A'";
           parameter Real E_(unit="K")=1e-8 "Shomate parameter E'";
 
-          parameter String References[:]={"http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"}
-        "References of these thermodynamical values";
+          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
+           "Obsolete parameter use Cp instead"
+           annotation (Dialog(tab="Obsolete"));
+
         annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2016-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3314,32 +3307,13 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 
        redeclare record extends SubstanceData "Base substance data"
 
-          parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa")=0.01801528
-        "Molar weight of the substance in kg/mol or kDa";
-
-          parameter Modelica.SIunits.ChargeNumberOfIon z=0
-        "Charge number of the substance (e.g. 0..uncharged, -1..electron, +2..Ca^2+)";
-
-          parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-        "Gibbs enerfy of formation of the substance at 25 degC,1bar";
-
-          parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=DfG_25degC_1bar
-        "Enthalpy of formation of the substance at 25 degC";
-
-          parameter Modelica.SIunits.ActivityCoefficient gamma=1
-        "Activity coefficient of the substance";
-
-          parameter Modelica.SIunits.MolarHeatCapacity Cp = 0
-        "Molar heat capacity of the substance at constant pressure";
+         parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
+          "Density of the pure substance (default density of water at 25degC)";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
         //      "Molar heat capacity of the substance at constant volume";
 
-          parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
-        "Density of the pure substance (default density of water at 25degC)";
 
-          parameter String References[:]={""}
-        "References of these thermodynamical values";
 
         annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
