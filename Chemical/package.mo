@@ -1,5 +1,5 @@
 within ;
-package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
+package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -188,14 +188,11 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     model Solution "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
 
-      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=BasePressure));
+      extends Interfaces.PartialSolutionWithInputs(T(start=temperature_start),p(start=BasePressure));
 
-      parameter Boolean useElectricPort = false "Is electric port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
-
-      parameter Boolean ElectricGround = true
-      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
-        annotation (HideResult=true, Dialog(enable=not useElectricPort));
+      parameter Modelica.SIunits.Pressure BasePressure=system.p_ambient
+      "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
+        annotation (HideResult=true);
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
       annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
@@ -208,27 +205,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       "Relavite position has zero at initial state without force"
         annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 
-      parameter Boolean useThermalPort = false "Is thermal port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
 
-      parameter Boolean ConstantTemperature = true
-      "Has the solution constant temperature during simulation (if not useThermalPort)?"
-         annotation (HideResult=true, Dialog(enable=not useThermalPort));
-
-      parameter Modelica.SIunits.Pressure BasePressure=100000
-      "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
-        annotation (HideResult=true);
-
-      parameter Modelica.SIunits.Temperature temperature_start=298.15
-      "Initial temperature of the solution"
-         annotation (Dialog(group="Initialization"));
-
-      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=T,Q_flow=heatFromEnvironment) if useThermalPort annotation (
-          Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
-              extent={{-62,-104},{-58,-100}})));
-      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin(v=solution.v,i=solution.i) if useElectricPort annotation (Placement(
-            transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
-              extent={{-62,98},{-58,102}})));
       Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=top_s) if useMechanicPorts
       "The pressure of solution generate force on prescribed surface."
         annotation (Placement(transformation(extent={{-10,70},{10,90}}),
@@ -245,7 +222,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
        Modelica.SIunits.Force f;
 
     initial equation
-      T=temperature_start;
       positionShift= if
                        (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
       //s=volume/SurfaceArea - positionShift;
@@ -260,28 +236,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
         top_s=ds; //equivalent for bottom_s==0
       end if;
 
-      //electric
-      if (not useElectricPort) and
-                                  ElectricGround then
-        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
-          solution.v = 0;
-      end if;
-      if (not useElectricPort) and
-                                 (not ElectricGround) then
-        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
-          solution.i = 0;
-      end if;
-
-      //thermal
-      if (not useThermalPort) and ConstantTemperature then
-        //Ideal thermal exchange between environment and solution to reach constant temperature
-        der(T)=0;
-      end if;
-      if (not useThermalPort) and (not ConstantTemperature) then
-        //Thermally isolated without any thermal exchange with environment
-        heatFromEnvironment = 0;
-      end if;
-
                                                                                                         annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
@@ -292,7 +246,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
-<p>2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+<p>2018 by Marek Matejak, marek@matfyz.cz  </p>
 </html>", info="<html>
 <h4>amountOfSolution = &sum; amountOfSubstances</h4>
 <h4>mass = &sum; massOfSubstances</h4>
@@ -388,6 +342,128 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
     end Substance;
+
+    model LiquidWater
+      "Liquid water with hydrogen bonds"
+      extends Chemical.Icons.Substance;
+
+      extends Chemical.Interfaces.PartialSubstanceInSolution(
+         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+         final substanceData=Chemical.Examples.Substances.FreeH2O_liquid());
+
+      parameter Modelica.SIunits.Mass mass_start=1
+      "Initial mass of water"   annotation(HideResult=true);
+
+      Modelica.SIunits.Mass mass=amountOfTotalH2O*substanceData.MolarWeight
+      "Mass of water";
+
+  protected
+      Modelica.SIunits.Concentration c(displayUnit="mol/l") "Molar concentration of all water clusters";
+
+     /* parameter Modelica.SIunits.AmountOfSubstance amountOfTotalH2O_start=mass_start/substanceData.MolarWeight
+  "Initial total amount of water molecules"   annotation(HideResult=true);
+*/
+      Modelica.SIunits.Concentration c_FreeH2O(displayUnit="mol/l") "Molar concentration of free H2O molecule";
+
+      Modelica.SIunits.AmountOfSubstance amountOfTotalH2O(start=mass_start/substanceData.MolarWeight) "Amount of water molecules inside all clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfFreeH2O(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of free water molecules in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfClusters "Amount of base cluster in compartment";
+
+      Real K = exp(-dG/(Modelica.Constants.R*solution.T)) "Dissociation constant of hydrogen bond between H2O molecules";
+
+      constant Real K_25degC = (55.345-1)/1 "Dissociation constant of hydrogen bond between H2O molecules at 25degC, 1 bar";
+      constant Modelica.SIunits.ChemicalPotential dG_25degC = -Modelica.Constants.R*(273.15+25)*log(K_25degC) "Gibbs energy of hydrogen bond between H2O molecules at 25degC, 1 bar";
+      constant Modelica.SIunits.ChemicalPotential dH = 0 "Enthalpy of hydrogen bond between H2O molecules at 25degC, 1 bar"; //-20000
+      constant Modelica.SIunits.MolarEntropy dS = (dH-dG_25degC)/(273.15+25) "Entropy of hydrogen bond between H2O molecules at 25degC, 1 bar";
+
+      Modelica.SIunits.ChemicalPotential dG = dH-solution.T*dS "Gibbs energy of hydrogen bond between H2O molecules";
+      Modelica.SIunits.AmountOfSubstance amountOfHydrogenBonds "Amount of hydrogen bonds between H2O molecules in compartment";
+
+
+      Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/substanceData.MolarWeight))
+      "Decadic logarithm of the amount of all clusters in solution";
+      constant Real InvLog_10=1/log(10);
+
+    initial equation
+
+      amountOfTotalH2O = mass_start/substanceData.MolarWeight;
+      // amountOfTotalH2O = amountOfTotalH2O_start;
+      // amountOfFreeH2O = 1/amountOfTotalH2O_start;
+
+    equation
+      //The main accumulation equation is "der(amountOfH2O)=port_a.q"
+      // However, the numerical solvers can handle it in form of log10n much better. :-)
+      der(log10n)=(InvLog_10)*(port_a.q/amountOfTotalH2O);
+      amountOfTotalH2O = 10^log10n;
+
+      //Liquid water cluster theory - equilibrium:
+      //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i H2O molecules
+      //amountOfClusters/solution.n = x/(1-K*x);                //sum(x[i])
+      //amountOfTotalH2O/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
+      //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+      amountOfClusters*(1-K*x) = x*solution.n;
+      amountOfTotalH2O*(1-K*x) = amountOfClusters;
+      amountOfHydrogenBonds = amountOfTotalH2O * x * K;
+
+      //Molar Concentration of all water clusters
+      c = amountOfClusters/solution.V;
+      //Molar Concentration of free H2O molecule
+      c_FreeH2O = amountOfFreeH2O/solution.V;
+
+      //Mole fraction is an analogy of molar concentration or molality.
+      x = amountOfFreeH2O/solution.n;
+
+      //solution flows
+      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)* amountOfTotalH2O
+       + dH*der(amountOfHydrogenBonds);
+      solution.i = 0;
+      solution.dV = molarVolume * port_a.q + der(molarVolume)* amountOfTotalH2O;
+
+      //extensive properties
+      solution.nj=amountOfClusters;
+      solution.mj=amountOfTotalH2O*molarMass;
+      solution.Vj=amountOfTotalH2O*molarVolume; //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      solution.Gj=amountOfTotalH2O*port_a.u + amountOfHydrogenBonds*dG;
+      solution.Qj=0;
+      solution.Ij=0;
+      solution.otherPropertiesOfSubstance=amountOfTotalH2O * otherPropertiesPerSubstance; //TODO: more precise calculation of other properties
+
+     annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={Text(
+              extent={{-84,22},{92,64}},
+              lineColor={0,0,255},
+            textString="%name")}),
+        Documentation(revisions="<html>
+<p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end LiquidWater;
 
     model Reaction "Chemical Reaction"
       extends Interfaces.ConditionalKinetics;
@@ -1169,128 +1245,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
               color={158,66,200},
               thickness=1)}));
     end FluidAdapter;
-
-    model LiquidWater
-      "Liquid water with hydrogen bonds"
-      extends Chemical.Icons.Substance;
-
-      extends Chemical.Interfaces.PartialSubstanceInSolution(
-         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-         final substanceData=Chemical.Examples.Substances.FreeH2O_liquid());
-
-      parameter Modelica.SIunits.Mass mass_start=1
-      "Initial mass of water"   annotation(HideResult=true);
-
-      Modelica.SIunits.Mass mass=amountOfTotalH2O*substanceData.MolarWeight
-      "Mass of water";
-
-  protected
-      Modelica.SIunits.Concentration c(displayUnit="mol/l") "Molar concentration of all water clusters";
-
-     /* parameter Modelica.SIunits.AmountOfSubstance amountOfTotalH2O_start=mass_start/substanceData.MolarWeight
-  "Initial total amount of water molecules"   annotation(HideResult=true);
-*/
-      Modelica.SIunits.Concentration c_FreeH2O(displayUnit="mol/l") "Molar concentration of free H2O molecule";
-
-      Modelica.SIunits.AmountOfSubstance amountOfTotalH2O(start=mass_start/substanceData.MolarWeight) "Amount of water molecules inside all clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfFreeH2O(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of free water molecules in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfClusters "Amount of base cluster in compartment";
-
-      Real K = exp(-dG/(Modelica.Constants.R*solution.T)) "Dissociation constant of hydrogen bond between H2O molecules";
-
-      constant Real K_25degC = (55.345-1)/1 "Dissociation constant of hydrogen bond between H2O molecules at 25degC, 1 bar";
-      constant Modelica.SIunits.ChemicalPotential dG_25degC = -Modelica.Constants.R*(273.15+25)*log(K_25degC) "Gibbs energy of hydrogen bond between H2O molecules at 25degC, 1 bar";
-      constant Modelica.SIunits.ChemicalPotential dH = 0 "Enthalpy of hydrogen bond between H2O molecules at 25degC, 1 bar"; //-20000
-      constant Modelica.SIunits.MolarEntropy dS = (dH-dG_25degC)/(273.15+25) "Entropy of hydrogen bond between H2O molecules at 25degC, 1 bar";
-
-      Modelica.SIunits.ChemicalPotential dG = dH-solution.T*dS "Gibbs energy of hydrogen bond between H2O molecules";
-      Modelica.SIunits.AmountOfSubstance amountOfHydrogenBonds "Amount of hydrogen bonds between H2O molecules in compartment";
-
-
-      Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/substanceData.MolarWeight))
-      "Decadic logarithm of the amount of all clusters in solution";
-      constant Real InvLog_10=1/log(10);
-
-    initial equation
-
-      amountOfTotalH2O = mass_start/substanceData.MolarWeight;
-      // amountOfTotalH2O = amountOfTotalH2O_start;
-      // amountOfFreeH2O = 1/amountOfTotalH2O_start;
-
-    equation
-      //The main accumulation equation is "der(amountOfH2O)=port_a.q"
-      // However, the numerical solvers can handle it in form of log10n much better. :-)
-      der(log10n)=(InvLog_10)*(port_a.q/amountOfTotalH2O);
-      amountOfTotalH2O = 10^log10n;
-
-      //Liquid water cluster theory - equilibrium:
-      //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i H2O molecules
-      //amountOfClusters/solution.n = x/(1-K*x);                //sum(x[i])
-      //amountOfTotalH2O/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
-      //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
-      amountOfClusters*(1-K*x) = x*solution.n;
-      amountOfTotalH2O*(1-K*x) = amountOfClusters;
-      amountOfHydrogenBonds = amountOfTotalH2O * x * K;
-
-      //Molar Concentration of all water clusters
-      c = amountOfClusters/solution.V;
-      //Molar Concentration of free H2O molecule
-      c_FreeH2O = amountOfFreeH2O/solution.V;
-
-      //Mole fraction is an analogy of molar concentration or molality.
-      x = amountOfFreeH2O/solution.n;
-
-      //solution flows
-      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)* amountOfTotalH2O
-       + dH*der(amountOfHydrogenBonds);
-      solution.i = 0;
-      solution.dV = molarVolume * port_a.q + der(molarVolume)* amountOfTotalH2O;
-
-      //extensive properties
-      solution.nj=amountOfClusters;
-      solution.mj=amountOfTotalH2O*molarMass;
-      solution.Vj=amountOfTotalH2O*molarVolume; //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
-      solution.Gj=amountOfTotalH2O*port_a.u + amountOfHydrogenBonds*dG;
-      solution.Qj=0;
-      solution.Ij=0;
-      solution.otherPropertiesOfSubstance=amountOfTotalH2O * otherPropertiesPerSubstance; //TODO: more precise calculation of other properties
-
-     annotation (
-        Icon(coordinateSystem(
-              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-            graphics={Text(
-              extent={{-84,22},{92,64}},
-              lineColor={0,0,255},
-            textString="%name")}),
-        Documentation(revisions="<html>
-<p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>", info="<html>
-<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
-<p>where n is amount of the substance and x is mole fraction.</p>
-<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
-<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
-<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
-<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
-<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
-<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
-<p><br><br>Definition of electro-chemical potential:</p>
-<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
-<h4>u&deg; = DfG = DfH - T * DfS</h4>
-<p>where</p>
-<p>x .. mole fraction of the substance in the solution</p>
-<p>T .. temperature in Kelvins</p>
-<p>v .. relative eletric potential of the solution</p>
-<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
-<p>R .. gas constant</p>
-<p>F .. Faraday constant</p>
-<p>gamma .. activity coefficient</p>
-<p>u&deg; .. chemical potential of pure substance</p>
-<p>DfG .. free Gibbs energy of formation of the substance</p>
-<p>DfH .. free enthalpy of formation of the substance</p>
-<p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
-</html>"));
-    end LiquidWater;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -3161,7 +3115,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
     package IdealGasShomate "Ideal gas based on Shomate equations"
        extends StateOfMatter;
 
-     redeclare record extends  SubstanceData(Cp=cp_25degC)
+     redeclare record extends SubstanceData( Cp=cp_25degC)
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
           parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
@@ -3492,12 +3446,18 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
+      outer Modelica.Fluid.System system "System wide properties";
+
+
       Modelica.SIunits.Temperature T(start=298.15) "Temperature";
 
       Modelica.SIunits.Pressure p(start=100000) "Pressure";
 
       Modelica.SIunits.Volume volume(stateSelect=StateSelect.prefer)
       "Current volume of the solution";
+
+      Modelica.SIunits.Mass mass(stateSelect=StateSelect.prefer)
+      "Current mass of the solution";
 
       Interfaces.SolutionPort solution(redeclare package stateOfMatter =
             stateOfMatter) "Solution nonflows and flows"
@@ -3536,7 +3496,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       //internal energy
       der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
 
-      heatFromEnvironment + workFromEnvironment = (-solution.dH) - solution.p*(-solution.dV) - volume*der(solution.p);
+      heatFromEnvironment + workFromEnvironment = (-solution.dH) - solution.p*(-solution.dV);// - volume*der(solution.p);
      // heatFromEnvironment + workFromEnvironment = der(freeEnthalpy) - solution.p*(-solution.dV) - volume*der(solution.p);
       //It is the same as: der(freeEnthalpy)=-solution.dH;
 
@@ -3553,6 +3513,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
       //  solution.U = freeInternalEnergy;
       solution.Q = charge;
       solution.V = volume;
+      solution.m = mass;
+
     //  der_freeEnthalpy = der(freeEnthalpy);
 
       //Extensive properties of the solution:
@@ -3596,6 +3558,83 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-alpha)"
 <p>Integration of all substances together into one homogenous mixture - the solution.</p>
 </html>"));
     end PartialSolution;
+
+    partial model PartialSolutionWithInputs
+      "Chemical solution as homogenous mixture of the substances"
+      extends Icons.Solution;
+
+      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=system.p_ambient));
+
+      parameter Boolean useElectricPort = false "Is electric port pressent?"
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean ElectricGround = true
+      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
+        annotation (HideResult=true, Dialog(enable=not useElectricPort));
+
+      parameter Boolean useThermalPort = false "Is thermal port pressent?"
+      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean ConstantTemperature = true
+      "Has the solution constant temperature during simulation (if not useThermalPort)?"
+         annotation (HideResult=true, Dialog(enable=not useThermalPort));
+
+      parameter Modelica.SIunits.Temperature temperature_start=system.T_ambient
+      "Initial temperature of the solution"
+         annotation (Dialog(group="Initialization"));
+
+      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=T,Q_flow=heatFromEnvironment) if useThermalPort annotation (
+          Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
+              extent={{-62,-104},{-58,-100}})));
+      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin(v=solution.v,i=solution.i) if useElectricPort annotation (Placement(
+            transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
+              extent={{-62,98},{-58,102}})));
+
+    initial equation
+      T=temperature_start;
+    equation
+
+      //electric
+      if (not useElectricPort) and
+                                  ElectricGround then
+        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
+          solution.v = 0;
+      end if;
+      if (not useElectricPort) and
+                                 (not ElectricGround) then
+        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
+          solution.i = 0;
+      end if;
+
+      //thermal
+      if (not useThermalPort) and ConstantTemperature then
+        //Ideal thermal exchange between environment and solution to reach constant temperature
+        der(T)=0;
+      end if;
+      if (not useThermalPort) and (not ConstantTemperature) then
+        //Thermally isolated without any thermal exchange with environment
+        heatFromEnvironment = 0;
+      end if;
+
+                                                                                                        annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
+              100,100}}),
+            graphics={Text(
+              extent={{-92,-86},{76,-94}},
+              lineColor={0,0,255},
+              textString="%name",
+              horizontalAlignment=TextAlignment.Left)}),
+        Documentation(revisions="<html>
+<p>2018 by Marek Matejak, marek@matfyz.cz </p>
+</html>", info="<html>
+<h4>amountOfSolution = &sum; amountOfSubstances</h4>
+<h4>mass = &sum; massOfSubstances</h4>
+<h4>volume = &sum; volumeOfSubstances</h4>
+<h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
+<p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
+</html>"));
+    end PartialSolutionWithInputs;
 
     partial model OnePortParallel
     "Partial molar flow between two substance definitions"
@@ -4059,10 +4098,10 @@ Modelica source.
 
   annotation (
 preferredView="info",
-version="1.2.0-alpha",
+version="1.2.0-beta",
 versionBuild=1,
-versionDate="2015-09-15",
-dateModified = "2015-09-15 17:14:41Z",
+versionDate="2018-11-29",
+dateModified = "2018-11-29 15:14:41Z",
 conversion(
   from(version="1.1.0alpha", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.1.mos"),

@@ -541,6 +541,8 @@ extends Modelica.Icons.ExamplesPackage;
             log(K)), amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
 
+    Components.LiquidWater liquidWater
+      annotation (Placement(transformation(extent={{70,-88},{90,-68}})));
   equation
     connect(reaction.products[1], B.port_a) annotation (Line(
         points={{10,2},{42,2}},
@@ -555,6 +557,8 @@ extends Modelica.Icons.ExamplesPackage;
         points={{-32,2},{-10,2}},
         color={158,66,200},
         thickness=1));
+    connect(solution.solution, liquidWater.solution) annotation (Line(points={{
+            60,-98},{74,-98},{74,-88}}, color={127,127,0}));
     annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -590,6 +594,8 @@ extends Modelica.Icons.ExamplesPackage;
             log(Kx)), amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{68,-8},{48,12}})));
 
+    Components.LiquidWater liquidWater
+      annotation (Placement(transformation(extent={{70,-90},{90,-70}})));
   equation
     connect(reaction.products[1], C.port_a) annotation (Line(
         points={{24,2},{48,2}},
@@ -611,6 +617,8 @@ extends Modelica.Icons.ExamplesPackage;
         points={{-14,12},{-10,12},{-10,4},{4,4}},
         color={158,66,200},
         thickness=1));
+    connect(solution.solution, liquidWater.solution) annotation (Line(points={{
+            60,-98},{74,-98},{74,-90}}, color={127,127,0}));
     annotation ( Documentation(revisions="<html>
 <p><i>2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -960,8 +968,8 @@ extends Modelica.Icons.ExamplesPackage;
         displayUnit="l") = 0.001, */
     Chemical.Components.GasSolubility gasSolubility
       annotation (Placement(transformation(extent={{-98,24},{-78,44}})));
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
-          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
+        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
       amountOfSubstance_start=0.01)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
