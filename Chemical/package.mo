@@ -229,7 +229,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 
       //hydraulic
       ds = volume/SurfaceArea - positionShift;
-      workFromEnvironment = -der(f*ds); //=der( (p-p0) * volume)
+      workFromEnvironment = -solution.p*der(volume); // -der(f*ds); //=der( (p-p0) * volume)
       solution.p = BasePressure - f/SurfaceArea;
       if not useMechanicPorts then
         f=0;
@@ -262,7 +262,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 
       Modelica.SIunits.Concentration c "Molar concentration";
 
-      extends Interfaces.PartialSubstanceInSolution;
+      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts;
 
       //If it is selected the amount of solution per one kilogram of solvent then the values of amountOfSubstance will be the same as molality
       //If it is selected the amount of solution in one liter of solution then the values of amountOfSubstance will be the same as molarity
@@ -281,9 +281,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 
     equation
 
-      //The main accumulation equation is "der(amountOfSubstance)=port_a.q"
+      //The main accumulation equation is "der(amountOfSubstance)=(port_a.q+port_m.q/MolarWeight)"
       // However, the numerical solvers can handle it in form of log10n much better. :-)
-      der(log10n)=(InvLog_10)*(port_a.q/amountOfSubstance);
+      der(log10n)=(InvLog_10)*(q/amountOfSubstance);
       amountOfSubstance = 10^log10n;
 
       //Molar Concentration
@@ -293,9 +293,9 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
       x = amountOfSubstance/solution.n;
 
       //solution flows
-      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)*amountOfSubstance;
-      solution.i = Modelica.Constants.F * z * port_a.q + Modelica.Constants.F*der(z)*amountOfSubstance;
-      solution.dV = molarVolume * port_a.q + der(molarVolume)*amountOfSubstance;
+      solution.dH = molarEnthalpy*q + der(molarEnthalpy)*amountOfSubstance;
+      solution.i = Modelica.Constants.F * z * q + Modelica.Constants.F*der(z)*amountOfSubstance;
+      solution.dV = molarVolume * q + der(molarVolume)*amountOfSubstance;
 
       //extensive properties
       solution.nj=amountOfSubstance;
@@ -347,7 +347,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
       "Liquid water with hydrogen bonds"
       extends Chemical.Icons.Substance;
 
-      extends Chemical.Interfaces.PartialSubstanceInSolution(
+      extends Chemical.Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(
          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
          final substanceData=Chemical.Examples.Substances.FreeH2O_liquid());
 
@@ -393,7 +393,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
     equation
       //The main accumulation equation is "der(amountOfH2O)=port_a.q"
       // However, the numerical solvers can handle it in form of log10n much better. :-)
-      der(log10n)=(InvLog_10)*(port_a.q/amountOfTotalH2O);
+
+      der(log10n)=(InvLog_10)*(q/amountOfTotalH2O);
       amountOfTotalH2O = 10^log10n;
 
       //Liquid water cluster theory - equilibrium:
@@ -414,10 +415,10 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
       x = amountOfFreeH2O/solution.n;
 
       //solution flows
-      solution.dH = molarEnthalpy*port_a.q + der(molarEnthalpy)* amountOfTotalH2O
+      solution.dH = molarEnthalpy*(q) + der(molarEnthalpy)* amountOfTotalH2O
        + dH*der(amountOfHydrogenBonds);
       solution.i = 0;
-      solution.dV = molarVolume * port_a.q + der(molarVolume)* amountOfTotalH2O;
+      solution.dV = molarVolume * (q) + der(molarVolume)* amountOfTotalH2O;
 
       //extensive properties
       solution.nj=amountOfClusters;
@@ -468,15 +469,16 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
     model Reaction "Chemical Reaction"
       extends Interfaces.ConditionalKinetics;
 
-      parameter Integer nS=1 "Number of substrate types"
-        annotation ( HideResult=true);
+      parameter Integer nS=0 "Number of substrate types"
+        annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
+
 
       parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
         annotation (HideResult=true);
 
-      parameter Integer nP=1 "Number of product types"
-        annotation ( HideResult=true);
+      parameter Integer nP=0 "Number of product types"
+        annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
       parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
@@ -859,8 +861,8 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
-        =   stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+            stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -2572,6 +2574,7 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 
     end SubstancePorts_b;
 
+
     partial model PartialSubstance
 
     SubstancePort_a port_a "The substance"
@@ -2709,6 +2712,26 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
       otherProperties = solution.otherProperties;
 
     end PartialSubstanceInSolution;
+
+    partial model PartialSubstanceInSolutionWithAdditionalPorts
+    "Substance properties for components, where the substance is connected with the solution"
+
+      extends PartialSubstanceInSolution;
+
+      Modelica.SIunits.MolarFlowRate q "Molar flow rate of the substance into the component";
+
+      SubstanceMassPort_a
+                      port_m "Substance mass fraction port"
+        annotation (Placement(transformation(extent={{92,-110},{112,-90}})));
+
+    equation
+      //molar mass flow
+      q=(port_a.q + port_m.m_flow/substanceData.MolarWeight);
+
+      //substance mass fraction
+      port_m.x_mass = solution.mj/solution.m;
+
+    end PartialSubstanceInSolutionWithAdditionalPorts;
 
     partial model PartialSubstanceSensor
     "Base class for sensor based on substance and solution properties"
@@ -3033,6 +3056,99 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 </html>"));
     end StateOfMatter;
 
+    package Incompressible "Incompressible as basic state of matter"
+       extends StateOfMatter;
+
+       redeclare record extends SubstanceData "Base substance data"
+
+         parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
+          "Density of the pure substance (default density of water at 25degC)";
+
+        //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
+        //      "Molar heat capacity of the substance at constant volume";
+
+
+
+        annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+       end SubstanceData;
+
+     redeclare function extends activityCoefficient
+      "Return activity coefficient of the substance in the solution"
+     algorithm
+         activityCoefficient := substanceData.gamma;
+     end activityCoefficient;
+
+     redeclare function extends chargeNumberOfIon
+      "Return charge number of the substance in the solution"
+     algorithm
+        chargeNumberOfIon := substanceData.z;
+     end chargeNumberOfIon;
+
+     redeclare function extends molarEnthalpyElectroneutral
+      "Molar enthalpy of the pure electroneutral substance"
+     algorithm
+         //Molar enthalpy:
+         // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
+         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
+
+         molarEnthalpyElectroneutral :=  substanceData.DfH
+         + (T - 298.15) * substanceData.Cp;
+      //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
+     end molarEnthalpyElectroneutral;
+
+      redeclare function extends molarEntropyPure
+      "Molar entropy of the pure substance"
+      algorithm
+         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
+         //+ substanceData.Cv*log(T/298.15);
+
+         //Molar entropy shift:
+         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
+         // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
+         molarEntropyPure := substanceData.Cp*log(T/298.15) - (molarVolumePure(
+           substanceData,
+           T,
+           p,
+           v,
+           I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
+
+         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+         //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
+         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
+      end molarEntropyPure;
+
+     redeclare function extends molarMass "Molar mass of the substance"
+     algorithm
+         molarMass := substanceData.MolarWeight;
+     end molarMass;
+
+     redeclare function extends molarVolumePure
+      "Molar volume of the pure substance"
+     algorithm
+         molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
+     end molarVolumePure;
+
+     redeclare function extends molarHeatCapacityCp
+      "Molar heat capacity of the substance at constant pressure"
+     algorithm
+         molarHeatCapacityCp := substanceData.Cp;
+     end molarHeatCapacityCp;
+
+     redeclare function extends molarHeatCapacityCv
+      "Molar heat capacity of the substance at constant volume"
+     algorithm
+         molarHeatCapacityCv := substanceData.Cp;
+     end molarHeatCapacityCv;
+
+      annotation (Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end Incompressible;
+
     package IdealGas "Ideal gas with constant heat capacity"
        extends StateOfMatter;
 
@@ -3256,99 +3372,6 @@ package Chemical "Library of Electro-Chemical models (version 1.2.0-beta)"
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end IdealGasShomate;
-
-    package Incompressible "Incompressible as basic state of matter"
-       extends StateOfMatter;
-
-       redeclare record extends SubstanceData "Base substance data"
-
-         parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
-          "Density of the pure substance (default density of water at 25degC)";
-
-        //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
-        //      "Molar heat capacity of the substance at constant volume";
-
-
-
-        annotation (preferredView = "info", Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-       end SubstanceData;
-
-     redeclare function extends activityCoefficient
-      "Return activity coefficient of the substance in the solution"
-     algorithm
-         activityCoefficient := substanceData.gamma;
-     end activityCoefficient;
-
-     redeclare function extends chargeNumberOfIon
-      "Return charge number of the substance in the solution"
-     algorithm
-        chargeNumberOfIon := substanceData.z;
-     end chargeNumberOfIon;
-
-     redeclare function extends molarEnthalpyElectroneutral
-      "Molar enthalpy of the pure electroneutral substance"
-     algorithm
-         //Molar enthalpy:
-         // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
-         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
-
-         molarEnthalpyElectroneutral :=  substanceData.DfH
-         + (T - 298.15) * substanceData.Cp;
-      //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
-     end molarEnthalpyElectroneutral;
-
-      redeclare function extends molarEntropyPure
-      "Molar entropy of the pure substance"
-      algorithm
-         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
-         //+ substanceData.Cv*log(T/298.15);
-
-         //Molar entropy shift:
-         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
-         // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
-         molarEntropyPure := substanceData.Cp*log(T/298.15) - (molarVolumePure(
-           substanceData,
-           T,
-           p,
-           v,
-           I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
-
-         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
-         //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
-         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
-      end molarEntropyPure;
-
-     redeclare function extends molarMass "Molar mass of the substance"
-     algorithm
-         molarMass := substanceData.MolarWeight;
-     end molarMass;
-
-     redeclare function extends molarVolumePure
-      "Molar volume of the pure substance"
-     algorithm
-         molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
-     end molarVolumePure;
-
-     redeclare function extends molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure"
-     algorithm
-         molarHeatCapacityCp := substanceData.Cp;
-     end molarHeatCapacityCp;
-
-     redeclare function extends molarHeatCapacityCv
-      "Molar heat capacity of the substance at constant volume"
-     algorithm
-         molarHeatCapacityCv := substanceData.Cp;
-     end molarHeatCapacityCv;
-
-      annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end Incompressible;
 
     connector SolutionPort
     "Only for connecting the one solution their substances. Please, do not use it in different way."
@@ -4009,6 +4032,78 @@ Modelica source.
 </p>
 </HTML>"));
     end SimpleChemicalMedium;
+
+    connector SubstanceMassPort
+
+      Modelica.SIunits.MassFraction x_mass
+      "Mass fraction of the substance in the solution";
+
+      flow Modelica.SIunits.MassFlowRate m_flow "Mass flow rate of the substance";
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end SubstanceMassPort;
+
+    connector SubstanceMassPort_a
+      "Mass fraction and mass flow of the substance in the solution"
+      extends SubstanceMassPort;
+
+    annotation (
+        defaultComponentName="port_a",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={105,44,133}),Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={105,44,133},
+              fillColor={105,44,133},
+              fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={105,44,133},
+              fillColor={105,44,133},
+              fillPattern=FillPattern.Solid,
+              lineThickness=1),
+       Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+        Documentation(info="<html>
+<p>Chemical port with internal definition of the substance inside the component. </p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, marek@matfyz.cz </p>
+</html>"));
+    end SubstanceMassPort_a;
+
+    connector SubstanceMassPort_b
+      "Mass fraction and mass flow of the substance in the solution"
+      extends SubstanceMassPort;
+
+    annotation (
+        defaultComponentName="port_b",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={105,44,133}),Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={105,44,133},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={105,44,133},
+              lineThickness=1,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+       Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+        Documentation(info="<html>
+<p>Chemical port with external definition of the substance outside the component.</p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, marek@matfyz.cz </p>
+</html>"));
+    end SubstanceMassPort_b;
   end Interfaces;
 
   package Icons "Icons for chemical models"
