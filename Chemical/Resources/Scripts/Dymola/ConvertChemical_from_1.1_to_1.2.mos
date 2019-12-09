@@ -1,0 +1,17 @@
+// Convert from Chemical 1.1.* to Chemical 1.2.*
+
+// clear
+convertClear();
+
+convertModifiers("Chemical.Components.Reaction",{"","nS=1","nP=1"},{"nS=%nS%","nP=%nP%"}, true);
+convertModifiers("Chemical.Components.Substance",{"amountOfSubstance_start"},{"use_mass_start=false", "amountOfSunstance_start=%amountOfSubstance_start%"}, true);
+convertModifiers("Chemical.Components.Substance",{"substanceData"},{"substanceData=%substanceData%"}, true);
+
+convertElement("Chemical.Interfaces.Incompressible.SubstanceData", "DfH_25degC", "DfH");
+convertElement("Chemical.Interfaces.Incompressible.SubstanceData", "DfG_25degC_1bar", "DfG");
+convertElement("Chemical.Interfaces.IdealGas.SubstanceData", "DfH_25degC", "DfH");
+convertElement("Chemical.Interfaces.IdealGas.SubstanceData", "DfG_25degC_1bar", "DfG");
+convertElement("Chemical.Interfaces.IdealGasShomate.SubstanceData", "DfH_25degC", "DfH");
+convertElement("Chemical.Interfaces.IdealGasShomate.SubstanceData", "DfG_25degC_1bar", "DfG");
+
+convertModifiers("Chemical.Components.GasSolubility",{"useWaterCorrection"},fill("",0), true);
