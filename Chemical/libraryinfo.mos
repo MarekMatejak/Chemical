@@ -6,7 +6,7 @@ LibraryInfoMenuCommand(
     text = "Chemical",
     reference = "Chemical",
     isModel = true,
-    description = "Library of Chemical and Electrochemical processes 1.1.0",
-    version = "1.1.0",
+    description = "Physical Chemistry 1.2.0",
+    version = "1.2.0",
     ModelicaVersion = ">=3.2",
     pos = 3754);
