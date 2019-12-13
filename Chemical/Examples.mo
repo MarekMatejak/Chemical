@@ -607,10 +607,6 @@ extends Modelica.Icons.ExamplesPackage;
        X_default=ones(nX));
 
 
-    // Provide medium constants here
-
-    //constant Modelica.SIunits.Density default_density=1000; //50769,
-
     end BodyFluid;
 
     package Water
@@ -632,9 +628,6 @@ extends Modelica.Icons.ExamplesPackage;
           Chemical.Examples.Substances.Water_liquid(),
           Chemical.Examples.Substances.Ethanol_liquid()},
        singleState=true, T_default=310.15, X_default=ones(nX));
-
-
-
 
 
     end EthanolInWater;
@@ -2814,7 +2807,7 @@ extends Modelica.Icons.ExamplesPackage;
             z=-17,
             density=1080), use_mass_start=false, amountOfSubstance_start=0.0007)
           annotation (Placement(transformation(extent={{112,76},{92,96}})));
-      //  Real pH_e; //,pH_p;
+        Real pH_e,pH_p;
 
         Chemical.Components.Membrane Aquapirin(KC=KC) annotation (Placement(
               transformation(
@@ -2856,10 +2849,12 @@ extends Modelica.Icons.ExamplesPackage;
               rotation=270,
               origin={78,0})));
         Chemical.Components.Substance H_E(substanceData=
-              Substances.Proton_aqueous(), use_mass_start=false, amountOfSubstance_start=38.7*10^(-7.2)) "H+"
+              Substances.Proton_aqueous(), use_mass_start=false,
+          amountOfSubstance_start=10^(-7.2))                                                             "H+"
           annotation (Placement(transformation(extent={{30,-38},{50,-18}})));
         Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous(),
-            use_mass_start=false, amountOfSubstance_start=51.8*10^(-7.4))
+            use_mass_start=false,
+          amountOfSubstance_start=10^(-7.4))
           "H+ in plasma"
           annotation (Placement(transformation(extent={{30,20},{50,40}})));
         Chemical.Components.Membrane MCT(useKineticsInput=false, KC=KC)
@@ -2919,12 +2914,6 @@ extends Modelica.Icons.ExamplesPackage;
         Chemical.Components.Substance HPO4_E(substanceData=
               Substances.HydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.000495)
           annotation (Placement(transformation(extent={{-84,-62},{-64,-42}})));
-        Chemical.Components.Substance H2PO4(substanceData=
-              Substances.DihydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.000365)
-          annotation (Placement(transformation(extent={{-86,78},{-66,98}})));
-        Chemical.Components.Substance HPO4(substanceData=
-              Substances.HydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.001635)
-          annotation (Placement(transformation(extent={{-80,58},{-60,78}})));
         Chemical.Components.Substance globulins(substanceData(
             MolarWeight=34,
             z=-2.43,
@@ -2947,8 +2936,6 @@ extends Modelica.Icons.ExamplesPackage;
             z=-1,
             density=1000), use_mass_start=false, amountOfSubstance_start=0.00223)
           annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
-        Components.Reaction          chemicalReaction1(nS=1, nP=2) "10^(-6.66 + 3)"
-          annotation (Placement(transformation(extent={{-56,78},{-36,98}})));
         Components.Reaction          HendersonHasselbalch(nP=2, nS=2,
         useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
           annotation (Placement(transformation(extent={{-34,64},{-14,44}})));
@@ -2959,8 +2946,8 @@ extends Modelica.Icons.ExamplesPackage;
               extent={{10,-10},{-10,10}},
               origin={82,-76})));
       equation
-      //  pH_p = -log10(H.a);
-       // pH_e = -log10(H_E.a);
+        pH_p = -log10(H.a);
+        pH_e = -log10(H_E.a);
       connect(H2O.solution, blood_plasma.solution)
         annotation (Line(points={{-150,44},{-150,44},{-150,26},{-150,26},{-150,20},{108,
                 20},{108,12.88}}, color={127,127,0}));
@@ -3099,14 +3086,8 @@ extends Modelica.Icons.ExamplesPackage;
         connect(ATP_E.solution, Na_E.solution) annotation (Line(
             points={{-150,-62},{-122,-62},{-122,-38}},
             color={127,127,0}));
-        connect(H2O.solution, H2PO4.solution) annotation (Line(
-            points={{-150,44},{-150,44},{-150,20},{-82,20},{-82,78}},
-            color={127,127,0}));
         connect(HPO4_E.solution, H2PO4_E.solution) annotation (Line(
             points={{-80,-62},{-110,-62},{-110,-38},{-80,-38}},
-            color={127,127,0}));
-        connect(HPO4.solution, H2PO4.solution) annotation (Line(
-            points={{-76,58},{-82,58},{-82,78}},
             color={127,127,0}));
         connect(Ca.solution, CO2.solution) annotation (Line(
             points={{-82,20},{-82,20},{-56,20}},
@@ -3120,18 +3101,6 @@ extends Modelica.Icons.ExamplesPackage;
         connect(GSH.solution, permeableUncharged_E.solution) annotation (Line(
             points={{160,-94},{140,-94},{140,-38},{160,-38}},
             color={127,127,0}));
-        connect(H2PO4.port_a, chemicalReaction1.substrates[1]) annotation (Line(
-            points={{-66,88},{-58,88},{-56,88}},
-            color={158,66,200},
-            thickness=1));
-        connect(HPO4.port_a, chemicalReaction1.products[1]) annotation (Line(
-            points={{-60,68},{-60,68},{-22,68},{-22,90},{-36,90}},
-            color={158,66,200},
-            thickness=1));
-        connect(H.port_a, chemicalReaction1.products[2]) annotation (Line(
-            points={{50,30},{50,30},{50,90},{50,86},{-36,86}},
-            color={158,66,200},
-            thickness=1));
         connect(CO2.port_a, HendersonHasselbalch.substrates[2]) annotation (Line(
             points={{-40,30},{-38,30},{-38,56},{-34,56}},
             color={158,66,200},
@@ -3173,6 +3142,115 @@ extends Modelica.Icons.ExamplesPackage;
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-180,-100},
                   {180,100}}), graphics));
       end RedCellMembrane;
+
+      model NaKATPase
+        Components.Solution ICF(ElectricGround=false)
+          annotation (Placement(transformation(extent={{-100,-100},{-20,98}})));
+        Components.Solution ECF
+          annotation (Placement(transformation(extent={{28,-100},{100,100}})));
+        Components.Substance water_ICF(substanceData=Substances.Water_liquid(),
+            mass_start=1)
+          annotation (Placement(transformation(extent={{-82,70},{-62,90}})));
+        Components.Substance water_EFC(substanceData=Substances.Water_liquid(),
+            mass_start=1)
+          annotation (Placement(transformation(extent={{58,56},{38,76}})));
+        Components.Reaction NaKATPase(
+          nS=4,
+          nP=4,
+          s={3,2,1,1},
+          p={3,2,1,1}) annotation (Placement(transformation(
+              extent={{-10,10},{10,-10}},
+              rotation=270,
+              origin={0,8})));
+        Components.Substance Na_ICF(
+          substanceData=Substances.Sodium_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.01)
+          annotation (Placement(transformation(extent={{-82,38},{-62,58}})));
+        Components.Substance K_ICF(
+          substanceData=Substances.Potassium_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.14)
+          annotation (Placement(transformation(extent={{-82,10},{-62,30}})));
+        Components.Substance ATP4_ICF(
+          substanceData=Substances.ATP4_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.0038)
+          annotation (Placement(transformation(extent={{-82,-16},{-62,4}})));
+        Components.Substance Na_ECF(
+          substanceData=Substances.Sodium_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.14)
+          annotation (Placement(transformation(extent={{58,-26},{38,-6}})));
+        Components.Substance K_ECF(
+          substanceData=Substances.Potassium_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.005)
+          annotation (Placement(transformation(extent={{58,28},{38,48}})));
+        Components.Substance ADP3(
+          substanceData=Substances.ADP3_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start=0.005/150)
+          annotation (Placement(transformation(extent={{-82,-42},{-62,-22}})));
+        Components.Substance H2PO4_ICF(
+          substanceData=Substances.DihydrogenPhosphate_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.036)
+          annotation (Placement(transformation(extent={{-82,-68},{-62,-48}})));
+        inner Modelica.Fluid.System system(T_ambient=310.15)
+          annotation (Placement(transformation(extent={{-6,-90},{14,-70}})));
+        Components.Substance Cl_ICF(
+          substanceData=Substances.Chloride_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.0987)
+          annotation (Placement(transformation(extent={{-82,-92},{-62,-72}})));
+        Components.Substance Cl_ECF(
+          substanceData=Substances.Chloride_aqueous(),
+          use_mass_start=false,
+          amountOfSubstance_start(displayUnit="mmol") = 0.145)
+          annotation (Placement(transformation(extent={{50,-72},{70,-52}})));
+      equation
+        connect(water_ICF.solution, ICF.solution) annotation (Line(points={{-78,70},
+                {-78,-100},{-36,-100},{-36,-98.02}}, color={127,127,0}));
+        connect(water_EFC.solution, ECF.solution) annotation (Line(points={{54,56},
+                {54,-98},{85.6,-98}}, color={127,127,0}));
+        connect(water_EFC.solution, Na_ECF.solution)
+          annotation (Line(points={{54,56},{54,-26}}, color={127,127,0}));
+        connect(water_EFC.solution, K_ECF.solution)
+          annotation (Line(points={{54,56},{54,28}}, color={127,127,0}));
+        connect(water_ICF.solution, Na_ICF.solution)
+          annotation (Line(points={{-78,70},{-78,38}}, color={127,127,0}));
+        connect(water_ICF.solution, K_ICF.solution)
+          annotation (Line(points={{-78,70},{-78,10}}, color={127,127,0}));
+        connect(water_ICF.solution, ATP4_ICF.solution)
+          annotation (Line(points={{-78,70},{-78,-16}}, color={127,127,0}));
+        connect(water_ICF.solution, ADP3.solution)
+          annotation (Line(points={{-78,70},{-78,-42}}, color={127,127,0}));
+        connect(water_ICF.solution, H2PO4_ICF.solution)
+          annotation (Line(points={{-78,70},{-78,-68}}, color={127,127,0}));
+        connect(Na_ICF.port_a, NaKATPase.substrates[1])
+          annotation (Line(points={{-62,48},{-3,48},{-3,18}}, color={158,66,200}));
+        connect(K_ECF.port_a, NaKATPase.substrates[2])
+          annotation (Line(points={{38,38},{-1,38},{-1,18}}, color={158,66,200}));
+        connect(NaKATPase.products[1], Na_ECF.port_a) annotation (Line(points={{-3,
+                -2},{-2,-2},{-2,-16},{38,-16}}, color={158,66,200}));
+        connect(NaKATPase.products[2], K_ICF.port_a) annotation (Line(points={{-1,
+                -2},{-1,-26},{-12,-26},{-12,20},{-62,20}}, color={158,66,200}));
+        connect(ATP4_ICF.port_a, NaKATPase.substrates[3]) annotation (Line(points={
+                {-62,-6},{-36,-6},{-36,32},{1,32},{1,18}}, color={158,66,200}));
+        connect(water_ICF.port_a, NaKATPase.substrates[4])
+          annotation (Line(points={{-62,80},{3,80},{3,18}}, color={158,66,200}));
+        connect(NaKATPase.products[3], ADP3.port_a) annotation (Line(points={{1,-2},
+                {2,-2},{2,-32},{-62,-32}}, color={158,66,200}));
+        connect(H2PO4_ICF.port_a, NaKATPase.products[4])
+          annotation (Line(points={{-62,-58},{3,-58},{3,-2}}, color={158,66,200}));
+        connect(water_ICF.solution, Cl_ICF.solution)
+          annotation (Line(points={{-78,70},{-78,-92}}, color={127,127,0}));
+        connect(water_EFC.solution, Cl_ECF.solution)
+          annotation (Line(points={{54,56},{54,-72}}, color={127,127,0}));
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+              coordinateSystem(preserveAspectRatio=false)));
+      end NaKATPase;
     end Dev;
 
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
@@ -3252,8 +3330,6 @@ extends Modelica.Icons.ExamplesPackage;
       constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
       constant Real RT=Modelica.Constants.R*T;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
-        "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -3261,15 +3337,16 @@ extends Modelica.Icons.ExamplesPackage;
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       constant Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      constant Modelica.SIunits.Concentration KR=0.000671946
+      constant Modelica.SIunits.Concentration KR=0.000671946*(55.508/38.7)
         "Oxygen dissociation coefficient on relaxed(R) hemoglobin subunit";
 
-      constant Real KRx=KR*OneLiter/AmountOfSolutionIn1L
+      constant Real KRx=(KR*OneLiter)
         "Mole fraction based KR";
+
 
     //Relative Gibbs formation energies of the substances in the system:
       constant Modelica.SIunits.MolarEnergy
-        GO2aq=-RT*log(0.0013/55.508),
+        GO2aq=-RT*log(0.0013),
         GR0=0,                            GT0=GR0 -RT*log(L),
         GR1=GR0+GO2aq +RT*log(KRx/4),     GT1=GR1 -RT*log(c*L),
         GR2=GR1+GO2aq +RT*log(KRx/(3/2)), GT2=GR2 -RT*log(c^2*L),
@@ -3277,13 +3354,14 @@ extends Modelica.Icons.ExamplesPackage;
         GR4=GR3+GO2aq +RT*log(KRx*4),     GT4=GR4 -RT*log(c^4*L);
                                       //*0.018),
 
-      parameter Real KC = 0.001 "Slow down factor";
+      parameter Real KC = 0.0001 "Slow down factor";
 
       Chemical.Components.Solution solution
         annotation (Placement(transformation(extent={{-72,-102},{94,124}})));
 
       Chemical.Components.Substance oxygen_unbound(substanceData(DfG=GO2aq),
-          use_mass_start=false, amountOfSubstance_start=1e-5)
+          use_mass_start=false,
+        amountOfSubstance_start=1e-7)
         annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
 
       Chemical.Components.Substance T0(substanceData(DfG=GT0),
@@ -3403,10 +3481,11 @@ extends Modelica.Icons.ExamplesPackage;
             rotation=270,
             origin={-84,62})));
     Chemical.Sources.ExternalIdealGasSubstance O2_in_air(
+        usePartialPressureInput=true,
         TotalPressure(displayUnit="kPa") = 101325.0144354,
         substanceData=Substances.Oxygen_gas(),
-        PartialPressure(displayUnit="kPa") = 1000,
-        usePartialPressureInput=true) annotation (Placement(transformation(
+        PartialPressure(displayUnit="kPa") = 3733)
+                                      annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-84,22})));
@@ -3416,7 +3495,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       Real sO2;
       Components.Substance substance(substanceData=Substances.Water_liquid(),
-          amountOfSubstance_start=38.7)
+          mass_start=1)
         annotation (Placement(transformation(extent={{66,-72},{86,-52}})));
     equation
       sO2 = (R1.x + 2*R2.x + 3*R3.x + 4*R4.x + T1.x + 2*T2.x + 3*T3.x + 4*T4.x) /
@@ -3572,12 +3651,14 @@ extends Modelica.Icons.ExamplesPackage;
       connect(T2.solution, solution.solution) annotation (Line(points={{38,-10},
               {38,-99.74},{60.8,-99.74}},
                                 color={127,127,0}));
-      connect(clock.y, O2_in_air.partialPressure) annotation (Line(
-          points={{-84,51},{-84,32}},
-          color={0,0,127}));
       connect(substance.solution, solution.solution) annotation (Line(points={{
               70,-72},{66,-72},{66,-99.74},{60.8,-99.74}}, color={127,127,0}));
-      annotation (          experiment(StopTime=15000, Tolerance=0.01),
+      connect(clock.y, O2_in_air.partialPressure)
+        annotation (Line(points={{-84,51},{-84,32},{-84,32}}, color={0,0,127}));
+      annotation (          experiment(
+          StopTime=15000,
+          Tolerance=0.01,
+          __Dymola_Algorithm="Dassl"),
                               Documentation(info="<html>
 <p>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
@@ -3605,8 +3686,8 @@ extends Modelica.Icons.ExamplesPackage;
       constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
       constant Real RT=Modelica.Constants.R*T;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
-        "Amount of solution used for molarity to mole fraction conversion";
+     // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+     //   "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -3614,7 +3695,7 @@ extends Modelica.Icons.ExamplesPackage;
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.SIunits.Concentration KR=0.000671946*(55.508/38.7)
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
                                                                   //*7.875647668393782383419689119171e-5
                                                                 //10.500001495896 7.8756465463794e-05
@@ -3622,10 +3703,10 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRx = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTx = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KRx = KR*OneLiter;//AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KTx = KT*OneLiter;//AmountOfSolutionIn1L;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
+      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
       parameter Modelica.SIunits.ChemicalPotential DfG_uR = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_uRO2 = DfG_uR + DfG_O2 + RT * log(KRx);
       parameter Modelica.SIunits.ChemicalPotential DfG_uT = 0;
@@ -3633,7 +3714,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
 
-      parameter Real KC = 1e-4 "Slow down factor";
+      parameter Real KC = 1e-6 "Slow down factor";
                                //0.000001
 
       Chemical.Components.Solution solution
@@ -3693,7 +3774,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{96,-20},{76,0}})));
 
       Chemical.Components.Substance oxygen_unbound(substanceData(DfG=DfG_O2),
-          use_mass_start=false, amountOfSubstance_start=2e-8)
+          use_mass_start=false,
+        amountOfSubstance_start=2e-9)
         annotation (Placement(transformation(extent={{-2,6},{18,26}})));
       Modelica.Blocks.Sources.Clock clock(offset=1)
         annotation (Placement(transformation(extent={{-40,74},{-20,94}})));
@@ -3707,7 +3789,8 @@ extends Modelica.Icons.ExamplesPackage;
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={8,40})));
 
       Real sO2 "Hemoglobin oxygen saturation";
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=38.7/55.508)
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(),
+          mass_start=1)
         annotation (Placement(transformation(extent={{32,-92},{52,-72}})));
     equation
       sO2 = (sum(OxyRHm.x) + sum(OxyTHm.x)) /
@@ -3841,13 +3924,13 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRcx and KTcx at 25degC";
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + 0;
+      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099/55.508)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
       parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
@@ -4087,8 +4170,8 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
-        "Amount of solution used for molarity to mole fraction conversion";
+     // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+     //   "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -4096,29 +4179,29 @@ extends Modelica.Icons.ExamplesPackage;
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.SIunits.Concentration KR=0.000671946 * (55.508/38.7)
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
       parameter Modelica.SIunits.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter;
+      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
 
-      parameter Real KC = 1e-3 "Slow down factor";
+      parameter Real KC = 1e-8 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";             //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";          //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction initialCO=1e-10
+      parameter Modelica.SIunits.MoleFraction initialCO=1e-11
         "Initial CO at 37degC, pCO=0mmHg";          //at 25degC: 3.267e-5;
 
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
@@ -4127,8 +4210,8 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
       parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter/AmountOfSolutionIn1L);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter);
+      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter);
 
       parameter Real L=L_old
         *
@@ -4147,7 +4230,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2*AmountOfSolutionIn1L)
+          use_mass_start=false, amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -4159,9 +4242,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
+    //   (AmountOfSolutionIn1L -  THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
       HemoglobinQuaternaryForm                              relaxed(
         Ko37=KRo37,
         DfG_selectedForm=DfG_tR,
@@ -4204,7 +4287,7 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15) annotation (Placement(transformation(extent={{10,
                 -10},{-10,10}}, origin={-12,-18})));
       Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2*AmountOfSolutionIn1L)
+          use_mass_start=false, amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
@@ -4301,7 +4384,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br>T .. temperature</p>
 </html>"),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}}), graphics));
+                100}})));
     end HemoglobinMultipleAllostery;
 
     model HemoglobinQuaternaryFormCO
@@ -4341,13 +4424,13 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRcx and KTcx at 25degC";
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + 0;
+      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099/55.508)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
       parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
@@ -4355,7 +4438,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
         "DfH_tR and DfH_tT";
 
-      parameter Real KC = 1e-3 "Slow down factor";
+      parameter Real KC = 1e-5 "Slow down factor";
                                //0.000001
       parameter Modelica.SIunits.MoleFraction initialO2
         "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
@@ -4623,8 +4706,8 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
-        "Amount of solution used for molarity to mole fraction conversion";
+     // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+     //   "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -4632,22 +4715,22 @@ extends Modelica.Icons.ExamplesPackage;
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.SIunits.Concentration KR=0.000671946 * (55.508/38.7)
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
       parameter Modelica.SIunits.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter;
+      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
 
-      parameter Real KC = 1e-3 "Slow down factor";
+      parameter Real KC = 1e-7 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";             //at 25degC: 2.342e-8;
@@ -4663,8 +4746,8 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
       parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter/AmountOfSolutionIn1L);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter);
+      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter);
 
       parameter Real L=L_old
         *
@@ -4683,7 +4766,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2*AmountOfSolutionIn1L)
+          use_mass_start=false, amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -4695,8 +4778,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
       HemoglobinQuaternaryFormCO                            relaxed(
         DfG_selectedForm=DfG_tR,
@@ -4742,7 +4824,7 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15) annotation (Placement(transformation(extent={{10,
                 -10},{-10,10}}, origin={-12,-18})));
       Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2*AmountOfSolutionIn1L)
+          use_mass_start=false, amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Examples.Substances.CarbonDioxide_gas(),
@@ -4759,7 +4841,7 @@ extends Modelica.Icons.ExamplesPackage;
       Real sCO2 "Hemoglobin carbon dioxide saturation";
       Real dH "Hemoglobin charge change caused by binding of Bohr's protons";
       Chemical.Components.Substance CO_free(substanceData=
-            Chemical.Examples.Substances.CarbonMonoxide_aqueous(),  use_mass_start=false, amountOfSubstance_start=initialCO*AmountOfSolutionIn1L)
+            Chemical.Examples.Substances.CarbonMonoxide_aqueous(),  use_mass_start=false, amountOfSubstance_start=initialCO)
         annotation (Placement(transformation(extent={{-92,8},{-72,28}})));
       Chemical.Components.GasSolubility partialPressure3(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={26,32})));
@@ -4918,10 +5000,10 @@ extends Modelica.Icons.ExamplesPackage;
     //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
     //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099/55.508)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300; //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
       parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
@@ -4929,7 +5011,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
         "DfH_tR and DfH_tT";
 
-      parameter Real KC = 1e-3 "Slow down factor";
+      parameter Real KC = 1e-5 "Slow down factor";
                                //0.000001
     //  parameter Modelica.SIunits.MoleFraction initialO2
     //    "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
@@ -5162,7 +5244,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
@@ -5187,12 +5269,12 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
 
     //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034/55.508)  -394400;
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
 
-      parameter Real KC = 1e-3 "Slow down factor";
+      parameter Real KC = 1e-5 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";             //at 25degC: 2.342e-8;
@@ -5241,7 +5323,7 @@ extends Modelica.Icons.ExamplesPackage;
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
       Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
+            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L))
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
       HemoglobinQuaternaryForm_                             relaxed(
         DfG_selectedForm=DfG_tR,
@@ -5390,7 +5472,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     model Joels57
 
-      parameter Real r=5.42e-12, t=1.26e-9;
+      parameter Real r=5.42e-12*55.508, t=1.26e-9*55.508;
       HemoglobinMultipleAllostery_ pCO2_2000(pH=7.6, pCO2(displayUnit="kPa") = 2000,
         KRco37=r,
         KTco37=t)
@@ -5403,6 +5485,11 @@ extends Modelica.Icons.ExamplesPackage;
         KRco37=r,
         KTco37=t)
         annotation (Placement(transformation(extent={{40,-16},{60,4}})));
+      annotation (experiment(
+          StopTime=70,
+          __Dymola_NumberOfIntervals=50000,
+          Tolerance=1e-05,
+          __Dymola_Algorithm="Dassl"));
     end Joels57;
 
     model HemoglobinTitration "Multiple-ligand allosteric hemoglobin model"
@@ -5413,7 +5500,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
@@ -5486,9 +5573,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,60})));
 
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{56,-26},{76,-6}})));
+    //  (AmountOfSolutionIn1L - THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
       HemoglobinQuaternaryForm                              relaxed(
         Ko37=KRo37,
         DfG_selectedForm=DfG_tR,
@@ -5641,7 +5728,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
       constant Modelica.SIunits.Volume OneLiter = 0.001;
@@ -5714,9 +5801,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
+     // (AmountOfSolutionIn1L -     THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)/55.508)
       HemoglobinQuaternaryForm                              relaxed(
         Ko37=KRo37,
         DfG_selectedForm=DfG_tR,
@@ -6332,17 +6419,17 @@ extends Modelica.Icons.ExamplesPackage;
 
   model WaterElectrolysis "Water electrolysis"
     extends Modelica.Icons.Example;
+    Chemical.Components.Substance O2_gas(
+      substanceData=Chemical.Examples.Substances.Oxygen_gas(),
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+      use_mass_start=false, amountOfSubstance_start=0.001)
+      annotation (Placement(transformation(extent={{-22,-6},{-2,14}})));
 
     Chemical.Components.Substance H2_gas(
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       substanceData=Chemical.Examples.Substances.Hydrogen_gas(),
       use_mass_start=false, amountOfSubstance_start=0.001)
       annotation (Placement(transformation(extent={{16,-6},{36,14}})));
-    Chemical.Components.Substance O2_gas(
-      substanceData=Chemical.Examples.Substances.Oxygen_gas(),
-      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-      use_mass_start=false, amountOfSubstance_start=0.001)
-      annotation (Placement(transformation(extent={{-22,-6},{-2,14}})));
     Chemical.Components.Solution anode(ElectricGround=false)
       annotation (Placement(transformation(extent={{58,-78},{92,30}})));
     Chemical.Components.Solution cathode(ElectricGround=false)
@@ -6493,469 +6580,4 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
   end FluidAdapter2_0;
 
-  model NaKATPase
-    Components.Solution ICF(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-100,-100},{-20,98}})));
-    Components.Solution ECF
-      annotation (Placement(transformation(extent={{28,-100},{100,100}})));
-    Components.Substance water_ICF(substanceData=Substances.Water_liquid(),
-        mass_start=0.55)
-      annotation (Placement(transformation(extent={{-82,70},{-62,90}})));
-    Components.Substance water_EFC(substanceData=Substances.Water_liquid(),
-        mass_start=1)
-      annotation (Placement(transformation(extent={{58,56},{38,76}})));
-    Components.Reaction NaKATPase(
-      nS=4,
-      nP=4,
-      s={3,2,1,1},
-      p={3,2,1,1}) annotation (Placement(transformation(
-          extent={{-10,10},{10,-10}},
-          rotation=270,
-          origin={0,8})));
-    Components.Substance Na_ICF(
-      substanceData=Substances.Sodium_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.01)
-      annotation (Placement(transformation(extent={{-82,38},{-62,58}})));
-    Components.Substance K_ICF(
-      substanceData=Substances.Potassium_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.14)
-      annotation (Placement(transformation(extent={{-82,10},{-62,30}})));
-    Components.Substance ATP4_ICF(
-      substanceData=Substances.ATP4_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0038)
-      annotation (Placement(transformation(extent={{-82,-16},{-62,4}})));
-    Components.Substance Na_ECF(
-      substanceData=Substances.Sodium_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.14)
-      annotation (Placement(transformation(extent={{58,-26},{38,-6}})));
-    Components.Substance K_ECF(
-      substanceData=Substances.Potassium_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.005)
-      annotation (Placement(transformation(extent={{58,28},{38,48}})));
-    Components.Substance ADP3(
-      substanceData=Substances.ADP3_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start=0.005/150)
-      annotation (Placement(transformation(extent={{-82,-42},{-62,-22}})));
-    Components.Substance H2PO4_ICF(
-      substanceData=Substances.DihydrogenPhosphate_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.036)
-      annotation (Placement(transformation(extent={{-82,-68},{-62,-48}})));
-    inner Modelica.Fluid.System system(T_ambient=310.15)
-      annotation (Placement(transformation(extent={{-6,-90},{14,-70}})));
-    Components.Substance Cl_ICF(
-      substanceData=Substances.Chloride_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0987)
-      annotation (Placement(transformation(extent={{-82,-92},{-62,-72}})));
-    Components.Substance Cl_ECF(
-      substanceData=Substances.Chloride_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.145)
-      annotation (Placement(transformation(extent={{50,-72},{70,-52}})));
-  equation
-    connect(water_ICF.solution, ICF.solution) annotation (Line(points={{-78,70},
-            {-78,-100},{-36,-100},{-36,-98.02}}, color={127,127,0}));
-    connect(water_EFC.solution, ECF.solution) annotation (Line(points={{54,56},
-            {54,-98},{85.6,-98}}, color={127,127,0}));
-    connect(water_EFC.solution, Na_ECF.solution)
-      annotation (Line(points={{54,56},{54,-26}}, color={127,127,0}));
-    connect(water_EFC.solution, K_ECF.solution)
-      annotation (Line(points={{54,56},{54,28}}, color={127,127,0}));
-    connect(water_ICF.solution, Na_ICF.solution)
-      annotation (Line(points={{-78,70},{-78,38}}, color={127,127,0}));
-    connect(water_ICF.solution, K_ICF.solution)
-      annotation (Line(points={{-78,70},{-78,10}}, color={127,127,0}));
-    connect(water_ICF.solution, ATP4_ICF.solution)
-      annotation (Line(points={{-78,70},{-78,-16}}, color={127,127,0}));
-    connect(water_ICF.solution, ADP3.solution)
-      annotation (Line(points={{-78,70},{-78,-42}}, color={127,127,0}));
-    connect(water_ICF.solution, H2PO4_ICF.solution)
-      annotation (Line(points={{-78,70},{-78,-68}}, color={127,127,0}));
-    connect(Na_ICF.port_a, NaKATPase.substrates[1])
-      annotation (Line(points={{-62,48},{-3,48},{-3,18}}, color={158,66,200}));
-    connect(K_ECF.port_a, NaKATPase.substrates[2])
-      annotation (Line(points={{38,38},{-1,38},{-1,18}}, color={158,66,200}));
-    connect(NaKATPase.products[1], Na_ECF.port_a) annotation (Line(points={{-3,
-            -2},{-2,-2},{-2,-16},{38,-16}}, color={158,66,200}));
-    connect(NaKATPase.products[2], K_ICF.port_a) annotation (Line(points={{-1,
-            -2},{-1,-26},{-12,-26},{-12,20},{-62,20}}, color={158,66,200}));
-    connect(ATP4_ICF.port_a, NaKATPase.substrates[3]) annotation (Line(points={
-            {-62,-6},{-36,-6},{-36,32},{1,32},{1,18}}, color={158,66,200}));
-    connect(water_ICF.port_a, NaKATPase.substrates[4])
-      annotation (Line(points={{-62,80},{3,80},{3,18}}, color={158,66,200}));
-    connect(NaKATPase.products[3], ADP3.port_a) annotation (Line(points={{1,-2},
-            {2,-2},{2,-32},{-62,-32}}, color={158,66,200}));
-    connect(H2PO4_ICF.port_a, NaKATPase.products[4])
-      annotation (Line(points={{-62,-58},{3,-58},{3,-2}}, color={158,66,200}));
-    connect(water_ICF.solution, Cl_ICF.solution)
-      annotation (Line(points={{-78,70},{-78,-92}}, color={127,127,0}));
-    connect(water_EFC.solution, Cl_ECF.solution)
-      annotation (Line(points={{54,56},{54,-72}}, color={127,127,0}));
-    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-          coordinateSystem(preserveAspectRatio=false)));
-  end NaKATPase;
-
-  model RedCellMembrane
-   // import Chemical;
-    extends Modelica.Icons.Example;
-
-    parameter Real KC=1;//e-6 "Slow down factor";
-
-    Chemical.Components.Solution blood_erythrocytes(ElectricGround=false)
-      annotation (Placement(transformation(extent={{-180,-100},{180,-10}})));
-    Chemical.Components.Solution blood_plasma
-      annotation (Placement(transformation(extent={{-180,12},{180,100}})));
-
-    Chemical.Components.Substance HCO3(substanceData=
-          Substances.Bicarbonate_blood(), use_mass_start=false, amountOfSubstance_start=0.024)
-              annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={
-              -18,30})));
-
-    Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=51.8*0.994648/55.508)
-      annotation (Placement(transformation(extent={{-146,20},{-166,40}})));
-    Chemical.Components.Substance HCO3_E(substanceData=
-          Substances.Bicarbonate_blood(),  use_mass_start=false, amountOfSubstance_start=0.0116)
-      annotation (Placement(transformation(extent={{-28,-38},{-8,-18}})));
-    Components.Substance        H2O_E(substanceData=Substances.Water_liquid(), mass_start=38.7*0.994648/55.508)
-      annotation (Placement(transformation(extent={{-144,-38},{-164,-18}})));
-    Chemical.Components.Substance Cl_E(substanceData=
-          Substances.Chloride_aqueous(),   use_mass_start=false, amountOfSubstance_start=0.0499)
-      annotation (Placement(transformation(extent={{-4,-38},{16,-18}})));
-    Chemical.Components.Substance Cl(substanceData=Substances.Chloride_aqueous(),
-        use_mass_start=false, amountOfSubstance_start=0.123)
-      annotation (Placement(transformation(extent={{-4,20},{16,40}})));
-
-    Real pH_e, pH_p;
-
-    Chemical.Components.Membrane Aquapirin(KC=KC) annotation (Placement(
-          transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={-168,0})));
-    Chemical.Components.Membrane Band3(KC=KC) annotation (Placement(
-          transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={-6,0})));
-    Chemical.Components.Membrane Band3_(useKineticsInput=false, KC=KC)
-      annotation (Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={18,0})));
-    Chemical.Components.Substance permeableUncharged( use_mass_start=false, amountOfSubstance_start=0.0118)
-      annotation (Placement(transformation(extent={{166,20},{146,40}})));
-    Chemical.Components.Substance permeableUncharged_E(substanceData(
-          MolarWeight=0.1),  use_mass_start=false, amountOfSubstance_start=0.00903)
-      annotation (Placement(transformation(extent={{164,-38},{144,-18}})));
-    Chemical.Components.Substance chargedImpermeable_E(substanceData(
-          MolarWeight=1),  use_mass_start=false, amountOfSubstance_start=0.0165)
-      annotation (Placement(transformation(extent={{144,-62},{164,-42}})));
-    Chemical.Components.Membrane leak(useKineticsInput=false, KC=KC)
-      annotation (Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={140,0})));
-    Chemical.Components.Substance Lac_E(substanceData=
-          Substances.Chloride_aqueous(), use_mass_start=false, amountOfSubstance_start=0.00062)
-      annotation (Placement(transformation(extent={{56,-38},{76,-18}})));
-    Chemical.Components.Substance Lac(substanceData=Substances.Chloride_aqueous(),
-         use_mass_start=false, amountOfSubstance_start=0.00131)
-      annotation (Placement(transformation(extent={{56,20},{76,40}})));
-    Chemical.Components.Membrane MCT_(useKineticsInput=false, KC=KC)
-      "Monocarboxylate transporters" annotation (Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={78,0})));
-    Chemical.Components.Substance H_E(substanceData=Substances.Proton_aqueous(),
-         use_mass_start=false,
-      amountOfSubstance_start=10^(-7.2))                               "H+"
-      annotation (Placement(transformation(extent={{30,-38},{50,-18}})));
-    Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous(),
-         use_mass_start=false,
-      amountOfSubstance_start=10^(-7.4))                               "H+ in plasma"
-      annotation (Placement(transformation(extent={{30,20},{50,40}})));
-    Chemical.Components.Membrane MCT(useKineticsInput=false, KC=KC)
-      "Monocarboxylate transporters" annotation (Placement(transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={52,0})));
-    Chemical.Components.Substance CO2(substanceData=
-          Substances.CarbonDioxide_aqueous(),  use_mass_start=false, amountOfSubstance_start=0.00167) "free dissolved unbound CO2"
-      annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
-    Chemical.Components.Substance CO2_E(substanceData=
-          Substances.CarbonDioxide_aqueous(),  use_mass_start=false, amountOfSubstance_start=0.00125) "free dissolved unbound CO2"
-      annotation (Placement(transformation(extent={{-58,-38},{-38,-18}})));
-    Chemical.Components.Membrane freeCO2(KC=KC) annotation (Placement(
-          transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={-36,0})));
-    Chemical.Components.Substance O2(substanceData=Substances.Oxygen_aqueous(),
-         use_mass_start=false, amountOfSubstance_start=0.000167)
-      "free dissolved undound oxygen"
-      annotation (Placement(transformation(extent={{96,20},{116,40}})));
-    Chemical.Components.Membrane freeO2(KC=KC) annotation (Placement(
-          transformation(
-          extent={{-10,-10},{10,10}},
-          rotation=270,
-          origin={118,0})));
-    Chemical.Components.Substance O2_E(substanceData=Substances.Oxygen_aqueous(),
-         use_mass_start=false, amountOfSubstance_start=0.000125)
-      "free dissolved undound O2"
-      annotation (Placement(transformation(extent={{96,-38},{116,-18}})));
-    Chemical.Components.Substance K(substanceData=Substances.Potassium_aqueous(),
-         use_mass_start=false, amountOfSubstance_start=0.004)
-      annotation (Placement(transformation(extent={{-92,20},{-112,40}})));
-    Chemical.Components.Substance Na(substanceData=Substances.Sodium_aqueous(),
-        use_mass_start=false, amountOfSubstance_start=0.138)
-      annotation (Placement(transformation(extent={{-118,20},{-138,40}})));
-    Chemical.Components.Substance Na_E(substanceData=Substances.Sodium_aqueous(),
-        use_mass_start=false, amountOfSubstance_start=0.007)
-      annotation (Placement(transformation(extent={{-118,-38},{-138,-18}})));
-    Chemical.Components.Substance K_E(substanceData=
-          Substances.Potassium_aqueous(), use_mass_start=false, amountOfSubstance_start=0.096)
-      annotation (Placement(transformation(extent={{-112,-38},{-92,-18}})));
-    Chemical.Components.Substance H2PO4_E(substanceData=
-          Substances.DihydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.000175)
-      annotation (Placement(transformation(extent={{-84,-38},{-64,-18}})));
-    Chemical.Components.Substance ADP_E(substanceData(z=-3), use_mass_start=false, amountOfSubstance_start=9.6e-05)
-      annotation (Placement(transformation(extent={{-114,-62},{-94,-42}})));
-    Chemical.Components.Substance ATP_E(substanceData(
-        z=-4,
-        DfH=16700,
-        DfG=30500,
-        References={
-            "http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
-        use_mass_start=false, amountOfSubstance_start=0.00128)
-      annotation (Placement(transformation(extent={{-118,-62},{-138,-42}})));
-    Chemical.Components.Substance HPO4_E(substanceData=
-          Substances.HydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.000495)
-      annotation (Placement(transformation(extent={{-84,-62},{-64,-42}})));
-    Chemical.Components.Substance H2PO4(substanceData=
-          Substances.DihydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.000365)
-      annotation (Placement(transformation(extent={{-86,20},{-66,40}})));
-    Chemical.Components.Substance HPO4(substanceData=
-          Substances.HydrogenPhosphate_aqueous(), use_mass_start=false, amountOfSubstance_start=0.001635)
-      annotation (Placement(transformation(extent={{-86,42},{-66,62}})));
-    Chemical.Components.Substance albumin(substanceData(
-        MolarWeight=66.463,
-        z=-17,
-        density=1080), use_mass_start=false, amountOfSubstance_start=0.0007)
-      annotation (Placement(transformation(extent={{116,76},{96,96}})));
-    Chemical.Components.Substance globulins(substanceData(
-        MolarWeight=34,
-        z=-2.43,
-        density=1080), use_mass_start=false, amountOfSubstance_start=0.00082)
-      annotation (Placement(transformation(extent={{150,76},{130,96}})));
-    Chemical.Components.Substance Ca(substanceData=Substances.Calcium_aqueous(),
-        use_mass_start=false, amountOfSubstance_start=0.00175) "Ca2+"
-      annotation (Placement(transformation(extent={{-112,42},{-92,62}})));
-    Chemical.Components.Substance Mg(substanceData=Substances.Magnesium_aqueous(),
-        use_mass_start=false, amountOfSubstance_start=0.00108) "Mg2+"
-      annotation (Placement(transformation(extent={{-112,-84},{-92,-64}})));
-    Chemical.Components.Substance hemoglobin(substanceData(
-        MolarWeight=64,
-        z=-4.4,
-        density=1500), use_mass_start=false, amountOfSubstance_start=0.00513)
-      annotation (Placement(transformation(extent={{94,-94},{74,-74}})));
-    Chemical.Components.Substance DPG(substanceData(
-        MolarWeight=0.266,
-        z=-2.2,
-        density=1000), use_mass_start=false, amountOfSubstance_start=0.0051)
-      annotation (Placement(transformation(extent={{128,-94},{108,-74}})));
-    Chemical.Components.Substance GSH(substanceData(
-        MolarWeight=0.2,
-        z=-1,
-        density=1000), use_mass_start=false, amountOfSubstance_start=0.00223)
-      annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
-  equation
-   pH_p = -log10(H.a);
-    pH_e = -log10(H_E.a);
-  connect(H2O.solution, blood_plasma.solution)
-    annotation (Line(points={{-150,20},{108,20},{108,12.88}},
-                                                      color={127,127,0}));
-  connect(Cl.solution, blood_plasma.solution) annotation (Line(
-      points={{0,20},{0,12.88},{108,12.88}},
-      color={127,127,0}));
-    connect(H2O_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{-148,-38},{108,-38},{108,-99.1}},
-                                                  color={127,127,0}));
-    connect(Cl_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{0,-38},{0,-99.1},{108,-99.1}},
-        color={127,127,0}));
-    connect(HCO3_E.solution, blood_erythrocytes.solution) annotation (Line(
-          points={{-24,-38},{108,-38},{108,-99.1}},
-                                                color={127,127,0}));
-    connect(Aquapirin.port_b, H2O_E.port_a) annotation (Line(
-        points={{-168,-10},{-168,-28},{-164,-28}},
-        color={158,66,200},
-        thickness=1));
-    connect(Aquapirin.port_a, H2O.port_a) annotation (Line(
-        points={{-168,10},{-168,30},{-166,30}},
-        color={158,66,200},
-        thickness=1));
-    connect(Band3.port_a, HCO3.port_a) annotation (Line(
-        points={{-6,10},{-6,30},{-8,30}},
-        color={158,66,200},
-        thickness=1));
-    connect(Band3.port_b, HCO3_E.port_a) annotation (Line(
-        points={{-6,-10},{-6,-28},{-8,-28}},
-        color={158,66,200},
-        thickness=1));
-    connect(Band3_.port_b, Cl_E.port_a) annotation (Line(
-        points={{18,-10},{18,-28},{16,-28}},
-        color={158,66,200},
-        thickness=1));
-    connect(Band3_.port_a, Cl.port_a) annotation (Line(
-        points={{18,10},{18,30},{16,30}},
-        color={158,66,200},
-        thickness=1));
-  connect(HCO3.solution, blood_plasma.solution) annotation (Line(
-      points={{-24,20},{108,20},{108,12.88}},
-      color={127,127,0}));
-    connect(blood_plasma.solution, permeableUncharged.solution) annotation (Line(
-        points={{108,12.88},{108,20},{162,20}},
-        color={127,127,0}));
-    connect(blood_erythrocytes.solution, permeableUncharged_E.solution)
-      annotation (Line(
-        points={{108,-99.1},{108,-38},{160,-38}},
-        color={127,127,0}));
-    connect(blood_erythrocytes.solution,chargedImpermeable_E. solution)
-      annotation (Line(
-        points={{108,-99.1},{108,-38},{140,-38},{140,-62},{148,-62}},
-        color={127,127,0}));
-    connect(permeableUncharged.port_a, leak.port_a) annotation (Line(
-        points={{146,30},{140,30},{140,10}},
-        color={158,66,200},
-        thickness=1));
-    connect(permeableUncharged_E.port_a, leak.port_b) annotation (Line(
-        points={{144,-28},{140,-28},{140,-10}},
-        color={158,66,200},
-        thickness=1));
-    connect(MCT_.port_a, Lac.port_a) annotation (Line(
-        points={{78,10},{78,30},{76,30}},
-        color={158,66,200},
-        thickness=1));
-    connect(MCT_.port_b, Lac_E.port_a) annotation (Line(
-        points={{78,-10},{78,-28},{76,-28}},
-        color={158,66,200},
-        thickness=1));
-    connect(Lac.solution, blood_plasma.solution) annotation (Line(
-        points={{60,20},{108,20},{108,12.88}},
-        color={127,127,0}));
-    connect(blood_erythrocytes.solution, Lac_E.solution) annotation (Line(
-        points={{108,-99.1},{108,-38},{60,-38}},
-        color={127,127,0}));
-    connect(H_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{34,-38},{108,-38},{108,-99.1}},
-        color={127,127,0}));
-    connect(H_E.port_a, MCT.port_b) annotation (Line(
-        points={{50,-28},{52,-28},{52,-10}},
-        color={158,66,200},
-        thickness=1));
-    connect(MCT.port_a, H.port_a) annotation (Line(
-        points={{52,10},{52,30},{50,30}},
-        color={158,66,200},
-        thickness=1));
-    connect(blood_plasma.solution, H.solution) annotation (Line(
-        points={{108,12.88},{108,20},{34,20}},
-        color={127,127,0}));
-    connect(CO2.port_a, freeCO2.port_a) annotation (Line(
-        points={{-40,30},{-36,30},{-36,10}},
-        color={158,66,200},
-        thickness=1));
-    connect(freeCO2.port_b, CO2_E.port_a) annotation (Line(
-        points={{-36,-10},{-36,-28},{-38,-28}},
-        color={158,66,200},
-        thickness=1));
-    connect(blood_plasma.solution, CO2.solution) annotation (Line(
-        points={{108,12.88},{108,20},{-56,20}},
-        color={127,127,0}));
-    connect(CO2_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{-54,-38},{108,-38},{108,-99.1}},
-        color={127,127,0}));
-    connect(blood_plasma.solution, O2.solution) annotation (Line(
-        points={{108,12.88},{108,20},{100,20}},
-        color={127,127,0}));
-    connect(O2_E.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{100,-38},{108,-38},{108,-99.1}},
-        color={127,127,0}));
-    connect(O2_E.port_a, freeO2.port_b) annotation (Line(
-        points={{116,-28},{118,-28},{118,-10}},
-        color={158,66,200},
-        thickness=1));
-    connect(freeO2.port_a, O2.port_a) annotation (Line(
-        points={{118,10},{118,30},{116,30}},
-        color={158,66,200},
-        thickness=1));
-    connect(H2O.solution, K.solution) annotation (Line(
-        points={{-150,20},{-96,20}},
-        color={158,66,200}));
-    connect(H2O.solution, Na.solution) annotation (Line(
-        points={{-150,20},{-122,20}},
-        color={158,66,200}));
-    connect(H2O_E.solution, Na_E.solution) annotation (Line(
-        points={{-148,-38},{-122,-38}},
-        color={158,66,200}));
-    connect(H2O_E.solution, K_E.solution) annotation (Line(
-        points={{-148,-38},{-108,-38}},
-        color={158,66,200}));
-    connect(H2O_E.solution, H2PO4_E.solution) annotation (Line(
-        points={{-148,-38},{-80,-38}},
-        color={158,66,200}));
-    connect(ADP_E.solution, K_E.solution) annotation (Line(
-        points={{-110,-62},{-110,-38},{-108,-38}},
-        color={158,66,200}));
-    connect(ATP_E.solution, Na_E.solution) annotation (Line(
-        points={{-122,-62},{-122,-38}},
-        color={127,127,0}));
-    connect(H2O.solution, H2PO4.solution) annotation (Line(
-        points={{-150,20},{-82,20}},
-        color={127,127,0}));
-    connect(HPO4_E.solution, H2PO4_E.solution) annotation (Line(
-        points={{-80,-62},{-110,-62},{-110,-38},{-80,-38}},
-        color={127,127,0}));
-    connect(HPO4.solution, H2PO4.solution) annotation (Line(
-        points={{-82,42},{-82,20}},
-        color={158,66,200}));
-    connect(albumin.solution, permeableUncharged.solution) annotation (Line(
-        points={{112,76},{92,76},{92,20},{162,20}},
-        color={127,127,0}));
-    connect(globulins.solution, permeableUncharged.solution) annotation (Line(
-        points={{146,76},{92,76},{92,20},{162,20}},
-        color={127,127,0}));
-    connect(Ca.solution, CO2.solution) annotation (Line(
-        points={{-108,42},{-82,42},{-82,20},{-56,20}},
-        color={127,127,0}));
-    connect(Mg.solution, blood_erythrocytes.solution) annotation (Line(
-        points={{-108,-84},{-108,-38},{108,-38},{108,-99.1}},
-        color={127,127,0}));
-    connect(DPG.solution, permeableUncharged_E.solution) annotation (Line(
-        points={{124,-94},{140,-94},{140,-38},{160,-38}},
-        color={158,66,200}));
-    connect(hemoglobin.solution, permeableUncharged_E.solution) annotation (Line(
-        points={{90,-94},{140,-94},{140,-38},{160,-38}},
-        color={127,127,0}));
-    connect(GSH.solution, permeableUncharged_E.solution) annotation (Line(
-        points={{160,-94},{140,-94},{140,-38},{160,-38}},
-        color={127,127,0}));
-    annotation ( Documentation(info="<html>
-<p>Blood eqiulibrium across erythrocyte membrane bewteen blood plasma and intracellular fluid of erythrocytes.</p>
-<p>Data of blood status are from:</p>
-<p>Raftos, J.E., Bulliman, B.T. and Kuchel, P.W. Evaluation of an electrochemical model of erythrocyte pH buffering using 31P nuclear magnetic resonance data. <i>The Journal of general physiology</i> 1990;95(6):1183-1204. </p>
-</html>",  revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),
-      experiment(StopTime=10),
-    Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-180,-100},{180,100}}),
-                         graphics));
-  end RedCellMembrane;
 end Examples;
