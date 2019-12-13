@@ -74,5 +74,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Release manager: [Marek Mateják](https://github.com/MarekMatejak)
 
 Contributor: 
+[Marek Mateják](https://github.com/MarekMatejak),
 [Filip Ježek](https://github.com/filip-jezek), 
-[tbeu](https://github.com/tbeu)
+[tbeu](https://github.com/tbeu),
+[dietmarw](https://github.com/dietmarw) 
