@@ -1,5 +1,5 @@
 within ;
-package Chemical "Physical Chemistry (version 1.2.0-beta)"
+package Chemical "Physical Chemistry (version 1.2.0)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -1122,7 +1122,7 @@ package Chemical "Physical Chemistry (version 1.2.0-beta)"
         annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package   Medium = Medium)
+        each package Medium =   Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1249,7 +1249,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               color={158,66,200},
               thickness=1)}));
     end FluidAdapter_C;
-
   end Components;
 
   package Sensors "Chemical sensors"
@@ -2815,7 +2814,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        parameter Modelica.SIunits.MolarHeatCapacity Cp=0
          "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-       parameter String References[:]={""}
+       parameter String References[1]={""}
          "References of these thermodynamical values";
 
        parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
@@ -4296,6 +4295,9 @@ Modelica source.
        annotation (choicesAllMatching = true);
       constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
 
+      constant Modelica.SIunits.Concentration C_default[nC]=ones(nC) "Default concentration of substances";
+
+
       constant stateOfMatter.SubstanceData substanceData[nC]
     "Definition of the substances"
     annotation (choicesAllMatching = true);
@@ -4304,13 +4306,12 @@ Modelica source.
 
 
 
-
   annotation (
 preferredView="info",
-version="1.2.0-beta",
+version="1.2.0",
 versionBuild=1,
-versionDate="2019-04-14",
-dateModified = "2019-04-14 15:14:41Z",
+versionDate="2019-12-15",
+dateModified = "2019-12-15 15:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),

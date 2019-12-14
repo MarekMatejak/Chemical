@@ -382,8 +382,7 @@ extends Modelica.Icons.ExamplesPackage;
         D=0.09578,
         E=-0.219663,
         References={
-            "http://www.vias.org/genchem/standard_enthalpies_table.html",
-            "http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
+            "http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
       annotation (preferredView = "info");
     end Oxygen_gas_Shomate_298_6000;
 
@@ -399,8 +398,7 @@ extends Modelica.Icons.ExamplesPackage;
         E=0.175056,
         X=44.837013,
         References={
-            "http://www.vias.org/genchem/standard_enthalpies_table.html",
-            "http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
+            "http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
       annotation (preferredView = "info");
     end Oxygen_gas_Shomate_200_5000;
       //A=8.99044,
@@ -645,8 +643,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solution
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Components.Substance A(                substanceData=
-          Chemical.Interfaces.Incompressible.SubstanceData(MolarWeight=1),
+    Chemical.Components.Substance A(                substanceData(MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
@@ -5322,9 +5319,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
-      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=(AmountOfSolutionIn1L -
-            THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L))
+      Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
+      //(AmountOfSolutionIn1L -        THb - (initialO2 + initialCO2)*AmountOfSolutionIn1L)
       HemoglobinQuaternaryForm_                             relaxed(
         DfG_selectedForm=DfG_tR,
         initialHb=THb/(L + 1),
@@ -6579,5 +6576,4 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
   end FluidAdapter2_0;
-
 end Examples;
