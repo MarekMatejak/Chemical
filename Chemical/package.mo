@@ -4295,8 +4295,6 @@ Modelica source.
        annotation (choicesAllMatching = true);
       constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
 
-      constant Modelica.SIunits.Concentration C_default[nC]=ones(nC) "Default concentration of substances";
-
 
       constant stateOfMatter.SubstanceData substanceData[nC]
     "Definition of the substances"
