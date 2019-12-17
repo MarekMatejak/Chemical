@@ -309,7 +309,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
   protected
       Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=mass_start/substanceData.MolarWeight) "Amount of all molecules inside all clusters in compartment";
       Modelica.SIunits.AmountOfSubstance amountOfFreeMolecule(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of free molecules not included inside any clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfParticles "Amount of particles/clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfParticles(start=mass_start) "Amount of particles/clusters in compartment";
 
       Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T))  "Dissociation constant of hydrogen bond between base molecules";
       Modelica.SIunits.ChemicalPotential SelfClustering_dG = substanceData.SelfClustering_dH-solution.T*substanceData.SelfClustering_dS "Gibbs energy of hydrogen bond between H2O molecules";
