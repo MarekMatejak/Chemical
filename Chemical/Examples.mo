@@ -1,4 +1,4 @@
-within Chemical;
+﻿within Chemical;
 package Examples "Examples that demonstrate usage of chemical library"
 extends Modelica.Icons.ExamplesPackage;
 
@@ -204,6 +204,7 @@ extends Modelica.Icons.ExamplesPackage;
         SelfClustering_dS = 35.5135,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"});
+
        // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
        // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25),
       annotation (preferredView = "info", Documentation(info="<html>
@@ -647,6 +648,28 @@ extends Modelica.Icons.ExamplesPackage;
             "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&Mask=10#Solubility"});
       annotation (preferredView = "info");
     end Hydrogen_aqueous;
+
+    record Ethanol_gas "C2H5OH(g)"
+     extends Chemical.Interfaces.IdealGas.SubstanceData(
+        MolarWeight=0.04607,
+        z=0,
+        DfH = -235400,
+        DfG = -168600,
+        References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+
+      annotation (preferredView = "info");
+    end Ethanol_gas;
+
+    record Ethanol_aqueous "C2H5OH(aq)"
+     extends Chemical.Interfaces.Incompressible.SubstanceData(
+        MolarWeight=0.04607,
+        z=0,
+        DfH=-290276,
+        DfG=-181607,
+        References={
+            "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI&Mask=10#Solubility"});
+      annotation (preferredView = "info");
+    end Ethanol_aqueous;
 
   end Substances;
 
@@ -1185,6 +1208,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-74,-92},{-54,-72}})));
     Components.Substance liquidWater(substanceData=Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
+    inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
+      annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
@@ -6815,8 +6840,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{44,42},{52,42},{52,16}}, color={158,66,200}));
     connect(electrodeReaction1.substrates[1], H2O.port_a) annotation (Line(
           points={{-40,-10},{-40,-44},{14,-44}}, color={158,66,200}));
-    connect(O2_.port_a, electrodeReaction1.products[1]) annotation (Line(points
-          ={{-26,42},{-38,42},{-38,10},{-37.3333,10}}, color={158,66,200}));
+    connect(O2_.port_a, electrodeReaction1.products[1]) annotation (Line(points=
+           {{-26,42},{-38,42},{-38,10},{-37.3333,10}}, color={158,66,200}));
     connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(points={
             {14,-12},{20,-12},{20,20},{-40,20},{-40,10}}, color={158,66,200}));
     connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
@@ -7013,6 +7038,12 @@ extends Modelica.Icons.ExamplesPackage;
         PartialPressure=100000,
         TotalPressure=100000)
         annotation (Placement(transformation(extent={{88,-90},{68,-70}})));
+      Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
+        annotation (Placement(transformation(extent={{-64,98},{-44,118}})));
+      Modelica.Electrical.Analog.Basic.Resistor resistor(R=0.01)
+        annotation (Placement(transformation(extent={{28,98},{48,118}})));
+      Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
+        annotation (Placement(transformation(extent={{120,94},{140,114}})));
     equation
       connect(H.solution, solution1.solution) annotation (Line(points={{-2,-22},
               {-2,-30},{24.4,-30},{24.4,-94.98}},
@@ -7039,8 +7070,8 @@ extends Modelica.Icons.ExamplesPackage;
       connect(O2_.port_a, electrodeReaction1.products[1]) annotation (Line(
             points={{-26,42},{-38,42},{-38,10},{-37.3333,10}}, color={158,66,
               200}));
-      connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(points
-            ={{14,-12},{20,-12},{20,20},{-40,20},{-40,10}}, color={158,66,200}));
+      connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(points=
+             {{14,-12},{20,-12},{20,20},{-40,20},{-40,10}}, color={158,66,200}));
       connect(electrone.port_a, electrodeReaction1.products[3]) annotation (
           Line(points={{-58,42},{-42,42},{-42,10},{-42.6667,10}}, color={158,66,
               200}));
@@ -7058,6 +7089,18 @@ extends Modelica.Icons.ExamplesPackage;
       connect(electrone1.port_a, electrodeReaction.substrates[3]) annotation (
           Line(points={{68,-16},{50,-16},{50,-4},{49.3333,-4}}, color={158,66,
               200}));
+      connect(electrone.pin, constantVoltage.p) annotation (Line(points={{-78,
+              42},{-88,42},{-88,108},{-64,108}}, color={0,0,255}));
+      connect(constantVoltage.n, resistor.p)
+        annotation (Line(points={{-44,108},{28,108}}, color={0,0,255}));
+      connect(powerSensor.nv, resistor.n) annotation (Line(points={{130,94},{90,
+              94},{90,108},{48,108}}, color={0,0,255}));
+      connect(powerSensor.pv, constantVoltage.p) annotation (Line(points={{130,
+              114},{-66,114},{-66,108},{-64,108}}, color={0,0,255}));
+      connect(resistor.n, powerSensor.pc) annotation (Line(points={{48,108},{84,
+              108},{84,104},{120,104}}, color={0,0,255}));
+      connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{140,104},
+              {150,104},{150,-16},{88,-16}}, color={0,0,255}));
       annotation (
       experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -7124,7 +7167,7 @@ extends Modelica.Icons.ExamplesPackage;
       Components.Substance CO2(
         redeclare package stateOfMatter = Interfaces.Incompressible,
         substanceData=Substances.CarbonDioxide_aqueous(),
-        mass_start=0.001)
+        mass_start=0.1)
         annotation (Placement(transformation(extent={{-72,-76},{-52,-56}})));
       Components.Reaction reaction(
         KC=1e-7,
@@ -7136,8 +7179,14 @@ extends Modelica.Icons.ExamplesPackage;
       Components.Substance H2(
         redeclare package stateOfMatter = Interfaces.Incompressible,
         substanceData=Substances.Hydrogen_aqueous(),
-        mass_start=0.001)
+        mass_start=5e-11)
         annotation (Placement(transformation(extent={{-76,-44},{-56,-24}})));
+      Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
+        annotation (Placement(transformation(extent={{-72,84},{-52,104}})));
+      Modelica.Electrical.Analog.Basic.Resistor resistor(R=0.01)
+        annotation (Placement(transformation(extent={{20,84},{40,104}})));
+      Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
+        annotation (Placement(transformation(extent={{112,80},{132,100}})));
     equation
       connect(H.solution, solution1.solution) annotation (Line(points={{-80,-14},{-80,
               -88},{55.6,-88},{55.6,-88.96}},
@@ -7191,6 +7240,18 @@ extends Modelica.Icons.ExamplesPackage;
               -44},{-80,-88},{56,-88},{56,-88.96},{55.6,-88.96}}, color={127,127,0}));
       connect(CH4.solution, solution1.solution) annotation (Line(points={{70,-64},{74,
               -64},{74,-88.96},{55.6,-88.96}}, color={127,127,0}));
+      connect(electrone.pin, constantVoltage.p) annotation (Line(points={{-78,
+              54},{-96,54},{-96,94},{-72,94}}, color={0,0,255}));
+      connect(constantVoltage.n, resistor.p)
+        annotation (Line(points={{-52,94},{20,94}}, color={0,0,255}));
+      connect(powerSensor.nv, resistor.n) annotation (Line(points={{122,80},{82,
+              80},{82,94},{40,94}}, color={0,0,255}));
+      connect(powerSensor.pv, constantVoltage.p) annotation (Line(points={{122,
+              100},{-74,100},{-74,94},{-72,94}}, color={0,0,255}));
+      connect(resistor.n, powerSensor.pc) annotation (Line(points={{40,94},{76,
+              94},{76,90},{112,90}}, color={0,0,255}));
+      connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{132,90},
+              {142,90},{142,48},{88,48}}, color={0,0,255}));
       annotation (
       experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -7212,7 +7273,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7)
+        amountOfSubstance_start=1e-4)
         annotation (Placement(transformation(extent={{-84,-14},{-64,6}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
         annotation (Placement(transformation(extent={{-6,64},{14,84}})));
@@ -7251,7 +7312,7 @@ extends Modelica.Icons.ExamplesPackage;
       Components.Substance CO2(
         redeclare package stateOfMatter = Interfaces.Incompressible,
         substanceData=Substances.CarbonDioxide_aqueous(),
-        mass_start=0.001)
+        mass_start=1)
         annotation (Placement(transformation(extent={{-10,-34},{10,-14}})));
       Components.Reaction reaction(
         s={2,8,8},
@@ -7261,6 +7322,12 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={50,30})));
+      Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
+        annotation (Placement(transformation(extent={{-54,76},{-34,96}})));
+      Modelica.Electrical.Analog.Basic.Resistor resistor(R=0.01)
+        annotation (Placement(transformation(extent={{38,76},{58,96}})));
+      Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
+        annotation (Placement(transformation(extent={{130,72},{150,92}})));
     equation
       connect(H.solution, solution1.solution) annotation (Line(points={{-80,-14},{-80,
               -88},{55.6,-88},{55.6,-88.96}},
@@ -7297,8 +7364,8 @@ extends Modelica.Icons.ExamplesPackage;
               {-80,-34},{-80,-88.96},{55.6,-88.96}},color={127,127,0}));
       connect(AcAc.solution, solution1.solution) annotation (Line(points={{56,
               -60},{58,-60},{58,-88.96},{55.6,-88.96}}, color={127,127,0}));
-      connect(CO2.port_a, reaction.substrates[1]) annotation (Line(points={{10,
-              -24},{20,-24},{20,52},{52.6667,52},{52.6667,40}}, color={158,66,
+      connect(CO2.port_a, reaction.substrates[1]) annotation (Line(points={{10,-24},
+              {20,-24},{20,52},{52.6667,52},{52.6667,40}},      color={158,66,
               200}));
       connect(H.port_a, reaction.substrates[2]) annotation (Line(points={{-64,
               -4},{14,-4},{14,56},{50,56},{50,40}}, color={158,66,200}));
@@ -7308,6 +7375,18 @@ extends Modelica.Icons.ExamplesPackage;
               -50},{24,-50},{24,8},{52,8},{52,20}}, color={158,66,200}));
       connect(H2O.port_a, reaction.products[2]) annotation (Line(points={{58,
               -18},{58,-19},{48,-19},{48,20}}, color={158,66,200}));
+      connect(electrone.pin, constantVoltage.p) annotation (Line(points={{-78,
+              54},{-96,54},{-96,86},{-54,86}}, color={0,0,255}));
+      connect(constantVoltage.n, resistor.p)
+        annotation (Line(points={{-34,86},{38,86}}, color={0,0,255}));
+      connect(powerSensor.nv, resistor.n) annotation (Line(points={{140,72},{
+              100,72},{100,86},{58,86}}, color={0,0,255}));
+      connect(powerSensor.pv, constantVoltage.p) annotation (Line(points={{140,
+              92},{-56,92},{-56,86},{-54,86}}, color={0,0,255}));
+      connect(resistor.n, powerSensor.pc) annotation (Line(points={{58,86},{94,
+              86},{94,82},{130,82}}, color={0,0,255}));
+      connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{150,82},
+              {162,82},{162,48},{88,48}}, color={0,0,255}));
       annotation (
       experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
