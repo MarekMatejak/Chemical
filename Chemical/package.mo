@@ -288,7 +288,9 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
       Modelica.SIunits.Concentration c(displayUnit="mmol/l") "Molar concentration of particles";
 
-      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(x(start=amountOfSubstance_start));
+      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(
+          redeclare package stateOfMatter=Chemical.Interfaces.Incompressible,
+          x(start=amountOfSubstance_start));
 
 
 
@@ -591,7 +593,9 @@ package Chemical "Physical Chemistry (version 1.2.0)"
     model ElectronTransfer
     "Electron transfer from the solution to electric circuit"
       extends Icons.ElectronTransfer;
-      extends Interfaces.PartialSubstanceInSolution(final stateOfMatter, final substanceData(
+      extends Interfaces.PartialSubstanceInSolution(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
+        final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
         MolarWeight=5.4857990946e-7,
         z=-1,
         DfH=0,
@@ -1149,7 +1153,9 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
       outer Modelica.Fluid.System system "System wide properties";
 
-      replaceable package Medium = Chemical.Interfaces.PartialWater      "Medium model"   annotation (choicesAllMatching=true);
+      replaceable package Medium = Interfaces.PartialMedium_C constrainedby
+      Interfaces.PartialMedium_C
+          "Medium model"   annotation (choicesAllMatching=true);
 
       package StateOfMatter = Medium.stateOfMatter
       "State of matter of each chemical substance" annotation (choicesAllMatching = true);
@@ -1289,6 +1295,161 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               color={158,66,200},
               thickness=1)}));
     end FluidAdapter_C;
+
+    model ElasticCompartment
+    "Chemical solution as homogenous mixture of the substances in vesselChemical solution as homogenous mixture of the substances in elastic compartment"
+      extends Chemical.Icons.Solution;
+
+      extends Chemical.Interfaces.PartialSolutionWithInputs(T(start=
+              temperature_start), p(start=ExternalPressure));
+
+       parameter Physiolib.Types.HydraulicCompliance Compliance=1e+3
+        "Compliance e.g. TidalVolume/TidalPressureGradient if useComplianceInput=false"
+        annotation (Dialog(enable=not useComplianceInput));
+
+       parameter Physiolib.Types.Volume FunctionalResidualCapacity = 1e-11 "Zero pressure volume for linear compliance model. Maximal fluid volume, that does not generate pressure if useV0Input=false"
+        annotation (Dialog(enable=not useV0Input)); //default = 1e-5 ml
+
+        parameter Physiolib.Types.AbsolutePressure ExternalPressure=101325
+        "External absolute pressure. Set zero if internal pressure is relative to external. Valid only if useExternalPressureInput=false."
+        annotation (Dialog(enable=not useExternalPressureInput));
+
+       parameter Physiolib.Types.Volume ResidualVolume = 1e-9  "Residual volume. Or maximal fluid volume, which generate negative collapsing pressure in linear model";
+
+       Physiolib.Types.Volume excessVolume
+        "Additional fluid volume, that generate pressure";
+
+       parameter Boolean useV0Input = false
+        "=true, if zero-pressure-fluid_volume input is used"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
+
+       Physiolib.Types.RealIO.VolumeInput zeroPressureVolume(start=
+            ZeroPressureVolume)=zpv if useV0Input annotation (Placement(
+            transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={-80,80}), iconTransformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={-20,90})));
+      parameter Boolean useComplianceInput = false
+        "=true, if compliance input is used"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
+
+      Physiolib.Types.RealIO.HydraulicComplianceInput compliance(start=
+            Compliance)=c if useComplianceInput annotation (Placement(
+            transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,80}), iconTransformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={20,90})));
+      parameter Boolean useExternalPressureInput = false
+        "=true, if external pressure input is used"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
+
+      parameter Physiolib.Types.Pressure MinimalCollapsingPressure=0;
+      Physiolib.Types.RealIO.PressureInput externalPressure(start=
+            ExternalPressure)=ep if useExternalPressureInput annotation (
+          Placement(transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={80,80}), iconTransformation(
+            extent={{-10,-10},{10,10}},
+            rotation=270,
+            origin={60,90})));
+
+      Physiolib.Types.RealIO.MassOutput fluidMass = mass annotation (Placement(
+            transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={116,-60}),iconTransformation(
+            extent={{-10,-10},{10,10}},
+            rotation=0,
+            origin={100,-80})));
+
+      Physiolib.Types.Pressure relative_pressure "Relative pressure inside";
+
+      parameter Boolean useSigmoidCompliance = false "sigmoid compliance e.g. lungs"
+         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Computational model"));
+
+       parameter Physiolib.Types.Volume VitalCapacity = 0.00493  "Relative volume capacity if useSigmoidCompliance"
+         annotation (Dialog(enable=useSigmoidCompliance));
+       parameter Physiolib.Types.Volume BaseTidalVolume = 0.000543 "Base value of tidal volume"
+         annotation (Dialog(enable=useSigmoidCompliance));
+
+  protected
+      Physiolib.Types.Volume zpv;
+      Physiolib.Types.Pressure ep;
+      Physiolib.Types.HydraulicCompliance c;
+
+      parameter Physiolib.Types.Pressure a=MinimalCollapsingPressure/log(
+          Modelica.Constants.eps);
+
+      parameter Physiolib.Types.Volume BaseMeanVolume = FunctionalResidualCapacity + BaseTidalVolume/2  "Point of equality with linear presentation such as (FunctionalResidualCapacity + TidalVolume/2)";
+      Physiolib.Types.Pressure d_sigmoid = (BaseMeanVolume-ResidualVolume) * (VitalCapacity-(BaseMeanVolume-ResidualVolume)) / (c*VitalCapacity);
+      Physiolib.Types.Pressure c_sigmoid = (BaseMeanVolume-FunctionalResidualCapacity)/c + d_sigmoid*log((VitalCapacity/(BaseMeanVolume-ResidualVolume) - 1));
+
+    //initial equation
+    //  mass = mass_start;
+    equation
+
+      //elastic compartment
+      if not useV0Input then
+        zpv=FunctionalResidualCapacity;
+      end if;
+      if not useComplianceInput then
+        c=Compliance;
+      end if;
+      if not useExternalPressureInput then
+        ep=ExternalPressure;
+      end if;
+      excessVolume = max( 0, volume - zpv);
+
+      relative_pressure = p - ep;
+
+      p =
+      if ( not useSigmoidCompliance) then
+            smooth(0,
+              if noEvent(volume>ResidualVolume) then
+                (excessVolume/c + ep)
+              else
+                (a*log(max(Modelica.Constants.eps,volume/ResidualVolume)) + ep))
+              else   -d_sigmoid*log((VitalCapacity/(volume-ResidualVolume))-1)+c_sigmoid + ep;
+
+      /*
+    smooth(0,
+      if noEvent(volume>CollapsingPressureVolume) then 
+        (excessVolume/c + ep)
+      else 
+        (a*log(max(Modelica.Constants.eps,volume/CollapsingPressureVolume)) + ep));
+*/
+
+      workFromEnvironment = -p*der(volume);
+                          //  (((der(excessMass)*c-excessMass*der(c))/(c*c)) + der(ep))*volume +
+                                       // der(p*volume)
+      //solution.p = BasePressure + Compliance*(volume-BaseVolume); //- f/SurfaceArea;
+
+                                                                                                        annotation (
+        Icon(coordinateSystem(
+              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
+              100,100}}),
+            graphics={Text(
+              extent={{-90,92},{78,84}},
+              lineColor={0,0,255},
+              textString="%name",
+              horizontalAlignment=TextAlignment.Left)}),
+        Documentation(revisions="<html>
+<p>2017-2018 by Marek Matejak, http://www.physiolib.com </p>
+</html>", info="<html>
+<h4>amountOfSolution = &sum; amountOfSubstances</h4>
+<h4>mass = &sum; massOfSubstances</h4>
+<h4>volume = &sum; volumeOfSubstances</h4>
+<h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
+<p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
+</html>"));
+    end ElasticCompartment;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -1339,7 +1500,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MoleFractionSensor "Measure of mole fraction"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
       "Mole fraction of the substance"
@@ -1415,7 +1577,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MolalitySensor "Measure of molality of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1kgOfSolvent = 1
       "Amount of all particles in the solution per one kilogram of solvent";
@@ -1456,7 +1619,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MolarConcentrationSensor "Measure of molarity of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneLiter = 55.508
       "Amount of all particles in one liter of the solution";
@@ -1497,7 +1661,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MassFractionSensor "Measure of mass fraction of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneKilogram = 55.508
       "Amount of all particles in one kilogram of the solution";
@@ -1537,7 +1702,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model PartialPressureSensor
     "Measure of partial pressure of the substance in gaseous solution"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
        Modelica.Blocks.Interfaces.RealOutput partialPressure(final unit="Pa")
       "Partial pressure of the substance in gaseous solution"
@@ -1721,7 +1887,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     extends Modelica.Icons.SourcesPackage;
 
     model PureSubstance "Constant source of pure substance"
-      extends Interfaces.PartialSubstance;
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
@@ -1782,8 +1949,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Ideal gas substance with defined partial pressure"
       extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
             Interfaces.IdealGas);
-
-      outer Modelica.Fluid.System system "System wide properties";
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
@@ -1873,7 +2038,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalIdealGasSubstance;
 
     model ExternalMolality "Constant source of substance molality"
-      extends Interfaces.PartialSubstance;
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       outer Modelica.Fluid.System system "System wide properties";
 
@@ -1957,7 +2123,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalMolality;
 
     model ExternalConcentration "Constant source of molar concentration"
-       extends Interfaces.PartialSubstance;
+       extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
        outer Modelica.Fluid.System system "System wide properties";
 
@@ -2040,7 +2207,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalConcentration;
 
     model ExternalMoleFraction "Constant source of substance mole fraction"
-         extends Interfaces.PartialSubstance;
+         extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
        outer Modelica.Fluid.System system "System wide properties";
 
@@ -2247,7 +2415,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model Clearance "Physiological Clearance"
      extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
-     extends Interfaces.PartialSubstanceSensor;
+     extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       parameter Modelica.SIunits.VolumeFlowRate Clearance=0
       "Physiological clearance of the substance if useSolutionFlowInput=false"
@@ -2291,7 +2460,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end Clearance;
 
     model Degradation "Degradation of the substance"
-      extends Interfaces.PartialSubstanceSensor;
+      extends Interfaces.PartialSubstanceSensor( redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible);
 
       parameter Modelica.SIunits.Time HalfTime
       "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
@@ -2375,7 +2545,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model Buffer
     "Source of substance bounded to constant amount of buffer to reach linear dependence between concentration and electrochemical potential"
       extends Icons.Buffer;
-           extends Interfaces.PartialSubstanceInSolution(a(start = a_start));
+           extends Interfaces.PartialSubstanceInSolution(
+                     redeclare package stateOfMatter=
+          Chemical.Interfaces.Incompressible,
+                     a(start = a_start));
 
          parameter Modelica.SIunits.MoleFraction a_start=1e-7
       "Initial value of mole fraction of the buffered substance";
@@ -2646,124 +2819,122 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     partial model PartialSubstance
 
-      outer Modelica.Fluid.System system "System wide properties";
+     outer Modelica.Fluid.System system "System wide properties";
 
-    SubstancePort_a port_a "The substance"
-      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      SubstancePort_a port_a "The substance"
+     annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-      replaceable package stateOfMatter = Incompressible                    constrainedby
-      StateOfMatter
+     replaceable package stateOfMatter = StateOfMatter
       "Substance model to translate data into substance properties"
-         annotation (choicesAllMatching = true);
+        annotation (choicesAllMatching = true);
+            //constrainedby StateOfMatter
 
-      parameter stateOfMatter.SubstanceData substanceData
-      "Definition of the substance"
-         annotation (choicesAllMatching = true);
+     parameter stateOfMatter.SubstanceData substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
 
-      Modelica.SIunits.MoleFraction x "Mole fraction of the substance";
+     Modelica.SIunits.MoleFraction x "Mole fraction of the substance";
 
-      Modelica.SIunits.ActivityOfSolute a
-      "Activity of the substance (mole-fraction based)";
+     Modelica.SIunits.ActivityOfSolute a
+     "Activity of the substance (mole-fraction based)";
 
   protected
-      Modelica.SIunits.ActivityCoefficient gamma
-      "Activity coefficient of the substance";
+     Modelica.SIunits.ActivityCoefficient gamma
+     "Activity coefficient of the substance";
 
-      Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
+     Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
 
-      Modelica.SIunits.Temperature temperature(start=298.15)
-      "Temperature of the solution";
+     Modelica.SIunits.Temperature temperature(start=298.15)
+     "Temperature of the solution";
 
-      Modelica.SIunits.Pressure pressure(start=100000)
-      "Pressure of the solution";
+     Modelica.SIunits.Pressure pressure(start=100000)
+     "Pressure of the solution";
 
-      Modelica.SIunits.ElectricPotential electricPotential(start=0)
-      "Electric potential of the solution";
+     Modelica.SIunits.ElectricPotential electricPotential(start=0)
+     "Electric potential of the solution";
 
-      Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength(start=0)
-      "Ionic strength of the solution";
+     Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength(start=0)
+     "Ionic strength of the solution";
 
-      Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
+     Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
 
-      Modelica.SIunits.MolarEnthalpy molarEnthalpy
-      "Molar enthalpy of the substance";
+     Modelica.SIunits.MolarEnthalpy molarEnthalpy
+     "Molar enthalpy of the substance";
 
-      Modelica.SIunits.MolarEntropy molarEntropyPure
-      "Molar entropy of the pure substance";
+     Modelica.SIunits.MolarEntropy molarEntropyPure
+     "Molar entropy of the pure substance";
 
-      Modelica.SIunits.ChemicalPotential u0
-      "Chemical potential of the pure substance";
+     Modelica.SIunits.ChemicalPotential u0
+     "Chemical potential of the pure substance";
 
-      Modelica.SIunits.ChemicalPotential uPure
-      "Electro-Chemical potential of the pure substance";
+     Modelica.SIunits.ChemicalPotential uPure
+     "Electro-Chemical potential of the pure substance";
 
-      Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
+     Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
 
-      Modelica.SIunits.MolarVolume molarVolumePure
-      "Molar volume of the pure substance";
+     Modelica.SIunits.MolarVolume molarVolumePure
+     "Molar volume of the pure substance";
 
-      Modelica.SIunits.MolarVolume molarVolumeExcess
-      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+     Modelica.SIunits.MolarVolume molarVolumeExcess
+     "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
 
-    //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
-    //    "Molar heat capacity of the substance at constant pressure";
+      //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
+      //    "Molar heat capacity of the substance at constant pressure";
 
-      Real otherProperties[stateOfMatter.OtherPropertiesCount];
-      Real otherPropertiesPerSubstance[stateOfMatter.OtherPropertiesCount];
+     Real otherProperties[stateOfMatter.OtherPropertiesCount];
+     Real otherPropertiesPerSubstance[stateOfMatter.OtherPropertiesCount];
 
     equation
-      //aliases
-      gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      molarMass = stateOfMatter.molarMass(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     //aliases
+     gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     molarMass = stateOfMatter.molarMass(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
 
-      molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      u0 = stateOfMatter.chemicalPotentialPure(
-        substanceData,
-        temperature,
-        pressure,
-        electricPotential,
-        moleFractionBasedIonicStrength,otherProperties);
-      uPure = stateOfMatter.electroChemicalPotentialPure(
-        substanceData,
-        temperature,
-        pressure,
-        electricPotential,
-        moleFractionBasedIonicStrength,otherProperties);
-      molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
-      otherPropertiesPerSubstance = stateOfMatter.otherPropertiesPerSubstance(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     u0 = stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength,otherProperties);
+     uPure = stateOfMatter.electroChemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength,otherProperties);
+     molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength,otherProperties);
+     otherPropertiesPerSubstance = stateOfMatter.otherPropertiesPerSubstance(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
-      //activity of the substance
-      a = gamma*x;
+     //activity of the substance
+     a = gamma*x;
 
-      //electro-chemical potential of the substance in the solution
-      port_a.u = stateOfMatter.chemicalPotentialPure(
-        substanceData,
-        temperature,
-        pressure,
-        electricPotential,
-        moleFractionBasedIonicStrength,otherProperties)
-        + Modelica.Constants.R*temperature*log(a)
-        + z*Modelica.Constants.F*electricPotential;
+     //electro-chemical potential of the substance in the solution
+     port_a.u = stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength,otherProperties)
+       + Modelica.Constants.R*temperature*log(a)
+       + z*Modelica.Constants.F*electricPotential;
 
-      port_a.h_outflow = molarEnthalpy;
-      annotation (
-        Documentation(revisions="<html>
+     port_a.h_outflow = molarEnthalpy;
+     annotation (
+       Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"),
-        experiment);
+</html>"));
     end PartialSubstance;
 
     partial model PartialSubstanceInSolution
     "Substance properties for components, where the substance is connected with the solution"
 
-      SolutionPort            solution(redeclare package stateOfMatter =
-            stateOfMatter)
+      SolutionPort            solution
       "To connect substance with solution, where is pressented"                                  annotation (Placement(transformation(
               extent={{-70,-110},{-50,-90}}),iconTransformation(extent={{-70,-110},{
                 -50,-90}})));
@@ -2830,7 +3001,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     partial package StateOfMatter "Abstract package for all state of matters"
 
-     replaceable partial record SubstanceData
+     replaceable record SubstanceData
         "Definition data of the chemical substance"
 
        parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
@@ -2871,6 +3042,24 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      constant Integer OtherPropertiesCount=integer(0)
       "Number of other extensive properties";
+
+
+     replaceable function density
+          "Return density of the substance in the solution"
+            extends Modelica.Icons.Function;
+            input SubstanceData substanceData "Data record of substance";
+            input Modelica.SIunits.Temperature T=298.15 "Temperature";
+            input Modelica.SIunits.Pressure p=100000 "Pressure";
+            input Modelica.SIunits.ElectricPotential v=0
+            "Electric potential of the substance";
+            input Modelica.SIunits.MoleFraction I=0
+            "Ionic strengh (mole fraction based)";
+            input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+            "Other extensive properties of the solution";
+            output Modelica.SIunits.Density density "Density";
+     end density;
+
+
 
      replaceable function activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -3152,6 +3341,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        constant Integer OtherPropertiesCount=integer(0)
       "Number of other extensive properties";
 
+     redeclare function extends density
+          "Return density of the substance in the solution"
+     algorithm
+             density := substanceData.MolarWeight * p / (Modelica.Constants.R * T);
+     end density;
+
+
      redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
      algorithm
@@ -3246,6 +3442,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      constant Integer OtherPropertiesCount=integer(0)
       "Number of other extensive properties";
+
+     redeclare function extends density
+         "Return density of the substance in the solution"
+     algorithm
+            density := substanceData.MolarWeight * p / (Modelica.Constants.R * T);
+     end density;
 
      redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -3388,6 +3590,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      constant Integer OtherPropertiesCount=integer(0)
       "Number of other extensive properties";
 
+     redeclare function extends density
+          "Return density of the substance in the solution"
+     algorithm
+             density := substanceData.density;
+     end density;
+
      redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
      algorithm
@@ -3438,8 +3646,19 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          molarMass := substanceData.MolarWeight;
      end molarMass;
 
-     redeclare function extends molarVolumePure
+     redeclare function molarVolumePure
       "Molar volume of the pure substance"
+       extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
+        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
      algorithm
          molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
      end molarVolumePure;
@@ -3515,7 +3734,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //suport for structural properties
-      replaceable package stateOfMatter = Incompressible                    constrainedby
+      replaceable package stateOfMatter = StateOfMatter  constrainedby
       StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
@@ -3873,6 +4092,236 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     end ConditionalKinetics;
 
+   connector SubstanceMassPort
+
+      Modelica.SIunits.MassFraction x_mass
+      "Mass fraction of the substance in the solution";
+
+      flow Modelica.SIunits.MassFlowRate m_flow "Mass flow rate of the substance";
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+   end SubstanceMassPort;
+
+     connector SubstanceMassPort_a
+        "Mass fraction and mass flow of the substance in the solution"
+        extends SubstanceMassPort;
+
+      annotation (
+          defaultComponentName="port_a",
+          Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                  100}}),     graphics={Rectangle(
+                extent={{-20,10},{20,-10}},
+                lineColor={105,44,133}),Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={105,44,133},
+                fillColor={105,44,133},
+                fillPattern=FillPattern.Solid)}),
+          Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+              graphics={Rectangle(
+                extent={{-40,40},{40,-40}},
+                lineColor={105,44,133},
+                fillColor={105,44,133},
+                fillPattern=FillPattern.Solid,
+                lineThickness=1),
+         Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+          Documentation(info="<html>
+<p>Chemical port with internal definition of the substance inside the component. </p>
+</html>", revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+     end SubstanceMassPort_a;
+
+    connector SubstanceMassPort_b
+      "Mass fraction and mass flow of the substance in the solution"
+      extends SubstanceMassPort;
+
+    annotation (
+        defaultComponentName="port_b",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={105,44,133}),Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={105,44,133},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={105,44,133},
+              lineThickness=1,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+       Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+        Documentation(info="<html>
+<p>Chemical port with external definition of the substance outside the component.</p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SubstanceMassPort_b;
+
+    connector SubstanceMassPorts_a
+      extends SubstanceMassPort;
+      annotation (
+         defaultComponentName="ports_a",
+         Diagram(coordinateSystem(
+            preserveAspectRatio=false,
+            extent={{-50,-200},{50,200}},
+            initialScale=0.2),graphics={
+            Text(extent={{-73,130},{77,100}},
+              textString="%name",
+              lineColor={105,44,133}),
+            Rectangle(
+              extent={{25,-100},{-25,100}},
+              lineColor={105,44,133}),
+                      Rectangle(
+              extent={{-20,20},{20,-20}},
+              lineColor={105,44,133},
+              lineThickness=1),
+                      Rectangle(
+              extent={{-20,90},{20,50}},
+              lineColor={105,44,133},
+              lineThickness=1),
+                      Rectangle(
+              extent={{-20,-52},{20,-90}},
+              lineColor={105,44,133},
+              lineThickness=1)}),
+               Icon(coordinateSystem(
+            preserveAspectRatio=false,
+            extent={{-50,-200},{50,200}},
+            initialScale=0.2),graphics={
+            Rectangle(
+              extent={{50,-200},{-50,200}},
+              lineColor={105,44,133},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+                                      Rectangle(
+              extent={{-40,38},{40,-42}},
+              lineColor={105,44,133},
+              fillColor={105,44,133},
+              fillPattern=FillPattern.Solid),
+                                      Rectangle(
+              extent={{-40,170},{40,90}},
+              lineColor={105,44,133},
+              fillColor={105,44,133},
+              fillPattern=FillPattern.Solid),
+                                      Rectangle(
+              extent={{-40,-92},{40,-172}},
+              lineColor={105,44,133},
+              fillColor={105,44,133},
+              fillPattern=FillPattern.Solid)}));
+
+    end SubstanceMassPorts_a;
+
+    connector SubstanceMolarityPort
+
+      Modelica.SIunits.Concentration c
+      "Molarity of the substance in the solution";
+
+      flow Modelica.SIunits.MolarFlowRate q "Molar flow rate of the substance";
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+            coordinateSystem(preserveAspectRatio=false)));
+    end SubstanceMolarityPort;
+
+    connector SubstanceMolarityPort_a
+      "Electro-chemical potential and molar flow of the substance in the solution"
+      extends SubstanceMolarityPort;
+
+    annotation (
+        defaultComponentName="port_a",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={174,73,220}),Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={174,73,220},
+              fillColor={174,73,220},
+              fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={174,73,220},
+              fillColor={174,73,220},
+              fillPattern=FillPattern.Solid,
+              lineThickness=1),
+       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
+        Documentation(info="<html>
+<p>Chemical port with internal definition of the substance inside the component. </p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SubstanceMolarityPort_a;
+
+    connector SubstanceMolarityPort_b
+      "Electro-chemical potential and molar flow of the substance in the solution"
+      extends SubstanceMolarityPort;
+
+    annotation (
+        defaultComponentName="port_b",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={174,73,220}),Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={174,73,220},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={174,73,220},
+              lineThickness=1,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
+        Documentation(info="<html>
+<p>Chemical port with external definition of the substance outside the component.</p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SubstanceMolarityPort_b;
+
+    partial package PartialMedium_C
+
+    extends Modelica.Media.Interfaces.PartialMedium;
+
+    replaceable package stateOfMatter =
+                            Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+       annotation (choicesAllMatching = true);
+      constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+      constant Modelica.SIunits.Density default_density = 1000;
+
+      constant stateOfMatter.SubstanceData substanceData[nC]
+    "Definition of the substances"
+    annotation (choicesAllMatching = true);
+
+    end PartialMedium_C;
+
+    package PartialWater
+      extends Modelica.Media.Water.StandardWater;
+
+     replaceable package stateOfMatter =
+                            Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+       annotation (choicesAllMatching = true);
+      constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+
+
+      constant stateOfMatter.SubstanceData substanceData[nC]
+    "Definition of the substances"
+    annotation (choicesAllMatching = true);
+    end PartialWater;
+
     package SimpleChemicalMedium
     "Mixture of chemical substances as homogenous solution in one state of matter"
       extends Modelica.Media.Interfaces.PartialMedium(
@@ -4125,218 +4574,6 @@ Modelica source.
 </p>
 </HTML>"));
     end SimpleChemicalMedium;
-
-   connector SubstanceMassPort
-
-      Modelica.SIunits.MassFraction x_mass
-      "Mass fraction of the substance in the solution";
-
-      flow Modelica.SIunits.MassFlowRate m_flow "Mass flow rate of the substance";
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-            coordinateSystem(preserveAspectRatio=false)));
-   end SubstanceMassPort;
-
-     connector SubstanceMassPort_a
-        "Mass fraction and mass flow of the substance in the solution"
-        extends SubstanceMassPort;
-
-      annotation (
-          defaultComponentName="port_a",
-          Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
-                  100}}),     graphics={Rectangle(
-                extent={{-20,10},{20,-10}},
-                lineColor={105,44,133}),Rectangle(
-                extent={{-100,100},{100,-100}},
-                lineColor={105,44,133},
-                fillColor={105,44,133},
-                fillPattern=FillPattern.Solid)}),
-          Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
-              graphics={Rectangle(
-                extent={{-40,40},{40,-40}},
-                lineColor={105,44,133},
-                fillColor={105,44,133},
-                fillPattern=FillPattern.Solid,
-                lineThickness=1),
-         Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
-          Documentation(info="<html>
-<p>Chemical port with internal definition of the substance inside the component. </p>
-</html>", revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-     end SubstanceMassPort_a;
-
-    connector SubstanceMassPort_b
-      "Mass fraction and mass flow of the substance in the solution"
-      extends SubstanceMassPort;
-
-    annotation (
-        defaultComponentName="port_b",
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
-                100}}),     graphics={Rectangle(
-              extent={{-20,10},{20,-10}},
-              lineColor={105,44,133}),Rectangle(
-            extent={{-100,100},{100,-100}},
-            lineColor={105,44,133},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid)}),
-        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
-            graphics={Rectangle(
-              extent={{-40,40},{40,-40}},
-              lineColor={105,44,133},
-              lineThickness=1,
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
-        Documentation(info="<html>
-<p>Chemical port with external definition of the substance outside the component.</p>
-</html>",
-        revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end SubstanceMassPort_b;
-
-    connector SubstanceMassPorts_a
-      extends SubstanceMassPort;
-      annotation (
-         defaultComponentName="ports_a",
-         Diagram(coordinateSystem(
-            preserveAspectRatio=false,
-            extent={{-50,-200},{50,200}},
-            initialScale=0.2),graphics={
-            Text(extent={{-73,130},{77,100}},
-              textString="%name",
-              lineColor={105,44,133}),
-            Rectangle(
-              extent={{25,-100},{-25,100}},
-              lineColor={105,44,133}),
-                      Rectangle(
-              extent={{-20,20},{20,-20}},
-              lineColor={105,44,133},
-              lineThickness=1),
-                      Rectangle(
-              extent={{-20,90},{20,50}},
-              lineColor={105,44,133},
-              lineThickness=1),
-                      Rectangle(
-              extent={{-20,-52},{20,-90}},
-              lineColor={105,44,133},
-              lineThickness=1)}),
-               Icon(coordinateSystem(
-            preserveAspectRatio=false,
-            extent={{-50,-200},{50,200}},
-            initialScale=0.2),graphics={
-            Rectangle(
-              extent={{50,-200},{-50,200}},
-              lineColor={105,44,133},
-              fillColor={255,255,255},
-              fillPattern=FillPattern.Solid),
-                                      Rectangle(
-              extent={{-40,38},{40,-42}},
-              lineColor={105,44,133},
-              fillColor={105,44,133},
-              fillPattern=FillPattern.Solid),
-                                      Rectangle(
-              extent={{-40,170},{40,90}},
-              lineColor={105,44,133},
-              fillColor={105,44,133},
-              fillPattern=FillPattern.Solid),
-                                      Rectangle(
-              extent={{-40,-92},{40,-172}},
-              lineColor={105,44,133},
-              fillColor={105,44,133},
-              fillPattern=FillPattern.Solid)}));
-
-    end SubstanceMassPorts_a;
-
-    connector SubstanceMolarityPort
-
-      Modelica.SIunits.Concentration c
-      "Molarity of the substance in the solution";
-
-      flow Modelica.SIunits.MolarFlowRate q "Molar flow rate of the substance";
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-            coordinateSystem(preserveAspectRatio=false)));
-    end SubstanceMolarityPort;
-
-    connector SubstanceMolarityPort_a
-      "Electro-chemical potential and molar flow of the substance in the solution"
-      extends SubstanceMolarityPort;
-
-    annotation (
-        defaultComponentName="port_a",
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
-                100}}),     graphics={Rectangle(
-              extent={{-20,10},{20,-10}},
-              lineColor={174,73,220}),Rectangle(
-              extent={{-100,100},{100,-100}},
-              lineColor={174,73,220},
-              fillColor={174,73,220},
-              fillPattern=FillPattern.Solid)}),
-        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
-            graphics={Rectangle(
-              extent={{-40,40},{40,-40}},
-              lineColor={174,73,220},
-              fillColor={174,73,220},
-              fillPattern=FillPattern.Solid,
-              lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
-        Documentation(info="<html>
-<p>Chemical port with internal definition of the substance inside the component. </p>
-</html>",
-        revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end SubstanceMolarityPort_a;
-
-    connector SubstanceMolarityPort_b
-      "Electro-chemical potential and molar flow of the substance in the solution"
-      extends SubstanceMolarityPort;
-
-    annotation (
-        defaultComponentName="port_b",
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
-                100}}),     graphics={Rectangle(
-              extent={{-20,10},{20,-10}},
-              lineColor={174,73,220}),Rectangle(
-              extent={{-100,100},{100,-100}},
-              lineColor={174,73,220},
-              fillColor={255,255,255},
-              fillPattern=FillPattern.Solid)}),
-        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
-            graphics={Rectangle(
-              extent={{-40,40},{40,-40}},
-              lineColor={174,73,220},
-              lineThickness=1,
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
-        Documentation(info="<html>
-<p>Chemical port with external definition of the substance outside the component.</p>
-</html>",
-        revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end SubstanceMolarityPort_b;
-
-    package PartialWater
-      extends Modelica.Media.Water.StandardWater;
-
-     replaceable package stateOfMatter =
-                            Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-       annotation (choicesAllMatching = true);
-      constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-
-
-      constant stateOfMatter.SubstanceData substanceData[nC]
-    "Definition of the substances"
-    annotation (choicesAllMatching = true);
-    end PartialWater;
   end Interfaces;
 
 
@@ -4350,7 +4587,7 @@ dateModified = "2019-12-15 15:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
-uses(Modelica(version="3.2.3")),
+uses(Modelica(version="3.2.3"), Physiolib(version="0.1")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2019, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>

@@ -582,6 +582,18 @@ extends Modelica.Icons.ExamplesPackage;
         Oxygen_gas_Shomate_200_5000(), T);
     end OxygenGasOnTemperature;
 
+    record Nitrogen_gas "N2(g)"
+       extends Chemical.Interfaces.IdealGas.SubstanceData(
+          MolarWeight=0.0280134,
+          DfH=0,
+          DfG=0,
+          Cp=29.1,
+          References={
+              "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Type=JANAFG&Plot=on"});
+        annotation (preferredView = "info");
+    end Nitrogen_gas;
+
+
     record Methan_gas "CH4(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
         MolarWeight=0.01604246,
@@ -674,52 +686,148 @@ extends Modelica.Icons.ExamplesPackage;
   end Substances;
 
   package Media
-    package BodyFluid
-    extends Interfaces.PartialWater(
-       extraPropertiesNames={"H2O","Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb","Glb","Others"},
-       C_default =          { 1000, 135,   24,  5,    5,     3, 105, 1.5, 0.5,  0.7,  0.8,    1e-6},
-       substanceData = {
-          Chemical.Examples.Substances.Water_liquid(),
-          Chemical.Examples.Substances.Sodium_aqueous(),
-          Chemical.Examples.Substances.Bicarbonate_aqueous(),
-          Chemical.Examples.Substances.Potassium_aqueous(),
-          Chemical.Examples.Substances.Glucose_solid(),
-          Chemical.Examples.Substances.Urea_aqueous(),
-          Chemical.Examples.Substances.Chloride_aqueous(),
-          Chemical.Examples.Substances.Calcium_aqueous(),
-          Chemical.Examples.Substances.Magnesium_aqueous(),
-          Chemical.Examples.Substances.Albumin_aqueous(),
-          Chemical.Examples.Substances.Globulins_aqueous(),
-          Chemical.Examples.Substances.Water_liquid()},
-       singleState=true,
-       T_default=310.15,
-       X_default=ones(nX));
+          package SimpleBodyFluid_C
+
+      extends Modelica.Media.Water.StandardWater(
+        extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
+            "Glb","Others","H2O"},
+        singleState=true,
+        T_default=310.15,
+        X_default=ones(nX),
+        C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913});
+
+      extends Chemical.Interfaces.PartialMedium_C(
+          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+          mediumName="WaterIF97",
+          substanceNames={"water"},
+          fixedX=true,
+          reference_p(start=50e5),
+          reference_T(start=500),
+          p_default(start=50e5),
+          h_default(start=1.0e5),
+          extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
+              "Glb","Others","H2O"},
+          singleState=true,
+          T_default(start=500) = 310.15,
+          X_default=ones(nX),
+          default_density=1000,
+          C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913},
+          substanceData={Examples.Substances.Sodium_aqueous(),
+              Examples.Substances.Bicarbonate_aqueous(),
+              Examples.Substances.Potassium_aqueous(),
+              Examples.Substances.Glucose_solid(),
+              Examples.Substances.Urea_aqueous(),
+              Examples.Substances.Chloride_aqueous(),
+              Examples.Substances.Calcium_aqueous(),
+              Examples.Substances.Magnesium_aqueous(),
+              Examples.Substances.Albumin_aqueous(),
+              Examples.Substances.Globulins_aqueous(),
+              Examples.Substances.Water_liquid(),Examples.Substances.Water_liquid()});
+
+          end SimpleBodyFluid_C;
+
+      package StandardWater_C
+      extends Modelica.Media.Water.StandardWater(
+         extraPropertiesNames={"H2O"},
+         singleState=true, T_default=310.15, X_default=ones(nX),  C_default={1000});
+
+      extends Chemical.Interfaces.PartialMedium_C(
+          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+          mediumName="WaterIF97",
+          substanceNames={"water"},
+          fixedX=true,
+          reference_p(start=50e5),
+          reference_T(start=500),
+          p_default(start=50e5),
+          h_default(start=1.0e5),
+          extraPropertiesNames={"H2O"},
+          singleState=true,
+          T_default(start=500) = 310.15,
+          X_default=ones(nX),
+          C_default={1000},
+          substanceData={Examples.Substances.Water_liquid()});
+
+      end StandardWater_C;
+
+      package EthanolInWater_C
+      extends Modelica.Media.Water.StandardWater(
+         extraPropertiesNames={"H2O","C2H5OH"},
+         singleState=true, T_default=310.15, X_default=ones(nX), C_default={500,500});
 
 
-    end BodyFluid;
 
-    package Water
-    extends Interfaces.PartialWater(
-       extraPropertiesNames={"H2O"},
-       C_default={1000},
-       substanceData = {
-          Chemical.Examples.Substances.Water_liquid()},
-       singleState=true, T_default=310.15, X_default=ones(nX));
+      extends Chemical.Interfaces.PartialMedium_C(
+          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+          mediumName="WaterIF97",
+          substanceNames={"water"},
+          fixedX=true,
+          reference_p(start=50e5),
+          reference_T(start=500),
+          p_default(start=50e5),
+          h_default(start=1.0e5),
+          extraPropertiesNames={"H2O","C2H5OH"},
+          singleState=true,
+          T_default(start=500) = 310.15,
+          X_default=ones(nX),
+          C_default={500,500},
+          substanceData={Examples.Substances.Water_liquid(),
+              Examples.Substances.Ethanol_liquid()});
+
+      end EthanolInWater_C;
+
+      package SimpleAir_C
+        extends Modelica.Media.Air.SimpleAir(
+         extraPropertiesNames={"O2","CO2","H2O","Others"},
+         T_default=310.15, X_default=ones(nX), C_default={21,0.04,2,76.96});
+
+      extends Chemical.Interfaces.PartialMedium_C(
+          redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
+          mediumName="SimpleAir",
+          substanceNames={mediumName},
+          singleState=false,
+          fixedX=true,
+          reference_p(start=1.e5),
+          reference_T(start=288.15),
+          p_default(start=1.e5),
+          extraPropertiesNames={"O2","CO2","H2O","Others"},
+          T_default=310.15,
+          X_default=ones(nX),
+          C_default={21,0.04,2,76.96},
+          default_density=1.14,
+          substanceData={Examples.Substances.Oxygen_gas(),
+              Examples.Substances.CarbonDioxide_gas(),
+              Examples.Substances.Water_gas(),Examples.Substances.Nitrogen_gas()});
+
+      end SimpleAir_C;
+
+      package SimpleO2Gas_C
+      extends Modelica.Media.Air.SimpleAir(
+         extraPropertiesNames={"O2"},
+         T_default=310.15, X_default=ones(nX), C_default={1.14});
+
+      extends Chemical.Interfaces.PartialMedium_C(
+          redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
+          mediumName="SimpleAir",
+          substanceNames={mediumName},
+          singleState=false,
+          fixedX=true,
+          reference_p(start=1.e5),
+          reference_T(start=288.15),
+          p_default(start=1.e5),
+          extraPropertiesNames={"O2"},
+          T_default=310.15,
+          X_default=ones(nX),
+          C_default={1.14},
+          default_density=1.14,
+          substanceData={Examples.Substances.Oxygen_gas()});
+
+      end SimpleO2Gas_C;
 
 
-    end Water;
-
-    package EthanolInWater
-    extends Interfaces.PartialWater(
-       extraPropertiesNames={"H2O","C2H5OH"},
-       C_default =          {  500,     500},
-       substanceData = {
-          Chemical.Examples.Substances.Water_liquid(),
-          Chemical.Examples.Substances.Ethanol_liquid()},
-       singleState=true, T_default=310.15, X_default=ones(nX));
-
-
-    end EthanolInWater;
   end Media;
 
   model SimpleReaction
@@ -734,15 +842,16 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solution
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Components.Substance A(                substanceData(MolarWeight=1),
+    Chemical.Components.Substance A(
+      substanceData(MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
     Chemical.Components.Reaction reaction(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-    Chemical.Components.Substance B(substanceData(DfG=-R*T_25degC*log(K),
-          MolarWeight=1),
+    Chemical.Components.Substance B(
+      substanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
@@ -6467,7 +6576,7 @@ extends Modelica.Icons.ExamplesPackage;
   model FluidAdapter
    extends Modelica.Icons.Example;
 
-   package Medium = Chemical.Examples.Media.Water;
+   package Medium = Chemical.Examples.Media.StandardWater_C;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
@@ -6518,7 +6627,7 @@ extends Modelica.Icons.ExamplesPackage;
   model FluidAdapter2
    extends Modelica.Icons.Example;
 
-   package Medium = Chemical.Examples.Media.EthanolInWater;
+   package Medium = Chemical.Examples.Media.EthanolInWater_C;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
@@ -6694,7 +6803,7 @@ extends Modelica.Icons.ExamplesPackage;
   model FluidAdapter2_0
    extends Modelica.Icons.Example;
 
-   package Medium = Chemical.Examples.Media.EthanolInWater;
+   package Medium = Chemical.Examples.Media.EthanolInWater_C;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
@@ -6714,20 +6823,20 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-70,18},{-50,38}})));
 
     Modelica.Fluid.Sources.MassFlowSource_T boundary(m_flow=-1,           redeclare
-        package Medium =                                                                             Medium,
+        package Medium = Medium,
       nPorts=1)
       annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=180,
           origin={84,58})));
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort waterFlow(substanceName="H2O",
-        redeclare package Medium = Media.EthanolInWater)
+        redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{-14,48},{6,68}})));
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
-        redeclare package Medium = Media.EthanolInWater)
+        redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
     Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
-          Media.EthanolInWater)
+          Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
@@ -6840,8 +6949,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{44,42},{52,42},{52,16}}, color={158,66,200}));
     connect(electrodeReaction1.substrates[1], H2O.port_a) annotation (Line(
           points={{-40,-10},{-40,-44},{14,-44}}, color={158,66,200}));
-    connect(O2_.port_a, electrodeReaction1.products[1]) annotation (Line(points=
-           {{-26,42},{-38,42},{-38,10},{-37.3333,10}}, color={158,66,200}));
+    connect(O2_.port_a, electrodeReaction1.products[1]) annotation (Line(points={{-26,42},
+            {-38,42},{-38,10},{-37.3333,10}},          color={158,66,200}));
     connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(points={
             {14,-12},{20,-12},{20,20},{-40,20},{-40,10}}, color={158,66,200}));
     connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
@@ -6850,8 +6959,6 @@ extends Modelica.Icons.ExamplesPackage;
             14,-12},{50,-12},{50,-4}}, color={158,66,200}));
     connect(electrone1.port_a, electrodeReaction.products[2]) annotation (Line(
           points={{68,-16},{54,-16},{54,-4}}, color={158,66,200}));
-    connect(voltageSensor.n, ground.p)
-      annotation (Line(points={{14,74},{72,74}}, color={0,0,255}));
     annotation (
     experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -6997,7 +7104,7 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=1e-7)
         annotation (Placement(transformation(extent={{-6,-22},{14,-2}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
-        annotation (Placement(transformation(extent={{-4,82},{16,102}})));
+        annotation (Placement(transformation(extent={{-20,62},{0,82}})));
       Chemical.Components.Reaction electrodeReaction(
         s={1,8,8},
         p={1,2},
@@ -7024,7 +7131,7 @@ extends Modelica.Icons.ExamplesPackage;
                                   //(substanceData=Chemical.Examples.Substances.Electrone_solid())
 
     Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{62,54},{82,74}})));
+      annotation (Placement(transformation(extent={{46,52},{66,72}})));
       Components.Substance H2O(substanceData=Substances.Water_liquid(),
           mass_start=1)
         annotation (Placement(transformation(extent={{-6,-80},{14,-60}})));
@@ -7039,11 +7146,11 @@ extends Modelica.Icons.ExamplesPackage;
         TotalPressure=100000)
         annotation (Placement(transformation(extent={{88,-90},{68,-70}})));
       Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
-        annotation (Placement(transformation(extent={{-64,98},{-44,118}})));
+        annotation (Placement(transformation(extent={{-80,78},{-60,98}})));
       Modelica.Electrical.Analog.Basic.Resistor resistor(R=0.01)
-        annotation (Placement(transformation(extent={{28,98},{48,118}})));
+        annotation (Placement(transformation(extent={{12,78},{32,98}})));
       Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
-        annotation (Placement(transformation(extent={{120,94},{140,114}})));
+        annotation (Placement(transformation(extent={{76,78},{96,98}})));
     equation
       connect(H.solution, solution1.solution) annotation (Line(points={{-2,-22},
               {-2,-30},{24.4,-30},{24.4,-94.98}},
@@ -7055,13 +7162,13 @@ extends Modelica.Icons.ExamplesPackage;
         points={{84,-26},{84,-49},{89.2,-49}},
         color={127,127,0}));
       connect(voltageSensor.p, electrone.pin) annotation (Line(
-          points={{-4,92},{-96,92},{-96,42},{-78,42}},
+          points={{-20,72},{-88,72},{-88,42},{-78,42}},
           color={0,0,255}));
       connect(voltageSensor.n, electrone1.pin) annotation (Line(
-          points={{16,92},{92,92},{92,-16},{88,-16}},
+          points={{0,72},{98,72},{98,-16},{88,-16}},
           color={0,0,255}));
       connect(electrone1.pin, ground.p) annotation (Line(
-          points={{88,-16},{92,-16},{92,74},{72,74}},
+          points={{88,-16},{98,-16},{98,72},{56,72}},
           color={0,0,255}));
       connect(H2O.solution, solution1.solution) annotation (Line(points={{-2,-80},
               {-2,-94.98},{24.4,-94.98}}, color={127,127,0}));
@@ -7075,8 +7182,6 @@ extends Modelica.Icons.ExamplesPackage;
       connect(electrone.port_a, electrodeReaction1.products[3]) annotation (
           Line(points={{-58,42},{-42,42},{-42,10},{-42.6667,10}}, color={158,66,
               200}));
-      connect(voltageSensor.n, ground.p) annotation (Line(points={{16,92},{44,
-              92},{44,74},{72,74}}, color={0,0,255}));
       connect(CH4.port_a, electrodeReaction.products[1]) annotation (Line(
             points={{42,36},{54,36},{54,16}}, color={158,66,200}));
       connect(H2O.port_a, electrodeReaction.products[2]) annotation (Line(
@@ -7089,18 +7194,18 @@ extends Modelica.Icons.ExamplesPackage;
       connect(electrone1.port_a, electrodeReaction.substrates[3]) annotation (
           Line(points={{68,-16},{50,-16},{50,-4},{49.3333,-4}}, color={158,66,
               200}));
-      connect(electrone.pin, constantVoltage.p) annotation (Line(points={{-78,
-              42},{-88,42},{-88,108},{-64,108}}, color={0,0,255}));
+      connect(electrone.pin, constantVoltage.p) annotation (Line(points={{-78,42},
+              {-88,42},{-88,88},{-80,88}},       color={0,0,255}));
       connect(constantVoltage.n, resistor.p)
-        annotation (Line(points={{-44,108},{28,108}}, color={0,0,255}));
-      connect(powerSensor.nv, resistor.n) annotation (Line(points={{130,94},{90,
-              94},{90,108},{48,108}}, color={0,0,255}));
-      connect(powerSensor.pv, constantVoltage.p) annotation (Line(points={{130,
-              114},{-66,114},{-66,108},{-64,108}}, color={0,0,255}));
-      connect(resistor.n, powerSensor.pc) annotation (Line(points={{48,108},{84,
-              108},{84,104},{120,104}}, color={0,0,255}));
-      connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{140,104},
-              {150,104},{150,-16},{88,-16}}, color={0,0,255}));
+        annotation (Line(points={{-60,88},{12,88}},   color={0,0,255}));
+      connect(powerSensor.nv, resistor.n) annotation (Line(points={{86,78},{74,
+              78},{74,88},{32,88}},   color={0,0,255}));
+      connect(powerSensor.pv, constantVoltage.p) annotation (Line(points={{86,98},
+              {-82,98},{-82,88},{-80,88}},         color={0,0,255}));
+      connect(resistor.n, powerSensor.pc) annotation (Line(points={{32,88},{76,
+              88}},                     color={0,0,255}));
+      connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{96,88},
+              {98,88},{98,-16},{88,-16}},    color={0,0,255}));
       annotation (
       experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -7221,8 +7326,6 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Line(points={{-64,-4},{48,-4},{48,6}}, color={158,66,200}));
       connect(electrone1.port_a, electrodeReaction.products[2]) annotation (Line(
             points={{68,48},{60,48},{60,-2},{52,-2},{52,6}}, color={158,66,200}));
-      connect(voltageSensor.n, ground.p)
-        annotation (Line(points={{14,74},{32,74}}, color={0,0,255}));
       connect(H2.port_a, reaction.substrates[1]) annotation (Line(points={{-56,-34},
               {-30,-34},{-30,-42},{0,-42}}, color={158,66,200}));
       connect(CO2.port_a, reaction.substrates[2]) annotation (Line(points={{-52,-66},
@@ -7358,8 +7461,6 @@ extends Modelica.Icons.ExamplesPackage;
               {-28,-4},{-28,58},{-36,58},{-36,38}},   color={158,66,200}));
       connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
             points={{-58,54},{-42,54},{-42,38},{-38.6667,38}}, color={158,66,200}));
-      connect(voltageSensor.n, ground.p)
-        annotation (Line(points={{14,74},{32,74}}, color={0,0,255}));
       connect(CO2.solution, solution1.solution) annotation (Line(points={{-6,-34},
               {-80,-34},{-80,-88.96},{55.6,-88.96}},color={127,127,0}));
       connect(AcAc.solution, solution1.solution) annotation (Line(points={{56,
