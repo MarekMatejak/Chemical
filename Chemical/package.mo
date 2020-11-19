@@ -273,7 +273,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
-<p>2015-2019 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+<p>2015-2020 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>
 <h4>amountOfSolution = &sum; amountOfSubstances</h4>
 <h4>mass = &sum; massOfSubstances</h4>
@@ -289,7 +289,6 @@ package Chemical "Physical Chemistry (version 1.2.0)"
       Modelica.SIunits.Concentration c(displayUnit="mmol/l") "Molar concentration of particles";
 
       extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(
-          redeclare package stateOfMatter=Chemical.Interfaces.Incompressible,
           x(start=amountOfSubstance_start));
 
 
@@ -518,7 +517,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
               fillColor={0,0,0},
               fillPattern=FillPattern.Solid)}),
         Documentation(revisions="<html>
-<p><i>2013-2019 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
 <p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
@@ -593,7 +592,8 @@ package Chemical "Physical Chemistry (version 1.2.0)"
     model ElectronTransfer
     "Electron transfer from the solution to electric circuit"
       extends Icons.ElectronTransfer;
-      extends Interfaces.PartialSubstanceInSolution(redeclare package stateOfMatter =
+      extends Interfaces.PartialSubstanceInSolution(redeclare package
+        stateOfMatter =
             Chemical.Interfaces.Incompressible,
         final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
         MolarWeight=5.4857990946e-7,
@@ -1168,7 +1168,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
         annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package Medium =   Medium)
+        each package   Medium = Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1297,33 +1297,34 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end FluidAdapter_C;
 
     model ElasticCompartment
-    "Chemical solution as homogenous mixture of the substances in vesselChemical solution as homogenous mixture of the substances in elastic compartment"
+      "Elastic compartment as chemical solution envelop"
       extends Chemical.Icons.Solution;
 
       extends Chemical.Interfaces.PartialSolutionWithInputs(T(start=
               temperature_start), p(start=ExternalPressure));
 
-       parameter Physiolib.Types.HydraulicCompliance Compliance=1e+3
+       parameter Real Compliance(unit="m3/Pa")=1e+3
         "Compliance e.g. TidalVolume/TidalPressureGradient if useComplianceInput=false"
         annotation (Dialog(enable=not useComplianceInput));
 
-       parameter Physiolib.Types.Volume FunctionalResidualCapacity = 1e-11 "Zero pressure volume for linear compliance model. Maximal fluid volume, that does not generate pressure if useV0Input=false"
+       parameter Modelica.SIunits.Volume FunctionalResidualCapacity = 1e-11 "Zero pressure volume for linear compliance model. Maximal fluid volume, that does not generate pressure if useV0Input=false"
         annotation (Dialog(enable=not useV0Input)); //default = 1e-5 ml
 
-        parameter Physiolib.Types.AbsolutePressure ExternalPressure=101325
+        parameter Modelica.SIunits.AbsolutePressure ExternalPressure=101325
         "External absolute pressure. Set zero if internal pressure is relative to external. Valid only if useExternalPressureInput=false."
         annotation (Dialog(enable=not useExternalPressureInput));
 
-       parameter Physiolib.Types.Volume ResidualVolume = 1e-9  "Residual volume. Or maximal fluid volume, which generate negative collapsing pressure in linear model";
+       parameter Modelica.SIunits.Volume ResidualVolume = 1e-9  "Residual volume. Or maximal fluid volume, which generate negative collapsing pressure in linear model";
 
-       Physiolib.Types.Volume excessVolume
+       Modelica.SIunits.Volume excessVolume
         "Additional fluid volume, that generate pressure";
 
        parameter Boolean useV0Input = false
         "=true, if zero-pressure-fluid_volume input is used"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
 
-       Physiolib.Types.RealIO.VolumeInput zeroPressureVolume(start=
+       Modelica.Blocks.Interfaces.RealInput
+          zeroPressureVolume(unit="m3", displayUnit="l", start=
             ZeroPressureVolume)=zpv if useV0Input annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
@@ -1336,7 +1337,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         "=true, if compliance input is used"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
 
-      Physiolib.Types.RealIO.HydraulicComplianceInput compliance(start=
+      Modelica.Blocks.Interfaces.RealInput
+          compliance(unit="m3/Pa", start=
             Compliance)=c if useComplianceInput annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
@@ -1349,8 +1351,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         "=true, if external pressure input is used"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
 
-      parameter Physiolib.Types.Pressure MinimalCollapsingPressure=0;
-      Physiolib.Types.RealIO.PressureInput externalPressure(start=
+      parameter Modelica.SIunits.Pressure MinimalCollapsingPressure=0;
+      Modelica.Blocks.Interfaces.RealInput
+              externalPressure(unit="Pa", start=
             ExternalPressure)=ep if useExternalPressureInput annotation (
           Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -1360,7 +1363,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=270,
             origin={60,90})));
 
-      Physiolib.Types.RealIO.MassOutput fluidMass = mass annotation (Placement(
+      Modelica.Blocks.Interfaces.RealOutput
+              fluidMass(unit="kg") = mass annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
             rotation=270,
@@ -1369,30 +1373,29 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=0,
             origin={100,-80})));
 
-      Physiolib.Types.Pressure relative_pressure "Relative pressure inside";
+      Modelica.SIunits.Pressure relative_pressure "Relative pressure inside";
 
       parameter Boolean useSigmoidCompliance = false "sigmoid compliance e.g. lungs"
          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Computational model"));
 
-       parameter Physiolib.Types.Volume VitalCapacity = 0.00493  "Relative volume capacity if useSigmoidCompliance"
+       parameter Modelica.SIunits.Volume VitalCapacity = 0.00493  "Relative volume capacity if useSigmoidCompliance"
          annotation (Dialog(enable=useSigmoidCompliance));
-       parameter Physiolib.Types.Volume BaseTidalVolume = 0.000543 "Base value of tidal volume"
+       parameter Modelica.SIunits.Volume BaseTidalVolume = 0.000543 "Base value of tidal volume"
          annotation (Dialog(enable=useSigmoidCompliance));
 
   protected
-      Physiolib.Types.Volume zpv;
-      Physiolib.Types.Pressure ep;
-      Physiolib.Types.HydraulicCompliance c;
+       Modelica.SIunits.Volume zpv;
+       Modelica.SIunits.Pressure ep;
+       Real c(unit="m3/Pa");
 
-      parameter Physiolib.Types.Pressure a=MinimalCollapsingPressure/log(
+      parameter  Modelica.SIunits.Pressure a=MinimalCollapsingPressure/log(
           Modelica.Constants.eps);
 
-      parameter Physiolib.Types.Volume BaseMeanVolume = FunctionalResidualCapacity + BaseTidalVolume/2  "Point of equality with linear presentation such as (FunctionalResidualCapacity + TidalVolume/2)";
-      Physiolib.Types.Pressure d_sigmoid = (BaseMeanVolume-ResidualVolume) * (VitalCapacity-(BaseMeanVolume-ResidualVolume)) / (c*VitalCapacity);
-      Physiolib.Types.Pressure c_sigmoid = (BaseMeanVolume-FunctionalResidualCapacity)/c + d_sigmoid*log((VitalCapacity/(BaseMeanVolume-ResidualVolume) - 1));
+      parameter  Modelica.SIunits.Volume BaseMeanVolume = FunctionalResidualCapacity + BaseTidalVolume/2  "Point of equality with linear presentation such as (FunctionalResidualCapacity + TidalVolume/2)";
+       Modelica.SIunits.Pressure d_sigmoid = (BaseMeanVolume-ResidualVolume) * (VitalCapacity-(BaseMeanVolume-ResidualVolume)) / (c*VitalCapacity);
+       Modelica.SIunits.Pressure c_sigmoid = (BaseMeanVolume-FunctionalResidualCapacity)/c + d_sigmoid*log((VitalCapacity/(BaseMeanVolume-ResidualVolume) - 1));
 
-    //initial equation
-    //  mass = mass_start;
+
     equation
 
       //elastic compartment
@@ -1418,20 +1421,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
                 (a*log(max(Modelica.Constants.eps,volume/ResidualVolume)) + ep))
               else   -d_sigmoid*log((VitalCapacity/(volume-ResidualVolume))-1)+c_sigmoid + ep;
 
-      /*
-    smooth(0,
-      if noEvent(volume>CollapsingPressureVolume) then 
-        (excessVolume/c + ep)
-      else 
-        (a*log(max(Modelica.Constants.eps,volume/CollapsingPressureVolume)) + ep));
-*/
+     workFromEnvironment = -p*der(volume);
 
-      workFromEnvironment = -p*der(volume);
-                          //  (((der(excessMass)*c-excessMass*der(c))/(c*c)) + der(ep))*volume +
-                                       // der(p*volume)
-      //solution.p = BasePressure + Compliance*(volume-BaseVolume); //- f/SurfaceArea;
 
-                                                                                                        annotation (
+     annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
               100,100}}),
@@ -1441,7 +1434,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
-<p>2017-2018 by Marek Matejak, http://www.physiolib.com </p>
+<p>2020 by Marek Matejak, http://www.physiolib.com </p>
 </html>", info="<html>
 <h4>amountOfSolution = &sum; amountOfSubstances</h4>
 <h4>mass = &sum; massOfSubstances</h4>
@@ -1500,8 +1493,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MoleFractionSensor "Measure of mole fraction"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
       Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
       "Mole fraction of the substance"
@@ -1577,8 +1569,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MolalitySensor "Measure of molality of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1kgOfSolvent = 1
       "Amount of all particles in the solution per one kilogram of solvent";
@@ -1619,8 +1610,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MolarConcentrationSensor "Measure of molarity of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneLiter = 55.508
       "Amount of all particles in one liter of the solution";
@@ -1661,8 +1651,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MassFractionSensor "Measure of mass fraction of the substance"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
     parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneKilogram = 55.508
       "Amount of all particles in one kilogram of the solution";
@@ -1702,8 +1691,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model PartialPressureSensor
     "Measure of partial pressure of the substance in gaseous solution"
       extends Modelica.Icons.RotationalSensor;
-      extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
        Modelica.Blocks.Interfaces.RealOutput partialPressure(final unit="Pa")
       "Partial pressure of the substance in gaseous solution"
@@ -1887,8 +1875,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     extends Modelica.Icons.SourcesPackage;
 
     model PureSubstance "Constant source of pure substance"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstance;
 
       parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
@@ -2038,8 +2025,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalIdealGasSubstance;
 
     model ExternalMolality "Constant source of substance molality"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstance;
 
       outer Modelica.Fluid.System system "System wide properties";
 
@@ -2123,8 +2109,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalMolality;
 
     model ExternalConcentration "Constant source of molar concentration"
-       extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+       extends Interfaces.PartialSubstance;
 
        outer Modelica.Fluid.System system "System wide properties";
 
@@ -2207,8 +2192,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ExternalConcentration;
 
     model ExternalMoleFraction "Constant source of substance mole fraction"
-         extends Interfaces.PartialSubstance(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+         extends Interfaces.PartialSubstance;
 
        outer Modelica.Fluid.System system "System wide properties";
 
@@ -2415,8 +2399,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model Clearance "Physiological Clearance"
      extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
-     extends Interfaces.PartialSubstanceSensor(redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+     extends Interfaces.PartialSubstanceSensor;
 
       parameter Modelica.SIunits.VolumeFlowRate Clearance=0
       "Physiological clearance of the substance if useSolutionFlowInput=false"
@@ -2460,8 +2443,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end Clearance;
 
     model Degradation "Degradation of the substance"
-      extends Interfaces.PartialSubstanceSensor( redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible);
+      extends Interfaces.PartialSubstanceSensor;
 
       parameter Modelica.SIunits.Time HalfTime
       "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
@@ -2536,7 +2518,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </tr>
 <tr>
 <td>Date of:</td>
-<td>2009-2019</td>
+<td>2009-2020</td>
 </tr>
 </table>
 </html>"));
@@ -2546,8 +2528,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Source of substance bounded to constant amount of buffer to reach linear dependence between concentration and electrochemical potential"
       extends Icons.Buffer;
            extends Interfaces.PartialSubstanceInSolution(
-                     redeclare package stateOfMatter=
-          Chemical.Interfaces.Incompressible,
                      a(start = a_start));
 
          parameter Modelica.SIunits.MoleFraction a_start=1e-7
@@ -2621,7 +2601,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end Buffer;
-
   end Sources;
 
   package Interfaces "Chemical interfaces"
@@ -2824,7 +2803,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       SubstancePort_a port_a "The substance"
      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-     replaceable package stateOfMatter = StateOfMatter
+     replaceable package stateOfMatter = Incompressible constrainedby
+      StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choicesAllMatching = true);
             //constrainedby StateOfMatter
@@ -3775,7 +3755,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
      replaceable package stateOfMatter =
-          Chemical.Interfaces.Incompressible (OtherPropertiesCount=0)
+          Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
         constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
@@ -4293,7 +4273,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     extends Modelica.Media.Interfaces.PartialMedium;
 
     replaceable package stateOfMatter =
-                            Chemical.Interfaces.Incompressible constrainedby
+                            Chemical.Interfaces.StateOfMatter constrainedby
       Chemical.Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
        annotation (choicesAllMatching = true);
@@ -4305,23 +4285,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     annotation (choicesAllMatching = true);
 
     end PartialMedium_C;
-
   end Interfaces;
-
-
 
   annotation (
 preferredView="info",
 version="1.2.0",
 versionBuild=1,
-versionDate="2019-12-15",
-dateModified = "2019-12-15 15:14:41Z",
+versionDate="2020-11-19",
+dateModified = "2020-11-19 15:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
-uses(Modelica(version="3.2.3"), Physiolib(version="0.1")),
+uses(Modelica(version="3.2.3")),
   Documentation(revisions="<html>
-<p>Copyright (c) 2008-2019, Marek Matej&aacute;k, Charles University in Prague </p>
+<p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <ol>

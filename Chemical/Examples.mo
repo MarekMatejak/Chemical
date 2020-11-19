@@ -688,15 +688,18 @@ extends Modelica.Icons.ExamplesPackage;
   package Media
           package SimpleBodyFluid_C
 
-      extends Modelica.Media.Water.StandardWater(
-        extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
+            extends
+              Modelica.Media.Water.StandardWater(
+              extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
             "Glb","Others","H2O"},
-        singleState=true,
-        T_default=310.15,
-        X_default=ones(nX),
-        C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913});
+              singleState=true,
+              T_default=310.15,
+              X_default=ones(nX),
+              C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913});
 
-      extends Chemical.Interfaces.PartialMedium_C(
+            extends
+              Chemical.Interfaces.PartialMedium_C(
+               redeclare package stateOfMatter = Interfaces.Incompressible,
           ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
           mediumName="WaterIF97",
           substanceNames={"water"},
