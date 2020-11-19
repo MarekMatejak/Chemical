@@ -1,5 +1,5 @@
 within ;
-package Chemical "Physical Chemistry (version 1.2.0)"
+package Chemical "Physical Chemistry (version 1.3.0)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -137,6 +137,19 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 </ul>
 </html>"));
   end Version_1_2;
+
+  class Version_1_3 "Version 1.3.0 (Nov. 19, 2020)"
+    extends Modelica.Icons.ReleaseNotes;
+
+  annotation (Documentation(info="<html>
+<ul>
+<li>Elastic compartment solution (prepared for new Physiolibrary)</li>
+<li>Enthalpy streams in substance connector</li>
+<li>Methanogenesis examples</li>
+</ul>
+</html>"));
+  end Version_1_3;
+
    annotation (Documentation(info="<html>
 <p>This section summarizes the changes that have been performed on the Chemical. </p>
 </html>"));
@@ -288,8 +301,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
       Modelica.SIunits.Concentration c(displayUnit="mmol/l") "Molar concentration of particles";
 
-      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(
-          x(start=amountOfSubstance_start));
+      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(x(start=amountOfSubstance_start));
 
 
 
@@ -298,9 +310,9 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
 
 
-      parameter Modelica.SIunits.Mass mass_start=if use_mass_start then OneKg else amountOfSubstance_start*substanceData.MolarWeight "Start mass (if use_start_mass)"
+      parameter Modelica.SIunits.Mass mass_start=if use_mass_start then OneKg else amountOfSubstance_start*substanceData.MolarWeight
           annotation(Dialog(group = "Initialization", enable = use_mass_start));
-      parameter Modelica.SIunits.AmountOfSubstance amountOfSubstance_start=if use_mass_start then mass_start/substanceData.MolarWeight else OneKg/substanceData.MolarWeight "Start amount of substance base molecules (if not use_start_mass)"
+      parameter Modelica.SIunits.AmountOfSubstance amountOfSubstance_start=if use_mass_start then mass_start/substanceData.MolarWeight else OneKg/substanceData.MolarWeight
         annotation(Dialog(group = "Initialization", enable = not use_mass_start));
 
 
@@ -308,25 +320,71 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
 
   protected
-      Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=mass_start/substanceData.MolarWeight) "Amount of all molecules inside all clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfFreeMolecule(start=1*mass_start/(substanceData.MolarWeight^2)) "Amount of free molecules not included inside any clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfParticles(start=1*mass_start) "Amount of particles/clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=if
+                                                                       (substanceData.SelfClustering) then mass_start/substanceData.MolarWeight else mass_start/substanceData.MolarWeight) "Amount of all molecules inside all clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfFreeMolecule(start=if
+                                                                      (substanceData.SelfClustering) then 1*mass_start/(substanceData.MolarWeight^2) else mass_start/substanceData.MolarWeight) "Amount of free molecules not included inside any clusters in compartment";
+      Modelica.SIunits.AmountOfSubstance amountOfParticles(start=if
+                                                                   (substanceData.SelfClustering) then 1*mass_start else mass_start/substanceData.MolarWeight) "Amount of particles/clusters in compartment";
 
-      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T))  "Dissociation constant of bond between base molecules in cluster";
-      Modelica.SIunits.ChemicalPotential SelfClustering_dG = substanceData.SelfClustering_dH-solution.T*substanceData.SelfClustering_dS "Gibbs energy of bond between molecules in cluster";
+      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T))  "Dissociation constant of hydrogen bond between base molecules";
+      Modelica.SIunits.ChemicalPotential SelfClustering_dG = substanceData.SelfClustering_dH-solution.T*substanceData.SelfClustering_dS "Gibbs energy of hydrogen bond between H2O molecules";
 
-      Modelica.SIunits.AmountOfSubstance amountOfAdditionalBonds "Amount of bonds between molecules in all clusters";
+      Modelica.SIunits.AmountOfSubstance amountOfAdditionalBonds "Amount of hydrogen bonds between molecules in compartment";
 
       Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/substanceData.MolarWeight))
       "Decadic logarithm of the amount of all clusters in solution";
       constant Real InvLog_10=1/log(10);
       constant Modelica.SIunits.Mass OneKg = 1;
+
+
     initial equation
 
       amountOfBaseMolecules = mass_start/substanceData.MolarWeight;
 
+    //only positive solution of quadratic equation is valid for initial value of x
+    //    x = (sqrt((solution.n/(mass_start/substanceData.MolarWeight) + 2*SelfClustering_K)^2 - 4*SelfClustering_K^2)-(solution.n/(mass_start/substanceData.MolarWeight) + 2*SelfClustering_K)) / (2*SelfClustering_K^2);
+    //    ax2 + bx + c = 0;
+    //    D = (bb-4ac);
+    //    x = (-b+-sqrt(D))/2a
+    //    xx = bb/4aa - 2b*sqrt(D)/4aa + (bb-4ac)/4aa
+    //    ax2 = bb/4a - 2b*sqrt((bb-4ac))/4a + bb/4a - c
+    //    bx = (-bb/2a + b*sqrt((bb-4ac))/2a)
 
     equation
+
+      if substanceData.SelfClustering then
+
+        //Liquid cluster theory - equilibrium:
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i H2O molecules
+        //amountOfParticles/solution.n = x/(1-K*x);                //sum(x[i])
+        //amountOfBaseMolecules/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
+        //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+
+        amountOfParticles*(1 - SelfClustering_K*x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
+        x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+
+        amountOfAdditionalBonds = amountOfBaseMolecules*x*SelfClustering_K;
+
+        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+        //TODO: more precise calculation of other properties
+
+        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q + der(molarEnthalpy)*amountOfBaseMolecules + substanceData.SelfClustering_dH*der(amountOfAdditionalBonds);
+        solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG;
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfAdditionalBonds = 0;
+
+        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q + der(molarEnthalpy)*amountOfBaseMolecules;
+        solution.Gj = amountOfBaseMolecules*port_a.u;
+
+      end if;
 
       //The main accumulation equation is "der(amountOfBaseMolecules)=q"
       // However, the numerical solvers can handle it in form of log10n much better. :-)
@@ -343,42 +401,6 @@ package Chemical "Physical Chemistry (version 1.2.0)"
       solution.i = Modelica.Constants.F*z*q + Modelica.Constants.F*der(z)*
         amountOfBaseMolecules;
       solution.dV = molarVolume*q + der(molarVolume)*amountOfBaseMolecules;
-
-
-      if not substanceData.SelfClustering then
-
-        //Each molecule of the substance is a separate particle
-
-        amountOfParticles = amountOfFreeMolecule;
-        amountOfBaseMolecules = amountOfFreeMolecule;
-        amountOfAdditionalBonds = 0;
-
-        solution.dH = actualStream(port_a.h_outflow)*q + der(molarEnthalpy)*amountOfBaseMolecules;
-
-        solution.Gj = amountOfBaseMolecules*port_a.u;
-
-      else
-
-        //Molecules of the substance are forming bigger clusters (e.g. H2O with hydrogen bonds)
-
-        //x[i] = x*(K*x)^i                                      .. mole fraction of cluster composed with i molecules
-        //amountOfParticles/solution.n = x/(1-K*x);             .. sum(x[i]) = mole fraction of all particles composed as clusters with the substance
-        //amountOfBaseMolecules/solution.n = x/((1-K*x)^2);     .. sum(i*x[i]) = mole fraction of all base molecules of the substance
-        //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2); .. sum((i-1)*x[i]) = mole fraction of all bonds between the substance in all their clusters
-
-        amountOfParticles*(1 - SelfClustering_K*x) = amountOfFreeMolecule;
-        abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles;
-
-        amountOfAdditionalBonds = amountOfBaseMolecules*x*SelfClustering_K;
-
-
-        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
-        //TODO: more precise calculation of other properties
-
-        solution.dH = actualStream(port_a.h_outflow)*q + der(molarEnthalpy)*amountOfBaseMolecules + substanceData.SelfClustering_dH*der(amountOfAdditionalBonds);
-        solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG;
-
-      end if;
 
       //extensive properties
       solution.nj = amountOfParticles;
@@ -475,6 +497,7 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
 
       // Implicit definition of the inStream()operator applied to inside connector i
+
       substrates.h_outflow = h_mix*ones(nS);
       products.h_outflow = h_mix*ones(nP);
 
@@ -853,8 +876,8 @@ package Chemical "Physical Chemistry (version 1.2.0)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
-            stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
+        =   stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1167,6 +1190,12 @@ package Chemical "Physical Chemistry (version 1.2.0)"
       parameter Integer nFluidPorts=0 "Number of fluid ports"
         annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
+      parameter Modelica.SIunits.Temperature temperature_start = system.T_ambient
+        annotation(Dialog(group = "Initialization"));
+
+      parameter Modelica.SIunits.Pressure pressure_start = system.p_ambient
+        annotation(Dialog(group = "Initialization"));
+
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
         each package   Medium = Medium)
       "Fluid inlets and outlets"
@@ -1198,10 +1227,10 @@ package Chemical "Physical Chemistry (version 1.2.0)"
 
       Modelica.SIunits.MolarMass molarMass[Medium.nC] "Molar mass of the substance";
 
-      Modelica.SIunits.Temperature temperature(start=system.T_ambient)
+      Modelica.SIunits.Temperature temperature(start=temperature_start)
       "Temperature of the solution";
 
-      Modelica.SIunits.Pressure pressure(start=system.p_ambient)
+      Modelica.SIunits.Pressure pressure(start=pressure_start)
       "Pressure of the solution";
 
       Modelica.SIunits.ElectricPotential electricPotential(start=0)
@@ -2284,14 +2313,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     Interfaces.SubstancePort_a port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-       parameter Modelica.SIunits.MolarEnthalpy MolarEnthalpy = 0;
+       parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
     equation
        if not usePotentialInput then
          port_a.u=U;
        end if;
 
 
-      port_a.h_outflow = MolarEnthalpy;
+      port_a.h_outflow = MolarHeat;
 
 
       annotation ( Icon(coordinateSystem(
@@ -2335,11 +2364,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     Interfaces.SubstancePort_b port_b "Outflow"
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-      parameter Modelica.SIunits.MolarEnthalpy MolarEnthalpy = 0;
+      parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
 
     equation
       port_b.q = - q;
-      port_b.h_outflow = MolarEnthalpy;
+      port_b.h_outflow = MolarHeat;
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -2369,11 +2398,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     Interfaces.SubstancePort_b port_a "Inflow"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-      parameter Modelica.SIunits.MolarEnthalpy MolarEnthalpy = 0;
+      parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
     equation
       port_a.q = q;
 
-      port_a.h_outflow = MolarEnthalpy;
+      port_a.h_outflow = MolarHeat;
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -2556,6 +2585,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         Modelica.SIunits.MoleFraction xFreeBuffer;
 
   protected
+        Modelica.SIunits.MolarEnthalpy enthalpy;
+
         constant Real InvLog_10=1/log(10);
     initial equation
         xFreeBuffer = -log10(a_start)*(bufferValue/solution.n);
@@ -2576,7 +2607,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
-      solution.dH = molarEnthalpy*port_a.q - der(molarEnthalpy)*nFreeBuffer;
+      enthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(substanceData);
+      solution.dH = enthalpy*port_a.q - der(enthalpy)*nFreeBuffer;
       solution.i = Modelica.Constants.F * z * port_a.q - Modelica.Constants.F*der(z)*nFreeBuffer;
       solution.dV = molarVolume * port_a.q - der(molarVolume)*nFreeBuffer;
 
@@ -2903,7 +2935,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        + Modelica.Constants.R*temperature*log(a)
        + z*Modelica.Constants.F*electricPotential;
 
-     port_a.h_outflow = molarEnthalpy;
+     port_a.h_outflow = molarEnthalpy - stateOfMatter.molarEnthalpy(substanceData); //heat as molar enthalpy
      annotation (
        Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -4289,7 +4321,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
   annotation (
 preferredView="info",
-version="1.2.0",
+version="1.3.0",
 versionBuild=1,
 versionDate="2020-11-19",
 dateModified = "2020-11-19 15:14:41Z",

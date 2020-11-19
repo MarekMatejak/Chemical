@@ -688,8 +688,7 @@ extends Modelica.Icons.ExamplesPackage;
   package Media
           package SimpleBodyFluid_C
 
-            extends
-              Modelica.Media.Water.StandardWater(
+            extends Modelica.Media.Water.StandardWater(
               extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
             "Glb","Others","H2O"},
               singleState=true,
@@ -697,8 +696,7 @@ extends Modelica.Icons.ExamplesPackage;
               X_default=ones(nX),
               C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913});
 
-            extends
-              Chemical.Interfaces.PartialMedium_C(
+            extends Chemical.Interfaces.PartialMedium_C(
                redeclare package stateOfMatter = Interfaces.Incompressible,
           ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
           mediumName="WaterIF97",
@@ -1275,8 +1273,6 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Components.Solution liquid(
       temperature_start=T_start,
-      useElectricPort=true,
-      useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-98,-98},{-6,-8}})));
 
@@ -1284,26 +1280,20 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Components.Solution gas(
       temperature_start=T_start,
-      useMechanicPorts=true,
       useThermalPort=true,
       redeclare package stateOfMatter = Interfaces.IdealGas)
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
-    Chemical.Components.GasSolubility gasSolubility
-      annotation (Placement(transformation(extent={{-98,24},{-78,44}})));
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
-          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
-      use_mass_start=false,
-      amountOfSubstance_start=0.01)
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
+        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+      mass_start=0.000106537)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                          fixedTemperature
                 annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         origin={84,8})));
-    Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{-80,-36},{-60,-16}})));
     Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
       annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Chemical.Components.Substance otherSubstances(
@@ -1314,26 +1304,17 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{2,28},{22,48}})));
   Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(
       G=1e6) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed1
-      annotation (Placement(transformation(extent={{-24,12},{-4,32}})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed2
-      annotation (Placement(transformation(extent={{-74,-92},{-54,-72}})));
     Components.Substance liquidWater(substanceData=Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
       annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
+    Components.GasSolubility          gasSolubility
+      annotation (Placement(transformation(extent={{-92,16},{-72,36}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
         points={{27.6,6.9},{24,6.9},{24,50}},
         color={127,127,0}));
-    connect(H2O_gaseuous.port_a, gasSolubility.gas_port) annotation (Line(
-        points={{8,60},{-88,60},{-88,44}},
-        color={158,66,200},
-        thickness=1));
-    connect(liquid.electricPin, ground.p) annotation (Line(
-        points={{-79.6,-8},{-79.6,-8},{-70,-8},{-70,-16}},
-        color={0,0,255}));
   connect(fixedTemperature.T, clock.y) annotation (Line(
       points={{96,8},{98,8},{98,46},{83,46}},
       color={0,0,127},
@@ -1350,18 +1331,19 @@ extends Modelica.Icons.ExamplesPackage;
   connect(liquid.heatPort, thermalConductor.port_a) annotation (Line(
       points={{-79.6,-98.9},{-80,-98.9},{-80,-102},{-8,-102},{-8,2},{48,2}},
       color={191,0,0}));
-  connect(liquid.bottom, fixed2.flange) annotation (Line(
-      points={{-52,-98.9},{-52,-82},{-64,-82}},
-      color={0,127,0}));
-  connect(gas.bottom, fixed1.flange) annotation (Line(
-      points={{0,5.1},{0,22},{-14,22}},
-      color={0,127,0}));
     connect(liquid.solution, liquidWater.solution) annotation (Line(points={{-24.4,
             -97.1},{-24.4,-96.55},{-32,-96.55},{-32,-62}}, color={127,127,0}));
+    connect(H2O_gaseuous.port_a,gasSolubility. gas_port) annotation (Line(
+        points={{8,60},{-82,60},{-82,36}},
+        color={158,66,200},
+        thickness=1));
     connect(gasSolubility.liquid_port, liquidWater.port_a) annotation (Line(
-          points={{-88,24},{-88,-52},{-48,-52}}, color={158,66,200}));
+          points={{-82,16},{-82,-52},{-48,-52}}, color={158,66,200}));
     annotation (
-      experiment(StopTime=104.4, __Dymola_Algorithm="Dassl"),
+      experiment(
+        StopTime=103,
+        Tolerance=1e-08,
+        __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
 <p>Demonstraiton of water vaporization between two solutions - liquid and gaseous. The temperature is increased in time to illustrate, how the vaporization rate rises in higher temperatures. See liquid.T and liquid.Volume, compared to gas.T and gas.volume.</p>
 </html>",
@@ -1381,7 +1363,6 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Components.Solution gas(
       temperature_start=T_start,
-      useMechanicPorts=true,
       useThermalPort=true,
       redeclare package stateOfMatter = Interfaces.IdealGas,
       BasePressure=600)
@@ -1410,8 +1391,6 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solid(
       temperature_start=T_start,
       BasePressure=600,
-      useElectricPort=true,
-      useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{8,-98},{100,-8}})));
     Chemical.Components.Substance H2O_solid(substanceData=
@@ -1422,14 +1401,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{70,-62},{50,-42}})));
     Chemical.Components.GasSolubility gasSolubility1(KC=10)
       annotation (Placement(transformation(extent={{-76,18},{-56,38}})));
-    Modelica.Electrical.Analog.Basic.Ground ground1
-      annotation (Placement(transformation(extent={{12,-38},{32,-18}})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=1e6)
       annotation (Placement(transformation(extent={{48,-8},{68,12}})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed1
-      annotation (Placement(transformation(extent={{-18,14},{2,34}})));
-    Modelica.Mechanics.Translational.Components.Fixed fixed2
-      annotation (Placement(transformation(extent={{32,-92},{52,-72}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
@@ -1453,9 +1426,6 @@ extends Modelica.Icons.ExamplesPackage;
         points={{-66,18},{-66,-52},{50,-52}},
         color={158,66,200},
         thickness=1));
-    connect(solid.electricPin, ground1.p) annotation (Line(
-        points={{26.4,-8},{22,-8},{22,-18}},
-        color={0,0,255}));
     connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
         points={{74,8},{72,8},{72,2},{68,2}},
         color={191,0,0}));
@@ -1465,14 +1435,8 @@ extends Modelica.Icons.ExamplesPackage;
     connect(solid.heatPort, thermalConductor.port_a) annotation (Line(
         points={{26.4,-98.9},{-2,-98.9},{-2,2},{48,2}},
         color={191,0,0}));
-  connect(solid.bottom, fixed2.flange) annotation (Line(
-      points={{54,-98.9},{54,-82},{42,-82}},
-      color={0,127,0}));
-  connect(fixed1.flange, gas.bottom) annotation (Line(
-      points={{-8,24},{0,24},{0,5.1}},
-      color={0,127,0}));
     annotation (
-      experiment(StopTime=50.01),
+      experiment(StopTime=49.7, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
 <p>Demonstraiton of water sublimation between two solutions - solid and gaseous. The temperature is increased in time to illustrate, how the sublimation rate rises in higher temperatures. See solid.T and solid.Volume, compared to gas.T and gas.volume. Note, that the liquid phase is omitted here.</p>
 </html>",
@@ -2404,7 +2368,7 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-10,-10},{10,10}}, origin={-30,46})));
       Chemical.Components.Reaction waterDissociation(nS=1, nP=2, s={2})
         annotation (Placement(transformation(extent={{-12,36},{8,56}})));
-            Real pH, pH_;
+            Real pH, pH3O;
       Chemical.Components.Substance H_(substanceData=
             Chemical.Examples.Substances.Proton_aqueous(), use_mass_start=false, amountOfSubstance_start=1e-7) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}}, origin={28,-30})));
@@ -2417,12 +2381,12 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Reaction waterDissociation_(nS=1, nP=2)
         annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
 
-      inner Modelica.Fluid.System system(T_ambient=298.15)
+      inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
         annotation (Placement(transformation(extent={{-90,50},{-70,70}})));
     equation
-      pH = -log10( H3O.a);
+      pH3O = -log10( H3O.a);
 
-      pH_ = -log10( H_.a);
+      pH = -log10( H_.a);
 
       connect(OH.port_a, waterDissociation.products[1]) annotation (Line(
           points={{20,26},{16,26},{16,48},{8,48}},
@@ -2705,7 +2669,7 @@ extends Modelica.Icons.ExamplesPackage;
       import Chemical;
         extends Modelica.Icons.Example;
 
-      parameter Real KC=10;//e-6 "Slow down factor";
+      parameter Real KC=1e-3;//e-6 "Slow down factor";
 
       Chemical.Components.Solution blood_erythrocytes(ElectricGround=false,
           temperature_start=310.15)
@@ -3458,12 +3422,9 @@ extends Modelica.Icons.ExamplesPackage;
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
       extends Modelica.Icons.Example;
 
-      Chemical.Components.Solution solution
+      Chemical.Components.Solution solution(redeclare package stateOfMatter =
+            Interfaces.Incompressible)
         annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
-
-    Chemical.Sources.Buffer H(substanceData=Substances.Proton_aqueous(),
-          a_start=10^(-7.4)) "hydrogen ions activity" annotation (Placement(
-            transformation(extent={{10,-10},{-10,10}}, origin={14,36})));
 
       constant Integer n=218 "Number of weak acid group in albumin molecule";
       constant Real pKAs[n]=cat(1,{8.5},fill(4.0,98),fill(11.7,18),fill(12.5,24),fill(5.8,2),fill(6.0,2),{7.6,7.8,7.8,8,8},fill(10.3,50),{7.19,7.29,7.17,7.56,7.08,7.38,6.82,6.43,4.92,5.83,6.24,6.8,5.89,5.2,6.8,5.5,8,3.1})
@@ -3481,34 +3442,36 @@ extends Modelica.Icons.ExamplesPackage;
 
       Components.Substance        H2O(substanceData=Substances.Water_liquid(), mass_start=1)                    annotation (Placement(transformation(
               extent={{-10,-10},{10,10}}, origin={62,-68})));
+      Sources.ExternalMoleFraction H(substanceData=Substances.Proton_aqueous(),
+          MoleFraction=10^(-7.4)) annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
+            rotation=180,
+            origin={18,42})));
     equation
       connect(react.products[1], A.port_a) annotation (Line(
           points={{-24,10},{-12,10},{-12,-6},{6,-6}},
           color={107,45,134},
           thickness=1));
       for i in 1:n loop
-        connect(react[i].products[2], H.port_a) annotation (Line(
-            points={{-24,6},{-14,6},{-14,36},{4,36}},
-            color={107,45,134},
-            thickness=1));
         connect(HA[i].solution, solution.solution) annotation (Line(
           points={{-74,-2},{-74,-86},{56,-86},{56,-98}},
           color={127,127,0}));
         connect(A[i].solution, solution.solution) annotation (Line(
           points={{22,-16},{22,-86},{56,-86},{56,-98}},
           color={127,127,0}));
+        connect(H.port_a, react[i].products[2]) annotation (Line(points={{8,42},{-8,42},{
+              -8,6},{-24,6}}, color={158,66,200}));
       end for;
       connect(HA.port_a, react.substrates[1]) annotation (Line(
           points={{-58,8},{-44,8}},
           color={107,45,134},
           thickness=1));
 
-    connect(solution.solution, H2O.solution) annotation (Line(
+      connect(solution.solution, H2O.solution) annotation (Line(
         points={{56,-98},{56,-78}},
         color={127,127,0}));
-    connect(H.solution, solution.solution) annotation (Line(
-        points={{20,26},{20,14},{36,14},{36,-98},{56,-98}},
-        color={127,127,0}));
+
+
       annotation ( Documentation(revisions="<html>
 <p><i>2014-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3516,8 +3479,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>The titration slope der(pH)/der(SID)=185 1/(mol/L) at pH=7.4 and tAlb=0.66 mmol/l.</p>
 <p>Data and model is described in</p>
 <p><font style=\"color: #222222; \">Jame Figge: Role of non-volatile weak acids (albumin, phosphate and citrate). In: Stewart&apos;s Textbook of Acid-Base, 2nd Edition, John A. Kellum, Paul WG Elbers editors, &nbsp;AcidBase org, 2009, pp. 216-232.</font></p>
-</html>"),
-        experiment(StopTime=1.6));
+</html>"));
     end AlbuminTitration;
 
   end AcidBase;
@@ -6584,7 +6546,6 @@ extends Modelica.Icons.ExamplesPackage;
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
     Components.FluidAdapter_C        fluidConversion1(
-      substanceData={Substances.Water_liquid()},
       redeclare package Medium = Medium,
       nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
@@ -6597,8 +6558,8 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Substance H2O_right(substanceData=Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{84,-2},{64,18}})));
     Components.FluidAdapter_C        fluidConversion2(
-      substanceData={Substances.Water_liquid()},
       redeclare package Medium = Medium,
+      temperature_start=299.15,
       nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
     Modelica.Fluid.Pipes.StaticPipe pipe1(
@@ -6838,8 +6799,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
-          Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
+        = Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
@@ -6864,8 +6825,7 @@ extends Modelica.Icons.ExamplesPackage;
            {{-69.8,-2},{-60,-2},{-60,8},{-50,8}}, color={0,0,0}));
     connect(C2H5OH.port_m, fluidConversion1.substances[2])
       annotation (Line(points={{-49.8,18},{-50,18},{-50,8}}, color={0,0,0}));
-    annotation (    experiment(
-        StopTime=18.4),
+    annotation (    experiment(StopTime=5.6, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
@@ -7082,7 +7042,11 @@ extends Modelica.Icons.ExamplesPackage;
       connect(H2O.port_a, reaction.products[2]) annotation (Line(points={{56,46},
               {30,46},{30,58},{2,58}}, color={158,66,200}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-            coordinateSystem(preserveAspectRatio=false)));
+            coordinateSystem(preserveAspectRatio=false)),
+        experiment(
+          StopTime=1,
+          Tolerance=1e-08,
+          __Dymola_Algorithm="Dassl"));
     end HydrogenotrophicMethanogenesis;
 
     model MethanElectrosynthesis
@@ -7359,7 +7323,8 @@ extends Modelica.Icons.ExamplesPackage;
       connect(powerSensor.nc, electrone1.pin) annotation (Line(points={{132,90},
               {142,90},{142,48},{88,48}}, color={0,0,255}));
       annotation (
-      experiment(StopTime=1),      Documentation(revisions="<html>
+      experiment(StopTime=0.0001, __Dymola_Algorithm="Dassl"),
+                                   Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
