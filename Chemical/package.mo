@@ -2625,7 +2625,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       //solution flows
       enthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(substanceData);
-      solution.dH = enthalpy*port_a.q. q - der(enthalpy)*nFreeBuffer;
+      solution.dH = enthalpy*port_a.q - der(enthalpy)*nFreeBuffer;
       solution.i = Modelica.Constants.F * z * port_a.q - Modelica.Constants.F*der(z)*nFreeBuffer;
       solution.dV = molarVolume * port_a.q - der(molarVolume)*nFreeBuffer;
 
