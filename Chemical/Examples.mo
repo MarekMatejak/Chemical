@@ -1285,8 +1285,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
-        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
+          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
       mass_start=0.000106537)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
@@ -3434,7 +3434,8 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Components.Substance A[n](substanceData(each z=-1), each use_mass_start=false, each amountOfSubstance_start=0.00033) "deprotonated acid groups"
         annotation (Placement(transformation(extent={{26,-16},{6,4}})));
-      Chemical.Components.Reaction react[n](each nS=1, each nP=2)
+      Chemical.Components.Reaction react[n](
+        each KC=1e-9,                            each nS=1, each nP=2)
         annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
       Chemical.Components.Substance HA[n](substanceData(DfG=DfG), each use_mass_start=false, each amountOfSubstance_start=0.00033) "protonated acid groups"
@@ -4310,7 +4311,7 @@ extends Modelica.Icons.ExamplesPackage;
           points={{60,-2},{60,-2}},
           color={158,66,200}));
 
-      annotation (          experiment(StopTime=15000),
+      annotation (
         Documentation(revisions="<html>
 <p><i>2013-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -4846,7 +4847,7 @@ extends Modelica.Icons.ExamplesPackage;
           points={{-28,22},{-2,22},{-2,56},{26,56}},
           color={158,66,200},
           smooth=Smooth.None));
-      annotation (          experiment(StopTime=15000),
+      annotation (
         Documentation(revisions="<html>
 <p><i>2013-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -6799,8 +6800,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
-        = Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
+          Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (

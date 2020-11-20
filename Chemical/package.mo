@@ -318,6 +318,8 @@ package Chemical "Physical Chemistry (version 1.3.0)"
 
       Modelica.SIunits.Mass mass=amountOfBaseMolecules*substanceData.MolarWeight "Mass";
 
+      parameter Boolean calculateClusteringHeat = false "Only for self clustering substances"
+          annotation(Dialog(tab = "Clustering", enable = substanceData.SelfClustering), Evaluate=true);
 
   protected
       Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=if
@@ -336,6 +338,7 @@ package Chemical "Physical Chemistry (version 1.3.0)"
       "Decadic logarithm of the amount of all clusters in solution";
       constant Real InvLog_10=1/log(10);
       constant Modelica.SIunits.Mass OneKg = 1;
+
 
 
     initial equation
@@ -372,7 +375,16 @@ package Chemical "Physical Chemistry (version 1.3.0)"
         //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
         //TODO: more precise calculation of other properties
 
-        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q + der(molarEnthalpy)*amountOfBaseMolecules + substanceData.SelfClustering_dH*der(amountOfAdditionalBonds);
+
+        //Loss/gain of substance heat to solution based on global current solution temperature:
+        //relation "solution.dH - der(substanceEnthalpy) = solution.dH - der(molarEnthalpy*amountOfBaseMolecules)
+        //           == der((actualStream(port_a.h_outflow) - port_a.h_outflow)*amountOfBaseMolecules)"
+        //is the same as next equation, where "der(amountOfBaseMolecules)=q":
+        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q
+                      + der(molarEnthalpy)*amountOfBaseMolecules+
+                    (if (calculateClusteringHeat) then
+                        substanceData.SelfClustering_dH*der(amountOfAdditionalBonds) else 0);
+
         solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG;
 
       else
@@ -381,7 +393,12 @@ package Chemical "Physical Chemistry (version 1.3.0)"
         amountOfBaseMolecules = amountOfFreeMolecule;
         amountOfAdditionalBonds = 0;
 
-        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q + der(molarEnthalpy)*amountOfBaseMolecules;
+        //Loss/gain of substance heat to solution based on global current solution temperature:
+        //relation "solution.dH - der(substanceEnthalpy) = solution.dH - der(molarEnthalpy*amountOfBaseMolecules)
+        //           == der((actualStream(port_a.h_outflow) - port_a.h_outflow)*amountOfBaseMolecules)"
+        //is the same as next equation, where "der(amountOfBaseMolecules)=q":
+        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q
+                      +der(molarEnthalpy)*amountOfBaseMolecules;
         solution.Gj = amountOfBaseMolecules*port_a.u;
 
       end if;
@@ -876,8 +893,8 @@ package Chemical "Physical Chemistry (version 1.3.0)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
-        =   stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+            stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1354,7 +1371,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        Modelica.Blocks.Interfaces.RealInput
           zeroPressureVolume(unit="m3", displayUnit="l", start=
-            ZeroPressureVolume)=zpv if useV0Input annotation (Placement(
+            FunctionalResidualCapacity)=zpv if useV0Input annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
             rotation=270,
@@ -2608,7 +2625,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       //solution flows
       enthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(substanceData);
-      solution.dH = enthalpy*port_a.q - der(enthalpy)*nFreeBuffer;
+      solution.dH = enthalpy*port_a.q. q - der(enthalpy)*nFreeBuffer;
       solution.i = Modelica.Constants.F * z * port_a.q - Modelica.Constants.F*der(z)*nFreeBuffer;
       solution.dV = molarVolume * port_a.q - der(molarVolume)*nFreeBuffer;
 
