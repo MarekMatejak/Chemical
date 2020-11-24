@@ -6938,7 +6938,7 @@ extends Modelica.Icons.ExamplesPackage;
 <table cellspacing=\"0\" cellpadding=\"2\" border=\"0\">
 <tr>
 <td>[Nelabhotla2019]</td>
-<td>Anirudh Bhanu Teja Nelabhotla, Rune Bakke, Carlos Dinamarca, 
+<td>Anirudh Bhanu Teja Nelabhotla, Rune Bakke, Carlos Dinamarca,
 	\"Performance Analysis of Biocathode in Bioelectrochemical CO2 Reduction\"
 	 Catalysts, 9, 683, 2019,
 	<a href=\"https://doi.org/10.3390/catal9080683\">doi:10.3390/catal9080683</a>.

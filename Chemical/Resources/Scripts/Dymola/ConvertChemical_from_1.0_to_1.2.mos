@@ -73,4 +73,3 @@ convertModifiers("Physiolibrary.Molar.FlowConcentrationMeasure", fill("",0) , {"
 
 convertModifiers("Chemical.Components.Substance",{"amountOfSubstance_start"},{"use_mass_start=false", "amountOfSunstance_start=%amountOfSubstance_start%"}, true);
 convertModifiers("Chemical.Components.Substance",{"substanceData"},{"substanceData=%substanceData%()"}, true);
-

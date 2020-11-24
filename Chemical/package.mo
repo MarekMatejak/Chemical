@@ -529,9 +529,9 @@ package Chemical "Physical Chemistry (version 1.3.0)"
       end if;
 
       // 0 = substrates.q * actualStream(substrates.h_outflow) + products.q * actualStream(products.h_outflow);
-    /*  0 = sum(substrates[j].q*(if 
+    /*  0 = sum(substrates[j].q*(if
                              (substrates[j].q > 0) then h_mix else inStream(substrates[j].h_outflow)) for j in 1:nS)
-     +sum(products[k].q * (if 
+     +sum(products[k].q * (if
                              (products[k].q > 0)   then h_mix else inStream(products[k].h_outflow)) for k in 1:nP);
 */
       annotation (
