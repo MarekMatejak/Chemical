@@ -193,7 +193,24 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (preferredView = "info");
     end Water_gas;
 
-    record Water_liquid "H2O(l)"
+    record Water_liquid_without_selfClustering "H2O(l) without self-clustering"
+     extends Chemical.Interfaces.Incompressible.SubstanceData(
+        MolarWeight=0.018015,
+        DfH=-285840,
+        DfG=-237190,
+        Cp=75.3,
+        References={
+            "http://www.vias.org/genchem/standard_enthalpies_table.html"});
+
+        annotation (preferredView = "info", Documentation(info="<html>
+<p><br><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+</html>"));
+    end Water_liquid_without_selfClustering;
+   //   Cv=74.539,
+
+     // Enthalpy as in H2O(l) = with assumption that hydrogen bonds do not have significant enthaplies
+
+    record Water_liquid "H2O(l) with self-clustering"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
         MolarWeight=0.018015,
         DfH=-285830,
@@ -213,9 +230,6 @@ extends Modelica.Icons.ExamplesPackage;
 <p><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
 </html>"));
     end Water_liquid;
-   //   Cv=74.539,
-
-     // Enthalpy as in H2O(l) = with assumption that hydrogen bonds do not have significant enthaplies
 
     record Water_IceIh "H2O(s) - Ice I h"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
@@ -1285,8 +1299,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
-          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
+        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
       mass_start=0.000106537)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
@@ -2172,15 +2186,16 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
 
     Chemical.Components.Substance Pb(substanceData=Substances.Lead_solid(),
-        use_mass_start=false, amountOfSubstance_start=1)
+        use_mass_start=false,
+      amountOfSubstance_start=50)
       annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
     Chemical.Components.Substance HSO4(substanceData=
           Substances.HydrogenSulfate_aqueous(), use_mass_start=false, amountOfSubstance_start=1)
       annotation (Placement(transformation(extent={{-2,-70},{-22,-50}})));
     Chemical.Components.Substance PbSO4_(substanceData=
           Substances.LeadSulfate_solid(), use_mass_start=false,
-      amountOfSubstance_start=0.001)
-      annotation (Placement(transformation(extent={{50,-32},{30,-12}})));
+      amountOfSubstance_start(displayUnit="mol") = 1e-03)
+      annotation (Placement(transformation(extent={{52,-30},{32,-10}})));
     Chemical.Components.Substance H(substanceData=Substances.Proton_aqueous(),
         use_mass_start=false, amountOfSubstance_start=1)
       annotation (Placement(transformation(extent={{-2,-42},{-22,-22}})));
@@ -2207,11 +2222,12 @@ extends Modelica.Icons.ExamplesPackage;
   Chemical.Components.ElectronTransfer electrone1
       annotation (Placement(transformation(extent={{-72,-38},{-52,-18}})));
     Chemical.Components.Substance PbO2(substanceData=
-          Substances.LeadDioxide_solid(), use_mass_start=false, amountOfSubstance_start=1)
+          Substances.LeadDioxide_solid(), use_mass_start=false,
+      amountOfSubstance_start=50)
       annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={
               -60,-58})));
     Components.Substance        H2O(substanceData=Substances.Water_liquid(),
-        mass_start=0.2)
+        mass_start(displayUnit="g") = 0.114)
       annotation (Placement(transformation(extent={{-2,-8},{-22,12}})));
     Chemical.Components.Substance PbSO4(substanceData=
           Substances.LeadSulfate_solid(), use_mass_start=false,
@@ -2227,6 +2243,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
 
     Real density, molality, totalmolality, voltage;
+    inner Modelica.Fluid.System system(T_ambient=299.15)
+      annotation (Placement(transformation(extent={{62,64},{82,84}})));
   equation
     density = solution1.solution.m/solution1.solution.V;
     totalmolality = solution1.solution.n/((H2O.x*solution1.solution.n)*H2O.substanceData.MolarWeight);
@@ -2242,7 +2260,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
-        points={{30,-22},{26,-22},{26,-2},{16,-2},{16,-6},{11.3333,-6}},
+        points={{32,-20},{26,-20},{26,-2},{16,-2},{16,-6},{11.3333,-6}},
         color={158,66,200},
         thickness=0.5));
     connect(HSO4.solution, solution1.solution) annotation (Line(
@@ -2290,7 +2308,7 @@ extends Modelica.Icons.ExamplesPackage;
       points={{46,-66},{46,-74.92},{51.2,-74.92}},
       color={127,127,0}));
   connect(PbSO4_.solution, anode.solution) annotation (Line(
-      points={{46,-32},{46,-74.92},{51.2,-74.92}},
+      points={{48,-30},{48,-74.92},{51.2,-74.92}},
       color={127,127,0}));
   connect(PbO2.solution, cathode.solution) annotation (Line(
       points={{-66,-68},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
@@ -2324,8 +2342,10 @@ extends Modelica.Icons.ExamplesPackage;
             -76.92}},
       color={127,127,0}));
 
+    connect(electrone.solution, PbSO4_.solution)
+      annotation (Line(points={{46,2},{46,-30},{48,-30}}, color={127,127,0}));
     annotation (
-    experiment(StopTime=50500, __Dymola_Algorithm="Dassl"),
+    experiment(StopTime=50000, __Dymola_Algorithm="Dassl"),
                                 Documentation(revisions=
                       "<html>
 <p><i>2015-2018</i></p>
@@ -6800,8 +6820,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
-          Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
+        = Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
