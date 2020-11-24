@@ -6,7 +6,9 @@ Modelica Library of Chemical processes
 
 ## Current release
 
+
 Download [Chemical 1.3.0 (2020-11-24)](../../archive/v1.3.0.zip)
+
 
 ## Main references
  * Documentations
@@ -58,7 +60,7 @@ Download [Chemical 1.3.0 (2020-11-24)](../../archive/v1.3.0.zip)
 
 ## License (BSD 3-Clause)
 
-Copyright (c) 2008-2015, Marek Mateják, Charles University in Prague
+Copyright (c) 2008-2020, Marek Mateják, Charles University in Prague
 
 All rights reserved. 
 
