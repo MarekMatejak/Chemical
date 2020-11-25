@@ -1303,8 +1303,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
-          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
+        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
       mass_start=0.000106537)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
@@ -6805,8 +6805,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
-          Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
+        = Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (

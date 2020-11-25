@@ -1,5 +1,5 @@
 within ;
-package Chemical "Physical Chemistry (version 1.3.0)"
+package Chemical "Physical Chemistry (version 1.3.1)"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -4338,10 +4338,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
   annotation (
 preferredView="info",
-version="1.3.0",
+version="1.3.1",
 versionBuild=1,
-versionDate="2020-11-24",
-dateModified = "2020-11-24 14:14:41Z",
+versionDate="2020-11-26",
+dateModified = "2020-11-26 14:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
