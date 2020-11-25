@@ -206,8 +206,8 @@ extends Modelica.Icons.ExamplesPackage;
 <p><br><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
 </html>"));
     end Water_liquid_without_selfClustering;
-   
-//   Cv=74.539,
+
+    //   Cv=74.539,
     // Enthalpy as in H2O(l) = with assumption that hydrogen bonds do not have significant enthaplies
 
     record Water_liquid "H2O(l) with self-clustering"
@@ -222,7 +222,7 @@ extends Modelica.Icons.ExamplesPackage;
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html"});
 
-// S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
+      // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
       // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25),
       annotation (preferredView = "info", Documentation(info="<html>
 <p><span style=\"font-family: Courier New;\">Even the tabulated formation Gibbs energy is DfG=-237190 there is another values because of water self-clustering. </span></p>
@@ -1086,7 +1086,7 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{40,40},{20,60}})));
 
-//  Modelica.SIunits.HeatFlowRate q
+    //  Modelica.SIunits.HeatFlowRate q
     //    "Heat flow to environment to reach constant temperature";
     Modelica.SIunits.Temperature t
       "Temperature if the solution is ideally thermal isolated from environment";
@@ -1108,7 +1108,7 @@ extends Modelica.Icons.ExamplesPackage;
           298.15)
       annotation (Placement(transformation(extent={{-88,26},{-68,46}})));
   equation
-//  q = fixedTemperature.port.Q_flow;
+    //  q = fixedTemperature.port.Q_flow;
     t = thermal_isolated_solution.solution.T;
 
     connect(A.port_a, reaction.substrates[1]) annotation (Line(
@@ -1184,7 +1184,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     parameter Modelica.SIunits.Area A=0.01 "Cross area of cylinder";
 
-//p*V=n*R*T
+    //p*V=n*R*T
     // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
     //   "Initial amount of substances in sulution";
     Chemical.Components.Solution idealGas(
@@ -1295,7 +1295,7 @@ extends Modelica.Icons.ExamplesPackage;
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-98,-98},{-6,-8}})));
 
-//  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+    //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Components.Solution gas(
       temperature_start=T_start,
       useThermalPort=true,
@@ -1377,7 +1377,7 @@ extends Modelica.Icons.ExamplesPackage;
      parameter Modelica.SIunits.Temperature T_start=273.15-50
       "Initial temperature";
 
-//  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+    //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Components.Solution gas(
       temperature_start=T_start,
       useThermalPort=true,
@@ -1917,7 +1917,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solution
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-//The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
+    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
     Chemical.Components.Substance P(substanceData(DfG=-Modelica.Constants.R*
             298.15*50),
       use_mass_start=false,
@@ -1960,7 +1960,7 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Substance liquidWater(substanceData=Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
   equation
-//Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
     connect(S.port_a, chemicalReaction.substrates[1]) annotation (Line(
         points={{-72,-4},{-56,-4},{-56,2},{-42,2}},
         color={158,66,200},
@@ -2686,7 +2686,7 @@ extends Modelica.Icons.ExamplesPackage;
         extends Modelica.Icons.Example;
 
       parameter Real KC=1e-3;
-  //e-6 "Slow down factor";
+      //e-6 "Slow down factor";
       Chemical.Components.Solution blood_erythrocytes(ElectricGround=false,
           temperature_start=310.15)
         annotation (Placement(transformation(extent={{-100,-98},{100,-38}})));
@@ -2960,7 +2960,7 @@ extends Modelica.Icons.ExamplesPackage;
         extends Modelica.Icons.Example;
 
         parameter Real KC=1;
-  //e-6 "Slow down factor";
+        //e-6 "Slow down factor";
         Chemical.Components.Solution blood_erythrocytes(ElectricGround=false)
           annotation (Placement(transformation(extent={{-180,-100},{180,-10}})));
         Chemical.Components.Solution blood_plasma annotation (Placement(
@@ -3524,7 +3524,7 @@ extends Modelica.Icons.ExamplesPackage;
       constant Real KRx=(KR*OneLiter)
         "Mole fraction based KR";
 
-//Relative Gibbs formation energies of the substances in the system:
+      //Relative Gibbs formation energies of the substances in the system:
       constant Modelica.SIunits.MolarEnergy
         GO2aq=-RT*log(0.0013),
         GR0=0,                            GT0=GR0 -RT*log(L),
@@ -3865,7 +3865,7 @@ extends Modelica.Icons.ExamplesPackage;
       constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
       constant Real RT=Modelica.Constants.R*T;
 
-// constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -3881,9 +3881,9 @@ extends Modelica.Icons.ExamplesPackage;
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
       parameter Modelica.SIunits.MoleFraction KRx = KR*OneLiter;
-  //AmountOfSolutionIn1L;
+      //AmountOfSolutionIn1L;
       parameter Modelica.SIunits.MoleFraction KTx = KT*OneLiter;
-  //AmountOfSolutionIn1L;
+      //AmountOfSolutionIn1L;
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
       parameter Modelica.SIunits.ChemicalPotential DfG_uR = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_uRO2 = DfG_uR + DfG_O2 + RT * log(KRx);
@@ -4347,7 +4347,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-// constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -4378,8 +4378,8 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-11
-        "Initial CO at 37degC, pCO=0mmHg";          
-//at 25degC: 3.267e-5;
+        "Initial CO at 37degC, pCO=0mmHg";
+      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
       parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
 
@@ -4882,7 +4882,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-// constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
+      // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
       constant Modelica.SIunits.Volume OneLiter = 0.001;
 
@@ -4913,8 +4913,8 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-10
-        "Initial CO at 37degC, pCO=0mmHg";          
-//at 25degC: 3.267e-5;
+        "Initial CO at 37degC, pCO=0mmHg";
+      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
       parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
 
@@ -5172,7 +5172,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRcx and KTcx at 25degC";
 
-//  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
+      //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
       //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH;
       parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
@@ -5394,7 +5394,7 @@ extends Modelica.Icons.ExamplesPackage;
           points={{60,-2},{60,-2}},
           color={158,66,200}));
 
-      annotation (          experiment(StopTime=15000),
+      annotation (
         Documentation(revisions="<html>
 <p><i>2013-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5442,7 +5442,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
       parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
 
-//  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
+      //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
@@ -5456,8 +5456,8 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-10
-        "Initial CO at 37degC, pCO=0mmHg";          
-//at 25degC: 3.267e-5;
+        "Initial CO at 37degC, pCO=0mmHg";
+      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
       parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
 
@@ -5549,15 +5549,15 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure2(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={62,32})));
 
-//  Real sO2 "Hemoglobin oxygen saturation";
+      //  Real sO2 "Hemoglobin oxygen saturation";
       Real sCO "Hemoglobin carbon monoxide saturation";
       Real sCO2 "Hemoglobin carbon dioxide saturation";
       Real dH "Hemoglobin charge change caused by binding of Bohr's protons";
     equation
-//  sO2 = (sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x)) /
-//  (sum(relaxed.DeoxyHm.x) + sum(tensed.DeoxyHm.x) + sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x));
+      //  sO2 = (sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x)) /
+      //  (sum(relaxed.DeoxyHm.x) + sum(tensed.DeoxyHm.x) + sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x));
       sCO = (sum(relaxed.COHm.x) + sum(tensed.COHm.x)) / (sum(relaxed.DeoxyHm.x) + sum(tensed.DeoxyHm.x) + sum(relaxed.COHm.x) + sum(tensed.COHm.x));
-//+ sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x));
+      //+ sum(relaxed.OxyHm.x) + sum(tensed.OxyHm.x));
       sCO2 = (sum(relaxed.HmNHCOO.x) + sum(tensed.HmNHCOO.x)) / (sum(relaxed.HmNH3.x) + sum(tensed.HmNH3.x) + sum(relaxed.HmNH2.x) + sum(tensed.HmNH2.x) + sum(relaxed.HmNHCOO.x) + sum(tensed.HmNHCOO.x));
 
       dH = (sum(relaxed.HmNH3.x) + sum(tensed.HmNH3.x) - sum(relaxed.HmNHCOO.x) - sum(tensed.HmNHCOO.x) - sum(relaxed.HmA.x) - sum(tensed.HmA.x)) /
@@ -5703,8 +5703,8 @@ extends Modelica.Icons.ExamplesPackage;
         "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
-        "Initial CO2 at 37degC, pCO2=40mmHg";          
-//at 25degC: 3.267e-5;
+        "Initial CO2 at 37degC, pCO2=40mmHg";
+      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
       parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
 
@@ -5931,8 +5931,8 @@ extends Modelica.Icons.ExamplesPackage;
         "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
-        "Initial CO2 at 37degC, pCO2=40mmHg";          
-//at 25degC: 3.267e-5;
+        "Initial CO2 at 37degC, pCO2=40mmHg";
+      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
       parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
 
