@@ -893,8 +893,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
-        =   stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+            stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
