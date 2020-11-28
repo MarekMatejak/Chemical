@@ -710,24 +710,13 @@ extends Modelica.Icons.ExamplesPackage;
               X_default=ones(nX),
               C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913});
 
-            extends Chemical.Interfaces.PartialMedium_C(
-               redeclare package stateOfMatter = Interfaces.Incompressible,
-          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-          mediumName="WaterIF97",
-          substanceNames={"water"},
-          fixedX=true,
-          reference_p(start=50e5),
-          reference_T(start=500),
-          p_default(start=50e5),
-          h_default(start=1.0e5),
-          extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
-              "Glb","Others","H2O"},
-          singleState=true,
-          T_default(start=500) = 310.15,
-          X_default=ones(nX),
-          default_density=1000,
-          C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913},
-          substanceData={Examples.Substances.Sodium_aqueous(),
+            package stateOfMatter = Chemical.Interfaces.Incompressible
+            "Substances model to translate data into substance properties";
+            constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+            constant Modelica.SIunits.Density default_density = 1000;
+
+            constant stateOfMatter.SubstanceData substanceData[nC] = {
+              Examples.Substances.Sodium_aqueous(),
               Examples.Substances.Bicarbonate_aqueous(),
               Examples.Substances.Potassium_aqueous(),
               Examples.Substances.Glucose_solid(),
@@ -737,9 +726,41 @@ extends Modelica.Icons.ExamplesPackage;
               Examples.Substances.Magnesium_aqueous(),
               Examples.Substances.Albumin_aqueous(),
               Examples.Substances.Globulins_aqueous(),
-              Examples.Substances.Water_liquid(),Examples.Substances.Water_liquid()});
+              Examples.Substances.Water_liquid_without_selfClustering(),
+              Examples.Substances.Water_liquid()}
+               "Definition of the substances";
 
+          /*
+  extends Chemical.Interfaces.PartialMedium_C(
+     redeclare package stateOfMatter = Interfaces.Incompressible,
+ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+mediumName="WaterIF97",
+substanceNames={"water"},
+fixedX=true,
+reference_p(start=50e5),
+reference_T(start=500),
+p_default(start=50e5),
+h_default(start=1.0e5),
+extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
+    "Glb","Others","H2O"},
+singleState=true,
+T_default(start=500) = 310.15,
+X_default=ones(nX),
+default_density=1000,
+C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913},
+substanceData={Examples.Substances.Sodium_aqueous(),
+    Examples.Substances.Bicarbonate_aqueous(),
+    Examples.Substances.Potassium_aqueous(),
+    Examples.Substances.Glucose_solid(),
+    Examples.Substances.Urea_aqueous(),
+    Examples.Substances.Chloride_aqueous(),
+    Examples.Substances.Calcium_aqueous(),
+    Examples.Substances.Magnesium_aqueous(),
+    Examples.Substances.Albumin_aqueous(),
+    Examples.Substances.Globulins_aqueous(),
+    Examples.Substances.Water_liquid(),Examples.Substances.Water_liquid()});
 
+*/
 
 
           end SimpleBodyFluid_C;
@@ -749,24 +770,33 @@ extends Modelica.Icons.ExamplesPackage;
          extraPropertiesNames={"H2O"},
          singleState=true, T_default=310.15, X_default=ones(nX),  C_default={1000});
 
-        extends Chemical.Interfaces.PartialMedium_C(
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-          mediumName="WaterIF97",
-          substanceNames={"water"},
-          fixedX=true,
-          reference_p(start=50e5),
-          reference_T(start=500),
-          p_default(start=50e5),
-          h_default(start=1.0e5),
-          extraPropertiesNames={"H2O"},
-          singleState=true,
-          T_default(start=500) = 310.15,
-          X_default=ones(nX),
-          C_default={1000},
-          substanceData={Examples.Substances.Water_liquid()});
+        package stateOfMatter = Chemical.Interfaces.Incompressible
+        "Substances model to translate data into substance properties";
+        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+        constant Modelica.SIunits.Density default_density = 1000;
 
+        constant stateOfMatter.SubstanceData substanceData[nC] = {
+          Examples.Substances.Water_liquid()}
+           "Definition of the substances";
+      /*     
+  extends Chemical.Interfaces.PartialMedium_C(
+    redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+    mediumName="WaterIF97",
+    substanceNames={"water"},
+    fixedX=true,
+    reference_p(start=50e5),
+    reference_T(start=500),
+    p_default(start=50e5),
+    h_default(start=1.0e5),
+    extraPropertiesNames={"H2O"},
+    singleState=true,
+    T_default(start=500) = 310.15,
+    X_default=ones(nX),
+    C_default={1000},
+    substanceData={Examples.Substances.Water_liquid()});
 
+*/
 
       end StandardWater_C;
 
@@ -776,24 +806,34 @@ extends Modelica.Icons.ExamplesPackage;
          extraPropertiesNames={"H2O","C2H5OH"},
          singleState=true, T_default=310.15, X_default=ones(nX), C_default={500,500});
 
-        extends Chemical.Interfaces.PartialMedium_C(
-          redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-          mediumName="WaterIF97",
-          substanceNames={"water"},
-          fixedX=true,
-          reference_p(start=50e5),
-          reference_T(start=500),
-          p_default(start=50e5),
-          h_default(start=1.0e5),
-          extraPropertiesNames={"H2O","C2H5OH"},
-          singleState=true,
-          T_default(start=500) = 310.15,
-          X_default=ones(nX),
-          C_default={500,500},
-          substanceData={Examples.Substances.Water_liquid(),
-              Examples.Substances.Ethanol_liquid()});
+        package stateOfMatter = Chemical.Interfaces.Incompressible
+        "Substances model to translate data into substance properties";
+        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+        constant Modelica.SIunits.Density default_density = 1000;
 
+        constant stateOfMatter.SubstanceData substanceData[nC] = {
+          Examples.Substances.Water_liquid(),
+              Examples.Substances.Ethanol_liquid()}
+           "Definition of the substances";
+      /*     
+  extends Chemical.Interfaces.PartialMedium_C(
+    redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
+    mediumName="WaterIF97",
+    substanceNames={"water"},
+    fixedX=true,
+    reference_p(start=50e5),
+    reference_T(start=500),
+    p_default(start=50e5),
+    h_default(start=1.0e5),
+    extraPropertiesNames={"H2O","C2H5OH"},
+    singleState=true,
+    T_default(start=500) = 310.15,
+    X_default=ones(nX),
+    C_default={500,500},
+    substanceData={Examples.Substances.Water_liquid(),
+        Examples.Substances.Ethanol_liquid()});
+*/
 
 
 
@@ -805,25 +845,38 @@ extends Modelica.Icons.ExamplesPackage;
          extraPropertiesNames={"O2","CO2","H2O","Others"},
          T_default=310.15, X_default=ones(nX), C_default={21,0.04,2,76.96});
 
-        extends Chemical.Interfaces.PartialMedium_C(
-          redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
-          mediumName="SimpleAir",
-          substanceNames={mediumName},
-          singleState=false,
-          fixedX=true,
-          reference_p(start=1.e5),
-          reference_T(start=288.15),
-          p_default(start=1.e5),
-          extraPropertiesNames={"O2","CO2","H2O","Others"},
-          T_default=310.15,
-          X_default=ones(nX),
-          C_default={21,0.04,2,76.96},
-          default_density=1.14,
-          substanceData={Examples.Substances.Oxygen_gas(),
-              Examples.Substances.CarbonDioxide_gas(),
-              Examples.Substances.Water_gas(),Examples.Substances.Nitrogen_gas()});
 
+        package stateOfMatter = Chemical.Interfaces.IdealGas
+        "Substances model to translate data into substance properties";
+        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+        constant Modelica.SIunits.Density default_density = 1000;
+
+        constant stateOfMatter.SubstanceData substanceData[nC] = {
+          Examples.Substances.Oxygen_gas(),
+          Examples.Substances.CarbonDioxide_gas(),
+          Examples.Substances.Water_gas(),
+          Examples.Substances.Nitrogen_gas()}
+           "Definition of the substances";
+      /*     
+  extends Chemical.Interfaces.PartialMedium_C(
+    redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
+    mediumName="SimpleAir",
+    substanceNames={mediumName},
+    singleState=false,
+    fixedX=true,
+    reference_p(start=1.e5),
+    reference_T(start=288.15),
+    p_default(start=1.e5),
+    extraPropertiesNames={"O2","CO2","H2O","Others"},
+    T_default=310.15,
+    X_default=ones(nX),
+    C_default={21,0.04,2,76.96},
+    default_density=1.14,
+    substanceData={Examples.Substances.Oxygen_gas(),
+        Examples.Substances.CarbonDioxide_gas(),
+        Examples.Substances.Water_gas(),Examples.Substances.Nitrogen_gas()});
+*/
 
 
 
@@ -836,23 +889,32 @@ extends Modelica.Icons.ExamplesPackage;
          extraPropertiesNames={"O2"},
          T_default=310.15, X_default=ones(nX), C_default={1.14});
 
-        extends Chemical.Interfaces.PartialMedium_C(
-          redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-          ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
-          mediumName="SimpleAir",
-          substanceNames={mediumName},
-          singleState=false,
-          fixedX=true,
-          reference_p(start=1.e5),
-          reference_T(start=288.15),
-          p_default(start=1.e5),
-          extraPropertiesNames={"O2"},
-          T_default=310.15,
-          X_default=ones(nX),
-          C_default={1.14},
-          default_density=1.14,
-          substanceData={Examples.Substances.Oxygen_gas()});
+        package stateOfMatter = Chemical.Interfaces.IdealGas
+        "Substances model to translate data into substance properties";
+        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
+        constant Modelica.SIunits.Density default_density = 1000;
 
+        constant stateOfMatter.SubstanceData substanceData[nC] = {
+          Examples.Substances.Oxygen_gas()}
+           "Definition of the substances";
+      /* 
+  extends Chemical.Interfaces.PartialMedium_C(
+    redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
+    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
+    mediumName="SimpleAir",
+    substanceNames={mediumName},
+    singleState=false,
+    fixedX=true,
+    reference_p(start=1.e5),
+    reference_T(start=288.15),
+    p_default(start=1.e5),
+    extraPropertiesNames={"O2"},
+    T_default=310.15,
+    X_default=ones(nX),
+    C_default={1.14},
+    default_density=1.14,
+    substanceData={Examples.Substances.Oxygen_gas()});
+*/
 
 
 
@@ -2347,8 +2409,6 @@ extends Modelica.Icons.ExamplesPackage;
             -76.92}},
       color={127,127,0}));
 
-    connect(electrone.solution, PbSO4_.solution)
-      annotation (Line(points={{46,2},{46,-30},{48,-30}}, color={127,127,0}));
     annotation (
     experiment(StopTime=47800, __Dymola_Algorithm="Dassl"),
                                 Documentation(revisions=
