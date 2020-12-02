@@ -700,6 +700,68 @@ extends Modelica.Icons.ExamplesPackage;
   end Substances;
 
   package Media
+      package SimpleAir
+
+        extends Modelica.Media.IdealGases.Common.MixtureGasNasa(
+          mediumName="SimpleAir2",
+          data={
+            Modelica.Media.IdealGases.Common.SingleGasesData.O2,
+            Modelica.Media.IdealGases.Common.SingleGasesData.CO2,
+            Modelica.Media.IdealGases.Common.SingleGasesData.H2O,
+            Modelica.Media.IdealGases.Common.SingleGasesData.N2},
+          fluidConstants={
+            Modelica.Media.IdealGases.Common.FluidData.O2,
+            Modelica.Media.IdealGases.Common.FluidData.CO2,
+            Modelica.Media.IdealGases.Common.FluidData.H2O,
+            Modelica.Media.IdealGases.Common.FluidData.N2},
+          substanceNames = {"Oxygen", "Carbondioxyde", "Water", "Nitrogen"},
+          reference_X={
+            0.21,
+            0.0004,
+            0.002,
+            0.7696},
+          T_default=310.15);
+
+
+        package stateOfMatter = Chemical.Interfaces.IdealGasMSL
+        "Substances model to translate data into substance properties";
+        constant Integer nCS=nX "Number of chemical substances";
+
+        constant stateOfMatter.SubstanceData substanceData[nCS] = {
+          Chemical.Interfaces.IdealGasMSL.SubstanceData(
+                                                      data=data[i]) for i in 1:nX}
+           "Definition of the substances";
+
+        function C_outflow
+         input ThermodynamicState state;
+         input Modelica.SIunits.MassFraction x_mass[nCS];
+         output Real C_outflow[nC];
+        algorithm
+          C_outflow := C_default;
+          annotation(Inline=true);
+        end C_outflow;
+
+        function Xi_outflow
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Modelica.SIunits.MassFraction Xi[nXi];
+        algorithm
+          Xi := x_mass[1:nXi];
+          annotation(Inline=true);
+        end Xi_outflow;
+
+        function x_mass
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+          input Real actualStream_C[nC];
+          output Modelica.SIunits.MassFraction x_mass[nCS];
+        algorithm
+          x_mass := actualStream_Xi;
+          annotation(Inline=true);
+        end x_mass;
+
+      end SimpleAir;
+
           package SimpleBodyFluid_C
 
             extends Modelica.Media.Water.StandardWater(
@@ -712,10 +774,10 @@ extends Modelica.Icons.ExamplesPackage;
 
             package stateOfMatter = Chemical.Interfaces.Incompressible
             "Substances model to translate data into substance properties";
-            constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-            constant Modelica.SIunits.Density default_density = 1000;
 
-            constant stateOfMatter.SubstanceData substanceData[nC] = {
+            constant Integer nCS=nC "Number of chemical substances";
+
+            constant stateOfMatter.SubstanceData substanceData[nCS] = {
               Examples.Substances.Sodium_aqueous(),
               Examples.Substances.Bicarbonate_aqueous(),
               Examples.Substances.Potassium_aqueous(),
@@ -730,37 +792,34 @@ extends Modelica.Icons.ExamplesPackage;
               Examples.Substances.Water_liquid()}
                "Definition of the substances";
 
-          /*
-  extends Chemical.Interfaces.PartialMedium_C(
-     redeclare package stateOfMatter = Interfaces.Incompressible,
-ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-mediumName="WaterIF97",
-substanceNames={"water"},
-fixedX=true,
-reference_p(start=50e5),
-reference_T(start=500),
-p_default(start=50e5),
-h_default(start=1.0e5),
-extraPropertiesNames={"Na","Bic","K","Glu","Urea","Cl","Ca","Mg","Alb",
-    "Glb","Others","H2O"},
-singleState=true,
-T_default(start=500) = 310.15,
-X_default=ones(nX),
-default_density=1000,
-C_default={135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,913},
-substanceData={Examples.Substances.Sodium_aqueous(),
-    Examples.Substances.Bicarbonate_aqueous(),
-    Examples.Substances.Potassium_aqueous(),
-    Examples.Substances.Glucose_solid(),
-    Examples.Substances.Urea_aqueous(),
-    Examples.Substances.Chloride_aqueous(),
-    Examples.Substances.Calcium_aqueous(),
-    Examples.Substances.Magnesium_aqueous(),
-    Examples.Substances.Albumin_aqueous(),
-    Examples.Substances.Globulins_aqueous(),
-    Examples.Substances.Water_liquid(),Examples.Substances.Water_liquid()});
 
-*/
+            function C_outflow "Outflow values for extra properties of fluid connector"
+              input ThermodynamicState state;
+              input Modelica.SIunits.MassFraction x_mass[nCS];
+              output Real C_outflow[nC];
+            algorithm
+                C_outflow := x_mass[1:nC] ./ stateOfMatter.molarMass(substanceData);
+                annotation(Inline=true);
+            end C_outflow;
+
+            function Xi_outflow "Outflow values for mass fracion of fluid connector"
+              input ThermodynamicState state;
+              input Modelica.SIunits.MassFraction x_mass[nCS];
+              output Modelica.SIunits.MassFraction Xi[nXi];
+            algorithm
+              Xi := X_default[1:nXi];
+              annotation(Inline=true);
+            end Xi_outflow;
+
+            function x_mass "Mass fractions from actual streams of fluid connector"
+              input ThermodynamicState state;
+              input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+              input Real actualStream_C[nC];
+              output Modelica.SIunits.MassFraction x_mass[nCS];
+            algorithm
+              x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
+              annotation(Inline=true);
+            end x_mass;
 
 
           end SimpleBodyFluid_C;
@@ -772,31 +831,43 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 
         package stateOfMatter = Chemical.Interfaces.Incompressible
         "Substances model to translate data into substance properties";
-        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-        constant Modelica.SIunits.Density default_density = 1000;
 
-        constant stateOfMatter.SubstanceData substanceData[nC] = {
+        constant Integer nCS=nC "Number of chemical substances";
+
+        constant stateOfMatter.SubstanceData substanceData[nCS] = {
           Examples.Substances.Water_liquid()}
            "Definition of the substances";
-      /*     
-  extends Chemical.Interfaces.PartialMedium_C(
-    redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-    mediumName="WaterIF97",
-    substanceNames={"water"},
-    fixedX=true,
-    reference_p(start=50e5),
-    reference_T(start=500),
-    p_default(start=50e5),
-    h_default(start=1.0e5),
-    extraPropertiesNames={"H2O"},
-    singleState=true,
-    T_default(start=500) = 310.15,
-    X_default=ones(nX),
-    C_default={1000},
-    substanceData={Examples.Substances.Water_liquid()});
 
-*/
+
+
+        function C_outflow "Outflow values for extra properties of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Real C_outflow[nC];
+        algorithm
+            C_outflow := x_mass[1:nC] ./ stateOfMatter.molarMass(substanceData);
+            annotation(Inline=true);
+        end C_outflow;
+
+        function Xi_outflow "Outflow values for mass fracion of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Modelica.SIunits.MassFraction Xi[nXi];
+        algorithm
+          Xi := X_default[1:nXi];
+          annotation(Inline=true);
+        end Xi_outflow;
+
+        function x_mass "Mass fractions from actual streams of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+          input Real actualStream_C[nC];
+          output Modelica.SIunits.MassFraction x_mass[nCS];
+        algorithm
+          x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
+          annotation(Inline=true);
+        end x_mass;
+
 
       end StandardWater_C;
 
@@ -808,32 +879,42 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 
         package stateOfMatter = Chemical.Interfaces.Incompressible
         "Substances model to translate data into substance properties";
-        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-        constant Modelica.SIunits.Density default_density = 1000;
 
-        constant stateOfMatter.SubstanceData substanceData[nC] = {
+        constant Integer nCS=nC "Number of chemical substances";
+
+        constant stateOfMatter.SubstanceData substanceData[nCS] = {
           Examples.Substances.Water_liquid(),
               Examples.Substances.Ethanol_liquid()}
            "Definition of the substances";
-      /*     
-  extends Chemical.Interfaces.PartialMedium_C(
-    redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.ph,
-    mediumName="WaterIF97",
-    substanceNames={"water"},
-    fixedX=true,
-    reference_p(start=50e5),
-    reference_T(start=500),
-    p_default(start=50e5),
-    h_default(start=1.0e5),
-    extraPropertiesNames={"H2O","C2H5OH"},
-    singleState=true,
-    T_default(start=500) = 310.15,
-    X_default=ones(nX),
-    C_default={500,500},
-    substanceData={Examples.Substances.Water_liquid(),
-        Examples.Substances.Ethanol_liquid()});
-*/
+
+        function C_outflow "Outflow values for extra properties of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Real C_outflow[nC];
+        algorithm
+            C_outflow := x_mass[1:nC] ./ stateOfMatter.molarMass(substanceData);
+            annotation(Inline=true);
+        end C_outflow;
+
+        function Xi_outflow "Outflow values for mass fracion of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Modelica.SIunits.MassFraction Xi[nXi];
+        algorithm
+          Xi := X_default[1:nXi];
+          annotation(Inline=true);
+        end Xi_outflow;
+
+        function x_mass "Mass fractions from actual streams of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+          input Real actualStream_C[nC];
+          output Modelica.SIunits.MassFraction x_mass[nCS];
+        algorithm
+          x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
+          annotation(Inline=true);
+        end x_mass;
+
 
 
 
@@ -848,8 +929,8 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 
         package stateOfMatter = Chemical.Interfaces.IdealGas
         "Substances model to translate data into substance properties";
-        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-        constant Modelica.SIunits.Density default_density = 1000;
+
+        constant Integer nCS=nC "Number of chemical substances";
 
         constant stateOfMatter.SubstanceData substanceData[nC] = {
           Examples.Substances.Oxygen_gas(),
@@ -857,29 +938,34 @@ substanceData={Examples.Substances.Sodium_aqueous(),
           Examples.Substances.Water_gas(),
           Examples.Substances.Nitrogen_gas()}
            "Definition of the substances";
-      /*     
-  extends Chemical.Interfaces.PartialMedium_C(
-    redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
-    mediumName="SimpleAir",
-    substanceNames={mediumName},
-    singleState=false,
-    fixedX=true,
-    reference_p(start=1.e5),
-    reference_T(start=288.15),
-    p_default(start=1.e5),
-    extraPropertiesNames={"O2","CO2","H2O","Others"},
-    T_default=310.15,
-    X_default=ones(nX),
-    C_default={21,0.04,2,76.96},
-    default_density=1.14,
-    substanceData={Examples.Substances.Oxygen_gas(),
-        Examples.Substances.CarbonDioxide_gas(),
-        Examples.Substances.Water_gas(),Examples.Substances.Nitrogen_gas()});
-*/
 
+        function C_outflow "Outflow values for extra properties of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Real C_outflow[nC];
+        algorithm
+            C_outflow := x_mass[1:nC] ./ stateOfMatter.molarMass(substanceData);
+            annotation(Inline=true);
+        end C_outflow;
 
+        function Xi_outflow "Outflow values for mass fracion of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Modelica.SIunits.MassFraction Xi[nXi];
+        algorithm
+          Xi := X_default[1:nXi];
+          annotation(Inline=true);
+        end Xi_outflow;
 
+        function x_mass "Mass fractions from actual streams of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+          input Real actualStream_C[nC];
+          output Modelica.SIunits.MassFraction x_mass[nCS];
+        algorithm
+          x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
+          annotation(Inline=true);
+        end x_mass;
 
       end SimpleAir_C;
 
@@ -891,30 +977,40 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 
         package stateOfMatter = Chemical.Interfaces.IdealGas
         "Substances model to translate data into substance properties";
-        constant Modelica.SIunits.MassFraction Xi_default[nXi]=ones(nXi);
-        constant Modelica.SIunits.Density default_density = 1000;
+
+        constant Integer nCS=nC "Number of chemical substances";
 
         constant stateOfMatter.SubstanceData substanceData[nC] = {
           Examples.Substances.Oxygen_gas()}
            "Definition of the substances";
-      /* 
-  extends Chemical.Interfaces.PartialMedium_C(
-    redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-    ThermoStates=Modelica.Media.Interfaces.Choices.IndependentVariables.pT,
-    mediumName="SimpleAir",
-    substanceNames={mediumName},
-    singleState=false,
-    fixedX=true,
-    reference_p(start=1.e5),
-    reference_T(start=288.15),
-    p_default(start=1.e5),
-    extraPropertiesNames={"O2"},
-    T_default=310.15,
-    X_default=ones(nX),
-    C_default={1.14},
-    default_density=1.14,
-    substanceData={Examples.Substances.Oxygen_gas()});
-*/
+
+        function C_outflow "Outflow values for extra properties of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Real C_outflow[nC];
+        algorithm
+            C_outflow := x_mass[1:nC] ./ stateOfMatter.molarMass(substanceData);
+            annotation(Inline=true);
+        end C_outflow;
+
+        function Xi_outflow "Outflow values for mass fracion of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction x_mass[nCS];
+          output Modelica.SIunits.MassFraction Xi[nXi];
+        algorithm
+          Xi := X_default[1:nXi];
+          annotation(Inline=true);
+        end Xi_outflow;
+
+        function x_mass "Mass fractions from actual streams of fluid connector"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+          input Real actualStream_C[nC];
+          output Modelica.SIunits.MassFraction x_mass[nCS];
+        algorithm
+          x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
+          annotation(Inline=true);
+        end x_mass;
 
 
 
@@ -1263,7 +1359,7 @@ substanceData={Examples.Substances.Sodium_aqueous(),
       useMechanicPorts=true,
       useThermalPort=true,
       redeclare package stateOfMatter = Interfaces.IdealGas)
-      annotation (Placement(transformation(extent={{-50,-56},{50,44}})));
+      annotation (Placement(transformation(extent={{-108,-50},{-8,50}})));
                      // AmbientPressure=p)
     //  volume_start=V,
     Chemical.Components.Substance H2_gas(
@@ -1271,74 +1367,147 @@ substanceData={Examples.Substances.Sodium_aqueous(),
       substanceData=Substances.Hydrogen_gas(),
       use_mass_start=false,
       amountOfSubstance_start=0.026)
-      annotation (Placement(transformation(extent={{-40,-32},{-20,-12}})));
+      annotation (Placement(transformation(extent={{-98,-26},{-78,-6}})));
     Chemical.Components.Substance O2_gas(
       substanceData=Substances.Oxygen_gas(),
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       use_mass_start=false,
       amountOfSubstance_start=0.013)
-      annotation (Placement(transformation(extent={{-40,4},{-20,24}})));
+      annotation (Placement(transformation(extent={{-98,10},{-78,30}})));
     Chemical.Components.Substance H2O_gas(substanceData=Substances.Water_gas(),
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       use_mass_start=false,
       amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{44,-14},{24,6}})));
+      annotation (Placement(transformation(extent={{-14,-8},{-34,12}})));
     Chemical.Components.Reaction reaction(
       nS=2,
       s={2,1},
       p={2},
       kE=4e-05,
-      nP=1) annotation (Placement(transformation(extent={{-10,-14},{10,6}})));
+      nP=1) annotation (Placement(transformation(extent={{-68,-8},{-48,12}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
         Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=90,
-          origin={0,58})));
+          origin={-58,64})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=2)
-      annotation (Placement(transformation(extent={{-40,-86},{-20,-66}})));
+      annotation (Placement(transformation(extent={{-98,-80},{-78,-60}})));
     Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature(T=298.15)
-      annotation (Placement(transformation(extent={{40,-86},{20,-66}})));
+      annotation (Placement(transformation(extent={{-18,-80},{-38,-60}})));
     Modelica.Mechanics.Translational.Components.Fixed fixed
       annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=180,
-          origin={0,72})));
+          origin={-58,78})));
     Modelica.Mechanics.Translational.Components.Fixed fixed1
-      annotation (Placement(transformation(extent={{-10,-72},{10,-52}})));
+      annotation (Placement(transformation(extent={{-68,-66},{-48,-46}})));
+    Components.Solution          idealGas1(
+      SurfaceArea=A,
+      useMechanicPorts=true,
+      useThermalPort=true,
+      redeclare package stateOfMatter = Interfaces.IdealGas)
+      annotation (Placement(transformation(extent={{18,-52},{118,48}})));
+    Components.Substance H2_gas1(
+      redeclare package stateOfMatter = Interfaces.IdealGasMSL,
+      substanceData(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2),
+      use_mass_start=false,
+      amountOfSubstance_start=0.026)
+      annotation (Placement(transformation(extent={{28,-28},{48,-8}})));
+    Components.Substance O2_gas1(
+      substanceData(data=Modelica.Media.IdealGases.Common.SingleGasesData.O2),
+      redeclare package stateOfMatter = Interfaces.IdealGasMSL,
+      use_mass_start=false,
+      amountOfSubstance_start=0.013)
+      annotation (Placement(transformation(extent={{28,8},{48,28}})));
+    Components.Substance H2O_gas1(
+      substanceData(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2O),
+
+      redeclare package stateOfMatter = Interfaces.IdealGasMSL,
+      use_mass_start=false,
+      amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{112,-10},{92,10}})));
+    Components.Reaction          reaction1(
+      nS=2,
+      s={2,1},
+      p={2},
+      kE=4e-05,
+      nP=1) annotation (Placement(transformation(extent={{58,-10},{78,10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring1(c=1e6)
+                                                                     annotation (
+        Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={68,62})));
+    Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor1(G=2)
+      annotation (Placement(transformation(extent={{28,-82},{48,-62}})));
+    Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature1(T=298.15)
+      annotation (Placement(transformation(extent={{108,-82},{88,-62}})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed2
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=180,
+          origin={68,76})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed3
+      annotation (Placement(transformation(extent={{58,-68},{78,-48}})));
   equation
   connect(H2_gas.port_a, reaction.substrates[1]) annotation (Line(
-      points={{-20,-22},{-16,-22},{-16,-2},{-10,-2}},
+      points={{-78,-16},{-74,-16},{-74,4},{-68,4}},
       color={158,66,200},
       thickness=1));
   connect(O2_gas.port_a, reaction.substrates[2]) annotation (Line(
-      points={{-20,14},{-16,14},{-16,-6},{-10,-6}},
+      points={{-78,20},{-74,20},{-74,0},{-68,0}},
       color={158,66,200},
       thickness=1));
   connect(H2_gas.solution, idealGas.solution) annotation (Line(
-      points={{-36,-32},{30,-32},{30,-55}},
+      points={{-94,-26},{-28,-26},{-28,-49}},
       color={127,127,0}));
   connect(O2_gas.solution, idealGas.solution) annotation (Line(
-      points={{-36,4},{-44,4},{-44,-32},{30,-32},{30,-55}},
+      points={{-94,10},{-102,10},{-102,-26},{-28,-26},{-28,-49}},
       color={127,127,0}));
   connect(H2O_gas.solution, idealGas.solution) annotation (Line(
-      points={{40,-14},{40,-32},{30,-32},{30,-55}},
+      points={{-18,-8},{-18,-26},{-28,-26},{-28,-49}},
       color={127,127,0}));
     connect(idealGas.surfaceFlange, spring.flange_a) annotation (Line(
-        points={{0,44},{0,48}},
+        points={{-58,50},{-58,54}},
         color={0,127,0}));
     connect(idealGas.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{-30,-57},{-30,-62},{-48,-62},{-48,-76},{-40,-76}},
+        points={{-88,-51},{-88,-56},{-106,-56},{-106,-70},{-98,-70}},
         color={191,0,0}));
     connect(thermalConductor.port_b, coolerTemperature.port) annotation (Line(
-        points={{-20,-76},{20,-76}},
+        points={{-78,-70},{-38,-70}},
         color={191,0,0}));
     connect(fixed.flange, spring.flange_b) annotation (Line(
-        points={{0,72},{0,68}},
+        points={{-58,78},{-58,74}},
         color={0,127,0}));
   connect(idealGas.bottom, fixed1.flange) annotation (Line(
-      points={{0,-57},{0,-62}},
+      points={{-58,-51},{-58,-56}},
       color={0,127,0}));
-    connect(reaction.products[1], H2O_gas.port_a) annotation (Line(points={{10,
-            -4},{18,-4},{18,-4},{24,-4}}, color={158,66,200}));
+    connect(reaction.products[1], H2O_gas.port_a) annotation (Line(points={{-48,2},
+            {-34,2}},                     color={158,66,200}));
+    connect(H2_gas1.port_a, reaction1.substrates[1]) annotation (Line(
+        points={{48,-18},{52,-18},{52,2},{58,2}},
+        color={158,66,200},
+        thickness=1));
+    connect(O2_gas1.port_a, reaction1.substrates[2]) annotation (Line(
+        points={{48,18},{52,18},{52,-2},{58,-2}},
+        color={158,66,200},
+        thickness=1));
+    connect(H2_gas1.solution, idealGas1.solution) annotation (Line(points={{32,-28},
+            {98,-28},{98,-51}},   color={127,127,0}));
+    connect(O2_gas1.solution, idealGas1.solution) annotation (Line(points={{32,8},{
+            24,8},{24,-28},{98,-28},{98,-51}},    color={127,127,0}));
+    connect(H2O_gas1.solution, idealGas1.solution) annotation (Line(points={{108,-10},
+            {108,-28},{98,-28},{98,-51}},   color={127,127,0}));
+    connect(idealGas1.surfaceFlange, spring1.flange_a)
+      annotation (Line(points={{68,48},{68,52}},   color={0,127,0}));
+    connect(idealGas1.heatPort, thermalConductor1.port_a) annotation (Line(points={{38,-53},
+            {38,-58},{20,-58},{20,-72},{28,-72}},          color={191,0,0}));
+    connect(thermalConductor1.port_b, coolerTemperature1.port)
+      annotation (Line(points={{48,-72},{88,-72}},   color={191,0,0}));
+    connect(fixed2.flange, spring1.flange_b)
+      annotation (Line(points={{68,76},{68,72}},   color={0,127,0}));
+    connect(idealGas1.bottom, fixed3.flange)
+      annotation (Line(points={{68,-53},{68,-58}},   color={0,127,0}));
+    connect(reaction1.products[1], H2O_gas1.port_a)
+      annotation (Line(points={{78,0},{92,0}},     color={158,66,200}));
     annotation ( experiment(StopTime=0.221, __Dymola_Algorithm="Dassl"),
                                          Documentation(info="<html>
 <p>The gaseous reaction of hydrogen combustion: </p>
@@ -1352,7 +1521,8 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 <p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
 <p><font style=\"color: #222222; \">Mueller, M. A., Kim, T. J., Yetter, R. A., &amp; Dryer, F. L. (1999). Flow reactor studies and kinetic modeling of the H2/O2 reaction.&nbsp;<i>International Journal of Chemical Kinetics</i>,&nbsp;<i>31</i>(2), 113-125.</font></p>
 <p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
-</html>"));
+</html>"),
+      Diagram(coordinateSystem(extent={{-120,-100},{120,100}})));
   end HydrogenCombustion;
 
   model WaterVaporization "Evaporation of water"
@@ -1750,8 +1920,7 @@ substanceData={Examples.Substances.Sodium_aqueous(),
 <p><i>2015-2019</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-      Diagram(coordinateSystem(extent={{-160,-100},{160,100}})),
-      Icon(coordinateSystem(extent={{-160,-100},{160,100}})));
+      Diagram(coordinateSystem(extent={{-160,-100},{160,100}})));
   end GasSolubility_NIST;
 
   model GasSolubility "Dissolution of gases in liquids"
@@ -6900,7 +7069,7 @@ substanceData={Examples.Substances.Sodium_aqueous(),
            {{-69.8,-2},{-60,-2},{-60,8},{-50,8}}, color={0,0,0}));
     connect(C2H5OH.port_m, fluidConversion1.substances[2])
       annotation (Line(points={{-49.8,18},{-50,18},{-50,8}}, color={0,0,0}));
-    annotation (    experiment(StopTime=5.6, __Dymola_Algorithm="Dassl"),
+    annotation (    experiment(StopTime=5.5, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
 <p>Demonstration of compatibility with FluidPort from Modelica Standard Library.</p>
 </html>"));
