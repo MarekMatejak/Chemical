@@ -760,6 +760,14 @@ extends Modelica.Icons.ExamplesPackage;
           annotation(Inline=true);
         end x_mass;
 
+        function concentration "Concentration of substances from Xi and C"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction Xi[nXi];
+          input Real C[nC];
+          output Modelica.SIunits.Concentration concentration[nCS];
+        algorithm
+          concentration := Xi*density(state)./stateOfMatter.molarMass(substanceData);
+        end concentration;
       end SimpleAir;
 
           package SimpleBodyFluid_C
@@ -821,6 +829,15 @@ extends Modelica.Icons.ExamplesPackage;
               annotation(Inline=true);
             end x_mass;
 
+            function concentration "Concentration of substances from Xi and C"
+              input ThermodynamicState state;
+              input Modelica.SIunits.MassFraction Xi[nXi];
+              input Real C[nC];
+              output Modelica.SIunits.Concentration concentration[nCS];
+            algorithm
+              concentration := C.*density(state);
+              annotation(Inline=true);
+            end concentration;
 
           end SimpleBodyFluid_C;
 
@@ -867,6 +884,16 @@ extends Modelica.Icons.ExamplesPackage;
           x_mass := actualStream_C .* stateOfMatter.molarMass(substanceData);
           annotation(Inline=true);
         end x_mass;
+
+        function concentration "Concentration of substances from Xi and C"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction Xi[nXi];
+          input Real C[nC];
+          output Modelica.SIunits.Concentration concentration[nCS];
+        algorithm
+          concentration := C.*density(state);
+          annotation(Inline=true);
+        end concentration;
 
 
       end StandardWater_C;
@@ -915,6 +942,15 @@ extends Modelica.Icons.ExamplesPackage;
           annotation(Inline=true);
         end x_mass;
 
+        function concentration "Concentration of substances from Xi and C"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction Xi[nXi];
+          input Real C[nC];
+          output Modelica.SIunits.Concentration concentration[nCS];
+        algorithm
+          concentration := C*density(state);
+          annotation(Inline=true);
+        end concentration;
 
 
 
@@ -967,6 +1003,17 @@ extends Modelica.Icons.ExamplesPackage;
           annotation(Inline=true);
         end x_mass;
 
+        function concentration "Concentration of substances from Xi and C"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction Xi[nXi];
+          input Real C[nC];
+          output Modelica.SIunits.Concentration concentration[nCS];
+        algorithm
+          concentration := C*density(state);
+          annotation(Inline=true);
+        end concentration;
+
+
       end SimpleAir_C;
 
       package SimpleO2Gas_C
@@ -1013,6 +1060,15 @@ extends Modelica.Icons.ExamplesPackage;
         end x_mass;
 
 
+        function concentration "Concentration of substances from Xi and C"
+          input ThermodynamicState state;
+          input Modelica.SIunits.MassFraction Xi[nXi];
+          input Real C[nC];
+          output Modelica.SIunits.Concentration concentration[nCS];
+        algorithm
+          concentration := C*density(state);
+          annotation(Inline=true);
+        end concentration;
 
       end SimpleO2Gas_C;
 
@@ -7703,4 +7759,68 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
     end ElectrochemicalAcetateProduction;
   end ClimateChange;
+
+  model FluidAdapter_Gas
+   extends Modelica.Icons.Example;
+
+   replaceable package Medium = Chemical.Examples.Media.SimpleAir;
+
+    inner Modelica.Fluid.System system
+      annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
+    Components.FluidAdapter_C        fluidConversion1(
+      redeclare package Medium = Medium,
+      nFluidPorts=1)
+      annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
+    Chemical.Components.Solution leftSolution(
+       redeclare package stateOfMatter = Medium.stateOfMatter,
+        BasePressure=110000)
+      annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
+    Components.Substance leftSubstance[Medium.nCS](
+       redeclare package stateOfMatter = Medium.stateOfMatter,
+       substanceData=Medium.substanceData,
+       each mass_start=1)
+      annotation (Placement(transformation(extent={{-80,-2},{-60,18}})));
+    Chemical.Components.Solution rightSolution(
+        redeclare package stateOfMatter = Medium.stateOfMatter,
+        temperature_start=299.15)
+      annotation (Placement(transformation(extent={{24,-20},{98,42}})));
+    Components.Substance rightSubstance[Medium.nCS](
+        redeclare package stateOfMatter = Medium.stateOfMatter,
+        substanceData=Medium.substanceData,
+        each mass_start=1)
+      annotation (Placement(transformation(extent={{84,-2},{64,18}})));
+    Components.FluidAdapter_C        fluidConversion2(
+      redeclare package Medium = Medium,
+      temperature_start=299.15,
+      nFluidPorts=1)
+      annotation (Placement(transformation(extent={{56,-2},{36,18}})));
+    Modelica.Fluid.Pipes.StaticPipe pipe1(
+      length=1,
+      diameter=0.005,
+      redeclare package Medium = Medium)
+      annotation (Placement(transformation(extent={{-10,-2},{10,18}})));
+  equation
+    connect(fluidConversion1.solution, leftSolution.solution) annotation (Line(
+          points={{-44,5},{-44,-8},{-40,-8},{-40,-19.4}}, color={127,127,0}));
+    for i in 1:Medium.nCS loop
+      connect(leftSubstance[i].solution, leftSolution.solution) annotation (Line(points={
+            {-76,-2},{-76,-8},{-40,-8},{-40,-19.4}}, color={127,127,0}));
+      connect(rightSubstance[i].solution, rightSolution.solution) annotation (Line(points=
+           {{80,-2},{80,-19.38},{83.2,-19.38}}, color={127,127,0}));
+
+    end for;
+    connect(leftSubstance.port_m, fluidConversion1.substances) annotation (Line(
+          points={{-59.8,-2},{-54,-2},{-54,8},{-50,8}}, color={0,0,0}));
+
+    connect(fluidConversion2.solution, rightSolution.solution) annotation (Line(
+          points={{50,5},{50,-8},{80,-8},{80,-20},{83.2,-20},{83.2,-19.38}},
+          color={127,127,0}));
+    connect(fluidConversion1.fluidPorts[1], pipe1.port_a) annotation (Line(points=
+           {{-30,8},{-20,8},{-20,8},{-10,8}}, color={0,127,255}));
+    connect(pipe1.port_b, fluidConversion2.fluidPorts[1])
+      annotation (Line(points={{10,8},{36,8}}, color={0,127,255}));
+    connect(fluidConversion2.substances, rightSubstance.port_m) annotation (Line(
+          points={{56,8},{60,8},{60,-2},{63.8,-2}}, color={0,0,0}));
+    annotation (    experiment(StopTime=31));
+  end FluidAdapter_Gas;
 end Examples;

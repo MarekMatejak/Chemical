@@ -1193,9 +1193,10 @@ package Chemical "Physical Chemistry (version 1.3.1)"
 
       outer Modelica.Fluid.System system "System wide properties";
 
-      replaceable package Medium = Interfaces.PartialMedium_C
+      replaceable package Medium = Chemical.Interfaces.PartialMedium_C
        constrainedby Interfaces.PartialMedium_C
-          "Medium model"   annotation (choicesAllMatching=true);       //Interfaces.PartialMedium_C
+          "Medium model"   annotation (choicesAllMatching=true);
+
 
       package StateOfMatter = Medium.stateOfMatter
       "State of matter of each chemical substance" annotation (choicesAllMatching = true);
@@ -1214,7 +1215,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
         annotation(Dialog(group = "Initialization"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package Medium =   Medium)
+        each package   Medium =   Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1239,8 +1240,11 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       Modelica.SIunits.MassFraction xx_mass[nFluidPorts,Medium.nCS] "Mass fraction of the substance per actual stream in fluid port";
       Modelica.SIunits.MassFlowRate m_flow[nFluidPorts,Medium.nCS] "Mass flow rate from fluid ports";
       Modelica.SIunits.MassFlowRate m_flow_sum[Medium.nCS] "Mass flow rate of substance";
-      Modelica.SIunits.Concentration actualC_outflow[nFluidPorts,Medium.nC] "Actual concentrations at fluid ports";
-      Modelica.SIunits.Concentration actualC_outflow_sum[nFluidPorts] "Sum of all concentrations at fluid port";
+      Modelica.SIunits.Concentration actualC_outflow[nFluidPorts,Medium.nC] "Actual C at fluid ports";
+      Modelica.SIunits.Concentration actualC_outflow_sum[nFluidPorts] "Sum of all C at fluid port";
+      Modelica.SIunits.MassFraction actualXi_outflow[nFluidPorts,Medium.nXi] "Actual Xi at fluid ports";
+      Modelica.SIunits.MassFraction actualXi_outflow_sum[nFluidPorts] "Sum of all Xi at fluid port";
+
 
       Modelica.SIunits.MolarMass molarMass[Medium.nCS] "Molar mass of the substance";
 
@@ -1283,14 +1287,17 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          //molarne frakce v jednotlivych fluid portoch smerom zo i do substancii
          actualC_outflow[i,:] = actualStream(fluidPorts[i].C_outflow);
          actualC_outflow_sum[i] = actualStream(fluidPorts[i].C_outflow)*ones(Medium.nC);
+         actualXi_outflow[i,:] = actualStream(fluidPorts[i].Xi_outflow);
+         actualXi_outflow_sum[i] = actualStream(fluidPorts[i].Xi_outflow)*ones(Medium.nXi);
 
-         xx_mass[i,:] = Medium.x_mass(state,actualStream(fluidPorts[i].Xi_outflow),actualStream(fluidPorts[i].C_outflow));
+
+         xx_mass[i,:] = Medium.x_mass(state=state,actualStream_Xi=actualStream(fluidPorts[i].Xi_outflow),actualStream_C=actualStream(fluidPorts[i].C_outflow));
 
           //(molarMass.*actualStream(fluidPorts[i].C_outflow)) ./
           //(molarMass.*actualStream(fluidPorts[i].C_outflow)*ones(Medium.nC));
 
          //molarne toky v jednotlivych fluid portoch smerom zo i do substancii
-         for s in 1:Medium.nC loop
+         for s in 1:Medium.nCS loop
             m_flow[i,s] = (xx_mass[i,s]*fluidPorts[i].m_flow); // / molarMass[s];
          end for;
 
@@ -4576,6 +4583,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         output Modelica.SIunits.MassFraction x_mass[nCS];
       end x_mass;
 
+      replaceable partial function concentration "Concentration of substances from Xi and C"
+        input ThermodynamicState state;
+        input Modelica.SIunits.MassFraction Xi[nXi];
+        input Real C[nC];
+        output Modelica.SIunits.Concentration concentration[nCS];
+      end concentration;
+
     end PartialMedium_C;
   end Interfaces;
 
@@ -4588,7 +4602,7 @@ dateModified = "2020-11-26 14:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
-uses(Modelica(version="3.2.3")),
+uses(Modelica(version="3.2.3"), Physiolibrary(version="3.0.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
