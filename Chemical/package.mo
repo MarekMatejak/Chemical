@@ -2392,7 +2392,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
 
     equation
-      port_b.q = - q;
+      port_b.q = -q;
       port_b.h_outflow = MolarHeat;
 
      annotation (
@@ -3457,7 +3457,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends molarVolumePure
       "Molar volume of the pure substance"
      algorithm
-         molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
+         molarVolumePure := substanceData.MolarWeight * Modelica.Constants.R*T/p; //ideal gas
      end molarVolumePure;
 
      redeclare function extends molarHeatCapacityCp

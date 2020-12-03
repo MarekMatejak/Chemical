@@ -82,7 +82,7 @@ extends Modelica.Icons.ExamplesPackage;
             "Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10"});
       annotation (preferredView = "info");
     end CarbonMonoxide_aqueous;
-          //  DfG = -8.314*298.15*log(0.00099/55.508)  +  -137300
+              //  DfG = -8.314*298.15*log(0.00099/55.508)  +  -137300
 
     record CarbonDioxide_gas "CO2(g)"
      extends Chemical.Interfaces.IdealGas.SubstanceData(
@@ -283,7 +283,7 @@ extends Modelica.Icons.ExamplesPackage;
             "http://www.vias.org/genchem/standard_enthalpies_table.html"});
       annotation (preferredView = "info");
     end Proton_aqueous;
-                   // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
+                       // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
 
     record Bicarbonate_aqueous "HCO3-(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
@@ -416,7 +416,7 @@ extends Modelica.Icons.ExamplesPackage;
             "http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
       annotation (preferredView = "info");
     end Oxygen_gas_Shomate_200_5000;
-          //A=8.99044,
+              //A=8.99044,
 
     record Oxygen_aqueous "O2(aq)"
      extends Chemical.Interfaces.Incompressible.SubstanceData(
@@ -1476,11 +1476,11 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{28,8},{48,28}})));
     Components.Substance H2O_gas1(
       substanceData(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2O),
-
       redeclare package stateOfMatter = Interfaces.IdealGasMSL,
       use_mass_start=false,
       amountOfSubstance_start=1)
       annotation (Placement(transformation(extent={{112,-10},{92,10}})));
+
     Components.Reaction          reaction1(
       nS=2,
       s={2,1},
@@ -4398,7 +4398,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -4667,10 +4667,10 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 1e-8 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
-        "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
+        "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
-        "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
+        "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-11
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
@@ -4897,7 +4897,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
       parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -5202,10 +5202,10 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 1e-7 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
-        "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
+        "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
-        "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
+        "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-10
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
@@ -5468,7 +5468,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
       //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH;
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
       parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
 
       parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
@@ -5745,10 +5745,10 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 1e-5 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
-        "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
+        "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-pH);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
-        "Initial CO2 at 37degC, pCO2=40mmHg";                //at 25degC: 3.267e-5;
+        "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction initialCO=1e-10
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
@@ -5994,7 +5994,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 1e-2 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
-        "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
+        "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";
@@ -6222,7 +6222,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Real KC = 1e-3 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
-        "Initial O2 at 37degC, pO2=100Pa";                   //at 25degC: 2.342e-8;
+        "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";
@@ -7771,10 +7771,10 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package Medium = Medium,
       nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
-    Chemical.Components.Solution leftSolution(
-       redeclare package stateOfMatter = Medium.stateOfMatter,
-        BasePressure=110000)
+    Chemical.Components.ElasticCompartment leftSolution(
+       redeclare package stateOfMatter = Medium.stateOfMatter)
       annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
+       //,BasePressure(displayUnit = "Pa") =110000)
     Components.Substance leftSubstance[Medium.nCS](
        redeclare package stateOfMatter = Medium.stateOfMatter,
        substanceData=Medium.substanceData,
