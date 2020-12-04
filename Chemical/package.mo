@@ -281,8 +281,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
               100,100}}),
             graphics={Text(
-              extent={{-92,-86},{76,-94}},
-              lineColor={0,0,255},
+              extent={{-90,-88},{78,-96}},
+              lineColor={128,0,255},
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
@@ -430,7 +430,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics={Text(
               extent={{-84,22},{92,64}},
-              lineColor={0,0,255},
+              lineColor={128,0,255},
               textString="%name")}), Documentation(revisions="<html>
 <p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
@@ -544,7 +544,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
               fillPattern=FillPattern.Solid),
             Text(
               extent={{-100,-72},{100,-40}},
-              lineColor={0,0,255},
+              lineColor={128,0,255},
             textString="%name"),
             Polygon(
               points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
@@ -675,7 +675,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
             Text(
               extent={{-146,-44},{154,-84}},
               textString="%name",
-              lineColor={0,0,255})}),
+              lineColor={128,0,255})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -832,7 +832,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
             Text(
               extent={{-97,-12},{97,12}},
               textString="%name",
-              lineColor={0,0,255},
+              lineColor={128,0,255},
             origin={69,2},
             rotation=90)}));
     end Membrane;
@@ -861,7 +861,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
               rotation=360),
             Text(
               extent={{-150,-20},{150,20}},
-              lineColor={0,0,255},
+              lineColor={128,0,255},
               origin={-10,-76},
               rotation=360,
               textString="%name")}),        Documentation(revisions="<html>
@@ -1047,7 +1047,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
               100,100}}),
             graphics={                                                        Text(
               extent={{-22,-106},{220,-140}},
-              lineColor={0,0,255},
+              lineColor={128,0,255},
               textString="%name")}));
     end Speciation;
 
@@ -1155,7 +1155,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
             Text(
               extent={{-150,-20},{150,20}},
               textString="%name",
-              lineColor={0,0,255},
+              lineColor={128,0,255},
               origin={2,-74},
               rotation=180)}),
         Documentation(revisions="<html>
@@ -1484,7 +1484,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               100,100}}),
             graphics={Text(
               extent={{-90,92},{78,84}},
-              lineColor={0,0,255},
+              lineColor={128,0,255},
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
@@ -1975,7 +1975,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
               lineColor={0,0,0},
@@ -2067,7 +2067,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-100,-102},{104,-126}},
               lineColor={0,0,0},
@@ -2147,7 +2147,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
               lineColor={0,0,0},
@@ -2234,7 +2234,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
               lineColor={0,0,0},
@@ -2306,7 +2306,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
               lineColor={0,0,0},
@@ -2369,7 +2369,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
               lineColor={0,0,0},
@@ -2409,9 +2409,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Text(
-              extent={{-82,-82},{90,-58}},
+              extent={{-220,-80},{220,-60}},
               textString="%name",
-              lineColor={0,0,255})}),        Documentation(revisions="<html>
+              lineColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -2443,9 +2443,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               fillColor={0,0,127},
               fillPattern=FillPattern.Solid),
             Text(
-              extent={{-82,-82},{90,-58}},
+              extent={{-220,-80},{220,-60}},
               textString="%name",
-              lineColor={0,0,255})}),        Documentation(revisions="<html>
+              lineColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -2487,7 +2487,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-150,-90},{150,-50}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-100,-30},{100,-50}},
               lineColor={0,0,0},
@@ -2521,7 +2521,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Text(
               extent={{-148,-82},{152,-42}},
               textString="%name",
-              lineColor={0,0,255}),
+              lineColor={128,0,255}),
             Text(
               extent={{-100,54},{100,28}},
               lineColor={0,0,0},
@@ -2652,7 +2652,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               Text(
                 extent={{-82,62},{92,24}},
                 textString="%name",
-                lineColor={0,0,255})}),
+                lineColor={128,0,255})}),
           Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -3457,7 +3457,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends molarVolumePure
       "Molar volume of the pure substance"
      algorithm
-         molarVolumePure := substanceData.MolarWeight * Modelica.Constants.R*T/p; //ideal gas
+         molarVolumePure := Modelica.Constants.R*T/p; //ideal gas
      end molarVolumePure;
 
      redeclare function extends molarHeatCapacityCp
@@ -4211,12 +4211,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
                                                                                                         annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
-              100,100}}),
-            graphics={Text(
-              extent={{-92,-86},{76,-94}},
-              lineColor={0,0,255},
-              textString="%name",
-              horizontalAlignment=TextAlignment.Left)}),
+              100,100}})),
         Documentation(revisions="<html>
 <p>2018 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info="<html>

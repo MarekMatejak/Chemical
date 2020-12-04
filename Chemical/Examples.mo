@@ -715,21 +715,27 @@ extends Modelica.Icons.ExamplesPackage;
             Modelica.Media.IdealGases.Common.FluidData.H2O,
             Modelica.Media.IdealGases.Common.FluidData.N2},
           substanceNames = {"Oxygen", "Carbondioxyde", "Water", "Nitrogen"},
-          reference_X={
-            0.21,
-            0.0004,
-            0.002,
-            0.7696},
+          reference_X=x_default .* stateOfMatter.molarMass(substanceData) ./ MM_default,
           T_default=310.15);
 
 
         package stateOfMatter = Chemical.Interfaces.IdealGasMSL
         "Substances model to translate data into substance properties";
+
+        constant Modelica.SIunits.MoleFraction x_default[nCS]=
+         {0.21,
+          0.0004,
+          0.02,
+          0.7696};
+
+        constant Modelica.SIunits.MolarMass MM_default = x_default*stateOfMatter.molarMass(substanceData);
+
+
+
         constant Integer nCS=nX "Number of chemical substances";
 
         constant stateOfMatter.SubstanceData substanceData[nCS] = {
-          Chemical.Interfaces.IdealGasMSL.SubstanceData(
-                                                      data=data[i]) for i in 1:nX}
+          stateOfMatter.SubstanceData(                data=data[i]) for i in 1:nX}
            "Definition of the substances";
 
         function C_outflow
@@ -960,11 +966,20 @@ extends Modelica.Icons.ExamplesPackage;
 
         extends Modelica.Media.Air.SimpleAir(
          extraPropertiesNames={"O2","CO2","H2O","Others"},
-         T_default=310.15, X_default=ones(nX), C_default={21,0.04,2,76.96});
-
+         T_default=310.15, X_default=ones(nX),
+         C_default= x_default ./ MM_default);
+                                            //[mol/kg]
 
         package stateOfMatter = Chemical.Interfaces.IdealGas
         "Substances model to translate data into substance properties";
+
+        constant Modelica.SIunits.MoleFraction x_default[nC]=
+         {0.21,
+          0.0004,
+          0.02,
+          0.7696};
+
+        constant Modelica.SIunits.MolarMass MM_default = x_default*Chemical.Interfaces.IdealGas.molarMass(substanceData);
 
         constant Integer nCS=nC "Number of chemical substances";
 
