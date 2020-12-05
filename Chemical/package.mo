@@ -893,8 +893,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
-            stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
+        =   stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1215,7 +1215,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
         annotation(Dialog(group = "Initialization"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package   Medium =   Medium)
+        each package Medium =     Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1418,7 +1418,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             origin={60,90})));
 
       Modelica.Blocks.Interfaces.RealOutput
-              fluidMass(unit="kg") = mass annotation (Placement(
+              fluidVolume(unit="m3") = volume annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
             rotation=270,
@@ -4597,7 +4597,7 @@ dateModified = "2020-11-26 14:14:41Z",
 conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
-uses(Modelica(version="3.2.3"), Physiolibrary(version="3.0.0")),
+uses(Modelica(version="3.2.3")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
