@@ -789,14 +789,20 @@ extends Modelica.Icons.ExamplesPackage;
             package stateOfMatter = Chemical.Interfaces.Incompressible
             "Substances model to translate data into substance properties";
 
-            constant Modelica.SIunits.Concentration concentration_default[nCS]=
-             {135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,51775} "initial amounts of base molecules of substances per volume [mmol/l]";
+
+            constant Modelica.SIunits.Concentration concentrations_without_water_default[nCS-1]=
+             {135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6} "initial amounts of base molecules in mmol of substances per one liter [mmol/l]";
+
+            constant Modelica.SIunits.Volume water_volume=1 - (concentrations_without_water_default*stateOfMatter.molarVolume(substanceData[1:nCS-1]));
+            constant Modelica.SIunits.AmountOfSubstance water_n=water_volume/stateOfMatter.molarVolume(substanceData[nCS]);
+
+            constant Modelica.SIunits.Concentration concentration_default[nCS]= cat(1,concentrations_without_water_default,{water_n});
 
             constant Modelica.SIunits.MoleFraction x_default[nCS]=concentration_default./(concentration_default*ones(nCS)) "initial mole fraction of substances";
 
             constant Modelica.SIunits.MolarMass MM_default = x_default*stateOfMatter.molarMass(substanceData);
 
-            constant Modelica.SIunits.MolarMass MV_default = x_default*stateOfMatter.molarVolume(substanceData);
+            constant Modelica.SIunits.MolarVolume MV_default = x_default*stateOfMatter.molarVolume(substanceData);
 
             constant Modelica.SIunits.Density density_default = MM_default / MV_default "initial density";
 
@@ -867,6 +873,8 @@ extends Modelica.Icons.ExamplesPackage;
         package stateOfMatter = Chemical.Interfaces.Incompressible
         "Substances model to translate data into substance properties";
 
+        constant Modelica.SIunits.Density density_default = stateOfMatter.molarMass(substanceData[1]) / stateOfMatter.molarVolume(substanceData[1]) "initial density";
+
         constant Integer nCS=nC "Number of chemical substances";
 
         constant stateOfMatter.SubstanceData substanceData[nCS] = {
@@ -927,14 +935,14 @@ extends Modelica.Icons.ExamplesPackage;
 
         constant Integer nCS=nC "Number of chemical substances";
 
-        constant Modelica.SIunits.Concentration concentration_default[nCS]=
-         {500,500} "amounts of base molecules of substances per volume [mmol/l]";
-
-        constant Modelica.SIunits.MoleFraction x_default[nCS]=concentration_default./(concentration_default*ones(nCS));
+        constant Modelica.SIunits.MoleFraction x_default[nCS]=
+        {0.5, 0.5} "initial mole fraction of substances";
 
         constant Modelica.SIunits.MolarMass MM_default = x_default*stateOfMatter.molarMass(substanceData);
 
-        constant Modelica.SIunits.MolarMass MV_default = x_default*stateOfMatter.molarVolume(substanceData);
+        constant Modelica.SIunits.MolarVolume MV_default = x_default*stateOfMatter.molarVolume(substanceData);
+
+        constant Modelica.SIunits.Density density_default = MM_default / MV_default "initial density";
 
         constant stateOfMatter.SubstanceData substanceData[nCS] = {
           Examples.Substances.Water_liquid(),
@@ -1125,14 +1133,20 @@ extends Modelica.Icons.ExamplesPackage;
           max=350,
           start=310.15));
 
-      constant Modelica.SIunits.Concentration concentration_default[nCS]=
-       {135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6,51775} "initial amounts of base molecules of substances per volume [mmol/l]";
+
+      constant Modelica.SIunits.Concentration concentrations_without_water_default[nCS-1]=
+       {135,24,5,5,3,105,1.5,0.5,0.7,0.8,1e-6} "initial amounts of base molecules in mmol of substances per one liter [mmol/l]";
+
+      constant Modelica.SIunits.Volume water_volume=1 - (concentrations_without_water_default*stateOfMatter.molarVolume(substanceData[1:nCS-1]));
+      constant Modelica.SIunits.AmountOfSubstance water_n=water_volume/stateOfMatter.molarVolume(substanceData[nCS]);
+
+      constant Modelica.SIunits.Concentration concentration_default[nCS]= cat(1,concentrations_without_water_default,{water_n});
 
       constant Modelica.SIunits.MoleFraction x_default[nCS]=concentration_default./(concentration_default*ones(nCS)) "initial mole fraction of substances";
 
       constant Modelica.SIunits.MolarMass MM_default = x_default*stateOfMatter.molarMass(substanceData);
 
-      constant Modelica.SIunits.MolarMass MV_default = x_default*stateOfMatter.molarVolume(substanceData);
+      constant Modelica.SIunits.MolarVolume MV_default = x_default*stateOfMatter.molarVolume(substanceData);
 
       constant Modelica.SIunits.Density density_default = MM_default / MV_default "initial density";
 
