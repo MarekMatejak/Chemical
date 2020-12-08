@@ -3153,6 +3153,37 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         annotation (Inline=true, smoothOrder=2);
      end molarEnthalpy;
 
+     replaceable function temperature
+      "Temperature of the substance from its enthalpy"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.MolarEnthalpy h "Molar enthalpy";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
+        output Modelica.SIunits.Temperature T "Temperature";
+     end temperature;
+
+     replaceable function solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+         extends Modelica.Icons.Function;
+        input SubstanceData substanceData[:] "Data record of substances";
+        input Modelica.SIunits.MolarEnthalpy h "Molar enthalpy of solution (x*substances_h)";
+        input Modelica.SIunits.MoleFraction x[:] "Mole fractions of substances";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
+        output Modelica.SIunits.Temperature T "Temperature";
+     end solution_temperature;
+
      replaceable function molarEntropyPure
       "Molar entropy of the pure substance"
         extends Modelica.Icons.Function;
@@ -3433,6 +3464,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
            +(T-298.15)*(substanceData.Cp);
      end molarEnthalpyElectroneutral;
 
+     redeclare function extends temperature "Temperature of substance from its enthalpy"
+     algorithm
+          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
+     end temperature;
+
+     redeclare function extends solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+    protected
+         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
+         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
+     algorithm
+          T := (h-solution_h_base)/solution_Cp;
+     end solution_temperature;
+
      redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
      algorithm
@@ -3528,6 +3573,55 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
         annotation (Inline=true, smoothOrder=2);
       end molarEnthalpyElectroneutral;
+
+       redeclare function extends temperature "Temperature of substance from its enthalpy"
+    protected
+         package Internal
+          "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
+          extends Modelica.Media.Common.OneNonLinearEquation;
+           redeclare record extends f_nonlinear_Data
+                 "Data to be passed to non-linear function"
+               extends Modelica.Media.IdealGases.Common.DataRecord;
+           end f_nonlinear_Data;
+
+           redeclare function extends f_nonlinear
+           algorithm
+                 y := Modelica.Media.IdealGases.Common.Functions.h_T(
+                          f_nonlinear_data,x,
+                   false,
+                   Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
+           end f_nonlinear;
+
+          // Dummy definition has to be added for current Dymola
+           redeclare function extends solve
+           end solve;
+         end Internal;
+       algorithm
+          T := Internal.solve(h, 273.15, 373.15, 1.0e5, {1}, substanceData.data);
+       end temperature;
+
+      redeclare function extends solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+    protected
+          Modelica.SIunits.MolarMass MM=x*substanceData.data.MM "molar mass of solution";
+          Modelica.SIunits.MassFraction x_mass[:] = (x.*substanceData.data.MM) ./ MM "mass fractions";
+          Modelica.Media.IdealGases.Common.DataRecord solutionData=
+             Modelica.Media.IdealGases.Common.DataRecord(
+                 name="solution_temperature",
+                 MM=x*substanceData.data.MM,
+                 Hf=x*(substanceData.data.Hf ./ substanceData.data.MM)* MM,
+                 H0=x*(substanceData.data.H0 ./ substanceData.data.MM)* MM,
+                 Tlimit = x*(substanceData.data.Tlimit ./ substanceData.data.MM)* MM,
+                 alow = { x*(substanceData.data.alow[i] ./ substanceData.data.MM)* MM for i in 1:7},
+                 blow = { x*(substanceData.data.blow[i] ./ substanceData.data.MM)* MM for i in 1:2},
+                 ahigh = { x*(substanceData.data.ahigh[i] ./ substanceData.data.MM)* MM for i in 1:7},
+                 bhigh = { x*(substanceData.data.bhigh[i] ./ substanceData.data.MM)* MM for i in 1:2},
+                 R = x*(substanceData.data.R ./ substanceData.data.MM)* MM);//sum through moles, not masses
+
+      algorithm
+          T := temperature(SubstanceData(data=solutionData,z=x*substanceData.z),h,p,v,I,r);
+      end solution_temperature;
+
 
       redeclare function extends molarEntropyPure
         "Molar entropy of the pure substance"
@@ -3689,6 +3783,53 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          + substanceData.A_/substanceData.E_/(exp(substanceData.E_/t) - 1));
 
      end molarEnthalpyElectroneutral;
+
+     redeclare function extends temperature "Temperature of substance from its enthalpy"
+    protected
+         package Internal
+          "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
+          extends Modelica.Media.Common.OneNonLinearEquation;
+           redeclare record extends f_nonlinear_Data
+                 "Data to be passed to non-linear function"
+               extends SubstanceData;
+           end f_nonlinear_Data;
+
+           redeclare function extends f_nonlinear
+           algorithm
+                 y := molarEnthalpyElectroneutral(
+                          f_nonlinear_data,x);
+           end f_nonlinear;
+
+          // Dummy definition has to be added for current Dymola
+           redeclare function extends solve
+           end solve;
+         end Internal;
+     algorithm
+          T := Internal.solve(h-Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I,r)*v, 273.15, 373.15, 1.0e5, {1}, substanceData);
+     end temperature;
+
+      redeclare function extends solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+    protected
+        SubstanceData solutionData= SubstanceData(
+               MolarWeight = x*substanceData.MolarWeight,
+               z = x*substanceData.z,
+               DfG = x*substanceData.DfG,
+               DfH = x*substanceData.DfH,
+               gamma = x*substanceData.gamma,
+               Cp = x*substanceData.cp_25degC,
+               B = x*substanceData.B,
+               C = x*substanceData.C,
+               D = x*substanceData.D,
+               E = x*substanceData.E,
+               X = x*substanceData.X,
+               A_ = x*substanceData.A_,
+               E_ = x*substanceData.E_);      //TODO: gamma,X,E_ are only estimations
+      algorithm
+        T := temperature(solutionData,h,p,v,I,r);
+      end solution_temperature;
+
+
 
      redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance, where der(Sm) = cp*der(T)/T"
@@ -3878,6 +4019,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          + (T - 298.15) * substanceData.Cp;
       //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
      end molarEnthalpyElectroneutral;
+
+     redeclare function extends temperature "Temperature of substance from its enthalpy"
+     algorithm
+          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
+     end temperature;
+
+     redeclare function extends solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+    protected
+         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
+         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
+     algorithm
+          T := (h-solution_h_base)/solution_Cp;
+     end solution_temperature;
 
       redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance"
