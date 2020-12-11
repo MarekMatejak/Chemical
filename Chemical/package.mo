@@ -893,8 +893,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
-        =   stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+            stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -4185,8 +4185,79 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               lineThickness=1)}));
     end SolutionPort;
 
-    partial model PartialSolution
-    "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
+    model Total "Homogenous mixture of the substances at defined pressure and temperature"
+      replaceable package stateOfMatter =
+          Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
+        constrainedby StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
+      SolutionPort solution(redeclare package stateOfMatter = stateOfMatter)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+
+
+      Modelica.Blocks.Interfaces.RealInput p "pressure"
+        annotation (Placement(transformation(extent={{-120,58},{-80,100}})));
+      Modelica.Blocks.Interfaces.RealInput T "temperature"
+        annotation (Placement(transformation(extent={{-120,-22},{-80,20}})));
+      Modelica.Blocks.Interfaces.RealOutput dV "derivation of volume"
+        annotation (Placement(transformation(extent={{100,70},{120,90}})));
+      Modelica.Blocks.Interfaces.RealOutput dH "change of enthalpy"
+        annotation (Placement(transformation(extent={{100,-10},{120,10}})));
+    equation
+
+      solution.p = p;
+      solution.T = T;
+
+      dV = solution.dV;
+      dH = solution.dH;
+
+      solution.i = 0; //electric current to solution must be represented with some substances (e.g. mass flow of electrones)
+
+      //Extensive properties of the solution:
+
+      // The extensive quantities here have not the real physical flows.
+      // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
+
+      //amount of substances
+      solution.n + solution.nj = 0; //total amount of solution is the sum of amounts of each substance
+
+      //mass of substances
+      solution.m + solution.mj = 0; //total mass of solution is the sum masses of each substance
+
+      //free Gibs energy
+      solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
+
+      //free enthalpy
+    //  solution.H + solution.Hj = 0;  //total free enthalpy of solution is the sum of enthalpies of each substance
+
+      //ionic strength (mole fraction based)
+      solution.I + solution.Ij = 0; //total ionic strength of solution is the ionic strengths of each substance
+
+      //electric charge
+      solution.Q + solution.Qj = 0; //total electric charge of solution is the sum of charges of each substance
+
+      //volume
+      solution.V + solution.Vj = 0; //total volume of solution is the sum of volumes of each substance
+
+      //structural properties
+      solution.otherProperties = solution.otherPropertiesOfSubstance;
+                                                                                                        annotation (
+        Documentation(revisions="<html>
+<p>2015-2018 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<h4>amountOfSubstances = &int; MolarFlows</h4>
+<h4>mass = &int; massChanges</h4>
+<h4>volume = &int; volumeChanges</h4>
+<h4>freeEnthalpy = &int; EnthalpyChanges</h4>
+<h4>freeEntropy = &int; EntropyChanges</h4>
+<h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
+<p>Integration of all substances together into one homogenous mixture - the solution.</p>
+</html>"));
+    end Total;
+
+    partial model PartialSolutionInternal
+      "Base chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
      replaceable package stateOfMatter =
           Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
@@ -4234,6 +4305,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
                                               //(start=electricCharge_start)
 
     //   Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
+
+
     initial equation
 
       freeInternalEnergy = 0;
@@ -4263,6 +4336,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       solution.m = mass;
 
     //  der_freeEnthalpy = der(freeEnthalpy);
+
+
+    end PartialSolutionInternal;
+
+    partial model PartialSolution
+      "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
+     extends Chemical.Interfaces.PartialSolutionInternal;
+    equation
 
       //Extensive properties of the solution:
 
@@ -4312,9 +4393,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       extends Interfaces.PartialSolution(T(start=temperature_start),p(start=system.p_ambient));
 
-      parameter Boolean useElectricPort = false "Is electric port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
-
       parameter Boolean ElectricGround = true
       "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
         annotation (HideResult=true, Dialog(enable=not useElectricPort));
@@ -4333,22 +4411,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=T,Q_flow=heatFromEnvironment) if useThermalPort annotation (
           Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
               extent={{-62,-104},{-58,-100}})));
-      Modelica.Electrical.Analog.Interfaces.PositivePin electricPin(v=solution.v,i=solution.i) if useElectricPort annotation (Placement(
-            transformation(extent={{-70,70},{-50,90}}),    iconTransformation(
-              extent={{-62,98},{-58,102}})));
+
 
     initial equation
       T=temperature_start;
     equation
 
       //electric
-      if (not useElectricPort) and
-                                  ElectricGround then
+      if ElectricGround then
         //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
           solution.v = 0;
       end if;
-      if (not useElectricPort) and
-                                 (not ElectricGround) then
+      if (not ElectricGround) then
         //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
           solution.i = 0;
       end if;

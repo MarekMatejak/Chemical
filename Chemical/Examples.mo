@@ -1155,14 +1155,11 @@ extends Modelica.Icons.ExamplesPackage;
     extends Modelica.Icons.Example;
 
     Chemical.Components.Solution solution(
-      useElectricPort=true,
       useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
     Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
       annotation (Placement(transformation(extent={{-86,-72},{-66,-52}})));
-    Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{-70,60},{-50,80}})));
     Modelica.Mechanics.Translational.Components.Fixed fixed1
       annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
     Components.Substance liquidWater(mass_start=1, substanceData=
@@ -1174,9 +1171,6 @@ extends Modelica.Icons.ExamplesPackage;
     connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
         points={{-66,-62},{-60,-62},{-60,-102}},
         color={191,0,0}));
-    connect(ground.p, solution.electricPin) annotation (Line(
-        points={{-60,80},{-60,100}},
-        color={0,0,255}));
   connect(fixed1.flange, solution.bottom) annotation (Line(
       points={{-18,-84},{0,-84},{0,-102}},
       color={0,127,0}));
@@ -1196,15 +1190,12 @@ extends Modelica.Icons.ExamplesPackage;
     extends Modelica.Icons.Example;
 
     Chemical.Components.Solution solution(
-      useElectricPort=true,
       useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
       annotation (Placement(transformation(extent={{-86,-76},{-66,-56}})));
-    Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{-70,62},{-50,82}})));
     Chemical.Components.Substance Ethanol(
       redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
       substanceData=Substances.Ethanol_liquid(),
@@ -1222,9 +1213,6 @@ extends Modelica.Icons.ExamplesPackage;
     connect(fixedHeatFlow.port, solution.heatPort) annotation (Line(
         points={{-66,-66},{-60,-66},{-60,-102}},
         color={191,0,0}));
-    connect(ground.p, solution.electricPin) annotation (Line(
-        points={{-60,82},{-60,100}},
-        color={0,0,255}));
   connect(solution.solution, Ethanol.solution) annotation (Line(
       points={{60,-98},{60,-34},{22,-34},{22,-8}},
       color={127,127,0}));
@@ -1250,7 +1238,6 @@ extends Modelica.Icons.ExamplesPackage;
     parameter Modelica.SIunits.MolarEnergy ReactionEnthalpy=-55000;
 
     Chemical.Components.Solution thermal_isolated_solution(
-      useElectricPort=true,
       useMechanicPorts=true,
       ConstantTemperature=false)
       annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
@@ -1266,7 +1253,6 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{40,-60},{20,-40}})));
 
     Chemical.Components.Solution solution_at_constant_temperature(
-      useElectricPort=true,
       useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-100,0},{98,94}})));
@@ -1285,8 +1271,6 @@ extends Modelica.Icons.ExamplesPackage;
     //    "Heat flow to environment to reach constant temperature";
     Modelica.SIunits.Temperature t
       "Temperature if the solution is ideally thermal isolated from environment";
-    Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{-86,56},{-66,76}})));
     Components.Substance H2O(substanceData=Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{20,4},{40,24}})));
     Components.Substance H2O1(substanceData=Substances.Water_liquid(), mass_start=1)
@@ -1295,8 +1279,6 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
     Modelica.Mechanics.Translational.Components.Fixed fixed2
       annotation (Placement(transformation(extent={{-26,-96},{-6,-76}})));
-    Modelica.Electrical.Analog.Basic.Ground ground1
-      annotation (Placement(transformation(extent={{-78,-32},{-58,-12}})));
     inner Modelica.Fluid.System system(T_ambient=298.15)
       annotation (Placement(transformation(extent={{56,64},{76,84}})));
     Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=
@@ -1335,10 +1317,6 @@ extends Modelica.Icons.ExamplesPackage;
     connect(A1.solution, solution_at_constant_temperature.solution) annotation (
         Line(points={{-36,40},{-36,34},{58.4,34},{58.4,0.94}},
                                                         color={127,127,0}));
-  connect(solution_at_constant_temperature.electricPin, ground.p) annotation (
-     Line(
-      points={{-60.4,94},{-60,94},{-60,76},{-76,76}},
-      color={0,0,255}));
   connect(solution_at_constant_temperature.solution, H2O.solution)
     annotation (Line(
       points={{58.4,0.94},{24,0.94},{24,4}},
@@ -1353,9 +1331,6 @@ extends Modelica.Icons.ExamplesPackage;
   connect(thermal_isolated_solution.bottom, fixed2.flange) annotation (Line(
       points={{-1,-100.94},{-1,-86},{-16,-86}},
       color={0,127,0}));
-  connect(thermal_isolated_solution.electricPin, ground1.p) annotation (Line(
-      points={{-60.4,-6},{-68,-6},{-68,-12}},
-      color={0,0,255}));
     connect(solution_at_constant_temperature.heatPort, fixedTemperature.port)
       annotation (Line(points={{-60.4,-0.94},{-60.4,36},{-68,36}}, color={191,0,
             0}));
@@ -1572,8 +1547,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-46,6},{46,96}})));
                                   /*volume_start(
         displayUnit="l") = 0.001, */
-    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter
-        = Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
+    Components.Substance          H2O_gaseuous(redeclare package stateOfMatter =
+          Interfaces.IdealGas, substanceData=Chemical.Examples.Substances.Water_gas(),
       mass_start=0.000106537)
       annotation (Placement(transformation(extent={{28,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
@@ -6997,7 +6972,7 @@ extends Modelica.Icons.ExamplesPackage;
       points={{84,-28},{84,48},{60,48},{60,80},{-22,80}},
       color={0,0,255}));
   connect(electrone.solution,anode. solution) annotation (Line(
-      points={{80,-38},{80,-76.92},{85.2,-76.92}},
+      points={{80,-38},{80,-78},{85.54,-78}},
       color={127,127,0}));
   connect(electrone1.pin,currentSensor. p) annotation (Line(
       points={{-84,-24},{-92,-24},{-92,48},{-66,48}},
@@ -7006,12 +6981,13 @@ extends Modelica.Icons.ExamplesPackage;
       points={{-46,48},{-36,48}},
       color={0,0,255}));
   connect(electrone1.solution,cathode. solution) annotation (Line(
-      points={{-80,-34},{-80,-66},{-74,-66},{-74,-78.92},{-62.8,-78.92}},
+      points={{-80,-34},{-80,-66},{-74,-66},{-74,-80},{-62.46,-80}},
       color={127,127,0}));
-    connect(O2_gas.solution, air.solution) annotation (Line(points={{-18,-6},{-16,
-            -6},{-16,-15.58},{32,-15.58}}, color={127,127,0}));
-    connect(H2_gas.solution, air.solution) annotation (Line(points={{20,-6},{20,-15.58},
-            {32,-15.58}}, color={127,127,0}));
+    connect(O2_gas.solution, air.solution) annotation (Line(points={{-18,-6},{
+            -16,-6},{-16,-16},{32.9,-16}}, color={127,127,0}));
+    connect(H2_gas.solution, air.solution) annotation (Line(points={{20,-6},{20,
+            -16},{32.9,-16}},
+                          color={127,127,0}));
     connect(electrone1.port_a, reaction.substrates[2]) annotation (Line(points={{-64,-24},
             {-48,-24},{-48,-33.2},{-34,-33.2}},      color={158,66,200}));
     connect(H2_gas.port_a, reaction.products[1]) annotation (Line(points={{36,4},{
@@ -7026,8 +7002,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
     connect(constantVoltage.p, ground.p)
       annotation (Line(points={{18,48},{48,48},{48,46}}, color={0,0,255}));
-    connect(liquidWater.solution, water.solution) annotation (Line(points={{-10,
-            -72},{-10,-79.66},{8.8,-79.66}}, color={127,127,0}));
+    connect(liquidWater.solution, water.solution) annotation (Line(points={{-10,-72},
+            {-10,-80},{9.26,-80}},           color={127,127,0}));
     connect(liquidWater.port_a, reaction.substrates[1]) annotation (Line(points={{6,-62},
             {-48,-62},{-48,-28.8},{-34,-28.8}},         color={158,66,200}));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
@@ -7071,8 +7047,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
-        = Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
+          Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
