@@ -229,7 +229,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
     model Solution "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
 
-      extends Interfaces.PartialSolutionWithInputs(T(start=temperature_start),p(start=BasePressure));
+      extends Interfaces.PartialSolutionWithHeatPort(
+                                                   T(start=temperature_start),p(start=BasePressure));
 
       parameter Modelica.SIunits.Pressure BasePressure=system.p_ambient
       "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
@@ -255,6 +256,11 @@ package Chemical "Physical Chemistry (version 1.3.1)"
               extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
                 -100}})));
 
+      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
+            stateOfMatter) "Solution nonflows and flows"
+                                      annotation (Placement(
+            transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
+              {62,-96}})));
   protected
       parameter Modelica.SIunits.Position positionShift(fixed=false)
       "=0 absolute, otherwise negative";
@@ -269,13 +275,16 @@ package Chemical "Physical Chemistry (version 1.3.1)"
 
       //hydraulic
       ds = volume/SurfaceArea - positionShift;
-      workFromEnvironment = -solution.p*der(volume); // -der(f*ds); //=der( (p-p0) * volume)
-      solution.p = BasePressure - f/SurfaceArea;
+      workFromEnvironment = -p*volume_der - pressure_der*volume; // =der(f*ds);
+      p = BasePressure - f/SurfaceArea;
+      pressure_der = der(f)/SurfaceArea;
       if not useMechanicPorts then
         f=0;
         top_s=ds; //equivalent for bottom_s==0
       end if;
 
+      connect(solution, total.solution) annotation (Line(points={{60,-80},{60,-94},
+              {84,-94},{84,-86}}, color={127,127,0}));
                                                                                                         annotation (
         Icon(coordinateSystem(
               preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
@@ -893,8 +902,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
-            stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
+        =   stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1349,154 +1358,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               color={158,66,200},
               thickness=1)}));
     end FluidAdapter_C;
-
-    model ElasticCompartment
-      "Elastic compartment as chemical solution envelop"
-      extends Chemical.Icons.Solution;
-
-      extends Chemical.Interfaces.PartialSolutionWithInputs(T(start=
-              temperature_start), p(start=ExternalPressure));
-
-       parameter Real Compliance(unit="m3/Pa")=1e+3
-        "Compliance e.g. TidalVolume/TidalPressureGradient if useComplianceInput=false"
-        annotation (Dialog(enable=not useComplianceInput));
-
-       parameter Modelica.SIunits.Volume FunctionalResidualCapacity = 1e-11 "Zero pressure volume for linear compliance model. Maximal fluid volume, that does not generate pressure if useV0Input=false"
-        annotation (Dialog(enable=not useV0Input)); //default = 1e-5 ml
-
-        parameter Modelica.SIunits.AbsolutePressure ExternalPressure=101325
-        "External absolute pressure. Set zero if internal pressure is relative to external. Valid only if useExternalPressureInput=false."
-        annotation (Dialog(enable=not useExternalPressureInput));
-
-       parameter Modelica.SIunits.Volume ResidualVolume = 1e-9  "Residual volume. Or maximal fluid volume, which generate negative collapsing pressure in linear model";
-
-       Modelica.SIunits.Volume excessVolume
-        "Additional fluid volume, that generate pressure";
-
-       parameter Boolean useV0Input = false
-        "=true, if zero-pressure-fluid_volume input is used"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
-
-       Modelica.Blocks.Interfaces.RealInput
-          zeroPressureVolume(unit="m3", displayUnit="l", start=
-            FunctionalResidualCapacity)=zpv if useV0Input annotation (Placement(
-            transformation(
-            extent={{-20,-20},{20,20}},
-            rotation=270,
-            origin={-80,80}), iconTransformation(
-            extent={{-10,-10},{10,10}},
-            rotation=270,
-            origin={-20,90})));
-      parameter Boolean useComplianceInput = false
-        "=true, if compliance input is used"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
-
-      Modelica.Blocks.Interfaces.RealInput
-          compliance(unit="m3/Pa", start=
-            Compliance)=c if useComplianceInput annotation (Placement(
-            transformation(
-            extent={{-20,-20},{20,20}},
-            rotation=270,
-            origin={0,80}), iconTransformation(
-            extent={{-10,-10},{10,10}},
-            rotation=270,
-            origin={20,90})));
-      parameter Boolean useExternalPressureInput = false
-        "=true, if external pressure input is used"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="External inputs/outputs"));
-
-      parameter Modelica.SIunits.Pressure MinimalCollapsingPressure=0;
-      Modelica.Blocks.Interfaces.RealInput
-              externalPressure(unit="Pa", start=
-            ExternalPressure)=ep if useExternalPressureInput annotation (
-          Placement(transformation(
-            extent={{-20,-20},{20,20}},
-            rotation=270,
-            origin={80,80}), iconTransformation(
-            extent={{-10,-10},{10,10}},
-            rotation=270,
-            origin={60,90})));
-
-      Modelica.Blocks.Interfaces.RealOutput
-              fluidVolume(unit="m3") = volume annotation (Placement(
-            transformation(
-            extent={{-20,-20},{20,20}},
-            rotation=270,
-            origin={116,-60}),iconTransformation(
-            extent={{-10,-10},{10,10}},
-            rotation=0,
-            origin={100,-80})));
-
-      Modelica.SIunits.Pressure relative_pressure "Relative pressure inside";
-
-      parameter Boolean useSigmoidCompliance = false "sigmoid compliance e.g. lungs"
-         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Computational model"));
-
-       parameter Modelica.SIunits.Volume VitalCapacity = 0.00493  "Relative volume capacity if useSigmoidCompliance"
-         annotation (Dialog(enable=useSigmoidCompliance));
-       parameter Modelica.SIunits.Volume BaseTidalVolume = 0.000543 "Base value of tidal volume"
-         annotation (Dialog(enable=useSigmoidCompliance));
-
-  protected
-       Modelica.SIunits.Volume zpv;
-       Modelica.SIunits.Pressure ep;
-       Real c(unit="m3/Pa");
-
-      parameter  Modelica.SIunits.Pressure a=MinimalCollapsingPressure/log(
-          Modelica.Constants.eps);
-
-      parameter  Modelica.SIunits.Volume BaseMeanVolume = FunctionalResidualCapacity + BaseTidalVolume/2  "Point of equality with linear presentation such as (FunctionalResidualCapacity + TidalVolume/2)";
-       Modelica.SIunits.Pressure d_sigmoid = (BaseMeanVolume-ResidualVolume) * (VitalCapacity-(BaseMeanVolume-ResidualVolume)) / (c*VitalCapacity);
-       Modelica.SIunits.Pressure c_sigmoid = (BaseMeanVolume-FunctionalResidualCapacity)/c + d_sigmoid*log((VitalCapacity/(BaseMeanVolume-ResidualVolume) - 1));
-
-
-    equation
-
-      //elastic compartment
-      if not useV0Input then
-        zpv=FunctionalResidualCapacity;
-      end if;
-      if not useComplianceInput then
-        c=Compliance;
-      end if;
-      if not useExternalPressureInput then
-        ep=ExternalPressure;
-      end if;
-      excessVolume = max( 0, volume - zpv);
-
-      relative_pressure = p - ep;
-
-      p =
-      if ( not useSigmoidCompliance) then
-            smooth(0,
-              if noEvent(volume>ResidualVolume) then
-                (excessVolume/c + ep)
-              else
-                (a*log(max(Modelica.Constants.eps,volume/ResidualVolume)) + ep))
-              else   -d_sigmoid*log((VitalCapacity/(volume-ResidualVolume))-1)+c_sigmoid + ep;
-
-     workFromEnvironment = -p*der(volume);
-
-
-     annotation (
-        Icon(coordinateSystem(
-              preserveAspectRatio=false, initialScale=1, extent={{-100,-100},{
-              100,100}}),
-            graphics={Text(
-              extent={{-90,92},{78,84}},
-              lineColor={128,0,255},
-              textString="%name",
-              horizontalAlignment=TextAlignment.Left)}),
-        Documentation(revisions="<html>
-<p>2020 by Marek Matejak, http://www.physiolib.com </p>
-</html>", info="<html>
-<h4>amountOfSolution = &sum; amountOfSubstances</h4>
-<h4>mass = &sum; massOfSubstances</h4>
-<h4>volume = &sum; volumeOfSubstances</h4>
-<h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
-<p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
-</html>"));
-    end ElasticCompartment;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -4185,7 +4046,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               lineThickness=1)}));
     end SolutionPort;
 
-    model Total "Homogenous mixture of the substances at defined pressure and temperature"
+    model Total "Summation of all extensible properties per substance"
       replaceable package stateOfMatter =
           Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
         constrainedby StateOfMatter
@@ -4195,24 +4056,57 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       SolutionPort solution(redeclare package stateOfMatter = stateOfMatter)
         annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
+      parameter Boolean ElectricGround = true
+      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
+        annotation (HideResult=true);
+
 
       Modelica.Blocks.Interfaces.RealInput p "pressure"
         annotation (Placement(transformation(extent={{-120,58},{-80,100}})));
       Modelica.Blocks.Interfaces.RealInput T "temperature"
         annotation (Placement(transformation(extent={{-120,-22},{-80,20}})));
       Modelica.Blocks.Interfaces.RealOutput dV "derivation of volume"
-        annotation (Placement(transformation(extent={{100,70},{120,90}})));
-      Modelica.Blocks.Interfaces.RealOutput dH "change of enthalpy"
+        annotation (Placement(transformation(extent={{100,80},{120,100}})));
+      Modelica.Blocks.Interfaces.RealOutput dH "derivation of enthalpy"
+        annotation (Placement(transformation(extent={{100,50},{120,70}})));
+      Modelica.Blocks.Interfaces.RealOutput freeGibbsEnergy
+                                               "Free Gibbs Energy of solution"
+        annotation (Placement(transformation(extent={{100,20},{120,40}})));
+      Modelica.Blocks.Interfaces.RealOutput charge
+                                               "electric charge"
         annotation (Placement(transformation(extent={{100,-10},{120,10}})));
+      Modelica.Blocks.Interfaces.RealOutput volume
+                                               "volume"
+        annotation (Placement(transformation(extent={{100,-40},{120,-20}})));
+      Modelica.Blocks.Interfaces.RealOutput mass
+                                               "mass"
+        annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
     equation
 
       solution.p = p;
       solution.T = T;
 
-      dV = solution.dV;
-      dH = solution.dH;
+      dV + solution.dV = 0;
+      dH + solution.dH = 0;
 
-      solution.i = 0; //electric current to solution must be represented with some substances (e.g. mass flow of electrones)
+       //aliases
+      solution.G = freeGibbsEnergy;
+    //  solution.H = freeEnthalpy;
+
+      //  solution.U = freeInternalEnergy;
+      solution.Q = charge;
+      solution.V = volume;
+      solution.m = mass;
+
+      //electric current to solution must be represented with some substances (e.g. mass flow of electrones)
+      if ElectricGround then
+        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
+          solution.v = 0;
+      end if;
+      if (not ElectricGround) then
+        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
+          solution.i = 0;
+      end if;
 
       //Extensive properties of the solution:
 
@@ -4242,6 +4136,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       //structural properties
       solution.otherProperties = solution.otherPropertiesOfSubstance;
+
                                                                                                         annotation (
         Documentation(revisions="<html>
 <p>2015-2018 by Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -4256,16 +4151,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
     end Total;
 
-    partial model PartialSolutionInternal
+    partial model PartialSolution
       "Base chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
      replaceable package stateOfMatter =
           Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
-        constrainedby StateOfMatter
+        constrainedby data.StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
       outer Modelica.Fluid.System system "System wide properties";
+
+      parameter Boolean ElectricGround = true
+      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
+        annotation (HideResult=true);
 
       Modelica.SIunits.Temperature T(start=system.T_ambient) "Temperature";
 
@@ -4277,11 +4176,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       Modelica.SIunits.Mass mass(stateSelect=StateSelect.prefer)
       "Current mass of the solution";
 
-      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
-            stateOfMatter) "Solution nonflows and flows"
-                                      annotation (Placement(
-            transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
-              {62,-96}})));
+      Total total(redeclare package stateOfMatter =
+            stateOfMatter, ElectricGround=ElectricGround)
+        annotation (Placement(transformation(extent={{74,-96},{94,-76}})));
 
   protected
       Modelica.SIunits.Energy freeInternalEnergy(start=0)
@@ -4302,11 +4199,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        Modelica.SIunits.ElectricCharge charge
       "Current electric charge of the solution";
-                                              //(start=electricCharge_start)
 
-    //   Modelica.SIunits.HeatFlowRate der_freeEnthalpy;
-
-
+       Modelica.SIunits.HeatFlowRate freeEnthalpy_der "derivative of enthalpy";
+       Modelica.SIunits.VolumeFlowRate volume_der "derivative of volume";
+       Real pressure_der "derivative of pressure";
     initial equation
 
       freeInternalEnergy = 0;
@@ -4316,86 +4212,36 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       //internal energy
       der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
 
-      heatFromEnvironment + workFromEnvironment = (-solution.dH) - solution.p*(-solution.dV); // - volume*der(solution.p);
-     // heatFromEnvironment + workFromEnvironment = der(freeEnthalpy) - solution.p*(-solution.dV) - volume*der(solution.p);
+      // typically: workFromEnvironment = - p*der(volume) - der(p)*volume and heatFromEnvironment = freeEnthalpy_der
+      heatFromEnvironment + workFromEnvironment = freeEnthalpy_der - p*(volume_der) - pressure_der*volume; // or may be: freeEnthalpy_der - p*der(volume) - volume*der(p);
+     // heatFromEnvironment + workFromEnvironment = der(freeEnthalpy) - solution.p*der(volume) - volume*der(p);
       //It is the same as: der(freeEnthalpy)=-solution.dH;
 
       //thermodinamics equations:
       freeInternalEnergy = freeEnthalpy - volume*p; // H=U+p*V
       freeGibbsEnergy = freeEnthalpy - T*freeEntropy; // G=H-T*S
 
-      //aliases
-      solution.p = p;
-      solution.T = T;
-      solution.G = freeGibbsEnergy;
-    //  solution.H = freeEnthalpy;
+      //total inputs
+      total.p = p;
+      total.T = T;
 
-      //  solution.U = freeInternalEnergy;
-      solution.Q = charge;
-      solution.V = volume;
-      solution.m = mass;
+      //total outputs = extensible properties
+      freeEnthalpy_der = total.dH;
+      volume_der = total.dV;
+      freeGibbsEnergy = total.freeGibbsEnergy;
+      charge = total.charge;
+      volume = total.volume;
+      mass = total.mass;
 
     //  der_freeEnthalpy = der(freeEnthalpy);
 
-
-    end PartialSolutionInternal;
-
-    partial model PartialSolution
-      "Chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
-     extends Chemical.Interfaces.PartialSolutionInternal;
-    equation
-
-      //Extensive properties of the solution:
-
-      // The extensive quantities here have not the real physical flows.
-      // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
-
-      //amount of substances
-      solution.n + solution.nj = 0; //total amount of solution is the sum of amounts of each substance
-
-      //mass of substances
-      solution.m + solution.mj = 0; //total mass of solution is the sum masses of each substance
-
-      //free Gibs energy
-      solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
-
-      //free enthalpy
-    //  solution.H + solution.Hj = 0;  //total free enthalpy of solution is the sum of enthalpies of each substance
-
-      //ionic strength (mole fraction based)
-      solution.I + solution.Ij = 0; //total ionic strength of solution is the ionic strengths of each substance
-
-      //electric charge
-      solution.Q + solution.Qj = 0; //total electric charge of solution is the sum of charges of each substance
-
-      //volume
-      volume + solution.Vj = 0; //total volume of solution is the sum of volumes of each substance
-
-      //structural properties
-      solution.otherProperties = solution.otherPropertiesOfSubstance;
-                                                                                                        annotation (
-        Documentation(revisions="<html>
-<p>2015-2018 by Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>", info="<html>
-<h4>amountOfSubstances = &int; MolarFlows</h4>
-<h4>mass = &int; massChanges</h4>
-<h4>volume = &int; volumeChanges</h4>
-<h4>freeEnthalpy = &int; EnthalpyChanges</h4>
-<h4>freeEntropy = &int; EntropyChanges</h4>
-<h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
-<p>Integration of all substances together into one homogenous mixture - the solution.</p>
-</html>"));
     end PartialSolution;
 
-    partial model PartialSolutionWithInputs
+    partial model PartialSolutionWithHeatPort
       "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
 
       extends Interfaces.PartialSolution(T(start=temperature_start),p(start=system.p_ambient));
-
-      parameter Boolean ElectricGround = true
-      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
-        annotation (HideResult=true, Dialog(enable=not useElectricPort));
 
       parameter Boolean useThermalPort = false "Is thermal port pressent?"
       annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
@@ -4416,16 +4262,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     initial equation
       T=temperature_start;
     equation
-
-      //electric
-      if ElectricGround then
-        //Solution connected to ground has zero voltage. However, electric current from the solution can varies.
-          solution.v = 0;
-      end if;
-      if (not ElectricGround) then
-        //Electrically isolated solution has not any electric current from/to the solution. However, electric potential can varies.
-          solution.i = 0;
-      end if;
 
       //thermal
       if (not useThermalPort) and ConstantTemperature then
@@ -4450,7 +4286,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <h4>freeGibbsEnergy = &sum; freeGibbsEnergiesOfSubstances</h4>
 <p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
 </html>"));
-    end PartialSolutionWithInputs;
+    end PartialSolutionWithHeatPort;
 
     partial model OnePortParallel
     "Partial molar flow between two substance definitions"
