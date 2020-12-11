@@ -229,8 +229,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
     model Solution "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
 
-      extends Interfaces.PartialSolutionWithHeatPort(
-                                                   T(start=temperature_start),p(start=BasePressure));
+      extends Interfaces.PartialSolutionWithHeatPort(temperature(start=
+              temperature_start), pressure(start=BasePressure));
 
       parameter Modelica.SIunits.Pressure BasePressure=system.p_ambient
       "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
@@ -275,9 +275,10 @@ package Chemical "Physical Chemistry (version 1.3.1)"
 
       //hydraulic
       ds = volume/SurfaceArea - positionShift;
-      workFromEnvironment = -p*volume_der - pressure_der*volume; // =der(f*ds);
-      p = BasePressure - f/SurfaceArea;
-      pressure_der = der(f)/SurfaceArea;
+      workFromEnvironment = -pressure*volume_der - der(pressure)*volume;
+                                                                 // =der(f*ds);
+      pressure = BasePressure - f/SurfaceArea;
+
       if not useMechanicPorts then
         f=0;
         top_s=ds; //equivalent for bottom_s==0
@@ -4061,16 +4062,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         annotation (HideResult=true);
 
 
-      Modelica.Blocks.Interfaces.RealInput p "pressure"
+      Modelica.Blocks.Interfaces.RealInput pressure "pressure"
         annotation (Placement(transformation(extent={{-120,58},{-80,100}})));
-      Modelica.Blocks.Interfaces.RealInput T "temperature"
+      Modelica.Blocks.Interfaces.RealInput temperature "temperature"
         annotation (Placement(transformation(extent={{-120,-22},{-80,20}})));
-      Modelica.Blocks.Interfaces.RealOutput dV "derivation of volume"
+      Modelica.Blocks.Interfaces.RealOutput volume_der "derivation of volume"
         annotation (Placement(transformation(extent={{100,80},{120,100}})));
-      Modelica.Blocks.Interfaces.RealOutput dH "derivation of enthalpy"
+      Modelica.Blocks.Interfaces.RealOutput enthalpy_der "derivation of enthalpy"
         annotation (Placement(transformation(extent={{100,50},{120,70}})));
-      Modelica.Blocks.Interfaces.RealOutput freeGibbsEnergy
-                                               "Free Gibbs Energy of solution"
+      Modelica.Blocks.Interfaces.RealOutput gibbsEnergy "Gibbs Energy of solution"
         annotation (Placement(transformation(extent={{100,20},{120,40}})));
       Modelica.Blocks.Interfaces.RealOutput charge
                                                "electric charge"
@@ -4083,17 +4083,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
     equation
 
-      solution.p = p;
-      solution.T = T;
+      solution.p =pressure;
+      solution.T =temperature;
 
-      dV + solution.dV = 0;
-      dH + solution.dH = 0;
+      volume_der + solution.dV = 0;
+      enthalpy_der + solution.dH = 0;
 
        //aliases
-      solution.G = freeGibbsEnergy;
-    //  solution.H = freeEnthalpy;
-
-      //  solution.U = freeInternalEnergy;
+      solution.G = gibbsEnergy;
       solution.Q = charge;
       solution.V = volume;
       solution.m = mass;
@@ -4156,7 +4153,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      replaceable package stateOfMatter =
           Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
-        constrainedby data.StateOfMatter
+        constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
@@ -4166,9 +4163,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
         annotation (HideResult=true);
 
-      Modelica.SIunits.Temperature T(start=system.T_ambient) "Temperature";
+      Modelica.SIunits.Temperature temperature(start=system.T_ambient)
+        "Temperature";
 
-      Modelica.SIunits.Pressure p(start=system.p_ambient) "Pressure";
+      Modelica.SIunits.Pressure pressure(start=system.p_ambient) "Pressure";
 
       Modelica.SIunits.Volume volume
       "Current volume of the solution";
@@ -4190,8 +4188,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       Modelica.SIunits.Energy freeEnthalpy
       "Free enthalpy of the solution relative to start of the simulation";
 
-      Modelica.SIunits.Energy freeGibbsEnergy
-      "Free Gibbs energy of the solution relative to start of the simulation";
+      Modelica.SIunits.Energy gibbsEnergy
+        "Free Gibbs energy of the solution relative to start of the simulation";
 
       Modelica.SIunits.HeatFlowRate heatFromEnvironment
       "External heat flow rate";
@@ -4200,35 +4198,32 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        Modelica.SIunits.ElectricCharge charge
       "Current electric charge of the solution";
 
-       Modelica.SIunits.HeatFlowRate freeEnthalpy_der "derivative of enthalpy";
+      Modelica.SIunits.HeatFlowRate enthalpy_der "derivative of enthalpy";
        Modelica.SIunits.VolumeFlowRate volume_der "derivative of volume";
-       Real pressure_der "derivative of pressure";
     initial equation
 
       freeInternalEnergy = 0;
       //freeEnthalpy + solution.Hj = 0;
       //der(freeEnthalpy) = -solution.dH;
     equation
+
+      heatFromEnvironment = enthalpy_der;
+
       //internal energy
       der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
 
-      // typically: workFromEnvironment = - p*der(volume) - der(p)*volume and heatFromEnvironment = freeEnthalpy_der
-      heatFromEnvironment + workFromEnvironment = freeEnthalpy_der - p*(volume_der) - pressure_der*volume; // or may be: freeEnthalpy_der - p*der(volume) - volume*der(p);
-     // heatFromEnvironment + workFromEnvironment = der(freeEnthalpy) - solution.p*der(volume) - volume*der(p);
-      //It is the same as: der(freeEnthalpy)=-solution.dH;
-
       //thermodinamics equations:
-      freeInternalEnergy = freeEnthalpy - volume*p; // H=U+p*V
-      freeGibbsEnergy = freeEnthalpy - T*freeEntropy; // G=H-T*S
+      freeInternalEnergy = freeEnthalpy - volume*pressure;   // H=U+p*V
+      gibbsEnergy = freeEnthalpy - temperature*freeEntropy;  // G=H-T*S
 
       //total inputs
-      total.p = p;
-      total.T = T;
+      total.pressure = pressure;
+      total.temperature = temperature;
 
       //total outputs = extensible properties
-      freeEnthalpy_der = total.dH;
-      volume_der = total.dV;
-      freeGibbsEnergy = total.freeGibbsEnergy;
+      enthalpy_der = total.enthalpy_der;
+      volume_der =total.volume_der;
+      gibbsEnergy = total.gibbsEnergy;
       charge = total.charge;
       volume = total.volume;
       mass = total.mass;
@@ -4239,9 +4234,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     partial model PartialSolutionWithHeatPort
       "Chemical solution as homogenous mixture of the substances"
-      extends Icons.Solution;
 
-      extends Interfaces.PartialSolution(T(start=temperature_start),p(start=system.p_ambient));
+
+      extends Interfaces.PartialSolution(temperature(start=temperature_start),
+          pressure(start=system.p_ambient));
 
       parameter Boolean useThermalPort = false "Is thermal port pressent?"
       annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
@@ -4254,19 +4250,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Initial temperature of the solution"
          annotation (Dialog(group="Initialization"));
 
-      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=T,Q_flow=heatFromEnvironment) if useThermalPort annotation (
-          Placement(transformation(extent={{-70,-90},{-50,-70}}),iconTransformation(
+      Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=temperature,
+          Q_flow=heatFromEnvironment) if useThermalPort annotation (Placement(
+            transformation(extent={{-70,-90},{-50,-70}}), iconTransformation(
               extent={{-62,-104},{-58,-100}})));
 
 
     initial equation
-      T=temperature_start;
+      temperature = temperature_start;
     equation
 
       //thermal
       if (not useThermalPort) and ConstantTemperature then
         //Ideal thermal exchange between environment and solution to reach constant temperature
-        der(T)=0;
+        der(temperature) = 0;
       end if;
       if (not useThermalPort) and (not ConstantTemperature) then
         //Thermally isolated without any thermal exchange with environment
