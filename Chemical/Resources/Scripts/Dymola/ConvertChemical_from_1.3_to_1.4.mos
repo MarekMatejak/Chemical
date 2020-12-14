@@ -1,0 +1,8 @@
+// Convert from Chemical 1.3.* to Chemical 1.4.*
+
+// clear
+convertClear();
+
+convertClass("Chemical.Components.FluidAdapter_C","Chemical.Components.FluidAdapter");
+convertClass("Chemical.Examples.Substances","Chemical.Substances");
+convertClass("Chemical.Examples.Media","Chemical.Media");

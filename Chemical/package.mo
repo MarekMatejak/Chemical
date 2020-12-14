@@ -1198,7 +1198,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
 </html>"));
     end Stream;
 
-    model FluidAdapter_C
+    model FluidAdapter
       "Adapter between chemical substances of one homogenous chemical solution and Modelica.Fluid package components of MSL 3.2, where substances are stored as molarities in expraProperties"
 
       outer Modelica.Fluid.System system "System wide properties";
@@ -1225,7 +1225,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
         annotation(Dialog(group = "Initialization"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package Medium =     Medium)
+        each package Medium =       Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1291,8 +1291,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          fluidPorts[i].p         = pressure;
 
         //tok smerom zo substancii
-         fluidPorts[i].C_outflow = Medium.C_outflow(state,x_mass); //e.g. (x_mass ./ molarMass);
-         fluidPorts[i].Xi_outflow = Medium.Xi_outflow(state,x_mass); //e.g. Medium.X_default[1:Medium.nXi];
+         fluidPorts[i].C_outflow = Medium.C_outflow(x_mass); //e.g. (x_mass ./ molarMass);
+         fluidPorts[i].Xi_outflow = Medium.Xi_outflow(x_mass); //e.g. Medium.X_default[1:Medium.nXi];
 
          //molarne frakce v jednotlivych fluid portoch smerom zo i do substancii
          actualC_outflow[i,:] = actualStream(fluidPorts[i].C_outflow);
@@ -1300,8 +1300,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          actualXi_outflow[i,:] = actualStream(fluidPorts[i].Xi_outflow);
          actualXi_outflow_sum[i] = actualStream(fluidPorts[i].Xi_outflow)*ones(Medium.nXi);
 
-
-         xx_mass[i,:] = Medium.x_mass(state=state,actualStream_Xi=actualStream(fluidPorts[i].Xi_outflow),actualStream_C=actualStream(fluidPorts[i].C_outflow));
+         if
+           (Medium.nXi > 0 or Medium.nC>0) then
+           xx_mass[i,:] =  Medium.x_mass(actualStream_Xi=actualStream(fluidPorts[i].Xi_outflow),actualStream_C=actualStream(fluidPorts[i].C_outflow));
+         else
+           xx_mass[i,:] = ones(Medium.nCS);
+         end if;
 
           //(molarMass.*actualStream(fluidPorts[i].C_outflow)) ./
           //(molarMass.*actualStream(fluidPorts[i].C_outflow)*ones(Medium.nC));
@@ -1340,7 +1344,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       pressure = solution.p;
       electricPotential = solution.v;
 
-      solution.dH = -fluidPorts.m_flow*actualStream(fluidPorts.h_outflow); //0;
+      //solution.dH = -fluidPorts.m_flow*actualStream(fluidPorts.h_outflow);
+      solution.dH = -fluidPorts.m_flow*(actualStream(fluidPorts.h_outflow)+(xx_mass*Medium.specificEnthalpyOffsets(electricPotential,solution.I)));
+
 
      //do not affect solution at port?
       solution.i = 0;
@@ -1358,7 +1364,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
               points={{-90,0},{90,0}},
               color={158,66,200},
               thickness=1)}));
-    end FluidAdapter_C;
+    end FluidAdapter;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -3390,7 +3396,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       redeclare record SubstanceData
 
-        parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2;
+        parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
 
         parameter Modelica.SIunits.ChargeNumberOfIon z=0
           "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -3993,10 +3999,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       flow Modelica.SIunits.Volume Vj
       "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
-      //free Gibbs energy of substances
+      //Gibbs energy of substances
       Modelica.SIunits.Energy G "Free Gibbs energy of the solution";
       flow Modelica.SIunits.Energy Gj
-      "Free Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+      "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //electric charge of the substance
       Modelica.SIunits.ElectricCharge Q "Electric charge of the solution";
@@ -4074,13 +4080,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         annotation (Placement(transformation(extent={{100,20},{120,40}})));
       Modelica.Blocks.Interfaces.RealOutput charge
                                                "electric charge"
-        annotation (Placement(transformation(extent={{100,-10},{120,10}})));
+        annotation (Placement(transformation(extent={{100,-40},{120,-20}})));
       Modelica.Blocks.Interfaces.RealOutput volume
                                                "volume"
-        annotation (Placement(transformation(extent={{100,-40},{120,-20}})));
+        annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
       Modelica.Blocks.Interfaces.RealOutput mass
                                                "mass"
-        annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
+        annotation (Placement(transformation(extent={{100,-100},{120,-80}})));
     equation
 
       solution.p =pressure;
@@ -4116,10 +4122,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       //mass of substances
       solution.m + solution.mj = 0; //total mass of solution is the sum masses of each substance
 
-      //free Gibs energy
+      //Gibs energy
       solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
 
-      //free enthalpy
+      //enthalpy
     //  solution.H + solution.Hj = 0;  //total free enthalpy of solution is the sum of enthalpies of each substance
 
       //ionic strength (mole fraction based)
@@ -4178,18 +4184,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             stateOfMatter, ElectricGround=ElectricGround)
         annotation (Placement(transformation(extent={{74,-96},{94,-76}})));
 
+
   protected
-      Modelica.SIunits.Energy freeInternalEnergy(start=0)
-      "Free Internal energy of the solution relative to start of the simulation";
-
-      Modelica.SIunits.Entropy freeEntropy
-      "Free entropy of the solution relative to start of the simulation";
-
-      Modelica.SIunits.Energy freeEnthalpy
-      "Free enthalpy of the solution relative to start of the simulation";
-
       Modelica.SIunits.Energy gibbsEnergy
-        "Free Gibbs energy of the solution relative to start of the simulation";
+        "Gibbs energy of the solution relative to start of the simulation";
 
       Modelica.SIunits.HeatFlowRate heatFromEnvironment
       "External heat flow rate";
@@ -4199,36 +4197,23 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Current electric charge of the solution";
 
       Modelica.SIunits.HeatFlowRate enthalpy_der "derivative of enthalpy";
-       Modelica.SIunits.VolumeFlowRate volume_der "derivative of volume";
-    initial equation
+      Modelica.SIunits.VolumeFlowRate volume_der "derivative of volume";
 
-      freeInternalEnergy = 0;
-      //freeEnthalpy + solution.Hj = 0;
-      //der(freeEnthalpy) = -solution.dH;
     equation
 
       heatFromEnvironment = enthalpy_der;
 
-      //internal energy
-      der(freeInternalEnergy) = heatFromEnvironment + workFromEnvironment;
-
-      //thermodinamics equations:
-      freeInternalEnergy = freeEnthalpy - volume*pressure;   // H=U+p*V
-      gibbsEnergy = freeEnthalpy - temperature*freeEntropy;  // G=H-T*S
-
-      //total inputs
+      //total inputs - thermodynamic state
       total.pressure = pressure;
       total.temperature = temperature;
 
       //total outputs = extensible properties
       enthalpy_der = total.enthalpy_der;
-      volume_der =total.volume_der;
+      volume_der = total.volume_der;
       gibbsEnergy = total.gibbsEnergy;
       charge = total.charge;
       volume = total.volume;
       mass = total.mass;
-
-    //  der_freeEnthalpy = der(freeEnthalpy);
 
     end PartialSolution;
 
@@ -4622,19 +4607,16 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
 
       replaceable partial function C_outflow "Outflow values for extra properties of fluid connector"
-        input ThermodynamicState state;
         input Modelica.SIunits.MassFraction x_mass[nCS];
         output Real C_outflow[nC];
       end C_outflow;
 
       replaceable partial function Xi_outflow "Outflow values for mass fracion of fluid connector"
-        input ThermodynamicState state;
         input Modelica.SIunits.MassFraction x_mass[nCS];
         output Modelica.SIunits.MassFraction Xi[nXi];
       end Xi_outflow;
 
       replaceable partial function x_mass "Mass fractions from actual streams of fluid connector"
-        input ThermodynamicState state;
         input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
         input Real actualStream_C[nC];
         output Modelica.SIunits.MassFraction x_mass[nCS];
@@ -4647,18 +4629,27 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         output Modelica.SIunits.Concentration concentration[nCS];
       end concentration;
 
+      replaceable partial function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
+       input Modelica.SIunits.ElectricPotential v=0;
+       input Real I=0;
+       output SpecificEnthalpy h[nCS];
+      end specificEnthalpyOffsets;
+
     end PartialMedium_C;
   end Interfaces;
 
   annotation (
 preferredView="info",
-version="1.3.1",
+version="1.4.0-alpha",
 versionBuild=1,
-versionDate="2020-11-26",
-dateModified = "2020-11-26 14:14:41Z",
+versionDate="2020-12-14",
+dateModified = "2020-12-14 14:14:41Z",
 conversion(
-  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.2.mos"),
-  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.2.mos")),
+  from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
+  from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
+  from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
+  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos"),
+  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos")),
 uses(Modelica(version="3.2.3")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
