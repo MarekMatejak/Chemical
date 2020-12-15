@@ -191,7 +191,6 @@ package Media
     algorithm
       h := zeros(nCS);
     end specificEnthalpyOffsets;
-
     annotation (Documentation(info="<html>
 <p>
 This package is a <strong>template</strong> for <strong>new medium</strong> models. For a new

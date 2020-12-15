@@ -7660,8 +7660,6 @@ package Substances "Definitions of substances"
     data = Modelica.Media.IdealGases.Common.SingleGasesData.ZrO2);
    annotation (preferredView = "info");
   end ZrO2;
-
-
   end IdealGasesMSL;
     extends Modelica.Icons.Package;
 

@@ -1,5 +1,5 @@
 within ;
-package Chemical "Physical Chemistry (version 1.3.1)"
+package Chemical "Physical Chemistry"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -229,8 +229,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
     model Solution "Chemical solution as homogenous mixture of the substances"
       extends Icons.Solution;
 
-      extends Interfaces.PartialSolutionWithHeatPort(temperature(start=
-              temperature_start), pressure(start=BasePressure));
+      extends Interfaces.PartialSolutionWithHeatPort(pressure(start=BasePressure));
 
       parameter Modelica.SIunits.Pressure BasePressure=system.p_ambient
       "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
@@ -311,7 +310,7 @@ package Chemical "Physical Chemistry (version 1.3.1)"
 
       Modelica.SIunits.Concentration c(displayUnit="mmol/l") "Molar concentration of particles";
 
-      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts(x(start=amountOfSubstance_start));
+      extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts; //(x(start=amountOfSubstance_start));
 
 
 
@@ -1212,7 +1211,8 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       "State of matter of each chemical substance" annotation (choicesAllMatching = true);
 
       parameter StateOfMatter.SubstanceData substanceData[Medium.nCS] = Medium.substanceData
-      "Definitions of all chemical substances";
+      "Definitions of all chemical substances"
+       annotation(Dialog(tab="Advanced"));
 
       // Fluid Port definitions
       parameter Integer nFluidPorts=0 "Number of fluid ports"
@@ -1267,16 +1267,11 @@ package Chemical "Physical Chemistry (version 1.3.1)"
       Modelica.SIunits.ElectricPotential electricPotential(start=0)
       "Electric potential of the solution";
 
-    //  Medium.ThermodynamicState actualStreamThermodynamicState[nFluidPorts]
-    //    "Thermodynamic state of solution inside stream";
 
-    //  Medium.ThermodynamicState actualStreamThermodynamicState[nFluidPorts]
-    //  "Thermodynamic state of solution inside stream";
-
-    //  Modelica.SIunits.SpecificEnergy actualStreamSpecificInternalEnergy[nFluidPorts]
-    //  "Specific Internal Energy of solution inside stream";
       Medium.ThermodynamicState state;
-    //  Modelica.SIunits.Density density;
+
+      parameter Boolean EnthalpyNotUsed = false
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(tab="Advanced", group="Performance"));
 
     equation
       //fluid connectors
@@ -1316,7 +1311,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          end for;
 
          //energy balance
-         fluidPorts[i].h_outflow  = Medium.specificEnthalpy(state);
+         if (EnthalpyNotUsed) then
+            fluidPorts[i].h_outflow  = Medium.h_default;
+         else
+            fluidPorts[i].h_outflow  = Medium.specificEnthalpy(state);
+         end if;
 
      //    actualStreamThermodynamicState[i] = Medium.setState_phX(pressure, actualStream(fluidPorts[i].h_outflow), actualStream(fluidPorts[i].Xi_outflow));
          //, electricPotential, solution.I);
@@ -1345,8 +1344,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       electricPotential = solution.v;
 
       //solution.dH = -fluidPorts.m_flow*actualStream(fluidPorts.h_outflow);
-      solution.dH = -fluidPorts.m_flow*(actualStream(fluidPorts.h_outflow)+(xx_mass*Medium.specificEnthalpyOffsets(electricPotential,solution.I)));
-
+      if (EnthalpyNotUsed) then
+        solution.dH = 0;
+      else
+        solution.dH = -fluidPorts.m_flow*(actualStream(fluidPorts.h_outflow)+(xx_mass*Medium.specificEnthalpyOffsets(electricPotential,solution.I)));
+      end if;
 
      //do not affect solution at port?
       solution.i = 0;
@@ -3255,6 +3257,189 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
     end StateOfMatter;
 
+    package Incompressible "Incompressible as basic state of matter"
+       extends StateOfMatter;
+
+       redeclare record extends SubstanceData "Base substance data"
+
+       parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
+         "Molar weight of the substance";
+
+       parameter Modelica.SIunits.ChargeNumberOfIon z=0
+         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
+         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
+         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+       parameter Modelica.SIunits.ActivityCoefficient gamma=1
+         "Activity coefficient of the substance";
+
+       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
+         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+       parameter String References[1]={""}
+         "References of these thermodynamical values";
+
+       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfH instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
+         "Obsolete parameter use DfG instead"
+         annotation (Dialog(tab="Obsolete"));
+
+       parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
+
+       parameter Modelica.SIunits.ChemicalPotential SelfClustering_dH = 0  "Enthalpy of bond between two molecules of substance at 25degC, 1 bar"; //-20000
+       parameter Modelica.SIunits.MolarEntropy SelfClustering_dS = 0  "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+       parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
+          "Density of the pure substance (default density of water at 25degC)";
+
+        //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
+        //      "Molar heat capacity of the substance at constant volume";
+
+        annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+       end SubstanceData;
+
+     constant Integer OtherPropertiesCount=integer(0)
+      "Number of other extensive properties";
+
+     redeclare function selfClustering "returns true if substance molecules are joining together to clusters"
+         extends Modelica.Icons.Function;
+            input SubstanceData substanceData "Data record of substance";
+            output Boolean selfClustering;
+     algorithm
+       selfClustering:=substanceData.SelfClustering;
+     end selfClustering;
+
+     redeclare function selfClusteringEnthalpy "Enthalpy of joining two base molecules of the substance together to cluster"
+         extends Modelica.Icons.Function;
+            input SubstanceData substanceData "Data record of substance";
+            output Modelica.SIunits.MolarEnthalpy selfClusteringEnthalpy;
+     algorithm
+       selfClusteringEnthalpy:=substanceData.SelfClustering_dH;
+     end selfClusteringEnthalpy;
+
+     redeclare function selfClusteringEntropy "Entropy of joining two base molecules of the substance together to cluster"
+         extends Modelica.Icons.Function;
+            input SubstanceData substanceData "Data record of substance";
+            output Modelica.SIunits.MolarEntropy selfClusteringEntropy;
+     algorithm
+       selfClusteringEntropy:=substanceData.SelfClustering_dS;
+     end selfClusteringEntropy;
+
+
+     redeclare function extends density
+          "Return density of the substance in the solution"
+     algorithm
+             density := substanceData.density;
+     end density;
+
+     redeclare function extends activityCoefficient
+      "Return activity coefficient of the substance in the solution"
+     algorithm
+         activityCoefficient := substanceData.gamma;
+     end activityCoefficient;
+
+     redeclare function extends chargeNumberOfIon
+      "Return charge number of the substance in the solution"
+     algorithm
+        chargeNumberOfIon := substanceData.z;
+     end chargeNumberOfIon;
+
+     redeclare function extends molarEnthalpyElectroneutral
+      "Molar enthalpy of the pure electroneutral substance"
+     algorithm
+         //Molar enthalpy:
+         // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
+         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
+
+         molarEnthalpyElectroneutral :=  substanceData.DfH
+         + (T - 298.15) * substanceData.Cp;
+      //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
+     end molarEnthalpyElectroneutral;
+
+     redeclare function extends temperature "Temperature of substance from its enthalpy"
+     algorithm
+          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
+     end temperature;
+
+     redeclare function extends solution_temperature
+      "Temperature of the solution from enthalpies os substances"
+    protected
+         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
+         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
+     algorithm
+          T := (h-solution_h_base)/solution_Cp;
+     end solution_temperature;
+
+      redeclare function extends molarEntropyPure
+      "Molar entropy of the pure substance"
+      algorithm
+         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
+         //+ substanceData.Cv*log(T/298.15);
+
+         //Molar entropy shift:
+         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
+         // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
+         molarEntropyPure := substanceData.Cp*log(T/298.15) - (molarVolumePure(
+           substanceData,
+           T,
+           p,
+           v,
+           I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
+
+         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+         //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
+         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
+      end molarEntropyPure;
+
+     redeclare function extends molarMass "Molar mass of the substance"
+     algorithm
+         molarMass := substanceData.MolarWeight;
+     end molarMass;
+
+     redeclare function molarVolumePure
+      "Molar volume of the pure substance"
+       extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        input Modelica.SIunits.Temperature T=298.15 "Temperature";
+        input Modelica.SIunits.Pressure p=100000 "Pressure";
+        input Modelica.SIunits.ElectricPotential v=0
+        "Electric potential of the substance";
+        input Modelica.SIunits.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
+        "Other extensive properties of the solution";
+        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
+     algorithm
+         molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
+     end molarVolumePure;
+
+     redeclare function extends molarHeatCapacityCp
+      "Molar heat capacity of the substance at constant pressure"
+     algorithm
+         molarHeatCapacityCp := substanceData.Cp;
+     end molarHeatCapacityCp;
+
+     redeclare function extends molarHeatCapacityCv
+      "Molar heat capacity of the substance at constant volume"
+     algorithm
+         molarHeatCapacityCv := substanceData.Cp;
+     end molarHeatCapacityCv;
+
+      annotation (Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end Incompressible;
+
     package IdealGas "Ideal gas with constant heat capacity"
        extends StateOfMatter;
 
@@ -3779,189 +3964,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end IdealGasShomate;
-
-    package Incompressible "Incompressible as basic state of matter"
-       extends StateOfMatter;
-
-       redeclare record extends SubstanceData "Base substance data"
-
-       parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
-         "Molar weight of the substance";
-
-       parameter Modelica.SIunits.ChargeNumberOfIon z=0
-         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
-
-       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
-         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
-
-       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
-         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
-
-       parameter Modelica.SIunits.ActivityCoefficient gamma=1
-         "Activity coefficient of the substance";
-
-       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
-         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-       parameter String References[1]={""}
-         "References of these thermodynamical values";
-
-       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfH instead"
-         annotation (Dialog(tab="Obsolete"));
-
-       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfG instead"
-         annotation (Dialog(tab="Obsolete"));
-
-       parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
-
-       parameter Modelica.SIunits.ChemicalPotential SelfClustering_dH = 0  "Enthalpy of bond between two molecules of substance at 25degC, 1 bar"; //-20000
-       parameter Modelica.SIunits.MolarEntropy SelfClustering_dS = 0  "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
-
-       parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
-          "Density of the pure substance (default density of water at 25degC)";
-
-        //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
-        //      "Molar heat capacity of the substance at constant volume";
-
-        annotation (preferredView = "info", Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-       end SubstanceData;
-
-     constant Integer OtherPropertiesCount=integer(0)
-      "Number of other extensive properties";
-
-     redeclare function selfClustering "returns true if substance molecules are joining together to clusters"
-         extends Modelica.Icons.Function;
-            input SubstanceData substanceData "Data record of substance";
-            output Boolean selfClustering;
-     algorithm
-       selfClustering:=substanceData.SelfClustering;
-     end selfClustering;
-
-     redeclare function selfClusteringEnthalpy "Enthalpy of joining two base molecules of the substance together to cluster"
-         extends Modelica.Icons.Function;
-            input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEnthalpy selfClusteringEnthalpy;
-     algorithm
-       selfClusteringEnthalpy:=substanceData.SelfClustering_dH;
-     end selfClusteringEnthalpy;
-
-     redeclare function selfClusteringEntropy "Entropy of joining two base molecules of the substance together to cluster"
-         extends Modelica.Icons.Function;
-            input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEntropy selfClusteringEntropy;
-     algorithm
-       selfClusteringEntropy:=substanceData.SelfClustering_dS;
-     end selfClusteringEntropy;
-
-
-     redeclare function extends density
-          "Return density of the substance in the solution"
-     algorithm
-             density := substanceData.density;
-     end density;
-
-     redeclare function extends activityCoefficient
-      "Return activity coefficient of the substance in the solution"
-     algorithm
-         activityCoefficient := substanceData.gamma;
-     end activityCoefficient;
-
-     redeclare function extends chargeNumberOfIon
-      "Return charge number of the substance in the solution"
-     algorithm
-        chargeNumberOfIon := substanceData.z;
-     end chargeNumberOfIon;
-
-     redeclare function extends molarEnthalpyElectroneutral
-      "Molar enthalpy of the pure electroneutral substance"
-     algorithm
-         //Molar enthalpy:
-         // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
-         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
-
-         molarEnthalpyElectroneutral :=  substanceData.DfH
-         + (T - 298.15) * substanceData.Cp;
-      //   - (p - 100000) * molarVolumePure(substanceData,T,p,v,I);
-     end molarEnthalpyElectroneutral;
-
-     redeclare function extends temperature "Temperature of substance from its enthalpy"
-     algorithm
-          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
-     end temperature;
-
-     redeclare function extends solution_temperature
-      "Temperature of the solution from enthalpies os substances"
-    protected
-         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
-         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
-     algorithm
-          T := (h-solution_h_base)/solution_Cp;
-     end solution_temperature;
-
-      redeclare function extends molarEntropyPure
-      "Molar entropy of the pure substance"
-      algorithm
-         //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
-         //+ substanceData.Cv*log(T/298.15);
-
-         //Molar entropy shift:
-         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
-         // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
-         molarEntropyPure := substanceData.Cp*log(T/298.15) - (molarVolumePure(
-           substanceData,
-           T,
-           p,
-           v,
-           I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
-
-         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
-         //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
-         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
-      end molarEntropyPure;
-
-     redeclare function extends molarMass "Molar mass of the substance"
-     algorithm
-         molarMass := substanceData.MolarWeight;
-     end molarMass;
-
-     redeclare function molarVolumePure
-      "Molar volume of the pure substance"
-       extends Modelica.Icons.Function;
-        input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
-        "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
-        "Ionic strengh (mole fraction based)";
-        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
-        "Other extensive properties of the solution";
-        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
-     algorithm
-         molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
-     end molarVolumePure;
-
-     redeclare function extends molarHeatCapacityCp
-      "Molar heat capacity of the substance at constant pressure"
-     algorithm
-         molarHeatCapacityCp := substanceData.Cp;
-     end molarHeatCapacityCp;
-
-     redeclare function extends molarHeatCapacityCv
-      "Molar heat capacity of the substance at constant volume"
-     algorithm
-         molarHeatCapacityCv := substanceData.Cp;
-     end molarHeatCapacityCv;
-
-      annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-    end Incompressible;
 
     connector SolutionPort
     "Only for connecting the one solution their substances. Please, do not use it in different way."
@@ -4640,10 +4642,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
   annotation (
 preferredView="info",
-version="1.4.0-alpha",
+version="1.4.0-alpha2",
 versionBuild=1,
-versionDate="2020-12-14",
-dateModified = "2020-12-14 14:14:41Z",
+versionDate="2020-12-15",
+dateModified = "2020-12-15 14:14:41Z",
 conversion(
   from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
   from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
