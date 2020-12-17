@@ -236,7 +236,7 @@ package Chemical "Physical Chemistry"
         annotation (HideResult=true);
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Area SurfaceArea=0.01
       "Area for surfacePort to connect MultiBody components"
@@ -244,7 +244,7 @@ package Chemical "Physical Chemistry"
 
       parameter Boolean isPistonPositionAbsolute=false
       "Relavite position has zero at initial state without force"
-        annotation (HideResult=true, Dialog(enable=useMechanicPorts));
+        annotation (HideResult=true,choices(checkBox=true), Dialog(enable=useMechanicPorts));
 
       Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=top_s) if useMechanicPorts
       "The pressure of solution generate force on prescribed surface."
@@ -314,10 +314,8 @@ package Chemical "Physical Chemistry"
 
 
 
-      parameter Boolean use_mass_start = true "= true, use mass_start, otherwise amountOfSubstance_start"
-        annotation (Evaluate=true, Dialog(group="Initialization"));
-
-
+      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
+        annotation (choices(checkBox=true), Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.Mass mass_start=if use_mass_start then OneKg else amountOfSubstance_start*stateOfMatter.molarMass(substanceData)
           annotation(Dialog(group = "Initialization", enable = use_mass_start));
@@ -328,7 +326,7 @@ package Chemical "Physical Chemistry"
       Modelica.SIunits.Mass mass=amountOfBaseMolecules*stateOfMatter.molarMass(substanceData) "Mass";
 
       parameter Boolean calculateClusteringHeat = false "Only for self clustering substances"
-          annotation(Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)), Evaluate=true);
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
   protected
       Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=if
@@ -436,7 +434,8 @@ package Chemical "Physical Chemistry"
       solution.Ij = (1/2)*(amountOfBaseMolecules*z^2);
       solution.otherPropertiesOfSubstance = amountOfBaseMolecules*
         otherPropertiesPerSubstance;
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+         annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(group="Conditional inputs"),
+                  Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics={Text(
               extent={{-84,22},{92,64}},
               lineColor={128,0,255},
@@ -718,7 +717,7 @@ package Chemical "Physical Chemistry"
 
     /*  parameter Boolean useWaterCorrection = true
   "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
-  annotation(Evaluate=true, HideResult=true, choices(checkbox=true));
+  annotation(Evaluate=true, HideResult=true, choices(checkBox=true));
 */
     Interfaces.SubstancePort_b gas_port "Gaseous solution"
       annotation (Placement(transformation(extent={{-10,90},{10,110}})));
@@ -902,8 +901,8 @@ package Chemical "Physical Chemistry"
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter
-        =   stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+            stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1863,7 +1862,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Pressure PartialPressure=0
       "Fixed partial pressure if usePartialPressureInput=false"
@@ -1962,7 +1961,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
         parameter Boolean useMolalityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
@@ -2046,7 +2045,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
         parameter Boolean useMolarityInput = false
       "Is amount of substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
        parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
@@ -2126,7 +2125,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
         parameter Boolean useMoleFractionInput = false
       "Is mole fraction of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
       parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
@@ -2200,7 +2199,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        parameter Boolean usePotentialInput = false
       "Is electro-chemical potential of the substance an input?"
-        annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u if
            usePotentialInput annotation (HideResult=true, Placement(transformation(
@@ -2463,7 +2462,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
          parameter Boolean useBufferValueInput = false
       "Is buffer value of the substance an input?"
-          annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
           extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
 
@@ -2480,7 +2479,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         Modelica.SIunits.MoleFraction xFreeBuffer;
 
   protected
-        Modelica.SIunits.MolarEnthalpy enthalpy;
+        Modelica.SIunits.MolarEnthalpy streamEnthalpy;
 
         constant Real InvLog_10=1/log(10);
     initial equation
@@ -2502,8 +2501,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
-      enthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(substanceData);
-      solution.dH = enthalpy*port_a.q - der(enthalpy)*nFreeBuffer;
+      streamEnthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(
+         substanceData);
+
+      solution.dH =streamEnthalpy*port_a.q - der(molarEnthalpy)*nFreeBuffer;
       solution.i = Modelica.Constants.F * z * port_a.q - Modelica.Constants.F*der(z)*nFreeBuffer;
       solution.dV = molarVolume * port_a.q - der(molarVolume)*nFreeBuffer;
 
@@ -2733,8 +2734,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      replaceable package stateOfMatter = Incompressible constrainedby
       StateOfMatter
       "Substance model to translate data into substance properties"
-        annotation (choicesAllMatching = true);
-            //constrainedby StateOfMatter
+        annotation (choices(
+              choice(redeclare package stateOfMatter = Incompressible "Incompressible"),
+              choice(redeclare package stateOfMatter = IdealGas "Ideal Gas"),
+              choice(redeclare package stateOfMatter = IdealGasMSL "Ideal Gas from MSL"),
+              choice(redeclare package stateOfMatter = IdealGasShomate "Ideal Gas using Shomate model")));
+
 
      parameter stateOfMatter.SubstanceData substanceData
      "Definition of the substance"
@@ -3987,8 +3992,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
 
       //amount of substances
-      Modelica.SIunits.AmountOfSubstance n(max=Modelica.Constants.inf) "Amount of the solution";
-      flow Modelica.SIunits.AmountOfSubstance nj(max=Modelica.Constants.inf)
+      Modelica.SIunits.AmountOfSubstance n "Amount of the solution";
+      flow Modelica.SIunits.AmountOfSubstance nj
       "Amount of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //mass of substances
@@ -4160,16 +4165,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Base chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
      replaceable package stateOfMatter =
-          Chemical.Interfaces.StateOfMatter (OtherPropertiesCount=0)
+          Incompressible
         constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
-         annotation (choicesAllMatching = true);
+          annotation (choices(
+              choice(redeclare package stateOfMatter = Incompressible "Incompressible"),
+              choice(redeclare package stateOfMatter = IdealGas "Ideal Gas"),
+              choice(redeclare package stateOfMatter = IdealGasMSL "Ideal Gas from MSL"),
+              choice(redeclare package stateOfMatter = IdealGasShomate "Ideal Gas using Shomate model")));
 
       outer Modelica.Fluid.System system "System wide properties";
 
       parameter Boolean ElectricGround = true
-      "Is the solution electric potential equal to zero during simulation (if not useElectricPort)?"
-        annotation (HideResult=true);
+      "Is electric potential equal to zero?"
+        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Environment relationships"));
 
       Modelica.SIunits.Temperature temperature(start=system.T_ambient)
         "Temperature";
@@ -4226,16 +4235,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       extends Interfaces.PartialSolution(temperature(start=temperature_start),
           pressure(start=system.p_ambient));
 
-      parameter Boolean useThermalPort = false "Is thermal port pressent?"
-      annotation(Evaluate=true, HideResult=true, choices(checkbox=true),Dialog(group="Conditional inputs"));
-
-      parameter Boolean ConstantTemperature = true
-      "Has the solution constant temperature during simulation (if not useThermalPort)?"
-         annotation (HideResult=true, Dialog(enable=not useThermalPort));
-
       parameter Modelica.SIunits.Temperature temperature_start=system.T_ambient
       "Initial temperature of the solution"
          annotation (Dialog(group="Initialization"));
+
+      parameter Boolean useThermalPort = false "Is thermal port pressent?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean ConstantTemperature = true
+      "Is temperature constant (if not useThermalPort)?"
+         annotation (Evaluate=true, choices(checkBox=true), Dialog(enable=not useThermalPort, group="Environment relationships"));
+
+
 
       Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(T=temperature,
           Q_flow=heatFromEnvironment) if useThermalPort annotation (Placement(

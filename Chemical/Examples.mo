@@ -2152,7 +2152,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
         experiment(
-        StopTime=1000),
+        StopTime=3),
         Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics));
     end CarbonDioxideInBlood;
@@ -5890,8 +5890,8 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium
-        = Medium, nFluidPorts=1)
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
+          Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
     Chemical.Components.Solution simpleSolution1(BasePressure=110000)
@@ -5904,8 +5904,8 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Substance H2O_(substanceData=Chemical.Substances.Water_liquid(),
         mass_start=1)
       annotation (Placement(transformation(extent={{88,-6},{68,14}})));
-    Chemical.Components.FluidAdapter fluidConversion2(redeclare package Medium
-        = Medium, nFluidPorts=1)
+    Chemical.Components.FluidAdapter fluidConversion2(redeclare package Medium =
+          Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
 
     Modelica.Fluid.Pipes.StaticPipe pipe1(
@@ -6072,8 +6072,8 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium
-        = Medium, nFluidPorts=1)
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
+          Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
     Chemical.Components.Solution simpleSolution1(BasePressure=110000)
@@ -6102,8 +6102,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium
-        = Medium)
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
+          Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
   connect(fluidConversion1.solution, simpleSolution1.solution) annotation (
