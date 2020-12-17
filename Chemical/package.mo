@@ -1217,11 +1217,6 @@ package Chemical "Physical Chemistry"
       parameter Integer nFluidPorts=0 "Number of fluid ports"
         annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
-      parameter Modelica.SIunits.Temperature temperature_start = system.T_ambient
-        annotation(Dialog(group = "Initialization"));
-
-      parameter Modelica.SIunits.Pressure pressure_start = system.p_ambient
-        annotation(Dialog(group = "Initialization"));
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
         each package Medium =       Medium)
@@ -1257,10 +1252,10 @@ package Chemical "Physical Chemistry"
 
       Modelica.SIunits.MolarMass molarMass[Medium.nCS] "Molar mass of the substance";
 
-      Modelica.SIunits.Temperature temperature(start=temperature_start)
+      Modelica.SIunits.Temperature temperature
       "Temperature of the solution";
 
-      Modelica.SIunits.Pressure pressure(start=pressure_start)
+      Modelica.SIunits.Pressure pressure
       "Pressure of the solution";
 
       Modelica.SIunits.ElectricPotential electricPotential(start=0)
@@ -2756,16 +2751,16 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
 
-     Modelica.SIunits.Temperature temperature(start=298.15)
+     Modelica.SIunits.Temperature temperature
      "Temperature of the solution";
 
-     Modelica.SIunits.Pressure pressure(start=100000)
+     Modelica.SIunits.Pressure pressure
      "Pressure of the solution";
 
-     Modelica.SIunits.ElectricPotential electricPotential(start=0)
+     Modelica.SIunits.ElectricPotential electricPotential
      "Electric potential of the solution";
 
-     Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength(start=0)
+     Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength
      "Ionic strength of the solution";
 
      Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
@@ -3379,7 +3374,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Temperature of the solution from enthalpies os substances"
     protected
          Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
-         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
+         Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
      algorithm
           T := (h-solution_h_base)/solution_Cp;
      end solution_temperature;
@@ -3531,7 +3526,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Temperature of the solution from enthalpies os substances"
     protected
          Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
-         Modelica.SIunits.MolarHeatCapacity solution_Cp = x*substanceData.Cp;
+         Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
      algorithm
           T := (h-solution_h_base)/solution_Cp;
      end solution_temperature;
@@ -3666,15 +3661,16 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
           Modelica.Media.IdealGases.Common.DataRecord solutionData=
              Modelica.Media.IdealGases.Common.DataRecord(
                  name="solution_temperature",
-                 MM=x*substanceData.data.MM,
-                 Hf=x*(substanceData.data.Hf ./ substanceData.data.MM)* MM,
-                 H0=x*(substanceData.data.H0 ./ substanceData.data.MM)* MM,
-                 Tlimit = x*(substanceData.data.Tlimit ./ substanceData.data.MM)* MM,
-                 alow = { x*(substanceData.data.alow[i] ./ substanceData.data.MM)* MM for i in 1:7},
-                 blow = { x*(substanceData.data.blow[i] ./ substanceData.data.MM)* MM for i in 1:2},
-                 ahigh = { x*(substanceData.data.ahigh[i] ./ substanceData.data.MM)* MM for i in 1:7},
-                 bhigh = { x*(substanceData.data.bhigh[i] ./ substanceData.data.MM)* MM for i in 1:2},
-                 R = x*(substanceData.data.R ./ substanceData.data.MM)* MM);//sum through moles, not masses
+                 MM= sum(x[i]*substanceData[i].data.MM for i in 1:size(x,1)),
+                 Hf= sum(x[i]*(substanceData[i].data.Hf/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 H0= sum(x[i]*(substanceData[i].data.H0/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 Tlimit = sum(x[i]*(substanceData[i].data.Tlimit/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 alow = sum(x[i]*(substanceData[i].data.alow/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 blow = sum(x[i]*(substanceData[i].data.blow/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 ahigh = sum(x[i]*(substanceData[i].data.ahigh/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 bhigh = sum(x[i]*(substanceData[i].data.bhigh/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
+                 R = sum(x[i]*(substanceData[i].data.R/substanceData[i].data.MM)*MM for i in 1:size(x,1)));
+              //sum through moles, not masses
 
       algorithm
           T := temperature(SubstanceData(data=solutionData,z=x*substanceData.z),h,p,v,I,r);
@@ -3870,19 +3866,19 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Temperature of the solution from enthalpies os substances"
     protected
         SubstanceData solutionData= SubstanceData(
-               MolarWeight = x*substanceData.MolarWeight,
-               z = x*substanceData.z,
-               DfG = x*substanceData.DfG,
-               DfH = x*substanceData.DfH,
-               gamma = x*substanceData.gamma,
-               Cp = x*substanceData.cp_25degC,
-               B = x*substanceData.B,
-               C = x*substanceData.C,
-               D = x*substanceData.D,
-               E = x*substanceData.E,
-               X = x*substanceData.X,
-               A_ = x*substanceData.A_,
-               E_ = x*substanceData.E_);      //TODO: gamma,X,E_ are only estimations
+               MolarWeight = sum(x[i]*substanceData[i].MolarWeight for i in 1:size(x,1)),
+               z = sum(x[i]*substanceData[i].z for i in 1:size(x,1)),
+               DfG = sum(x[i]*substanceData[i].DfG for i in 1:size(x,1)),
+               DfH = sum(x[i]*substanceData[i].DfH for i in 1:size(x,1)),
+               gamma =  sum(x[i]*substanceData[i].gamma for i in 1:size(x,1)),
+               Cp =  sum(x[i]*substanceData[i].cp_25degC for i in 1:size(x,1)),
+               B =  sum(x[i]*substanceData[i].B for i in 1:size(x,1)),
+               C =  sum(x[i]*substanceData[i].C for i in 1:size(x,1)),
+               D =  sum(x[i]*substanceData[i].D for i in 1:size(x,1)),
+               E =  sum(x[i]*substanceData[i].E for i in 1:size(x,1)),
+               X =  sum(x[i]*substanceData[i].X for i in 1:size(x,1)),
+               A_ = sum(x[i]*substanceData[i].A_ for i in 1:size(x,1)),
+               E_ = sum(x[i]*substanceData[i].E_ for i in 1:size(x,1)));      //TODO: gamma,X,E_ are only estimations
       algorithm
         T := temperature(solutionData,h,p,v,I,r);
       end solution_temperature;
@@ -4180,10 +4176,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Is electric potential equal to zero?"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Environment relationships"));
 
-      Modelica.SIunits.Temperature temperature(start=system.T_ambient)
+      Modelica.SIunits.Temperature temperature
         "Temperature";
 
-      Modelica.SIunits.Pressure pressure(start=system.p_ambient) "Pressure";
+      Modelica.SIunits.Pressure pressure "Pressure";
 
       Modelica.SIunits.Volume volume
       "Current volume of the solution";
@@ -4232,8 +4228,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Chemical solution as homogenous mixture of the substances"
 
 
-      extends Interfaces.PartialSolution(temperature(start=temperature_start),
-          pressure(start=system.p_ambient));
+      extends Interfaces.PartialSolution;
 
       parameter Modelica.SIunits.Temperature temperature_start=system.T_ambient
       "Initial temperature of the solution"
