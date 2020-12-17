@@ -1990,13 +1990,14 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{48,-84},{30,-66}})));
       Modelica.Blocks.Sources.Clock clock(offset=5000)
         annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
-      Chemical.Components.Substance others_E(substanceData(
+      Chemical.Components.Substance others_E(
+         substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
           density=(1.045 - 0.695523)*1000/(1 - 0.697583),
           References={"erythrocyte intracellular fluid density 1045kg/m3"},
           MolarWeight=(1.045 - 0.695523)/(38.7*(1 - 0.994648) - 0.0499 - 0.0116
                - 0.00123)), use_mass_start=false, amountOfSubstance_start=0.1444)
         annotation (Placement(transformation(extent={{68,-88},{88,-68}})));
-      Chemical.Components.Substance others_P(substanceData(
+      Chemical.Components.Substance others_P(substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
           References={
               "to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
           density=(1.024 - 0.933373)*1000/(1 - 0.936137),
