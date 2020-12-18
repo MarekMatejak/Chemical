@@ -15,7 +15,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     Chemical.Components.Substance A(
-      substanceData(MolarWeight=1),
+      substanceData=Interfaces.Incompressible.SubstanceData(MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
@@ -23,7 +23,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Components.Substance B(
-      substanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
+      substanceData=Interfaces.Incompressible.SubstanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
