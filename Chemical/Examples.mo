@@ -15,7 +15,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     Chemical.Components.Substance A(
-      substanceData=Interfaces.Incompressible.SubstanceData(MolarWeight=1),
+      substanceData(MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
@@ -23,7 +23,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Components.Substance B(
-      substanceData=Interfaces.Incompressible.SubstanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
+      substanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
@@ -5855,7 +5855,6 @@ extends Modelica.Icons.ExamplesPackage;
          1) annotation (Placement(transformation(extent={{84,-2},{64,18}})));
     Components.FluidAdapter fluidConversion2(
       redeclare package Medium = Medium,
-      temperature_start=299.15,
       nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
     Modelica.Fluid.Pipes.StaticPipe pipe1(
@@ -6781,7 +6780,6 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Solution leftSolution(redeclare package stateOfMatter =
           Medium.stateOfMatter, BasePressure=200000)
       annotation (Placement(transformation(extent={{-96,-20},{-26,40}})));
-       //,BasePressure(displayUnit = "Pa") =110000)
     Components.Substance leftSubstance[Medium.nCS](
        redeclare package stateOfMatter = Medium.stateOfMatter,
        substanceData=Medium.substanceData,
@@ -6799,7 +6797,6 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{84,-2},{64,18}})));
     Components.FluidAdapter fluidConversion2(
       redeclare package Medium = Medium,
-      temperature_start=299.15,
       nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
     Modelica.Fluid.Pipes.StaticPipe pipe1(

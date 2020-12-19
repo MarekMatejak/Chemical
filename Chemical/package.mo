@@ -326,7 +326,7 @@ package Chemical "Physical Chemistry"
       Modelica.SIunits.Mass mass=amountOfBaseMolecules*stateOfMatter.molarMass(substanceData) "Mass";
 
       parameter Boolean calculateClusteringHeat = false "Only for self clustering substances"
-          annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
   protected
       Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=if

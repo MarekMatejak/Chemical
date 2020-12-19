@@ -7,6 +7,8 @@ convertClass("Chemical.Components.FluidAdapter_C","Chemical.Components.FluidAdap
 convertClass("Chemical.Examples.Substances","Chemical.Substances");
 convertClass("Chemical.Examples.Media","Chemical.Media");
 
+convertElement("Chemical.Components.FluidAdapter_C","temperature_start","");
+
 convertModifiers("Chemical.Components.Reaction",{"","nS=1","nP=1"},{"nS=%nS%","nP=%nP%"}, true);
 convertModifiers("Chemical.Components.Substance",{"amountOfSubstance_start"},{"use_mass_start=false", "amountOfSunstance_start=%amountOfSubstance_start%"}, true);
 convertModifiers("Chemical.Components.Substance",{"substanceData"},{"substanceData=%substanceData%"}, true);

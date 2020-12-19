@@ -6,3 +6,5 @@ convertClear();
 convertClass("Chemical.Components.FluidAdapter_C","Chemical.Components.FluidAdapter");
 convertClass("Chemical.Examples.Substances","Chemical.Substances");
 convertClass("Chemical.Examples.Media","Chemical.Media");
+
+convertElement("Chemical.Components.FluidAdapter_C","temperature_start","");
