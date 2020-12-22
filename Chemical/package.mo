@@ -315,7 +315,7 @@ package Chemical "Physical Chemistry"
 
 
       parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
-        annotation (choices(checkBox=true), Dialog(group="Initialization"));
+        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
 
       parameter Modelica.SIunits.Mass mass_start=if use_mass_start then OneKg else amountOfSubstance_start*stateOfMatter.molarMass(substanceData)
           annotation(Dialog(group = "Initialization", enable = use_mass_start));
@@ -434,8 +434,7 @@ package Chemical "Physical Chemistry"
       solution.Ij = (1/2)*(amountOfBaseMolecules*z^2);
       solution.otherPropertiesOfSubstance = amountOfBaseMolecules*
         otherPropertiesPerSubstance;
-         annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(group="Conditional inputs"),
-                  Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+         annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics={Text(
               extent={{-84,22},{92,64}},
               lineColor={128,0,255},
@@ -3367,7 +3366,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      redeclare function extends temperature "Temperature of substance from its enthalpy"
      algorithm
-          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
+          T := 298.15 + (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
      end temperature;
 
      redeclare function extends solution_temperature
@@ -3376,7 +3375,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
          Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
      algorithm
-          T := (h-solution_h_base)/solution_Cp;
+          T := 298.15 + (h-solution_h_base)/solution_Cp;
      end solution_temperature;
 
       redeclare function extends molarEntropyPure
@@ -3519,7 +3518,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      redeclare function extends temperature "Temperature of substance from its enthalpy"
      algorithm
-          T := (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
+          T := 298.15 + (h-molarEnthalpy(substanceData,298.15,p,v,I,r))/substanceData.Cp;
      end temperature;
 
      redeclare function extends solution_temperature
@@ -3528,7 +3527,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
          Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I,r);
          Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
      algorithm
-          T := (h-solution_h_base)/solution_Cp;
+          T := 298.15 + (h-solution_h_base)/solution_Cp;
      end solution_temperature;
 
      redeclare function extends molarEntropyPure
