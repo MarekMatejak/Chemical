@@ -269,13 +269,11 @@ package Chemical "Physical Chemistry"
     initial equation
       positionShift= if
                        (isPistonPositionAbsolute) then 0 else volume/SurfaceArea;
-      //s=volume/SurfaceArea - positionShift;
+
     equation
 
       //hydraulic
       ds = volume/SurfaceArea - positionShift;
-      workFromEnvironment = -pressure*volume_der - der(pressure)*volume;
-                                                                 // =der(f*ds);
       pressure = BasePressure - f/SurfaceArea;
 
       if not useMechanicPorts then
@@ -4197,7 +4195,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       Modelica.SIunits.HeatFlowRate heatFromEnvironment
       "External heat flow rate";
-       Modelica.SIunits.Power workFromEnvironment "External working power";
 
        Modelica.SIunits.ElectricCharge charge
       "Current electric charge of the solution";
