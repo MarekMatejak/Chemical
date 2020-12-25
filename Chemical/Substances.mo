@@ -7874,10 +7874,14 @@ package Substances "Definitions of substances"
       DfG=-227230,
       Cp=75.3,
       SelfClustering = true,
-      SelfClustering_dH = 564.156,
-      SelfClustering_dS = 35.5135,
-      References={
+      SelfClustering_dH = -81.6348,
+      SelfClustering_dS = 32.8344,
+        References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"});
+  /*
+    SelfClustering_dH = 564.156,
+    SelfClustering_dS = 35.5135,
+*/
 
     // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
     // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25),

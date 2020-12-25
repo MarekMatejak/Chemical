@@ -339,9 +339,13 @@ package Chemical "Physical Chemistry"
 
       Modelica.SIunits.AmountOfSubstance amountOfAdditionalBonds "Amount of hydrogen bonds between molecules in compartment";
 
-      Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/stateOfMatter.molarMass(substanceData)))
-      "Decadic logarithm of the amount of all clusters in solution";
-      constant Real InvLog_10=1/log(10);
+     // Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/stateOfMatter.molarMass(substanceData)))
+     // "Decadic logarithm of the amount of all clusters in solution";
+
+      Real logn(stateSelect=StateSelect.prefer, start=log(mass_start/stateOfMatter.molarMass(substanceData)))
+      "Natural logarithm of the amount of all clusters in solution";
+
+    //  constant Real InvLog_10=1/log(10);
       constant Modelica.SIunits.Mass OneKg = 1;
 
 
@@ -350,21 +354,12 @@ package Chemical "Physical Chemistry"
 
       amountOfBaseMolecules = mass_start/stateOfMatter.molarMass(substanceData);
 
-    //only positive solution of quadratic equation is valid for initial value of x
-    //    x = (sqrt((solution.n/(mass_start/stateOfMatter.molarMass(substanceData)) + 2*SelfClustering_K)^2 - 4*SelfClustering_K^2)-(solution.n/(mass_start/stateOfMatter.molarMass(substanceData)) + 2*SelfClustering_K)) / (2*SelfClustering_K^2);
-    //    ax2 + bx + c = 0;
-    //    D = (bb-4ac);
-    //    x = (-b+-sqrt(D))/2a
-    //    xx = bb/4aa - 2b*sqrt(D)/4aa + (bb-4ac)/4aa
-    //    ax2 = bb/4a - 2b*sqrt((bb-4ac))/4a + bb/4a - c
-    //    bx = (-bb/2a + b*sqrt((bb-4ac))/2a)
-
     equation
 
       if stateOfMatter.selfClustering(substanceData) then
 
         //Liquid cluster theory - equilibrium:
-        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i H2O molecules
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
         //amountOfParticles/solution.n = x/(1-K*x);                //sum(x[i])
         //amountOfBaseMolecules/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
         //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
@@ -381,16 +376,14 @@ package Chemical "Physical Chemistry"
         //TODO: more precise calculation of other properties
 
 
-        //Loss/gain of substance heat to solution based on global current solution temperature:
-        //relation "solution.dH - der(substanceEnthalpy) = solution.dH - der(molarEnthalpy*amountOfBaseMolecules)
-        //           == der((actualStream(port_a.h_outflow) - port_a.h_outflow)*amountOfBaseMolecules)"
-        //is the same as next equation, where "der(amountOfBaseMolecules)=q":
         solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q
                       + der(molarEnthalpy)*amountOfBaseMolecules+
                     (if (calculateClusteringHeat) then
-                        stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0);
+                        stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0)
+                        "change of substance enthalpy [J/s]";
 
-        solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG;
+        solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG
+                        "Gibbs energy of the substance";
 
       else
 
@@ -398,31 +391,28 @@ package Chemical "Physical Chemistry"
         amountOfBaseMolecules = amountOfFreeMolecule;
         amountOfAdditionalBonds = 0;
 
-        //Loss/gain of substance heat to solution based on global current solution temperature:
-        //relation "solution.dH - der(substanceEnthalpy) = solution.dH - der(molarEnthalpy*amountOfBaseMolecules)
-        //           == der((actualStream(port_a.h_outflow) - port_a.h_outflow)*amountOfBaseMolecules)"
-        //is the same as next equation, where "der(amountOfBaseMolecules)=q":
         solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData))*q
-                      +der(molarEnthalpy)*amountOfBaseMolecules;
-        solution.Gj = amountOfBaseMolecules*port_a.u;
+                      +der(molarEnthalpy)*amountOfBaseMolecules "change of substance enthalpy [J/s]";
+
+        solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
 
       end if;
 
       //The main accumulation equation is "der(amountOfBaseMolecules)=q"
-      // However, the numerical solvers can handle it in form of log10n much better. :-)
-      der(log10n) = (InvLog_10)*(q/amountOfBaseMolecules);
-      amountOfBaseMolecules = 10^log10n;
+      // However, the numerical solvers can handle it in form of log(n) much better. :-)
+     // der(log10n) = (InvLog_10)*(q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules [mol]";
+     // amountOfBaseMolecules = 10^log10n;
+      der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+      amountOfBaseMolecules = exp(logn);
 
-      //mole fraction
-      x = amountOfFreeMolecule/solution.n;
+      x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
 
-      //Molar Concentration of all water clusters
-      c = amountOfParticles/solution.V;
+      c = amountOfParticles/solution.V "concentration [mol/m3]";
 
       //solution flows
-      solution.i = Modelica.Constants.F*z*q + Modelica.Constants.F*der(z)*
-        amountOfBaseMolecules;
-      solution.dV = molarVolume*q + der(molarVolume)*amountOfBaseMolecules;
+      solution.i = Modelica.Constants.F*z*q +
+          Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
+      solution.dV = molarVolume*q + der(molarVolume)*amountOfBaseMolecules "change of substance volume [m3/s]";
 
       //extensive properties
       solution.nj = amountOfParticles;
@@ -1801,8 +1791,27 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
       "Other extensive properties of the solution";
 
+  protected
+      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*Temperature))  "Dissociation constant of hydrogen bond between base molecules";
+      Modelica.SIunits.ChemicalPotential SelfClustering_dG = stateOfMatter.selfClusteringEnthalpy(substanceData)-Temperature*stateOfMatter.selfClusteringEntropy(substanceData) "Gibbs energy of hydrogen bond between H2O molecules";
+
     equation
-      x = 1;
+
+       if stateOfMatter.selfClustering(substanceData) then
+
+        //Liquid cluster theory - equilibrium:
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
+
+        //sum(x[i]) = x/(1-K*x) = amountOfParticles/amountOfParticles = 1;
+        x = 1/(1+SelfClustering_K) "mole fraction of free base molecule";
+      else
+        x = 1 "pure substance is composed only with free base molecules";
+      end if;
+
+
+
+
+
 
       //the solution
       temperature = Temperature;
@@ -2727,10 +2736,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choices(
-              choice(redeclare package stateOfMatter = Incompressible "Incompressible"),
-              choice(redeclare package stateOfMatter = IdealGas "Ideal Gas"),
-              choice(redeclare package stateOfMatter = IdealGasMSL "Ideal Gas from MSL"),
-              choice(redeclare package stateOfMatter = IdealGasShomate "Ideal Gas using Shomate model")));
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
 
      parameter stateOfMatter.SubstanceData substanceData
@@ -4060,7 +4073,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
-      SolutionPort solution(redeclare package stateOfMatter = stateOfMatter)
+      SolutionPort solution(redeclare package stateOfMatter =
+          stateOfMatter)
         annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
       parameter Boolean ElectricGround = true

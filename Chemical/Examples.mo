@@ -152,7 +152,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Thermal.HeatTransfer.Sources.FixedHeatFlow fixedHeatFlow(Q_flow=4180)
       annotation (Placement(transformation(extent={{-86,-76},{-66,-56}})));
     Chemical.Components.Substance Ethanol(
-      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
       substanceData=Chemical.Substances.Ethanol_liquid(),
       mass_start=(55.508/2)*0.04607)
       annotation (Placement(transformation(extent={{18,-8},{38,12}})));
@@ -2943,8 +2944,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-94,-16},{-74,4}})));
 
       Real sO2;
-      Components.Substance substance(substanceData=
-            Chemical.Substances.Water_liquid(), mass_start=1)
+      Components.Substance substance(substanceData=Substances.Water_liquid(),
+                                                mass_start=1)
         annotation (Placement(transformation(extent={{66,-72},{86,-52}})));
     equation
       sO2 = (R1.x + 2*R2.x + 3*R3.x + 4*R4.x + T1.x + 2*T2.x + 3*T3.x + 4*T4.x) /
@@ -3104,11 +3105,7 @@ extends Modelica.Icons.ExamplesPackage;
               70,-72},{66,-72},{66,-99.74},{60.8,-99.74}}, color={127,127,0}));
       connect(clock.y, O2_in_air.partialPressure)
         annotation (Line(points={{-84,51},{-84,32},{-84,32}}, color={0,0,127}));
-      annotation (          experiment(
-          StopTime=15000,
-          Tolerance=0.01,
-          __Dymola_Algorithm="Dassl"),
-                              Documentation(info="<html>
+      annotation ( Documentation(info="<html>
 <p>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
@@ -3179,7 +3176,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{76,-48},{56,-28}})));
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyRHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KRx) + DfG_tR/4),
         each use_mass_start=false,
         each amountOfSubstance_start=5.88e-9)
@@ -3192,7 +3190,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-68,-18},{-48,2}})));
       Chemical.Components.Substance DeoxyRHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_tR/4),
         each use_mass_start=false,
         each amountOfSubstance_start=1.58e-7)
@@ -3200,7 +3199,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-8,-20},{-28,0}})));
 
       Chemical.Components.Substance OxyTHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KTx) + DfG_tT/4),
         each use_mass_start=false,
         each amountOfSubstance_start=1e-4)
@@ -3213,7 +3213,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{42,-18},{62,2}})));
       Chemical.Components.Substance DeoxyTHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_tT/4),
         each use_mass_start=false,
         each amountOfSubstance_start=THb - 1e-4 - 1.58e-7 - 5.88e-9)
@@ -3402,7 +3403,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=4e-11)
       // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=
               DfH_O2 - Ho + DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3416,7 +3418,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Ko37*initialHb/(Ko37 + initialO2))
@@ -3433,7 +3436,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{26,-82},{46,-62}}), iconTransformation(
               extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N, DfH=-Hh +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3447,7 +3451,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
@@ -3455,7 +3460,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
 
       Chemical.Components.Substance HmNH3[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N, DfH=-Hz +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3470,7 +3476,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
@@ -3487,7 +3494,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-8,-26},{12,-6}}), iconTransformation(
               extent={{10,70},{30,90}})));
       Chemical.Components.Substance HmNHCOO[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/N, DfH=
              DfH_CO2 + Hc + DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3886,7 +3894,7 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
         "DfH_tR and DfH_tT";
 
-      parameter Real KC = 1e-5 "Slow down factor";
+      parameter Real KC = 1e-3 "Slow down factor";
                                //0.000001
       parameter Modelica.SIunits.MoleFraction initialO2
         "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
@@ -3904,7 +3912,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=4e-11)
       // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=
               DfH_O2 - Ho + DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3918,7 +3927,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=initialHb/(1 + initialO2/Ko37 + initialCO/Kco37)) "Deoxygenated subunit"
@@ -3934,7 +3944,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{26,-82},{46,-62}}), iconTransformation(
               extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N, DfH=-Hh +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3948,7 +3959,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
@@ -3956,7 +3968,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
 
       Chemical.Components.Substance HmNH3[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N, DfH=-Hz +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3971,7 +3984,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
@@ -3988,7 +4002,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-8,-26},{12,-6}}), iconTransformation(
               extent={{10,70},{30,90}})));
       Chemical.Components.Substance HmNHCOO[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/N, DfH=
              DfH_CO2 + Hc + DfH_selectedForm/N),
         each use_mass_start=false,
@@ -4000,7 +4015,8 @@ extends Modelica.Icons.ExamplesPackage;
       Interfaces.SubstancePort_b H annotation (Placement(transformation(extent={{50,-12},
                 {70,8}}),      iconTransformation(extent={{70,70},{90,90}})));
       Chemical.Components.Substance COHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N, DfG=DfG_CO +
               RT*log(Kco25) + DfG_selectedForm/N),
         each use_mass_start=false,
@@ -4177,14 +4193,14 @@ extends Modelica.Icons.ExamplesPackage;
       parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
       parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
 
-      parameter Real KC = 1e-7 "Slow down factor";
+      parameter Real KC = 1e-8 "Slow down factor";
 
       parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
       parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
       parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction initialCO=1e-10
+      parameter Modelica.SIunits.MoleFraction initialCO=1e-12
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
       parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
@@ -4215,7 +4231,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
           use_mass_start=false, amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
-      Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
+      Modelica.Blocks.Sources.Clock oxygenSource(offset=2000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         usePartialPressureInput=true,
@@ -4225,7 +4241,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.GasSolubility partialPressure1(KC=KC) annotation (
           Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,32})));
 
-      Components.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
+      Components.Substance H2O(substanceData=Substances.Water_liquid(),
           mass_start=1)
         annotation (Placement(transformation(extent={{56,-54},{76,-34}})));
       HemoglobinQuaternaryFormCO                            relaxed(
@@ -4478,7 +4494,8 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=4e-11)
       // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance COHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N, DfG=DfG_CO +
               RT*log(Kco25) + DfG_selectedForm/N),
         each use_mass_start=false,
@@ -4492,7 +4509,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kco37*initialHb/(Kco37 + initialCO))
@@ -4509,7 +4527,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{26,-82},{46,-62}}), iconTransformation(
               extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N, DfH=-Hh +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -4523,7 +4542,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
@@ -4531,7 +4551,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
 
       Chemical.Components.Substance HmNH3[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N, DfH=-Hz +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -4546,7 +4567,8 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
@@ -4563,7 +4585,8 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-8,-26},{12,-6}}), iconTransformation(
               extent={{10,70},{30,90}})));
       Chemical.Components.Substance HmNHCOO[4](
-        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/N, DfH=
              DfH_CO2 + Hc + DfH_selectedForm/N),
         each use_mass_start=false,
@@ -5915,14 +5938,16 @@ extends Modelica.Icons.ExamplesPackage;
                   annotation (Placement(transformation(extent={{-10,-2},{10,
             18}})));
     Chemical.Components.Substance C2H5OH(
-      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
       substanceData=Chemical.Substances.Ethanol_liquid(),
       use_mass_start=false,
       amountOfSubstance_start=100)
       annotation (Placement(transformation(extent={{-70,18},{-50,38}})));
 
     Chemical.Components.Substance C2H5OH_(
-      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
       substanceData=Chemical.Substances.Ethanol_liquid(),
       use_mass_start=false,
       amountOfSubstance_start=55)
@@ -6083,7 +6108,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-90,-2},{-70,18}})));
 
     Chemical.Components.Substance C2H5OH(
-      redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+      redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
       substanceData=Chemical.Substances.Ethanol_liquid(),
       use_mass_start=false,
       amountOfSubstance_start=100)
