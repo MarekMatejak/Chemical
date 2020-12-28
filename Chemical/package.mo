@@ -1636,21 +1636,21 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       parameter Modelica.SIunits.Temperature T=298.15 "Temperature";
 
-      parameter Modelica.SIunits.AmountOfSubstance n=55.508*m
+      parameter Modelica.SIunits.AmountOfSubstance n=1
       "Amount of all substances in solution per one liter of solution";
 
-      parameter Modelica.SIunits.Mass m=0.997
+      parameter Modelica.SIunits.Mass m=1
       "Mass of solvent per one liter of solution";
 
-      parameter Integer nS=1 "Number of substrates types"
-        annotation ( HideResult=true);
+      parameter Integer nS=0 "Number of substrates types"
+        annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
       parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
         annotation (HideResult=true);
 
-      parameter Integer nP=1 "Number of products types"
-        annotation ( HideResult=true);
+      parameter Integer nP=0 "Number of products types"
+        annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
       parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
@@ -1675,6 +1675,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "As ratio of molalities in moles per 1 kg of solvent";
       Real DissociationCoefficient_MolarityBased
       "As ratio of molar concentration in moles per liter of solution";
+
+      Real pK
+      "= -log10('mole-fraction based dissociation coefficient')";
     equation
       substrates.q = zeros(nS);
       substrates.h_outflow = zeros(nS);
@@ -1686,6 +1689,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       DrG = ((p * products.u) - (s * substrates.u));
 
       DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+
+      pK=-log10(DissociationCoefficient_MoleFractionBased);
 
       DissociationCoefficient_MolalityBased = ((n/m)^(p*ones(nP)-s*ones(nS))) * DissociationCoefficient_MoleFractionBased;
 
