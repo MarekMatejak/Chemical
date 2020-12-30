@@ -694,7 +694,7 @@ extends Modelica.Icons.ExamplesPackage;
       "Free dissolved CO2 in water at 25 degC"
       annotation (Placement(transformation(extent={{-150,-26},{-130,-6}})));
     Chemical.Components.GasSolubility O2_dissolutionP
-      annotation (Placement(transformation(extent={{-94,42},{-74,62}})));
+      annotation (Placement(transformation(extent={{-100,42},{-80,62}})));
 
     Chemical.Sources.ExternalIdealGasSubstance O2_g_25(
       substanceData=Chemical.Substances.Oxygen_gas(),
@@ -707,7 +707,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001)
       "Free dissolved O2 in water at 25 degC"
-      annotation (Placement(transformation(extent={{-110,-28},{-90,-8}})));
+      annotation (Placement(transformation(extent={{-114,-26},{-94,-6}})));
     Chemical.Components.GasSolubility CO2_dissolutionE
       annotation (Placement(transformation(extent={{-26,42},{-6,62}})));
 
@@ -787,7 +787,14 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{112,68},{132,88}})));
     inner Modelica.Fluid.System system(p_ambient=100000)
       annotation (Placement(transformation(extent={{-70,-98},{-50,-78}})));
+    Real kH_CO2_25, kH_O2_25;
   equation
+
+    kH_CO2_25 = CO2_25.c / CO2_g_25.x;
+    kH_O2_25 = O2_25.c / O2_g_25.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+
 
   connect(CO2_g_25.port_a, CO2_dissolutionP.gas_port) annotation (Line(
       points={{-134,84},{-128,84},{-128,62}},
@@ -802,18 +809,18 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=1));
   connect(O2_g_25.port_a, O2_dissolutionP.gas_port) annotation (Line(
-      points={{-94,84},{-84,84},{-84,62}},
+      points={{-94,84},{-90,84},{-90,62}},
       color={158,66,200},
       thickness=1));
     connect(O2_dissolutionP.liquid_port, O2_25.port_a) annotation (Line(
-        points={{-84,42},{-84,-18},{-90,-18}},
+        points={{-90,42},{-90,-14},{-94,-14},{-94,-16}},
         color={158,66,200},
         thickness=1));
     connect(CO2_25.solution, water_solution_25degC.solution) annotation (Line(
           points={{-146,-26},{-146,-77.1},{-86.4,-77.1}},
                                                         color={127,127,0}));
     connect(O2_25.solution, water_solution_25degC.solution) annotation (Line(
-          points={{-106,-28},{-106,-77.1},{-86.4,-77.1}},
+          points={{-110,-26},{-110,-77.1},{-86.4,-77.1}},
                                                         color={127,127,0}));
     connect(CO2_37.solution, water_solution_37degC.solution) annotation (Line(
           points={{-38,-34},{-38,-79.08},{23.2,-79.08}},
@@ -5501,7 +5508,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Sources.PureSubstance A
         annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
-      Chemical.Sensors.DissociationCoefficient reaction(nS=2)
+      Chemical.Sensors.DissociationCoefficient reaction(nS=2, nP=1)
         annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Sources.PureSubstance B
         annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
@@ -5509,19 +5516,13 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{68,-8},{48,12}})));
 
     equation
-      connect(reaction.products[1], C.port_a) annotation (Line(
-          points={{24,2},{48,2}},
-          color={158,66,200},
-          thickness=1));
 
-      connect(B.port_a, reaction.substrates[1]) annotation (Line(
-          points={{-14,-14},{-10,-14},{-10,1.5},{4,1.5}},
-          color={158,66,200},
-          thickness=1));
-      connect(A.port_a, reaction.substrates[2]) annotation (Line(
-          points={{-14,12},{-10,12},{-10,2.5},{4,2.5}},
-          color={158,66,200},
-          thickness=1));
+      connect(A.port_a, reaction.substrates[1]) annotation (Line(points={
+              {-14,12},{-4,12},{-4,1.5},{4,1.5}}, color={158,66,200}));
+      connect(B.port_a, reaction.substrates[2]) annotation (Line(points={
+              {-14,-14},{-4,-14},{-4,2.5},{4,2.5}}, color={158,66,200}));
+      connect(reaction.products[1], C.port_a)
+        annotation (Line(points={{24,2},{48,2}}, color={158,66,200}));
       annotation ( Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5535,7 +5536,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Sources.PureSubstance A
         annotation (Placement(transformation(extent={{-28,42},{-8,62}})));
-      Chemical.Sensors.DissociationCoefficient reaction(nS=2)
+      Chemical.Sensors.DissociationCoefficient reaction(nP=1, nS=2)
         annotation (Placement(transformation(extent={{10,32},{30,52}})));
     Chemical.Sources.PureSubstance B
         annotation (Placement(transformation(extent={{-28,16},{-8,36}})));
@@ -5549,28 +5550,22 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-92,-10},{-72,10}})));
     equation
 
-      connect(B.port_a, reaction.substrates[1]) annotation (Line(
-          points={{-8,26},{-4,26},{-4,41.5},{10,41.5}},
-          color={158,66,200},
-          thickness=1));
-      connect(A.port_a, reaction.substrates[2]) annotation (Line(
-          points={{-8,52},{-4,52},{-4,42.5},{10,42.5}},
-          color={158,66,200},
-          thickness=1));
       connect(reaction.DissociationCoefficient_MoleFractionBased,
         inverseBlockConstraints.u2) annotation (Line(
           points={{20,34},{20,0},{-29.6,0}},
           color={0,0,127}));
-      connect(reaction.products[1], C.port_a) annotation (Line(
-          points={{30,42},{40,42}},
-          color={158,66,200},
-          thickness=1));
       connect(C.uInput, inverseBlockConstraints.y2) annotation (Line(
           points={{60,42},{70,42},{70,24},{46,24},{46,0},{72.7,0}},
           color={0,0,127}));
       connect(inverseBlockConstraints.u1, K.y) annotation (Line(
           points={{-48.2,0},{-71,0}},
           color={0,0,127}));
+      connect(reaction.products[1], C.port_a)
+        annotation (Line(points={{30,42},{40,42}}, color={158,66,200}));
+      connect(A.port_a, reaction.substrates[1]) annotation (Line(points={
+              {-8,52},{-8,42},{10,42},{10,41.5}}, color={158,66,200}));
+      connect(B.port_a, reaction.substrates[2]) annotation (Line(points={
+              {-8,26},{-8,40},{10,40},{10,42.5}}, color={158,66,200}));
       annotation ( Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
