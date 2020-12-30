@@ -1634,10 +1634,37 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Meassure dissociation coefficient (mole fraction based) for pure substances"
       extends Modelica.Icons.TranslationalSensor;
 
-      parameter Modelica.SIunits.Temperature T=298.15 "Temperature";
+      parameter Boolean useTemperatureInput = false
+      "=true, if temperature is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Modelica.SIunits.Temperature T=298.15 "Temperature if not useTemperatureInput"
+        annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
+
+      Modelica.Blocks.Interfaces.RealInput temperature(start=
+            T, final unit="K")=_temperature if useTemperatureInput
+      "Temperature"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,58},
+                {-80,98}}), iconTransformation(extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={-60,40})));
+
+
+      parameter Boolean useTotalAmountOfSubstancesInput = false
+      "=true, if total amount of substances in solution is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Modelica.SIunits.AmountOfSubstance n=1
-      "Amount of all substances in solution per one liter of solution";
+      "Amount of all substances in solution per one liter of solution if not useTotalAmountOfSubstancesInput"
+        annotation (HideResult=true, Dialog(enable=not useTotalAmountOfSubstancesInput));
+
+      Modelica.Blocks.Interfaces.RealInput totalAmountOfSubstances(start=
+            n, final unit="mol")=_n if useTotalAmountOfSubstancesInput
+      "Temperature"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,58},
+                {-80,98}}), iconTransformation(extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={40,40})));
 
       parameter Modelica.SIunits.Mass m=1
       "Mass of solvent per one liter of solution";
@@ -1678,7 +1705,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       Real pK
       "= -log10('mole-fraction based dissociation coefficient')";
+
+  protected
+      Modelica.SIunits.Temperature _temperature;
+      Modelica.SIunits.AmountOfSubstance _n;
     equation
+      if not useTemperatureInput then
+        _temperature = T;
+      end if;
+      if not useTotalAmountOfSubstancesInput then
+        _n = n;
+      end if;
+
       substrates.q = zeros(nS);
       substrates.h_outflow = zeros(nS);
 
@@ -1787,20 +1825,69 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model PureSubstance "Constant source of pure substance"
       extends Interfaces.PartialSubstance;
 
-      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
-      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
+      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature"
+         annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
+      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure"
+         annotation (HideResult=true, Dialog(enable=not usePressureInput));
       parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential";
+      "Electric potential"
+         annotation (HideResult=true, Dialog(enable=not useElectricPotentialInput));
       parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength";
+      "Ionic strength"
+         annotation (HideResult=true, Dialog(enable=not useIonicStrengthInput));
       parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
       "Other extensive properties of the solution";
 
+      parameter Boolean useTemperatureInput = false
+      "=true, if temperature is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean usePressureInput = false
+      "=true, if pressure is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean useElectricPotentialInput = false
+      "=true, if electric potential is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Boolean useIonicStrengthInput = false
+      "=true, if ionic strength is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      Modelica.Blocks.Interfaces.RealInput T(start=
+            Temperature, final unit="K")=temperature if useTemperatureInput
+      "Temperature"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,58},
+                {-80,98}}), iconTransformation(extent={{-120,58},{-80,98}})));
+
+      Modelica.Blocks.Interfaces.RealInput p(start=
+            Pressure, final unit="Pa")=pressure if usePressureInput
+      "Pressure"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,16},
+                {-80,56}}), iconTransformation(extent={{-120,16},{-80,56}})));
+
+      Modelica.Blocks.Interfaces.RealInput v(start=
+            ElectricPotential, final unit="Pa")=electricPotential if useElectricPotentialInput
+      "Electric potential"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,
+              -60},{-80,-20}}),
+                            iconTransformation(extent={{-120,-60},{-80,
+              -20}})));
+
+      Modelica.Blocks.Interfaces.RealInput I(start=
+            MoleFractionBasedIonicStrength, final unit="mol/mol")=moleFractionBasedIonicStrength if useIonicStrengthInput
+      "Pressure"
+        annotation (HideResult=true,Placement(transformation(extent={{-120,
+              -100},{-80,-60}}),
+                            iconTransformation(extent={{-120,-100},{-80,
+              -60}})));
   protected
-      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*Temperature))  "Dissociation constant of hydrogen bond between base molecules";
-      Modelica.SIunits.ChemicalPotential SelfClustering_dG = stateOfMatter.selfClusteringEnthalpy(substanceData)-Temperature*stateOfMatter.selfClusteringEntropy(substanceData) "Gibbs energy of hydrogen bond between H2O molecules";
+      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*temperature))  "Dissociation constant of hydrogen bond between base molecules";
+      Modelica.SIunits.ChemicalPotential SelfClustering_dG = stateOfMatter.selfClusteringEnthalpy(substanceData)-temperature*stateOfMatter.selfClusteringEntropy(substanceData) "Gibbs energy of hydrogen bond between H2O molecules";
+
 
     equation
+
 
        if stateOfMatter.selfClustering(substanceData) then
 
@@ -1815,14 +1902,21 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
 
 
-
+       if (not useTemperatureInput) then
+         temperature = Temperature;
+       end if;
+       if (not usePressureInput) then
+         pressure = Pressure;
+       end if;
+       if (not useElectricPotentialInput) then
+         electricPotential = ElectricPotential;
+       end if;
+       if (not useIonicStrengthInput) then
+         moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
+       end if;
 
 
       //the solution
-      temperature = Temperature;
-      pressure = Pressure;
-      electricPotential = ElectricPotential;
-      moleFractionBasedIonicStrength = MoleFractionBasedIonicStrength;
       otherProperties = OtherProperties;
 
       annotation ( Icon(coordinateSystem(
@@ -4181,10 +4275,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
           annotation (choices(
-              choice(redeclare package stateOfMatter = Incompressible "Incompressible"),
-              choice(redeclare package stateOfMatter = IdealGas "Ideal Gas"),
-              choice(redeclare package stateOfMatter = IdealGasMSL "Ideal Gas from MSL"),
-              choice(redeclare package stateOfMatter = IdealGasShomate "Ideal Gas using Shomate model")));
+              choice(redeclare package stateOfMatter =
+                Chemical.Interfaces.Incompressible  "Incompressible"),
+              choice(redeclare package stateOfMatter =
+                Chemical.Interfaces.IdealGas        "Ideal Gas"),
+              choice(redeclare package stateOfMatter =
+                Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+              choice(redeclare package stateOfMatter =
+                Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
       outer Modelica.Fluid.System system "System wide properties";
 

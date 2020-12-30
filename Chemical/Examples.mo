@@ -533,6 +533,10 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
     Components.GasSolubility          gasSolubility
       annotation (Placement(transformation(extent={{-92,16},{-72,36}})));
+    Sensors.PartialPressureSensor pH2O(redeclare package stateOfMatter =
+          Interfaces.IdealGas, substanceData=
+          Chemical.Substances.Water_gas())
+      annotation (Placement(transformation(extent={{-26,76},{-6,96}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
@@ -562,6 +566,10 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=1));
     connect(gasSolubility.liquid_port, liquidWater.port_a) annotation (Line(
           points={{-82,16},{-82,-52},{-48,-52}}, color={158,66,200}));
+    connect(pH2O.port_a, H2O_gaseuous.port_a) annotation (Line(points={{
+            -6,86},{0,86},{0,60},{8,60}}, color={158,66,200}));
+    connect(pH2O.solution, gas.solution) annotation (Line(points={{-22,76},
+            {-22,6.9},{27.6,6.9}}, color={127,127,0}));
     annotation (
       experiment(
         StopTime=103,
@@ -1684,7 +1692,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance HCO3(
         substanceData=Chemical.Substances.Bicarbonate_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start(displayUnit="mmol") = 0.024)
+        amountOfSubstance_start(displayUnit="mmol") = 1e-08)
         annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
       Chemical.Components.Reaction HendersonHasselbalch(nP=2, nS=2,
       useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
@@ -1701,7 +1709,7 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.Substances.Proton_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}}, origin={-6,-38})));
+              extent={{-10,-10},{10,10}}, origin={10,-30})));
       Chemical.Components.GasSolubility gasSolubility
         annotation (Placement(transformation(extent={{-70,36},{-50,56}})));
                                             /*(C=2400, kH_T0(
@@ -1714,7 +1722,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance CO3(
         substanceData=Chemical.Substances.Carbonate_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start(displayUnit="mmol") = 2.7e-05)
+        amountOfSubstance_start(displayUnit="mmol") = 1e-08)
         annotation (Placement(transformation(extent={{70,-2},{50,18}})));
       Chemical.Components.Reaction c2(nP=2, nS=1)
         "K=10^(-10.33 + 3), dH=14.9kJ/mol"
@@ -1724,6 +1732,18 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance liquidWater(substanceData=
             Chemical.Substances.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{-76,-50},{-56,-30}})));
+      inner Modelica.Fluid.System system(T_ambient=310.15)
+        annotation (Placement(transformation(extent={{48,64},{68,84}})));
+      Chemical.Components.Substance OH(
+        substanceData=Chemical.Substances.Hydroxide_aqueous(),
+        use_mass_start=false,
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}}, origin={12,-72})));
+      Chemical.Components.Reaction waterDissociation(
+        nP=2,
+        nS=1,
+        useKineticsInput=false) "water dissociation" annotation (
+          Placement(transformation(extent={{-44,-68},{-24,-48}})));
     equation
       pH = -log10( H.a);
 
@@ -1736,7 +1756,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=1));
       connect(HendersonHasselbalch.products[1], H.port_a) annotation (Line(
-          points={{-28,6},{-22,6},{-22,-38},{4,-38}},
+          points={{-28,6},{-22,6},{-22,-30},{20,-30}},
           color={158,66,200},
           thickness=1));
       connect(HendersonHasselbalch.products[2], HCO3.port_a) annotation (Line(
@@ -1748,7 +1768,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=1));
       connect(c2.products[1], H.port_a) annotation (Line(
-          points={{36,8},{44,8},{44,-38},{4,-38}},
+          points={{36,8},{44,8},{44,-30},{20,-30}},
           color={158,66,200},
           thickness=1));
       connect(c2.products[2], CO3.port_a) annotation (Line(
@@ -1765,8 +1785,6 @@ extends Modelica.Icons.ExamplesPackage;
           color={127,127,0}));
       connect(HCO3.solution, solution.solution) annotation (Line(points={{-12,-4},
             {-12,-98.54},{60,-98.54}},color={127,127,0}));
-      connect(H.solution, solution.solution) annotation (Line(points={{-12,-48},
-            {-12,-98.54},{60,-98.54}},color={127,127,0}));
       connect(CO3.solution, solution.solution) annotation (Line(points={{66,-2},
             {66,-98.54},{60,-98.54}}, color={127,127,0}));
       connect(liquidWater.solution, solution.solution) annotation (Line(points={
@@ -1774,6 +1792,19 @@ extends Modelica.Icons.ExamplesPackage;
       connect(liquidWater.port_a, HendersonHasselbalch.substrates[1])
         annotation (Line(points={{-56,-40},{-54,-40},{-54,6},{-48,6}}, color={158,
               66,200}));
+      connect(liquidWater.port_a, waterDissociation.substrates[1])
+        annotation (Line(points={{-56,-40},{-50,-40},{-50,-58},{-44,-58}},
+            color={158,66,200}));
+      connect(waterDissociation.products[1], H.port_a) annotation (Line(
+            points={{-24,-56},{-6,-56},{-6,-30},{20,-30}}, color={158,66,
+              200}));
+      connect(waterDissociation.products[2], OH.port_a) annotation (Line(
+            points={{-24,-60},{-8,-60},{-8,-72},{22,-72}}, color={158,66,
+              200}));
+      connect(H.solution, solution.solution) annotation (Line(points={{4,
+              -40},{-12,-40},{-12,-98.54},{60,-98.54}}, color={127,127,0}));
+      connect(OH.solution, solution.solution) annotation (Line(points={{6,
+              -82},{6,-98.54},{60,-98.54}}, color={127,127,0}));
       annotation ( Documentation(info="<html>
 <p>CO2 solution in water without any other acid-base buffers.</p>
 <pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&quot;pH&quot;,&nbsp;1);</b></pre>
