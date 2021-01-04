@@ -4971,8 +4971,7 @@ conversion(
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
         to="1.4.0-alpha2"),
       from(version="1.4.0-alpha2", script="modelica://Chemical/Resources/Scripts/ConvertFromChemical_1.4.0-alpha2.mos")),
-uses(                           Physiolibrary(version="3.0.0-alpha2"),
-      Modelica(version="4.0.0")),
+uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
