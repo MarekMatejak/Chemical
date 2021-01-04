@@ -307,8 +307,8 @@ package Chemical "Physical Chemistry"
     model Substance "Substance in solution"
       extends Icons.Substance;
 
-    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
-      "Molar concentration of particles";
+      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+        "Molar concentration of particles";
 
       extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts; //(x(start=amountOfSubstance_start));
 
@@ -317,49 +317,48 @@ package Chemical "Physical Chemistry"
       parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
 
-    parameter Modelica.Units.SI.Mass mass_start=if use_mass_start then
-        OneKg else amountOfSubstance_start*stateOfMatter.molarMass(
-        substanceData)
-      annotation (Dialog(group="Initialization", enable=use_mass_start));
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start
-      =if use_mass_start then mass_start/stateOfMatter.molarMass(
-        substanceData) else OneKg/stateOfMatter.molarMass(substanceData)
-      annotation (Dialog(group="Initialization", enable=not
-            use_mass_start));
+      parameter Modelica.Units.SI.Mass mass_start=if use_mass_start then
+          OneKg else amountOfSubstance_start*stateOfMatter.molarMass(
+          substanceData)
+        annotation (Dialog(group="Initialization", enable=use_mass_start));
+      parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=
+          if use_mass_start then mass_start/stateOfMatter.molarMass(
+          substanceData) else OneKg/stateOfMatter.molarMass(substanceData)
+        annotation (Dialog(group="Initialization", enable=not use_mass_start));
 
 
-    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
-        stateOfMatter.molarMass(substanceData) "Mass";
+      Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+          stateOfMatter.molarMass(substanceData) "Mass";
 
       parameter Boolean calculateClusteringHeat = false "Only for self clustering substances"
           annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
   protected
-    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=if (
-          stateOfMatter.selfClustering(substanceData)) then mass_start/
-          stateOfMatter.molarMass(substanceData) else mass_start/
-          stateOfMatter.molarMass(substanceData))
-      "Amount of all molecules inside all clusters in compartment";
-    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=if (
-          stateOfMatter.selfClustering(substanceData)) then 1*mass_start/
-          (stateOfMatter.molarMass(substanceData)^2) else mass_start/
-          stateOfMatter.molarMass(substanceData))
-      "Amount of free molecules not included inside any clusters in compartment";
-    Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=if (
-          stateOfMatter.selfClustering(substanceData)) then 1*mass_start
-           else mass_start/stateOfMatter.molarMass(substanceData))
-      "Amount of particles/clusters in compartment";
+      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=if (
+            stateOfMatter.selfClustering(substanceData)) then mass_start/
+            stateOfMatter.molarMass(substanceData) else mass_start/
+            stateOfMatter.molarMass(substanceData))
+        "Amount of all molecules inside all clusters in compartment";
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=if (
+            stateOfMatter.selfClustering(substanceData)) then 1*mass_start/(
+            stateOfMatter.molarMass(substanceData)^2) else mass_start/
+            stateOfMatter.molarMass(substanceData))
+        "Amount of free molecules not included inside any clusters in compartment";
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=if (
+            stateOfMatter.selfClustering(substanceData)) then 1*mass_start
+             else mass_start/stateOfMatter.molarMass(substanceData))
+        "Amount of particles/clusters in compartment";
 
-    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-
-        SelfClustering_dG/(Modelica.Constants.R*solution.T))
-      "Dissociation constant of hydrogen bond between base molecules";
-    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-        stateOfMatter.selfClusteringEnthalpy(substanceData) - solution.T*
-        stateOfMatter.selfClusteringEntropy(substanceData)
-      "Gibbs energy of hydrogen bond between H2O molecules";
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*solution.T))
+        "Dissociation constant of hydrogen bond between base molecules";
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          stateOfMatter.selfClusteringEnthalpy(substanceData) - solution.T*
+          stateOfMatter.selfClusteringEntropy(substanceData)
+        "Gibbs energy of hydrogen bond between H2O molecules";
 
-    Modelica.Units.SI.AmountOfSubstance amountOfAdditionalBonds
-      "Amount of hydrogen bonds between molecules in compartment";
+      Modelica.Units.SI.AmountOfSubstance amountOfAdditionalBonds
+        "Amount of hydrogen bonds between molecules in compartment";
 
      // Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/stateOfMatter.molarMass(substanceData)))
      // "Decadic logarithm of the amount of all clusters in solution";
@@ -368,8 +367,14 @@ package Chemical "Physical Chemistry"
       "Natural logarithm of the amount of all clusters in solution";
 
     //  constant Real InvLog_10=1/log(10);
-    constant Modelica.Units.SI.Mass OneKg=1;
+      constant Modelica.Units.SI.Mass OneKg=1;
 
+
+      parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
 
 
     initial equation
@@ -398,7 +403,9 @@ package Chemical "Physical Chemistry"
         //TODO: more precise calculation of other properties
 
 
-        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
+        solution.dH =
+          if (EnthalpyNotUsed) then  0
+          else      (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
                       + der(molarEnthalpy)*amountOfBaseMolecules+
                     (if (calculateClusteringHeat) then
                         stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0)
@@ -413,7 +420,9 @@ package Chemical "Physical Chemistry"
         amountOfBaseMolecules = amountOfFreeMolecule;
         amountOfAdditionalBonds = 0;
 
-        solution.dH = (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
+        solution.dH =
+          if (EnthalpyNotUsed) then  0
+          else       (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
                       +der(molarEnthalpy)*amountOfBaseMolecules "change of substance enthalpy [J/s]";
 
         solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
@@ -484,22 +493,21 @@ package Chemical "Physical Chemistry"
       parameter Integer nS=0 "Number of substrate types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
-    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
-      "Stoichiometric reaction coefficient for substrates"
-      annotation (HideResult=true);
+      parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
+        "Stoichiometric reaction coefficient for substrates"
+        annotation (HideResult=true);
 
       parameter Integer nP=0 "Number of product types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
-    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
-      "Stoichiometric reaction coefficients for products"
-      annotation (HideResult=true);
+      parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
+        "Stoichiometric reaction coefficients for products"
+        annotation (HideResult=true);
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
         annotation(Dialog(group="Chemical kinetics"));
 
-    Modelica.Units.SI.MolarFlowRate rr(start=0)
-      "Reaction molar flow rate";
+      Modelica.Units.SI.MolarFlowRate rr(start=0) "Reaction molar flow rate";
 
       Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
@@ -517,9 +525,15 @@ package Chemical "Physical Chemistry"
           rotation=180,
           origin={100,0})));
 
-    Modelica.Units.SI.MolarEnthalpy h_mix;
+      Modelica.Units.SI.MolarEnthalpy h_mix;
+
+      parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
   protected
-    Modelica.Units.SI.ChemicalPotential du;
+      Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
       du = ((p * products.u) - (s * substrates.u));
@@ -536,10 +550,10 @@ package Chemical "Physical Chemistry"
       products.h_outflow = h_mix*ones(nP);
 
       if
-        (rr<0) then
+        (rr<0 and not EnthalpyNotUsed) then
         h_mix*(products.q*ones(nP)) + substrates.q*inStream(substrates.h_outflow) = 0;
       elseif
-            (rr>0) then
+            (rr>0 and not EnthalpyNotUsed) then
         h_mix*(substrates.q*ones(nS)) + products.q*inStream(products.h_outflow) = 0;
       else
         h_mix=0;
@@ -700,7 +714,7 @@ package Chemical "Physical Chemistry"
 
     model Diffusion "Solute diffusion"
       extends Icons.Diffusion;
-      extends Interfaces.OnePortParallel;
+      extends Interfaces.OnePort;
       extends Interfaces.ConditionalKinetics;
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
@@ -738,12 +752,19 @@ package Chemical "Physical Chemistry"
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
+       parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
   protected
-    Modelica.Units.SI.ChemicalPotential du;
+      Modelica.Units.SI.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
-      gas_port.h_outflow = inStream( liquid_port.h_outflow);
-      liquid_port.h_outflow = inStream( gas_port.h_outflow);
+      gas_port.h_outflow = if
+                             (EnthalpyNotUsed) then 0 else inStream( liquid_port.h_outflow);
+      liquid_port.h_outflow = if
+                                (EnthalpyNotUsed) then 0 else inStream( gas_port.h_outflow);
 
       du = (liquid_port.u - gas_port.u);
       // - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
@@ -825,7 +846,7 @@ package Chemical "Physical Chemistry"
     model Membrane
     "Passive transport of the substance through semipermeable membrane"
       extends Icons.Membrane;
-      extends Interfaces.OnePortParallel;
+      extends Interfaces.OnePort;
       extends Interfaces.ConditionalKinetics;
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
@@ -854,7 +875,7 @@ package Chemical "Physical Chemistry"
     end Membrane;
 
     model SubstancePump "Prescribed sunstance molar flow"
-      extends Interfaces.OnePortParallel;
+      extends Interfaces.OnePort;
       extends Interfaces.ConditionalSubstanceFlow;
 
     equation
@@ -903,14 +924,13 @@ package Chemical "Physical Chemistry"
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-    Modelica.Units.SI.AmountOfSubstance nm
-      "Amount of the macromolecule (all form in the conformation)";
-    Modelica.Units.SI.MoleFraction xm
-      "Mole fraction of the macromolecule (all form of in the conformation)";
+      Modelica.Units.SI.AmountOfSubstance nm
+        "Amount of the macromolecule (all form in the conformation)";
+      Modelica.Units.SI.MoleFraction xm
+        "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package
-        stateOfMatter =
+      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
             stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
@@ -924,8 +944,14 @@ package Chemical "Physical Chemistry"
           rotation=90,
           origin={-30,102})));
 
+      parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
+
   protected
-    Modelica.Units.SI.MolarEnthalpy h_mix;
+      Modelica.Units.SI.MolarEnthalpy h_mix;
     equation
       //amount of macromolecule (all forms in conformation)
       nm*NumberOfSubunits + subunitSolution.nj = 0;
@@ -945,10 +971,10 @@ package Chemical "Physical Chemistry"
       subunits.h_outflow = (h_mix/NumberOfSubunits)*ones(NumberOfSubunits);
 
        if
-         (port_a.q < 0) then
+         (port_a.q < 0 and not EnthalpyNotUsed) then
          h_mix = inStream(subunits.h_outflow) * ones(NumberOfSubunits);
        elseif
-             (port_a.q > 0) then
+             (port_a.q > 0 and not EnthalpyNotUsed) then
          h_mix = inStream(port_a.h_outflow);
        else
          h_mix = 0;
@@ -1090,7 +1116,7 @@ package Chemical "Physical Chemistry"
          redeclare package stateOfMatter = stateOfMatter,
          substanceData=substanceData)
         annotation (Placement(transformation(extent={{-56,-10},{-76,10}})));
-      SubstancePump substancePump(useSubstanceFlowInput=true)
+      SubstancePump substancePump(useSubstanceFlowInput=true,EnthalpyNotUsed=EnthalpyNotUsed)
         annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
       Modelica.Blocks.Logical.Switch switch1 annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
@@ -1112,6 +1138,13 @@ package Chemical "Physical Chemistry"
       Interfaces.SolutionPort solution(redeclare package stateOfMatter =
           stateOfMatter)
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
+
+     parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
+
     equation
       product.u1=q;
       product1.u2=q;
@@ -1385,7 +1418,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model MolarFlowSensor "Measure of molar flow"
 
       extends Modelica.Icons.RoundSensor;
-      extends Interfaces.OnePortSerial;
+      extends Interfaces.OnePort;
 
       Modelica.Blocks.Interfaces.RealOutput molarFlowRate(final unit="mol/s") annotation (
           Placement(transformation(
@@ -2963,6 +2996,29 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end SubstancePort_b;
+
+    partial model OnePort "Base model for chemical process"
+
+    SubstancePort_b port_a annotation (Placement(transformation(extent={{-110,-10},
+              {-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+    SubstancePort_a port_b annotation (Placement(transformation(extent={{90,-10},
+              {110,10}}), iconTransformation(extent={{90,-10},{110,10}})));
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
+
+    equation
+      port_a.q + port_b.q = 0;
+      port_a.h_outflow =
+       if EnthalpyNotUsed then 0
+       else inStream(port_b.h_outflow);
+      port_b.h_outflow =
+       if EnthalpyNotUsed then 0
+       else inStream(port_a.h_outflow);
+    end OnePort;
 
     connector SubstancePorts_a
       extends SubstancePort;
@@ -4582,32 +4638,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>To calculate the sum of extensive substance's properties is misused the Modelica \"flow\" prefix even there are not real physical flows. </p>
 </html>"));
     end PartialSolutionWithHeatPort;
-
-    partial model OnePortParallel
-    "Partial molar flow between two substance definitions"
-
-    SubstancePort_b port_a annotation (Placement(transformation(extent={{-110,-10},
-              {-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
-    SubstancePort_b port_b annotation (Placement(transformation(extent={{90,-10},
-              {110,10}}), iconTransformation(extent={{90,-10},{110,10}})));
-    equation
-      port_a.q + port_b.q = 0;
-      port_a.h_outflow = inStream(port_b.h_outflow);
-      port_b.h_outflow = inStream(port_a.h_outflow);
-    end OnePortParallel;
-
-    partial model OnePortSerial
-    "Partial transfer of substance from substance definition component to another transfer component (such as MolarFlowSensor)"
-
-    SubstancePort_b port_a annotation (Placement(transformation(extent={{-110,-10},
-              {-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
-    SubstancePort_a port_b annotation (Placement(transformation(extent={{90,-10},
-              {110,10}}), iconTransformation(extent={{90,-10},{110,10}})));
-    equation
-      port_a.q + port_b.q = 0;
-      port_a.h_outflow = inStream(port_b.h_outflow);
-      port_b.h_outflow = inStream(port_a.h_outflow);
-    end OnePortSerial;
 
     partial model ConditionalSolutionFlow
     "Input of solution molar flow vs. parametric solution molar flow"
