@@ -231,16 +231,16 @@ package Chemical "Physical Chemistry"
 
       extends Interfaces.PartialSolutionWithHeatPort(pressure(start=BasePressure));
 
-      parameter Modelica.SIunits.Pressure BasePressure=system.p_ambient
+    parameter Modelica.Units.SI.Pressure BasePressure=system.p_ambient
       "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Area SurfaceArea=0.01
+    parameter Modelica.Units.SI.Area SurfaceArea=0.01
       "Area for surfacePort to connect MultiBody components"
-        annotation (HideResult=true, Dialog(enable=useMechanicPorts));
+      annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 
       parameter Boolean isPistonPositionAbsolute=false
       "Relavite position has zero at initial state without force"
@@ -261,10 +261,11 @@ package Chemical "Physical Chemistry"
             transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
               {62,-96}})));
   protected
-      parameter Modelica.SIunits.Position positionShift(fixed=false)
+    parameter Modelica.Units.SI.Position positionShift(fixed=false)
       "=0 absolute, otherwise negative";
-       Modelica.SIunits.Position top_s,ds;
-       Modelica.SIunits.Force f;
+    Modelica.Units.SI.Position top_s;
+    Modelica.Units.SI.Position ds;
+    Modelica.Units.SI.Force f;
 
     initial equation
       positionShift= if
@@ -306,7 +307,8 @@ package Chemical "Physical Chemistry"
     model Substance "Substance in solution"
       extends Icons.Substance;
 
-      Modelica.SIunits.Concentration c(displayUnit="mmol/l") "Molar concentration of particles";
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
 
       extends Interfaces.PartialSubstanceInSolutionWithAdditionalPorts; //(x(start=amountOfSubstance_start));
 
@@ -315,29 +317,49 @@ package Chemical "Physical Chemistry"
       parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
 
-      parameter Modelica.SIunits.Mass mass_start=if use_mass_start then OneKg else amountOfSubstance_start*stateOfMatter.molarMass(substanceData)
-          annotation(Dialog(group = "Initialization", enable = use_mass_start));
-      parameter Modelica.SIunits.AmountOfSubstance amountOfSubstance_start=if use_mass_start then mass_start/stateOfMatter.molarMass(substanceData) else OneKg/stateOfMatter.molarMass(substanceData)
-        annotation(Dialog(group = "Initialization", enable = not use_mass_start));
+    parameter Modelica.Units.SI.Mass mass_start=if use_mass_start then
+        OneKg else amountOfSubstance_start*stateOfMatter.molarMass(
+        substanceData)
+      annotation (Dialog(group="Initialization", enable=use_mass_start));
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start
+      =if use_mass_start then mass_start/stateOfMatter.molarMass(
+        substanceData) else OneKg/stateOfMatter.molarMass(substanceData)
+      annotation (Dialog(group="Initialization", enable=not
+            use_mass_start));
 
 
-      Modelica.SIunits.Mass mass=amountOfBaseMolecules*stateOfMatter.molarMass(substanceData) "Mass";
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        stateOfMatter.molarMass(substanceData) "Mass";
 
       parameter Boolean calculateClusteringHeat = false "Only for self clustering substances"
           annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
   protected
-      Modelica.SIunits.AmountOfSubstance amountOfBaseMolecules(start=if
-                                                                       (stateOfMatter.selfClustering(substanceData)) then mass_start/stateOfMatter.molarMass(substanceData) else mass_start/stateOfMatter.molarMass(substanceData)) "Amount of all molecules inside all clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfFreeMolecule(start=if
-                                                                      (stateOfMatter.selfClustering(substanceData)) then 1*mass_start/(stateOfMatter.molarMass(substanceData)^2) else mass_start/stateOfMatter.molarMass(substanceData)) "Amount of free molecules not included inside any clusters in compartment";
-      Modelica.SIunits.AmountOfSubstance amountOfParticles(start=if
-                                                                   (stateOfMatter.selfClustering(substanceData)) then 1*mass_start else mass_start/stateOfMatter.molarMass(substanceData)) "Amount of particles/clusters in compartment";
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=if (
+          stateOfMatter.selfClustering(substanceData)) then mass_start/
+          stateOfMatter.molarMass(substanceData) else mass_start/
+          stateOfMatter.molarMass(substanceData))
+      "Amount of all molecules inside all clusters in compartment";
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=if (
+          stateOfMatter.selfClustering(substanceData)) then 1*mass_start/
+          (stateOfMatter.molarMass(substanceData)^2) else mass_start/
+          stateOfMatter.molarMass(substanceData))
+      "Amount of free molecules not included inside any clusters in compartment";
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=if (
+          stateOfMatter.selfClustering(substanceData)) then 1*mass_start
+           else mass_start/stateOfMatter.molarMass(substanceData))
+      "Amount of particles/clusters in compartment";
 
-      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T))  "Dissociation constant of hydrogen bond between base molecules";
-      Modelica.SIunits.ChemicalPotential SelfClustering_dG = stateOfMatter.selfClusteringEnthalpy(substanceData)-solution.T*stateOfMatter.selfClusteringEntropy(substanceData) "Gibbs energy of hydrogen bond between H2O molecules";
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-
+        SelfClustering_dG/(Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringEnthalpy(substanceData) - solution.T*
+        stateOfMatter.selfClusteringEntropy(substanceData)
+      "Gibbs energy of hydrogen bond between H2O molecules";
 
-      Modelica.SIunits.AmountOfSubstance amountOfAdditionalBonds "Amount of hydrogen bonds between molecules in compartment";
+    Modelica.Units.SI.AmountOfSubstance amountOfAdditionalBonds
+      "Amount of hydrogen bonds between molecules in compartment";
 
      // Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/stateOfMatter.molarMass(substanceData)))
      // "Decadic logarithm of the amount of all clusters in solution";
@@ -346,7 +368,7 @@ package Chemical "Physical Chemistry"
       "Natural logarithm of the amount of all clusters in solution";
 
     //  constant Real InvLog_10=1/log(10);
-      constant Modelica.SIunits.Mass OneKg = 1;
+    constant Modelica.Units.SI.Mass OneKg=1;
 
 
 
@@ -462,21 +484,22 @@ package Chemical "Physical Chemistry"
       parameter Integer nS=0 "Number of substrate types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
+    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
       parameter Integer nP=0 "Number of product types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
+    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
         annotation(Dialog(group="Chemical kinetics"));
 
-      Modelica.SIunits.MolarFlowRate rr(start=0) "Reaction molar flow rate";
+    Modelica.Units.SI.MolarFlowRate rr(start=0)
+      "Reaction molar flow rate";
 
       Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
@@ -494,9 +517,9 @@ package Chemical "Physical Chemistry"
           rotation=180,
           origin={100,0})));
 
-      Modelica.SIunits.MolarEnthalpy h_mix;
+    Modelica.Units.SI.MolarEnthalpy h_mix;
   protected
-      Modelica.SIunits.ChemicalPotential du;
+    Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
       du = ((p * products.u) - (s * substrates.u));
@@ -683,7 +706,7 @@ package Chemical "Physical Chemistry"
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
   protected
-      Modelica.SIunits.ChemicalPotential du;
+    Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
       du = (port_b.u - port_a.u);
@@ -716,7 +739,7 @@ package Chemical "Physical Chemistry"
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
   protected
-      Modelica.SIunits.ChemicalPotential du;
+    Modelica.Units.SI.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
       gas_port.h_outflow = inStream( liquid_port.h_outflow);
@@ -808,7 +831,7 @@ package Chemical "Physical Chemistry"
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
   protected
-      Modelica.SIunits.ChemicalPotential du;
+    Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
       du = (port_a.u - port_b.u);
@@ -880,13 +903,14 @@ package Chemical "Physical Chemistry"
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-        Modelica.SIunits.AmountOfSubstance nm
+    Modelica.Units.SI.AmountOfSubstance nm
       "Amount of the macromolecule (all form in the conformation)";
-        Modelica.SIunits.MoleFraction xm
+    Modelica.Units.SI.MoleFraction xm
       "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
+      Interfaces.SolutionPort subunitSolution(redeclare package
+        stateOfMatter =
             stateOfMatter) "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
@@ -901,7 +925,7 @@ package Chemical "Physical Chemistry"
           origin={-30,102})));
 
   protected
-      Modelica.SIunits.MolarEnthalpy h_mix;
+    Modelica.Units.SI.MolarEnthalpy h_mix;
     equation
       //amount of macromolecule (all forms in conformation)
       nm*NumberOfSubunits + subunitSolution.nj = 0;
@@ -1224,25 +1248,33 @@ package Chemical "Physical Chemistry"
         annotation (Placement(transformation(extent={{-50,-40},{-30,-20}}),
             iconTransformation(extent={{-50,-40},{-30,-20}})));
 
-      Modelica.SIunits.MassFraction x_mass[Medium.nCS] "Mass fraction of the substance from Chemical.Substance[]";
-      Modelica.SIunits.MassFraction xx_mass[nFluidPorts,Medium.nCS] "Mass fraction of the substance per actual stream in fluid port";
-      Modelica.SIunits.MassFlowRate m_flow[nFluidPorts,Medium.nCS] "Mass flow rate from fluid ports";
-      Modelica.SIunits.MassFlowRate m_flow_sum[Medium.nCS] "Mass flow rate of substance";
-      Modelica.SIunits.Concentration actualC_outflow[nFluidPorts,Medium.nC] "Actual C at fluid ports";
-      Modelica.SIunits.Concentration actualC_outflow_sum[nFluidPorts] "Sum of all C at fluid port";
-      Modelica.SIunits.MassFraction actualXi_outflow[nFluidPorts,Medium.nXi] "Actual Xi at fluid ports";
-      Modelica.SIunits.MassFraction actualXi_outflow_sum[nFluidPorts] "Sum of all Xi at fluid port";
+    Modelica.Units.SI.MassFraction x_mass[Medium.nCS]
+      "Mass fraction of the substance from Chemical.Substance[]";
+    Modelica.Units.SI.MassFraction xx_mass[nFluidPorts,Medium.nCS]
+      "Mass fraction of the substance per actual stream in fluid port";
+    Modelica.Units.SI.MassFlowRate m_flow[nFluidPorts,Medium.nCS]
+      "Mass flow rate from fluid ports";
+    Modelica.Units.SI.MassFlowRate m_flow_sum[Medium.nCS]
+      "Mass flow rate of substance";
+    Modelica.Units.SI.Concentration actualC_outflow[nFluidPorts,Medium.nC]
+      "Actual C at fluid ports";
+    Modelica.Units.SI.Concentration actualC_outflow_sum[nFluidPorts]
+      "Sum of all C at fluid port";
+    Modelica.Units.SI.MassFraction actualXi_outflow[nFluidPorts,Medium.nXi]
+      "Actual Xi at fluid ports";
+    Modelica.Units.SI.MassFraction actualXi_outflow_sum[nFluidPorts]
+      "Sum of all Xi at fluid port";
 
 
-      Modelica.SIunits.MolarMass molarMass[Medium.nCS] "Molar mass of the substance";
+    Modelica.Units.SI.MolarMass molarMass[Medium.nCS]
+      "Molar mass of the substance";
 
-      Modelica.SIunits.Temperature temperature
+    Modelica.Units.SI.Temperature temperature
       "Temperature of the solution";
 
-      Modelica.SIunits.Pressure pressure
-      "Pressure of the solution";
+    Modelica.Units.SI.Pressure pressure "Pressure of the solution";
 
-      Modelica.SIunits.ElectricPotential electricPotential(start=0)
+    Modelica.Units.SI.ElectricPotential electricPotential(start=0)
       "Electric potential of the solution";
 
 
@@ -1352,7 +1384,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model MolarFlowSensor "Measure of molar flow"
 
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.OnePortSerial;
 
       Modelica.Blocks.Interfaces.RealOutput molarFlowRate(final unit="mol/s") annotation (
@@ -1394,7 +1426,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end MolarFlowSensor;
 
     model MoleFractionSensor "Measure of mole fraction"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.PartialSubstanceSensor;
 
       Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
@@ -1431,7 +1463,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model ElectroChemicalPotentialSensor
     "Measure of electro-chemical potential"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
 
       Modelica.Blocks.Interfaces.RealOutput u(final unit="J/mol")
       "Electro-chemical potential of the substance"
@@ -1470,10 +1502,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end ElectroChemicalPotentialSensor;
 
     model MolalitySensor "Measure of molality of the substance"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.PartialSubstanceSensor;
 
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1kgOfSolvent = 1
+    parameter Modelica.Units.SI.AmountOfSubstance
+      AmountOfSolutionPer1kgOfSolvent=1
       "Amount of all particles in the solution per one kilogram of solvent";
 
        Modelica.Blocks.Interfaces.RealOutput molality(final unit="mol/kg")
@@ -1488,7 +1521,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
           rotation=180)));
 
   protected
-      constant Modelica.SIunits.Mass KG=1;
+    constant Modelica.Units.SI.Mass KG=1;
     equation
       port_a.q = 0;
 
@@ -1511,10 +1544,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end MolalitySensor;
 
     model MolarConcentrationSensor "Measure of molarity of the substance"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.PartialSubstanceSensor;
 
-    parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneLiter = 55.508
+    parameter Modelica.Units.SI.AmountOfSubstance
+      AmountOfSolutionInOneLiter=55.508
       "Amount of all particles in one liter of the solution";
 
        Modelica.Blocks.Interfaces.RealOutput molarConcentration(final unit="mol/m3", displayUnit="mol/l")
@@ -1529,7 +1563,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
           rotation=180)));
 
   protected
-      constant Modelica.SIunits.Volume L=0.001;
+    constant Modelica.Units.SI.Volume L=0.001;
     equation
       port_a.q = 0;
 
@@ -1552,10 +1586,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     end MolarConcentrationSensor;
 
     model MassFractionSensor "Measure of mass fraction of the substance"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.PartialSubstanceSensor;
 
-    parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionInOneKilogram = 55.508
+    parameter Modelica.Units.SI.AmountOfSubstance
+      AmountOfSolutionInOneKilogram=55.508
       "Amount of all particles in one kilogram of the solution";
 
        Modelica.Blocks.Interfaces.RealOutput massFraction(final unit="kg/kg")
@@ -1592,7 +1627,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model PartialPressureSensor
     "Measure of partial pressure of the substance in gaseous solution"
-      extends Modelica.Icons.RotationalSensor;
+      extends Modelica.Icons.RoundSensor;
       extends Interfaces.PartialSubstanceSensor;
 
        Modelica.Blocks.Interfaces.RealOutput partialPressure(final unit="Pa")
@@ -1629,14 +1664,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model DissociationCoefficient
     "Meassure dissociation coefficient (mole fraction based) for pure substances"
-      extends Modelica.Icons.TranslationalSensor;
+      extends Modelica.Icons.RectangularSensor;
 
       parameter Boolean useTemperatureInput = false
       "=true, if temperature is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Temperature T=298.15 "Temperature if not useTemperatureInput"
-        annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
+    parameter Modelica.Units.SI.Temperature T=298.15
+      "Temperature if not useTemperatureInput" annotation (HideResult=
+          true, Dialog(enable=not useTemperatureInput));
 
       Modelica.Blocks.Interfaces.RealInput temperature(start=
             T, final unit="K")=_temperature if useTemperatureInput
@@ -1651,9 +1687,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "=true, if total amount of substances in solution is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.AmountOfSubstance n=1
+    parameter Modelica.Units.SI.AmountOfSubstance n=1
       "Amount of all substances in solution per one liter of solution if not useTotalAmountOfSubstancesInput"
-        annotation (HideResult=true, Dialog(enable=not useTotalAmountOfSubstancesInput));
+      annotation (HideResult=true, Dialog(enable=not
+            useTotalAmountOfSubstancesInput));
 
       Modelica.Blocks.Interfaces.RealInput totalAmountOfSubstances(start=
             n, final unit="mol")=_n if useTotalAmountOfSubstancesInput
@@ -1663,22 +1700,22 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=270,
             origin={40,40})));
 
-      parameter Modelica.SIunits.Mass m=1
+    parameter Modelica.Units.SI.Mass m=1
       "Mass of solvent per one liter of solution";
 
       parameter Integer nS=0 "Number of substrates types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
+    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
       parameter Integer nP=0 "Number of products types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
+    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
     Interfaces.SubstancePort_b products[nP] "Products"
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
@@ -1686,7 +1723,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     Interfaces.SubstancePort_b substrates[nS] "Substrates"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-      Modelica.SIunits.MolarEnergy DrG "Free Gibbs energy of reaction";
+    Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
       Modelica.Blocks.Interfaces.RealOutput DissociationCoefficient_MoleFractionBased
       "Dissociation constant (if all substances has activity=1)"   annotation (Placement(transformation(
@@ -1704,8 +1741,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "= -log10('mole-fraction based dissociation coefficient')";
 
   protected
-      Modelica.SIunits.Temperature _temperature;
-      Modelica.SIunits.AmountOfSubstance _n;
+    Modelica.Units.SI.Temperature _temperature;
+    Modelica.Units.SI.AmountOfSubstance _n;
     equation
       if not useTemperatureInput then
         _temperature = T;
@@ -1817,14 +1854,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model ActivityCoefficient
       "Calculate activity coefficient for product[1]"
-      extends Modelica.Icons.TranslationalSensor;
+      extends Modelica.Icons.RectangularSensor;
 
       parameter Boolean useTemperatureInput = false
       "=true, if temperature is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Temperature T=298.15 "Temperature if not useTemperatureInput"
-        annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
+    parameter Modelica.Units.SI.Temperature T=298.15
+      "Temperature if not useTemperatureInput" annotation (HideResult=
+          true, Dialog(enable=not useTemperatureInput));
 
       Modelica.Blocks.Interfaces.RealInput temperature(start=
             T, final unit="K")=_temperature if useTemperatureInput
@@ -1838,9 +1876,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "=true, if total amount of substances in solution is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.AmountOfSubstance n=1
+    parameter Modelica.Units.SI.AmountOfSubstance n=1
       "Amount of all substances in solution per one liter of solution if not useTotalAmountOfSubstancesInput"
-        annotation (HideResult=true, Dialog(enable=not useTotalAmountOfSubstancesInput));
+      annotation (HideResult=true, Dialog(enable=not
+            useTotalAmountOfSubstancesInput));
 
       Modelica.Blocks.Interfaces.RealInput totalAmountOfSubstances(start=
             n, final unit="mol")=_n if useTotalAmountOfSubstancesInput
@@ -1850,22 +1889,22 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=270,
             origin={40,40})));
 
-      parameter Modelica.SIunits.Mass m=1
+    parameter Modelica.Units.SI.Mass m=1
       "Mass of solvent per one liter of solution";
 
       parameter Integer nS=0 "Number of substrates types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber s[nS]=ones(nS)
+    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
       "Stoichiometric reaction coefficient for substrates"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
       parameter Integer nP=0 "Number of products types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, group="Ports"));
 
-      parameter Modelica.SIunits.StoichiometricNumber p[nP]=ones(nP)
+    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
       "Stoichiometric reaction coefficients for products"
-        annotation (HideResult=true);
+      annotation (HideResult=true);
 
     Interfaces.SubstancePort_b products[nP] "Products"
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
@@ -1873,7 +1912,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     Interfaces.SubstancePort_b substrates[nS] "Substrates"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-      Modelica.SIunits.MolarEnergy DrG "Free Gibbs energy of reaction";
+    Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
       Modelica.Blocks.Interfaces.RealOutput activityCoeficient
       "Activity coeficient of one product"   annotation (Placement(transformation(
@@ -1897,8 +1936,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "= -log10('mole-fraction based dissociation coefficient')";
 
   protected
-      Modelica.SIunits.Temperature _temperature;
-      Modelica.SIunits.AmountOfSubstance _n;
+    Modelica.Units.SI.Temperature _temperature;
+    Modelica.Units.SI.AmountOfSubstance _n;
     equation
       if not useTemperatureInput then
         _temperature = T;
@@ -2014,18 +2053,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model PureSubstance "Constant source of pure substance"
       extends Interfaces.PartialSubstance;
 
-      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature"
-         annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
-      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure"
-         annotation (HideResult=true, Dialog(enable=not usePressureInput));
-      parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential"
-         annotation (HideResult=true, Dialog(enable=not useElectricPotentialInput));
-      parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength"
-         annotation (HideResult=true, Dialog(enable=not useIonicStrengthInput));
-      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
-      "Other extensive properties of the solution";
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature"
+        annotation (HideResult=true, Dialog(enable=not useTemperatureInput));
+      parameter Modelica.Units.SI.Pressure Pressure=system.p_ambient
+        "Pressure"
+        annotation (HideResult=true, Dialog(enable=not usePressureInput));
+      parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
+        "Electric potential" annotation (HideResult=true, Dialog(enable=not
+              useElectricPotentialInput));
+      parameter Modelica.Units.SI.MoleFraction MoleFractionBasedIonicStrength=
+         0 "Ionic strength" annotation (HideResult=true, Dialog(enable=not
+              useIonicStrengthInput));
 
       parameter Boolean useTemperatureInput = false
       "=true, if temperature is from input instead of parameter"
@@ -2067,8 +2106,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         annotation (HideResult=true,Placement(transformation(extent={{-120,-100},
                 {-80,-60}}),iconTransformation(extent={{-120,-100},{-80,-60}})));
   protected
-      Modelica.SIunits.MoleFraction SelfClustering_K = exp(-SelfClustering_dG/(Modelica.Constants.R*temperature))  "Dissociation constant of hydrogen bond between base molecules";
-      Modelica.SIunits.ChemicalPotential SelfClustering_dG = stateOfMatter.selfClusteringEnthalpy(substanceData)-temperature*stateOfMatter.selfClusteringEntropy(substanceData) "Gibbs energy of hydrogen bond between H2O molecules";
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*temperature))
+        "Dissociation constant of hydrogen bond between base molecules";
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          stateOfMatter.selfClusteringEnthalpy(substanceData) - temperature*
+          stateOfMatter.selfClusteringEntropy(substanceData)
+        "Gibbs energy of hydrogen bond between H2O molecules";
 
 
     equation
@@ -2141,38 +2185,37 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model ExternalIdealGasSubstance
     "Ideal gas substance with defined partial pressure"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
-            Interfaces.IdealGas);
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter
+        =   Interfaces.IdealGas);
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Pressure PartialPressure=0
-      "Fixed partial pressure if usePartialPressureInput=false"
-        annotation (HideResult=true, Dialog(enable=not usePartialPressureInput));
+      parameter Modelica.Units.SI.Pressure PartialPressure=0
+        "Fixed partial pressure if usePartialPressureInput=false" annotation (
+         HideResult=true, Dialog(enable=not usePartialPressureInput));
 
-      parameter Modelica.SIunits.Pressure TotalPressure=system.p_ambient
-      "Total pressure of the whole gaseous solution";
+      parameter Modelica.Units.SI.Pressure TotalPressure=system.p_ambient
+        "Total pressure of the whole gaseous solution";
 
-      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
-      parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength";
-      parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential";
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature";
+      parameter Modelica.Units.SI.MoleFraction MoleFractionBasedIonicStrength=
+         0 "Ionic strength";
+      parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
+        "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput partialPressure(start=
             PartialPressure, final unit="Pa")=p if usePartialPressureInput
       "Partial pressure of gas = total pressure * gas fraction"
         annotation (HideResult=true,Placement(transformation(extent={{-120,-20},{-80,20}})));
 
-      Modelica.SIunits.Pressure p "Current partial pressure";
+      Modelica.Units.SI.Pressure p "Current partial pressure";
 
-      parameter Modelica.SIunits.Volume Volume = 0.001
-      "Volume of gaseous solution";
+      parameter Modelica.Units.SI.Volume Volume=0.001
+        "Volume of gaseous solution";
 
-      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
-      "Other extensive properties of the solution";
 
     equation
       if not usePartialPressureInput then
@@ -2240,31 +2283,33 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Fixed molality of the substance if useMolalityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolalityInput));
 
-       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionPer1KgSolvent = 55.508
-      "Amount of all particles in the solution per one kilogram of solvent";
+      parameter Modelica.Units.SI.AmountOfSubstance
+        AmountOfSolutionPer1KgSolvent=55.508
+        "Amount of all particles in the solution per one kilogram of solvent";
 
         parameter Boolean useMolalityInput = false
       "Is amount of substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
-      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
-      parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength";
-      parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential";
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature";
+      parameter Modelica.Units.SI.Pressure Pressure=system.p_ambient
+        "Pressure";
+      parameter Modelica.Units.SI.MoleFraction MoleFractionBasedIonicStrength=
+         0 "Ionic strength";
+      parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
+        "Electric potential";
 
-      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
-      "Other extensive properties of the solution";
+
 
       Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG if
            useMolalityInput
         annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
 
-      Modelica.SIunits.AmountOfSubstance n "Current amount of the substance";
+      Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
 
   protected
-      constant Modelica.SIunits.Mass KG=1;
+      constant Modelica.Units.SI.Mass KG=1;
     equation
        if not useMolalityInput then
          n=Molality*KG;
@@ -2324,30 +2369,30 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Fixed molarity of the substance if useMolarityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolarityInput));
 
-       parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 55.508
-      "Amount of all particles in the solution one liter of solvent";
+      parameter Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=55.508
+        "Amount of all particles in the solution one liter of solvent";
 
         parameter Boolean useMolarityInput = false
       "Is amount of substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-       parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
-      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
-      parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength";
-      parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential";
-      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
-      "Other extensive properties of the solution";
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature";
+      parameter Modelica.Units.SI.Pressure Pressure=system.p_ambient
+        "Pressure";
+      parameter Modelica.Units.SI.MoleFraction MoleFractionBasedIonicStrength=
+         0 "Ionic strength";
+      parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
+        "Electric potential";
 
       Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L if
            useMolarityInput
         annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
 
-      Modelica.SIunits.AmountOfSubstance n "Current amount of the substance";
+      Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
 
   protected
-      constant Modelica.SIunits.Volume L=0.001;
+      constant Modelica.Units.SI.Volume L=0.001;
     equation
        if not useMolarityInput then
          n=MolarConcentration*L;
@@ -2403,22 +2448,23 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        outer Modelica.Fluid.System system "System wide properties";
 
-       parameter Modelica.SIunits.MoleFraction MoleFraction = 1e-8
-      "Fixed mole fraction of the substance if useMoleFractionInput=false"
+      parameter Modelica.Units.SI.MoleFraction MoleFraction=1e-8
+        "Fixed mole fraction of the substance if useMoleFractionInput=false"
         annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
 
         parameter Boolean useMoleFractionInput = false
       "Is mole fraction of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Modelica.SIunits.Temperature Temperature=system.T_ambient "Temperature";
-      parameter Modelica.SIunits.Pressure Pressure=system.p_ambient "Pressure";
-      parameter Modelica.SIunits.MoleFraction MoleFractionBasedIonicStrength=0
-      "Ionic strength";
-      parameter Modelica.SIunits.ElectricPotential ElectricPotential=0
-      "Electric potential";
-      parameter Real OtherProperties[stateOfMatter.OtherPropertiesCount]=zeros(stateOfMatter.OtherPropertiesCount)
-      "Other extensive properties of the solution";
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature";
+      parameter Modelica.Units.SI.Pressure Pressure=system.p_ambient
+        "Pressure";
+      parameter Modelica.Units.SI.MoleFraction MoleFractionBasedIonicStrength=
+         0 "Ionic strength";
+      parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
+        "Electric potential";
+
 
       Modelica.Blocks.Interfaces.RealInput moleFractionInput(
         final unit="mol/mol",
@@ -2477,9 +2523,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model ExternalElectroChemicalPotential
     "Constant source of electro-chemical potential"
 
-       parameter Modelica.SIunits.ChemicalPotential U = 1e-8
+    parameter Modelica.Units.SI.ChemicalPotential U=1e-8
       "Fixed electro-chemical potential of the substance if usePotentialInput=false"
-        annotation (HideResult=true, Dialog(enable=not usePotentialInput));
+      annotation (HideResult=true, Dialog(enable=not usePotentialInput));
 
        parameter Boolean usePotentialInput = false
       "Is electro-chemical potential of the substance an input?"
@@ -2491,7 +2537,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     Interfaces.SubstancePort_a port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-       parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
+    parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
     equation
        if not usePotentialInput then
          port_a.u=U;
@@ -2542,7 +2588,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     Interfaces.SubstancePort_b port_b "Outflow"
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-      parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
+    parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
 
     equation
       port_b.q = -q;
@@ -2576,7 +2622,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     Interfaces.SubstancePort_b port_a "Inflow"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-      parameter Modelica.SIunits.MolarEnthalpy MolarHeat = 0;
+    parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
     equation
       port_a.q = q;
 
@@ -2608,14 +2654,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
      extends Interfaces.PartialSubstanceSensor;
 
-      parameter Modelica.SIunits.VolumeFlowRate Clearance=0
+    parameter Modelica.Units.SI.VolumeFlowRate Clearance=0
       "Physiological clearance of the substance if useSolutionFlowInput=false"
-        annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
+      annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
       parameter Real K(unit="1")=1
       "Coefficient such that Clearance = K*solutionFlow";
 
-      Modelica.SIunits.MolarFlowRate molarClearance "Current molar clearance";
+    Modelica.Units.SI.MolarFlowRate molarClearance
+      "Current molar clearance";
 
     equation
       molarClearance = q*K;
@@ -2652,7 +2699,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     model Degradation "Degradation of the substance"
       extends Interfaces.PartialSubstanceSensor;
 
-      parameter Modelica.SIunits.Time HalfTime
+    parameter Modelica.Units.SI.Time HalfTime
       "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
     equation
@@ -2737,12 +2784,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
            extends Interfaces.PartialSubstanceInSolution(
                      a(start = a_start));
 
-         parameter Modelica.SIunits.MoleFraction a_start=1e-7
+    parameter Modelica.Units.SI.MoleFraction a_start=1e-7
       "Initial value of mole fraction of the buffered substance";
 
-         parameter Modelica.SIunits.AmountOfSubstance BufferValue = 0.001
+    parameter Modelica.Units.SI.AmountOfSubstance BufferValue=0.001
       "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
-          annotation (HideResult=true, Dialog(enable=not useBufferValueInput));
+      annotation (HideResult=true, Dialog(enable=not useBufferValueInput));
 
          parameter Boolean useBufferValueInput = false
       "Is buffer value of the substance an input?"
@@ -2759,11 +2806,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
                 extent={{-120,-20},{-80,20}})));
 
           Real xref;
-        Modelica.SIunits.AmountOfSubstance nFreeBuffer(start=-log10(a_start)*BufferValue);
-        Modelica.SIunits.MoleFraction xFreeBuffer;
+    Modelica.Units.SI.AmountOfSubstance nFreeBuffer(start=-log10(a_start)
+          *BufferValue);
+    Modelica.Units.SI.MoleFraction xFreeBuffer;
 
   protected
-        Modelica.SIunits.MolarEnthalpy streamEnthalpy;
+    Modelica.Units.SI.MolarEnthalpy streamEnthalpy;
 
         constant Real InvLog_10=1/log(10);
     initial equation
@@ -2821,13 +2869,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     connector SubstancePort
     "Electro-chemical potential and molar change of the substance in the solution"
 
-      Modelica.SIunits.ChemicalPotential u
+    Modelica.Units.SI.ChemicalPotential u
       "Electro-chemical potential of the substance in the solution";
 
-      flow Modelica.SIunits.MolarFlowRate q "Molar change of the substance";
+    flow Modelica.Units.SI.MolarFlowRate q
+      "Molar change of the substance";
 
       //with molar flow of substance heat energy is changing also..
-      stream Modelica.SIunits.MolarEnthalpy h_outflow "Outgoing molar enthalphy";
+    stream Modelica.Units.SI.MolarEnthalpy h_outflow
+      "Outgoing molar enthalphy";
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -3033,50 +3083,50 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      "Definition of the substance"
         annotation (choicesAllMatching = true);
 
-     Modelica.SIunits.MoleFraction x "Mole fraction of the substance";
+    Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
 
-     Modelica.SIunits.ActivityOfSolute a
-     "Activity of the substance (mole-fraction based)";
+    Modelica.Units.SI.ActivityOfSolute a
+      "Activity of the substance (mole-fraction based)";
 
   protected
-     Modelica.SIunits.ActivityCoefficient gamma
-     "Activity coefficient of the substance";
+    Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
 
-     Modelica.SIunits.ChargeNumberOfIon z "Charge number of ion";
+    Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
 
-     Modelica.SIunits.Temperature temperature
-     "Temperature of the solution";
+    Modelica.Units.SI.Temperature temperature
+      "Temperature of the solution";
 
-     Modelica.SIunits.Pressure pressure
-     "Pressure of the solution";
+    Modelica.Units.SI.Pressure pressure "Pressure of the solution";
 
-     Modelica.SIunits.ElectricPotential electricPotential
-     "Electric potential of the solution";
+    Modelica.Units.SI.ElectricPotential electricPotential
+      "Electric potential of the solution";
 
-     Modelica.SIunits.MoleFraction moleFractionBasedIonicStrength
-     "Ionic strength of the solution";
+    Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength
+      "Ionic strength of the solution";
 
-     Modelica.SIunits.MolarMass molarMass "Molar mass of the substance";
+    Modelica.Units.SI.MolarMass molarMass "Molar mass of the substance";
 
-     Modelica.SIunits.MolarEnthalpy molarEnthalpy
-     "Molar enthalpy of the substance";
+    Modelica.Units.SI.MolarEnthalpy molarEnthalpy
+      "Molar enthalpy of the substance";
 
-     Modelica.SIunits.MolarEntropy molarEntropyPure
-     "Molar entropy of the pure substance";
+    Modelica.Units.SI.MolarEntropy molarEntropyPure
+      "Molar entropy of the pure substance";
 
-     Modelica.SIunits.ChemicalPotential u0
-     "Chemical potential of the pure substance";
+    Modelica.Units.SI.ChemicalPotential u0
+      "Chemical potential of the pure substance";
 
-     Modelica.SIunits.ChemicalPotential uPure
-     "Electro-Chemical potential of the pure substance";
+    Modelica.Units.SI.ChemicalPotential uPure
+      "Electro-Chemical potential of the pure substance";
 
-     Modelica.SIunits.MolarVolume molarVolume "Molar volume of the substance";
+    Modelica.Units.SI.MolarVolume molarVolume
+      "Molar volume of the substance";
 
-     Modelica.SIunits.MolarVolume molarVolumePure
-     "Molar volume of the pure substance";
+    Modelica.Units.SI.MolarVolume molarVolumePure
+      "Molar volume of the pure substance";
 
-     Modelica.SIunits.MolarVolume molarVolumeExcess
-     "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+    Modelica.Units.SI.MolarVolume molarVolumeExcess
+      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
 
       //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
       //    "Molar heat capacity of the substance at constant pressure";
@@ -3141,7 +3191,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       extends PartialSubstance;
 
   protected
-       Modelica.SIunits.AmountOfSubstance amountOfSolution
+    Modelica.Units.SI.AmountOfSubstance amountOfSolution
       "Amount of all solution particles";
 
     equation
@@ -3161,7 +3211,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       extends PartialSubstanceInSolution;
 
-      Modelica.SIunits.MolarFlowRate q "Molar flow rate of the substance into the component";
+    Modelica.Units.SI.MolarFlowRate q
+      "Molar flow rate of the substance into the component";
 
       SubstanceMassPort_a   port_m "Substance mass fraction port"
             annotation (Placement(transformation(extent={{92,-110},{112,-90}})));
@@ -3219,7 +3270,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      replaceable function selfClusteringEnthalpy "Enthalpy of joining two base molecules of the substance together to cluster"
          extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEnthalpy selfClusteringEnthalpy;
+      output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
      algorithm
        selfClusteringEnthalpy:=0;
      end selfClusteringEnthalpy;
@@ -3227,7 +3278,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      replaceable function selfClusteringEntropy "Entropy of joining two base molecules of the substance together to cluster"
          extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEntropy selfClusteringEntropy;
+      output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
      algorithm
        selfClusteringEntropy:=0;
      end selfClusteringEntropy;
@@ -3236,14 +3287,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
           "Return density of the substance in the solution"
             extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
-            input Modelica.SIunits.Temperature T=298.15 "Temperature";
-            input Modelica.SIunits.Pressure p=100000 "Pressure";
-            input Modelica.SIunits.ElectricPotential v=0
-            "Electric potential of the substance";
-            input Modelica.SIunits.MoleFraction I=0
-            "Ionic strengh (mole fraction based)";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
 
-            output Modelica.SIunits.Density density "Density";
+      output Modelica.Units.SI.Density density "Density";
      end density;
 
 
@@ -3252,11 +3303,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Return activity coefficient of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
         output Real activityCoefficient "Activity Coefficient";
@@ -3266,14 +3317,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Return charge number of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.ChargeNumberOfIon chargeNumberOfIon
+      output Modelica.Units.SI.ChargeNumberOfIon chargeNumberOfIon
         "Charge number of ion";
      end chargeNumberOfIon;
 
@@ -3281,14 +3332,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Molar enthalpy of the substance in electroneutral solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.MolarEnthalpy molarEnthalpyElectroneutral
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpyElectroneutral
         "Molar enthalpy";
      end molarEnthalpyElectroneutral;
 
@@ -3296,14 +3347,15 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Molar enthalpy of the substance with electric potential dependence"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.MolarEnthalpy molarEnthalpy "Molar enthalpy";
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpy
+        "Molar enthalpy";
      algorithm
         molarEnthalpy := molarEnthalpyElectroneutral(substanceData,T,p,v,I) +
              Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
@@ -3314,59 +3366,61 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Temperature of the substance from its enthalpy"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.MolarEnthalpy h "Molar enthalpy";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.Temperature T "Temperature";
+      output Modelica.Units.SI.Temperature T "Temperature";
      end temperature;
 
      replaceable function solution_temperature
       "Temperature of the solution from enthalpies os substances"
          extends Modelica.Icons.Function;
         input SubstanceData substanceData[:] "Data record of substances";
-        input Modelica.SIunits.MolarEnthalpy h "Molar enthalpy of solution (x*substances_h)";
-        input Modelica.SIunits.MoleFraction x[:] "Mole fractions of substances";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.MolarEnthalpy h
+        "Molar enthalpy of solution (x*substances_h)";
+      input Modelica.Units.SI.MoleFraction x[:]
+        "Mole fractions of substances";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.Temperature T "Temperature";
+      output Modelica.Units.SI.Temperature T "Temperature";
      end solution_temperature;
 
      replaceable function molarEntropyPure
       "Molar entropy of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.MolarEntropy molarEntropyPure
+      output Modelica.Units.SI.MolarEntropy molarEntropyPure
         "Molar entropy of the pure substance";
      end molarEntropyPure;
 
       function molarEntropy "Molar entropy of the substance in the solution"
             extends Modelica.Icons.Function;
-            input Modelica.SIunits.ChemicalPotential u
+      input Modelica.Units.SI.ChemicalPotential u
         "Electro-chemical potential of the substance";
         input SubstanceData substanceData "Data record of substance";
-            input Modelica.SIunits.Temperature T=298.15 "Temperature";
-            input Modelica.SIunits.Pressure p=100000 "Pressure";
-            input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-            input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-            output Modelica.SIunits.MolarEntropy molarEntropy "Molar entropy";
+      output Modelica.Units.SI.MolarEntropy molarEntropy "Molar entropy";
       algorithm
           molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
       end molarEntropy;
@@ -3374,13 +3428,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      function chemicalPotentialPure "Chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.ChemicalPotential chemicalPotentialPure
+      output Modelica.Units.SI.ChemicalPotential chemicalPotentialPure
         "Base chemical potential";
      algorithm
          chemicalPotentialPure :=  molarEnthalpyElectroneutral(substanceData,T,p,v,I) - T*molarEntropyPure(substanceData,T,p,v,I);
@@ -3390,14 +3444,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Electro-chemical potential of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.ChemicalPotential electroChemicalPotentialPure
-        "Base electro-chemical potential";
+      output Modelica.Units.SI.ChemicalPotential
+        electroChemicalPotentialPure "Base electro-chemical potential";
      algorithm
       electroChemicalPotentialPure := chemicalPotentialPure(
            substanceData,
@@ -3410,32 +3464,32 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      replaceable function molarMass "Molar mass of the substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        output Modelica.SIunits.MolarMass molarMass "Molar mass";
+      output Modelica.Units.SI.MolarMass molarMass "Molar mass";
      end molarMass;
 
      replaceable function molarVolumePure "Molar volume of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
+      output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
      end molarVolumePure;
 
      function molarVolumeExcess
       "Excess molar volume of the substance in the solution"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.MolarVolume molarVolumeExcess
+      output Modelica.Units.SI.MolarVolume molarVolumeExcess
         "Excess molar volume of the substance in the solution";
      algorithm
         molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
@@ -3446,14 +3500,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      replaceable function molarVolume "Molar volume of the substance"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
 
-        output Modelica.SIunits.MolarVolume molarVolume "Molar volume";
+      output Modelica.Units.SI.MolarVolume molarVolume "Molar volume";
      algorithm
       molarVolume :=molarVolumePure(
            substanceData,
@@ -3473,13 +3527,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Molar heat capacity at constant pressure"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
+      output Modelica.Units.SI.MolarHeatCapacity molarHeatCapacityCp
         "Molar heat capacity at constant pressure";
      end molarHeatCapacityCp;
 
@@ -3487,13 +3541,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Molar heat capacity at constant volume"
         extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-         output Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCv
+      output Modelica.Units.SI.MolarHeatCapacity molarHeatCapacityCv
         "Molar heat capacity at constant volume";
       end molarHeatCapacityCv;
 
@@ -3510,41 +3564,46 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-       parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
-         "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
+         = 0.01801528 "Molar weight of the substance";
 
-       parameter Modelica.SIunits.ChargeNumberOfIon z=0
-         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
-         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+         = DfG_25degC_1bar
+        "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
-         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+         = DfH_25degC
+        "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.ActivityCoefficient gamma=1
-         "Activity coefficient of the substance";
+      parameter Modelica.Units.SI.ActivityCoefficient gamma=1
+        "Activity coefficient of the substance";
 
-       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
-         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
+        "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfH instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
+          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+        annotation (Dialog(tab="Obsolete"));
 
-       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfG instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
+            "kJ/mol") = 0 "Obsolete parameter use DfG instead"
+        annotation (Dialog(tab="Obsolete"));
 
        parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
-       parameter Modelica.SIunits.ChemicalPotential SelfClustering_dH = 0  "Enthalpy of bond between two molecules of substance at 25degC, 1 bar"; //-20000
-       parameter Modelica.SIunits.MolarEntropy SelfClustering_dS = 0  "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+      parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+        "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+      parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+        "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-       parameter Modelica.SIunits.Density density(displayUnit="kg/dm3")=1000
-          "Density of the pure substance (default density of water at 25degC)";
+      parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3")
+         = 1000
+        "Density of the pure substance (default density of water at 25degC)";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
         //      "Molar heat capacity of the substance at constant volume";
@@ -3555,8 +3614,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
        end SubstanceData;
 
-     constant Integer OtherPropertiesCount=integer(0)
-      "Number of other extensive properties";
+
 
      redeclare function selfClustering "returns true if substance molecules are joining together to clusters"
          extends Modelica.Icons.Function;
@@ -3569,7 +3627,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function selfClusteringEnthalpy "Enthalpy of joining two base molecules of the substance together to cluster"
          extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEnthalpy selfClusteringEnthalpy;
+      output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
      algorithm
        selfClusteringEnthalpy:=substanceData.SelfClustering_dH;
      end selfClusteringEnthalpy;
@@ -3577,7 +3635,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function selfClusteringEntropy "Entropy of joining two base molecules of the substance together to cluster"
          extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
-            output Modelica.SIunits.MolarEntropy selfClusteringEntropy;
+      output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
      algorithm
        selfClusteringEntropy:=substanceData.SelfClustering_dS;
      end selfClusteringEntropy;
@@ -3621,8 +3679,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
     protected
-         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I);
-         Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
+      Modelica.Units.SI.MolarEnthalpy solution_h_base=x*molarEnthalpy(
+               substanceData,
+               298.15,
+               p,
+               v,
+               I);
+      Modelica.Units.SI.MolarHeatCapacity solution_Cp=sum(x[i]*
+          substanceData[i].Cp for i in 1:size(x, 1));
      algorithm
           T := 298.15 + (h-solution_h_base)/solution_Cp;
      end solution_temperature;
@@ -3657,15 +3721,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Molar volume of the pure substance"
        extends Modelica.Icons.Function;
         input SubstanceData substanceData "Data record of substance";
-        input Modelica.SIunits.Temperature T=298.15 "Temperature";
-        input Modelica.SIunits.Pressure p=100000 "Pressure";
-        input Modelica.SIunits.ElectricPotential v=0
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
-        input Modelica.SIunits.MoleFraction I=0
+      input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
-        input Real r[OtherPropertiesCount]=zeros(OtherPropertiesCount)
-        "Other extensive properties of the solution";
-        output Modelica.SIunits.MolarVolume molarVolumePure "Molar volume";
+      output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
      algorithm
          molarVolumePure := substanceData.MolarWeight/substanceData.density; //incompressible
      end molarVolumePure;
@@ -3693,38 +3755,42 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-         parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
-         "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
+         = 0.01801528 "Molar weight of the substance";
 
-       parameter Modelica.SIunits.ChargeNumberOfIon z=0
-         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
-         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+         = DfG_25degC_1bar
+        "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
-         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+         = DfH_25degC
+        "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.ActivityCoefficient gamma=1
-         "Activity coefficient of the substance";
+      parameter Modelica.Units.SI.ActivityCoefficient gamma=1
+        "Activity coefficient of the substance";
 
-       parameter Modelica.SIunits.MolarHeatCapacity Cp=0
-         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
+        "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfH instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
+          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+        annotation (Dialog(tab="Obsolete"));
 
-       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfG instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
+            "kJ/mol") = 0 "Obsolete parameter use DfG instead"
+        annotation (Dialog(tab="Obsolete"));
 
        parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
-       parameter Modelica.SIunits.ChemicalPotential SelfClustering_dH = 0  "Enthalpy of bond between two molecules of substance at 25degC, 1 bar"; //-20000
-       parameter Modelica.SIunits.MolarEntropy SelfClustering_dS = 0  "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+      parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+        "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+      parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+        "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
         annotation ( preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -3732,8 +3798,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
        end SubstanceData;
 
-       constant Integer OtherPropertiesCount=integer(0)
-      "Number of other extensive properties";
+
 
      redeclare function extends density
           "Return density of the substance in the solution"
@@ -3773,8 +3838,14 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
     protected
-         Modelica.SIunits.MolarEnthalpy solution_h_base = x*molarEnthalpy(substanceData,298.15,p,v,I);
-         Modelica.SIunits.MolarHeatCapacity solution_Cp = sum(x[i]*substanceData[i].Cp for i in 1:size(x,1));
+      Modelica.Units.SI.MolarEnthalpy solution_h_base=x*molarEnthalpy(
+               substanceData,
+               298.15,
+               p,
+               v,
+               I);
+      Modelica.Units.SI.MolarHeatCapacity solution_Cp=sum(x[i]*
+          substanceData[i].Cp for i in 1:size(x, 1));
      algorithm
           T := 298.15 + (h-solution_h_base)/solution_Cp;
      end solution_temperature;
@@ -3831,17 +3902,16 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
         parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
 
-        parameter Modelica.SIunits.ChargeNumberOfIon z=0
-          "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
       end SubstanceData;
-      constant Integer OtherPropertiesCount=integer(0)
-        "Number of other extensive properties";
+
 
       redeclare function extends density
         "Return density of the substance in the solution"
       algorithm
-        density := p/(substanceData.data.R*T);
+        density := p/(substanceData.data.R_s*T);
         annotation (Inline=true, smoothOrder=2);
       end density;
 
@@ -3877,35 +3947,29 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
-         package Internal
-          "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
-          extends Modelica.Media.Common.OneNonLinearEquation;
-           redeclare record extends f_nonlinear_Data
-                 "Data to be passed to non-linear function"
-               extends Modelica.Media.IdealGases.Common.DataRecord;
-           end f_nonlinear_Data;
+         function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
+           extends
+          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+           input Modelica.Media.IdealGases.Common.DataRecord data "Ideal gas data";
+           input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
+         algorithm
+           y := Modelica.Media.IdealGases.Common.Functions.h_T(data=data, T=u,
+           exclEnthForm=false,refChoice=Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C)
+                  - h;
+         end f_nonlinear;
 
-           redeclare function extends f_nonlinear
-           algorithm
-                 y := Modelica.Media.IdealGases.Common.Functions.h_T(
-                          f_nonlinear_data,x,
-                   false,
-                   Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
-           end f_nonlinear;
-
-          // Dummy definition has to be added for current Dymola
-           redeclare function extends solve
-           end solve;
-         end Internal;
        algorithm
-          T := Internal.solve(h, 273.15, 373.15, 1.0e5, {1}, substanceData.data);
+         T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
+           function f_nonlinear(data=substanceData.data, h=h/substanceData.data.MM), 200, 6000);
        end temperature;
 
       redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
     protected
-          Modelica.SIunits.MolarMass MM=x*substanceData.data.MM "molar mass of solution";
-          Modelica.SIunits.MassFraction x_mass[:] = (x.*substanceData.data.MM) ./ MM "mass fractions";
+        Modelica.Units.SI.MolarMass MM=x*substanceData.data.MM
+          "molar mass of solution";
+        Modelica.Units.SI.MassFraction x_mass[:]=(x .* substanceData.data.MM) ./
+            MM "mass fractions";
           Modelica.Media.IdealGases.Common.DataRecord solutionData=
              Modelica.Media.IdealGases.Common.DataRecord(
                  name="solution_temperature",
@@ -3917,7 +3981,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
                  blow = sum(x[i]*(substanceData[i].data.blow/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
                  ahigh = sum(x[i]*(substanceData[i].data.ahigh/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
                  bhigh = sum(x[i]*(substanceData[i].data.bhigh/substanceData[i].data.MM)*MM for i in 1:size(x,1)),
-                 R = sum(x[i]*(substanceData[i].data.R/substanceData[i].data.MM)*MM for i in 1:size(x,1)));
+                 R_s = sum(x[i]*(substanceData[i].data.R_s/substanceData[i].data.MM)*MM for i in 1:size(x,1)));
               //sum through moles, not masses
 
       algorithm
@@ -3937,7 +4001,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
         molarEntropyPure := substanceData.data.MM*(
           Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData.data, T) -
-          substanceData.data.R*log(p/100000));
+          substanceData.data.R_s*log(p/100000));
 
         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
@@ -3953,7 +4017,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       redeclare function extends molarVolumePure
         "Molar volume of the pure substance"
       algorithm
-        molarVolumePure := substanceData.data.MM*substanceData.data.R*T/p;
+        molarVolumePure := substanceData.data.MM*substanceData.data.R_s*T/p;
         //ideal gas
         annotation (Inline=true, smoothOrder=2);
       end molarVolumePure;
@@ -3971,7 +4035,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       algorithm
         molarHeatCapacityCv := substanceData.data.MM*(
           Modelica.Media.IdealGases.Common.Functions.cp_T(substanceData.data, T) -
-          substanceData.data.R);
+          substanceData.data.R_s);
         annotation (Inline=true, smoothOrder=2);
       end molarHeatCapacityCv;
       annotation (Documentation(revisions="<html>
@@ -3986,38 +4050,42 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare record extends SubstanceData
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
-      parameter Modelica.SIunits.MolarMass MolarWeight(displayUnit="kDa") = 0.01801528
-         "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
+         = 0.01801528 "Molar weight of the substance";
 
-       parameter Modelica.SIunits.ChargeNumberOfIon z=0
-         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-       parameter Modelica.SIunits.MolarEnergy DfG(displayUnit="kJ/mol") = DfG_25degC_1bar
-         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+         = DfG_25degC_1bar
+        "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.MolarEnergy DfH(displayUnit="kJ/mol") = DfH_25degC
-         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+         = DfH_25degC
+        "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-       parameter Modelica.SIunits.ActivityCoefficient gamma=1
-         "Activity coefficient of the substance";
+      parameter Modelica.Units.SI.ActivityCoefficient gamma=1
+        "Activity coefficient of the substance";
 
-       parameter Modelica.SIunits.MolarHeatCapacity Cp=cp_25degC
-         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp=cp_25degC
+        "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-       parameter Modelica.SIunits.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfH instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
+          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+        annotation (Dialog(tab="Obsolete"));
 
-       parameter Modelica.SIunits.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=0
-         "Obsolete parameter use DfG instead"
-         annotation (Dialog(tab="Obsolete"));
+      parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
+            "kJ/mol") = 0 "Obsolete parameter use DfG instead"
+        annotation (Dialog(tab="Obsolete"));
 
        parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
-       parameter Modelica.SIunits.ChemicalPotential SelfClustering_dH = 0  "Enthalpy of bond between two molecules of substance at 25degC, 1 bar"; //-20000
-       parameter Modelica.SIunits.MolarEntropy SelfClustering_dS = 0  "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+      parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+        "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+      parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+        "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
           parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
           parameter Real C(unit="J.mol-1")=0 "Shomate parameter C";
@@ -4037,8 +4105,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
      end SubstanceData;
 
-     constant Integer OtherPropertiesCount=integer(0)
-      "Number of other extensive properties";
 
      redeclare function extends density
          "Return density of the substance in the solution"
@@ -4088,26 +4154,20 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
      redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
-         package Internal
-          "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
-          extends Modelica.Media.Common.OneNonLinearEquation;
-           redeclare record extends f_nonlinear_Data
-                 "Data to be passed to non-linear function"
-               extends SubstanceData;
-           end f_nonlinear_Data;
+          function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
+            extends
+          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+            input SubstanceData data "Ideal gas data";
+            input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
+          algorithm
+            y := molarEnthalpyElectroneutral(data,u)
+                   - h;
+          end f_nonlinear;
 
-           redeclare function extends f_nonlinear
-           algorithm
-                 y := molarEnthalpyElectroneutral(
-                          f_nonlinear_data,x);
-           end f_nonlinear;
-
-          // Dummy definition has to be added for current Dymola
-           redeclare function extends solve
-           end solve;
-         end Internal;
      algorithm
-          T := Internal.solve(h-Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v, 273.15, 373.15, 1.0e5, {1}, substanceData);
+       T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
+            function f_nonlinear(data=substanceData, h=h-Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v), 200, 6000);
+
      end temperature;
 
       redeclare function extends solution_temperature
@@ -4218,17 +4278,19 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Only for connecting the one solution their substances. Please, do not use it in different way."
 
       //enthalpy
-      Modelica.SIunits.Temperature T "Temperature of the solution";
-      flow Modelica.SIunits.EnthalpyFlowRate dH
+    Modelica.Units.SI.Temperature T "Temperature of the solution";
+    flow Modelica.Units.SI.EnthalpyFlowRate dH
       "Internal enthalpy change of the solution";
 
       //pressure
-      Modelica.SIunits.Pressure p "Pressure of the solution";
-      flow Modelica.SIunits.VolumeFlowRate dV "Volume change of the solution";
+    Modelica.Units.SI.Pressure p "Pressure of the solution";
+    flow Modelica.Units.SI.VolumeFlowRate dV
+      "Volume change of the solution";
 
       //electric port
-      Modelica.SIunits.ElectricPotential v "Electric potential in the solution";
-      flow Modelica.SIunits.ElectricCurrent i "Change of electric charge";
+    Modelica.Units.SI.ElectricPotential v
+      "Electric potential in the solution";
+    flow Modelica.Units.SI.ElectricCurrent i "Change of electric charge";
 
       //Extensive properties of the solution:
 
@@ -4236,34 +4298,34 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
 
       //amount of substances
-      Modelica.SIunits.AmountOfSubstance n "Amount of the solution";
-      flow Modelica.SIunits.AmountOfSubstance nj
+    Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
+    flow Modelica.Units.SI.AmountOfSubstance nj
       "Amount of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //mass of substances
-      Modelica.SIunits.Mass m "Mass of the solution";
-      flow Modelica.SIunits.Mass mj
+    Modelica.Units.SI.Mass m "Mass of the solution";
+    flow Modelica.Units.SI.Mass mj
       "Mass of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //volume of substances
-      Modelica.SIunits.Volume V "Volume of the solution";
-      flow Modelica.SIunits.Volume Vj
+    Modelica.Units.SI.Volume V "Volume of the solution";
+    flow Modelica.Units.SI.Volume Vj
       "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //Gibbs energy of substances
-      Modelica.SIunits.Energy G "Free Gibbs energy of the solution";
-      flow Modelica.SIunits.Energy Gj
+    Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
+    flow Modelica.Units.SI.Energy Gj
       "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //electric charge of the substance
-      Modelica.SIunits.ElectricCharge Q "Electric charge of the solution";
-      flow Modelica.SIunits.ElectricCharge Qj
+    Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
+    flow Modelica.Units.SI.ElectricCharge Qj
       "Electric charge of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //ionic strength of substances
-      Modelica.SIunits.MoleFraction I
+    Modelica.Units.SI.MoleFraction I
       "Mole fraction based ionic strength of the solution";
-      flow Modelica.SIunits.MoleFraction Ij
+    flow Modelica.Units.SI.MoleFraction Ij
       "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
       //suport for structural properties
@@ -4422,15 +4484,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Is electric potential equal to zero?"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Environment relationships"));
 
-      Modelica.SIunits.Temperature temperature
-        "Temperature";
+    Modelica.Units.SI.Temperature temperature "Temperature";
 
-      Modelica.SIunits.Pressure pressure "Pressure";
+    Modelica.Units.SI.Pressure pressure "Pressure";
 
-      Modelica.SIunits.Volume volume
-      "Current volume of the solution";
+    Modelica.Units.SI.Volume volume "Current volume of the solution";
 
-      Modelica.SIunits.Mass mass(stateSelect=StateSelect.prefer)
+    Modelica.Units.SI.Mass mass(stateSelect=StateSelect.prefer)
       "Current mass of the solution";
 
       Total total(redeclare package stateOfMatter =
@@ -4439,17 +4499,17 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
 
   protected
-      Modelica.SIunits.Energy gibbsEnergy
-        "Gibbs energy of the solution relative to start of the simulation";
+    Modelica.Units.SI.Energy gibbsEnergy
+      "Gibbs energy of the solution relative to start of the simulation";
 
-      Modelica.SIunits.HeatFlowRate heatFromEnvironment
+    Modelica.Units.SI.HeatFlowRate heatFromEnvironment
       "External heat flow rate";
 
-       Modelica.SIunits.ElectricCharge charge
+    Modelica.Units.SI.ElectricCharge charge
       "Current electric charge of the solution";
 
-      Modelica.SIunits.HeatFlowRate enthalpy_der "derivative of enthalpy";
-      Modelica.SIunits.VolumeFlowRate volume_der "derivative of volume";
+    Modelica.Units.SI.HeatFlowRate enthalpy_der "derivative of enthalpy";
+    Modelica.Units.SI.VolumeFlowRate volume_der "derivative of volume";
 
     equation
 
@@ -4475,9 +4535,9 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
       extends Interfaces.PartialSolution;
 
-      parameter Modelica.SIunits.Temperature temperature_start=system.T_ambient
+    parameter Modelica.Units.SI.Temperature temperature_start=system.T_ambient
       "Initial temperature of the solution"
-         annotation (Dialog(group="Initialization"));
+      annotation (Dialog(group="Initialization"));
 
       parameter Boolean useThermalPort = false "Is thermal port pressent?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
@@ -4557,12 +4617,12 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
               Dialog(group="Conditional inputs", __Dymola_compact=true));
 
-      parameter Modelica.SIunits.VolumeFlowRate SolutionFlow=0
-      "Volume flow rate of the solution if useSolutionFlowInput=false"   annotation (
-          HideResult=true, Dialog(enable=not useSolutionFlowInput));
+    parameter Modelica.Units.SI.VolumeFlowRate SolutionFlow=0
+      "Volume flow rate of the solution if useSolutionFlowInput=false"
+      annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
-      parameter Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L=55.508
-      "The amount of all particles in one liter of the solution";
+    parameter Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=
+        55.508 "The amount of all particles in one liter of the solution";
 
       Modelica.Blocks.Interfaces.RealInput solutionFlow(start=SolutionFlow, final unit="m3/s")=
          q*OneLiter/AmountOfSolutionIn1L if useSolutionFlowInput
@@ -4574,10 +4634,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=270,
             origin={0,40})));
 
-      Modelica.SIunits.MolarFlowRate q "Current molar solution flow";
+    Modelica.Units.SI.MolarFlowRate q "Current molar solution flow";
 
   protected
-     constant Modelica.SIunits.Volume OneLiter=0.001 "One liter";
+    constant Modelica.Units.SI.Volume OneLiter=0.001 "One liter";
 
     equation
       if not useSolutionFlowInput then
@@ -4594,9 +4654,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
               Dialog(__Dymola_compact=true));
 
-      parameter Modelica.SIunits.MolarFlowRate SubstanceFlow=0
-      "Volumetric flow of Substance if useSubstanceFlowInput=false"   annotation (
-          HideResult=true, Dialog(enable=not useSubstanceFlowInput));
+    parameter Modelica.Units.SI.MolarFlowRate SubstanceFlow=0
+      "Volumetric flow of Substance if useSubstanceFlowInput=false"
+      annotation (HideResult=true, Dialog(enable=not
+            useSubstanceFlowInput));
 
       Modelica.Blocks.Interfaces.RealInput substanceFlow(start=SubstanceFlow, final unit="mol/s")=q if
            useSubstanceFlowInput
@@ -4606,7 +4667,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
             rotation=270,
             origin={40,40})));
 
-      Modelica.SIunits.MolarFlowRate q "Current Substance flow";
+    Modelica.Units.SI.MolarFlowRate q "Current Substance flow";
     equation
       if not useSubstanceFlowInput then
         q = SubstanceFlow;
@@ -4648,10 +4709,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
    connector SubstanceMassPort
 
-      Modelica.SIunits.MassFraction x_mass
+    Modelica.Units.SI.MassFraction x_mass
       "Mass fraction of the substance in the solution";
 
-      flow Modelica.SIunits.MassFlowRate m_flow "Mass flow rate of the substance";
+    flow Modelica.Units.SI.MassFlowRate m_flow
+      "Mass flow rate of the substance";
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
    end SubstanceMassPort;
@@ -4772,10 +4834,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     connector SubstanceMolarityPort
 
-      Modelica.SIunits.Concentration c
+    Modelica.Units.SI.Concentration c
       "Molarity of the substance in the solution";
 
-      flow Modelica.SIunits.MolarFlowRate q "Molar flow rate of the substance";
+    flow Modelica.Units.SI.MolarFlowRate q
+      "Molar flow rate of the substance";
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end SubstanceMolarityPort;
@@ -4860,30 +4923,30 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
 
       replaceable partial function C_outflow "Outflow values for extra properties of fluid connector"
-        input Modelica.SIunits.MassFraction x_mass[nCS];
+      input Modelica.Units.SI.MassFraction x_mass[nCS];
         output Real C_outflow[nC];
       end C_outflow;
 
       replaceable partial function Xi_outflow "Outflow values for mass fracion of fluid connector"
-        input Modelica.SIunits.MassFraction x_mass[nCS];
-        output Modelica.SIunits.MassFraction Xi[nXi];
+      input Modelica.Units.SI.MassFraction x_mass[nCS];
+      output Modelica.Units.SI.MassFraction Xi[nXi];
       end Xi_outflow;
 
       replaceable partial function x_mass "Mass fractions from actual streams of fluid connector"
-        input Modelica.SIunits.MassFraction actualStream_Xi[nXi];
+      input Modelica.Units.SI.MassFraction actualStream_Xi[nXi];
         input Real actualStream_C[nC];
-        output Modelica.SIunits.MassFraction x_mass[nCS];
+      output Modelica.Units.SI.MassFraction x_mass[nCS];
       end x_mass;
 
       replaceable partial function concentration "Concentration of substances from Xi and C"
         input ThermodynamicState state;
-        input Modelica.SIunits.MassFraction Xi[nXi];
+      input Modelica.Units.SI.MassFraction Xi[nXi];
         input Real C[nC];
-        output Modelica.SIunits.Concentration concentration[nCS];
+      output Modelica.Units.SI.Concentration concentration[nCS];
       end concentration;
 
       replaceable partial function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
-       input Modelica.SIunits.ElectricPotential v=0;
+      input Modelica.Units.SI.ElectricPotential v=0;
        input Real I=0;
        output SpecificEnthalpy h[nCS];
       end specificEnthalpyOffsets;
@@ -4893,17 +4956,23 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
   annotation (
 preferredView="info",
-version="1.4.0-alpha2",
-versionBuild=1,
+version="1.4.0-alpha3",
 versionDate="2020-12-15",
 dateModified = "2020-12-15 14:14:41Z",
 conversion(
-  from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
-  from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
-  from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos"),
-  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos"),
-  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos")),
-uses(Modelica(version="3.2.3"), Physiolibrary(version="3.0.0-alpha2")),
+  from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
+        to="1.4.0-alpha2"),
+  from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
+        to="1.4.0-alpha2"),
+  from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
+        to="1.4.0-alpha2"),
+  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos",
+        to="1.4.0-alpha2"),
+  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
+        to="1.4.0-alpha2"),
+      from(version="1.4.0-alpha2", script="modelica://Chemical/Resources/Scripts/ConvertFromChemical_1.4.0-alpha2.mos")),
+uses(                           Physiolibrary(version="3.0.0-alpha2"),
+      Modelica(version="4.0.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>

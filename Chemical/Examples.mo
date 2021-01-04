@@ -8,7 +8,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     constant Real K = 2 "Dissociation constant of the reaction";
 
-    constant Modelica.SIunits.Temperature T_25degC = 298.15 "Temperature";
+    constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
     constant Real R = Modelica.Constants.R "Gas constant";
 
     Chemical.Components.Solution solution
@@ -57,7 +57,7 @@ extends Modelica.Icons.ExamplesPackage;
     constant Real Kx(unit="1") = Kb*55.508
       "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
 
-    constant Modelica.SIunits.Temperature T_25degC = 298.15 "Temperature";
+    constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
     constant Real R = Modelica.Constants.R "Gas constant";
 
     Chemical.Components.Solution solution
@@ -191,7 +191,7 @@ extends Modelica.Icons.ExamplesPackage;
 
      extends Modelica.Icons.Example;
 
-    parameter Modelica.SIunits.MolarEnergy ReactionEnthalpy=-55000;
+    parameter Modelica.Units.SI.MolarEnergy ReactionEnthalpy=-55000;
 
     Chemical.Components.Solution thermal_isolated_solution(
       useMechanicPorts=true,
@@ -225,7 +225,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     //  Modelica.SIunits.HeatFlowRate q
     //    "Heat flow to environment to reach constant temperature";
-    Modelica.SIunits.Temperature t
+    Modelica.Units.SI.Temperature t
       "Temperature if the solution is ideally thermal isolated from environment";
     Components.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
         mass_start=1)
@@ -306,11 +306,12 @@ extends Modelica.Icons.ExamplesPackage;
   model HydrogenCombustion "Hydrogen combustion in piston"
     extends Modelica.Icons.Example;
 
-    parameter Modelica.SIunits.Volume V=0.001 "Initial volume";
+    parameter Modelica.Units.SI.Volume V=0.001 "Initial volume";
    // parameter Modelica.SIunits.Pressure p=100000 "Initial pressure";
-    parameter Modelica.SIunits.Temperature T=298.15 "Initial temperature";
+    parameter Modelica.Units.SI.Temperature T=298.15
+      "Initial temperature";
 
-    parameter Modelica.SIunits.Area A=0.01 "Cross area of cylinder";
+    parameter Modelica.Units.SI.Area A=0.01 "Cross area of cylinder";
 
     //p*V=n*R*T
     // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
@@ -490,7 +491,7 @@ extends Modelica.Icons.ExamplesPackage;
   model WaterVaporization "Evaporation of water"
      extends Modelica.Icons.Example;
 
-     parameter Modelica.SIunits.Temperature T_start=273.15
+    parameter Modelica.Units.SI.Temperature T_start=273.15
       "Initial temperature";
 
     Chemical.Components.Solution liquid(
@@ -516,7 +517,7 @@ extends Modelica.Icons.ExamplesPackage;
                 annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         origin={84,8})));
-    Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
+    Modelica.Blocks.Sources.ContinuousClock clock(offset=1*T_start)
       annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Chemical.Components.Substance otherSubstances(
       redeclare package stateOfMatter = Interfaces.IdealGas,
@@ -587,7 +588,7 @@ extends Modelica.Icons.ExamplesPackage;
   model WaterSublimation "Sublimation of water"
      extends Modelica.Icons.Example;
 
-     parameter Modelica.SIunits.Temperature T_start=273.15-50
+    parameter Modelica.Units.SI.Temperature T_start=273.15 - 50
       "Initial temperature";
 
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
@@ -610,7 +611,7 @@ extends Modelica.Icons.ExamplesPackage;
                 annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         origin={84,8})));
-    Modelica.Blocks.Sources.Clock clock(offset=1*T_start)
+    Modelica.Blocks.Sources.ContinuousClock clock(offset=1*T_start)
       annotation (Placement(transformation(extent={{62,36},{82,56}})));
     Chemical.Components.Substance otherSubstances(
       substanceData=Chemical.Substances.Oxygen_gas(),
@@ -1145,14 +1146,14 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=1)
       annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
-       parameter Modelica.SIunits.AmountOfSubstance tE=1e-6
+    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
       "Total amount of enzyme";
        parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
       "Forward rate of second reaction";
-       constant Modelica.SIunits.Concentration Km=0.1
+    constant Modelica.Units.SI.Concentration Km=0.1
       "Michaelis constant = substrate concentration at rate of half Vmax";
 
-      parameter Modelica.SIunits.MolarFlowRate Vmax=1e-5*k_cat
+    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
       "Maximal molar flow";
 
 
@@ -2027,7 +2028,7 @@ extends Modelica.Icons.ExamplesPackage;
         BufferValue=0.063,
         a_start=10^(-7.2))
         annotation (Placement(transformation(extent={{48,-84},{30,-66}})));
-      Modelica.Blocks.Sources.Clock clock(offset=5000)
+      Modelica.Blocks.Sources.ContinuousClock clock(offset=5000)
         annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
       Chemical.Components.Substance others_E(
          substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
@@ -2745,7 +2746,8 @@ extends Modelica.Icons.ExamplesPackage;
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
       extends Modelica.Icons.Example;
 
-      Chemical.Components.Solution solution(redeclare package stateOfMatter =
+      Chemical.Components.Solution solution(redeclare package
+          stateOfMatter =
             Interfaces.Incompressible)
         annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
 
@@ -2814,33 +2816,42 @@ extends Modelica.Icons.ExamplesPackage;
     model Allosteric_Hemoglobin_MWC "Monod,Wyman,Changeux (1965)"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
-      constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
+      constant Modelica.Units.SI.Temperature T=298.15 "Base Temperature";
       constant Real RT=Modelica.Constants.R*T;
 
 
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       constant Real L=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       constant Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      constant Modelica.SIunits.Concentration KR=0.000671946*(55.508/38.7)
+      constant Modelica.Units.SI.Concentration KR=0.000671946*(55.508/
+          38.7)
         "Oxygen dissociation coefficient on relaxed(R) hemoglobin subunit";
 
       constant Real KRx=(KR*OneLiter)
         "Mole fraction based KR";
 
       //Relative Gibbs formation energies of the substances in the system:
-      constant Modelica.SIunits.MolarEnergy
-        GO2aq=-RT*log(0.0013),
-        GR0=0,                            GT0=GR0 -RT*log(L),
-        GR1=GR0+GO2aq +RT*log(KRx/4),     GT1=GR1 -RT*log(c*L),
-        GR2=GR1+GO2aq +RT*log(KRx/(3/2)), GT2=GR2 -RT*log(c^2*L),
-        GR3=GR2+GO2aq +RT*log(KRx/(2/3)), GT3=GR3 -RT*log(c^3*L),
-        GR4=GR3+GO2aq +RT*log(KRx*4),     GT4=GR4 -RT*log(c^4*L);
+      constant Modelica.Units.SI.MolarEnergy GO2aq=-RT*log(0.0013);
+      constant Modelica.Units.SI.MolarEnergy GR0=0;
+      constant Modelica.Units.SI.MolarEnergy GT0=GR0 - RT*log(L);
+      constant Modelica.Units.SI.MolarEnergy GR1=GR0 + GO2aq + RT*log(KRx
+          /4);
+      constant Modelica.Units.SI.MolarEnergy GT1=GR1 - RT*log(c*L);
+      constant Modelica.Units.SI.MolarEnergy GR2=GR1 + GO2aq + RT*log(KRx
+          /(3/2));
+      constant Modelica.Units.SI.MolarEnergy GT2=GR2 - RT*log(c^2*L);
+      constant Modelica.Units.SI.MolarEnergy GR3=GR2 + GO2aq + RT*log(KRx
+          /(2/3));
+      constant Modelica.Units.SI.MolarEnergy GT3=GR3 - RT*log(c^3*L);
+      constant Modelica.Units.SI.MolarEnergy GR4=GR3 + GO2aq + RT*log(KRx
+          *4);
+      constant Modelica.Units.SI.MolarEnergy GT4=GR4 - RT*log(c^4*L);
                                       //*0.018),
       parameter Real KC = 0.0001 "Slow down factor";
 
@@ -2964,8 +2975,9 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC)
         annotation (Placement(transformation(extent={{10,-92},{30,-72}})));
 
-      Modelica.Blocks.Sources.Clock clock(offset=10)
-        annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+      Modelica.Blocks.Sources.ContinuousClock clock(offset=10)
+        annotation (Placement(transformation(
+            extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-84,62})));
       Chemical.Sources.ExternalIdealGasSubstance O2_in_air(
@@ -3164,38 +3176,41 @@ extends Modelica.Icons.ExamplesPackage;
       "Monod,Wyman,Changeux (1965) - The same allosteric hemoglobin model as Allosteric_Hemoglobin_MWC implemented by Speciation blocks"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
-      constant Modelica.SIunits.Temperature T=298.15 "Base Temperature";
+      constant Modelica.Units.SI.Temperature T=298.15 "Base Temperature";
       constant Real RT=Modelica.Constants.R*T;
 
       // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real L=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946*(55.508/38.7)
-        "oxygen dissociation on relaxed(R) hemoglobin subunit";
+      parameter Modelica.Units.SI.Concentration KR=0.000671946*(55.508/
+          38.7) "oxygen dissociation on relaxed(R) hemoglobin subunit";
                                                                   //*7.875647668393782383419689119171e-5
       //10.500001495896 7.8756465463794e-05
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRx = KR*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KRx=KR*OneLiter;
       //AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTx = KT*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KTx=KT*OneLiter;
       //AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_uR = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_uRO2 = DfG_uR + DfG_O2 + RT * log(KRx);
-      parameter Modelica.SIunits.ChemicalPotential DfG_uT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_uTO2 = DfG_uT + DfG_O2 + RT * log(KTx);
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_uR=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_uRO2=DfG_uR +
+          DfG_O2 + RT*log(KRx);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_uT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_uTO2=DfG_uT +
+          DfG_O2 + RT*log(KTx);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-6 "Slow down factor";
                                //0.000001
@@ -3263,8 +3278,8 @@ extends Modelica.Icons.ExamplesPackage;
           use_mass_start=false,
         amountOfSubstance_start=2e-9)
         annotation (Placement(transformation(extent={{-2,6},{18,26}})));
-      Modelica.Blocks.Sources.Clock clock(offset=1)
-        annotation (Placement(transformation(extent={{-40,74},{-20,94}})));
+      Modelica.Blocks.Sources.ContinuousClock clock(offset=1) annotation
+        (Placement(transformation(extent={{-40,74},{-20,94}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
           usePartialPressureInput=true, substanceData=
             Chemical.Substances.Oxygen_gas()) annotation (Placement(
@@ -3381,59 +3396,70 @@ extends Modelica.Icons.ExamplesPackage;
         "Number of distinguished independent sides in quaternary structure";
       constant Real RT=Modelica.Constants.R*298.15;
 
-      parameter Modelica.SIunits.MolarEnthalpy Ho = 59000
+      parameter Modelica.Units.SI.MolarEnthalpy Ho=59000
         "Enthalpy of deoxygenation";
-      parameter Modelica.SIunits.MoleFraction Ko37 "KRx and KTx at 37degC";
-      parameter Modelica.SIunits.MoleFraction Ko25 = Ko37*exp((Ho/Modelica.Constants.R)*(1/310.15 - 1/298.15))
-        "KRx and KTx at 25degC";
+      parameter Modelica.Units.SI.MoleFraction Ko37
+        "KRx and KTx at 37degC";
+      parameter Modelica.Units.SI.MoleFraction Ko25=Ko37*exp((Ho/Modelica.Constants.R)
+          *(1/310.15 - 1/298.15)) "KRx and KTx at 25degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hco = 59000
+      parameter Modelica.Units.SI.MolarEnthalpy Hco=59000
         "Enthalpy of carbon monoxide dissociation";
-      parameter Modelica.SIunits.MoleFraction Kco37
+      parameter Modelica.Units.SI.MoleFraction Kco37
         "Carboxyhemoglobin dissociation at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kco25 = Kco37*exp((Hco/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kco25=Kco37*exp((Hco/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "Carboxyhemoglobin dissociation at 25degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hh
+      parameter Modelica.Units.SI.MolarEnthalpy Hh
         "Enthalpy of deprotonation of h site";
-      parameter Modelica.SIunits.MoleFraction Kh37 "KRhx and KThx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kh25 = Kh37*exp(((Hh)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kh37
+        "KRhx and KThx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kh25=Kh37*exp(((Hh)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRhx and KThx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hz
+      parameter Modelica.Units.SI.MolarEnthalpy Hz
         "Enthalpy of deprotonation of -NH3+ terminus";
-      parameter Modelica.SIunits.MoleFraction Kz37 "KRzx and KTzx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kz25 = Kz37*exp(((Hz)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kz37
+        "KRzx and KTzx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kz25=Kz37*exp(((Hz)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRzx and KTzx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hc "Enthalpy of carboxylation";
-      parameter Modelica.SIunits.MoleFraction Kc37 "KRcx and KTcx at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
-        "KRcx and KTcx at 25degC";
+      parameter Modelica.Units.SI.MolarEnthalpy Hc
+        "Enthalpy of carboxylation";
+      parameter Modelica.Units.SI.MoleFraction Kc37
+        "KRcx and KTcx at 37degC";
+      parameter Modelica.Units.SI.MoleFraction Kc25=Kc37*exp((Hc/Modelica.Constants.R)
+          *(1/310.15 - 1/298.15)) "KRcx and KTcx at 25degC";
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
-      parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013)
+           + 0;
+      parameter Modelica.Units.SI.ChemicalPotential DfH_O2=0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO=-RT*log(
+          0.00099) - 137300;                                                                       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO=-276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO2=-412900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
+      parameter Modelica.Units.SI.ChemicalPotential DfG_selectedForm
         "DfG_tR and DfG_tT";
-      parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
+      parameter Modelica.Units.SI.MolarEnthalpy DfH_selectedForm=0
         "DfH_tR and DfH_tT";
 
       parameter Real KC = 1e-3 "Slow down factor";
                                //0.000001
-      parameter Modelica.SIunits.MoleFraction initialO2
+      parameter Modelica.Units.SI.MoleFraction initialO2
         "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
-      parameter Modelica.SIunits.MoleFraction initialH
+      parameter Modelica.Units.SI.MoleFraction initialH
         "Initial mole fraction of H+";
-      parameter Modelica.SIunits.MoleFraction initialCO2
+      parameter Modelica.Units.SI.MoleFraction initialCO2
         "Initial mole fraction of unbound carbon dioxide disoluted around hemoglobin";
-      parameter Modelica.SIunits.AmountOfSubstance initialHb
+      parameter Modelica.Units.SI.AmountOfSubstance initialHb
         "Initial amount of hemoglobin tetramers in this quaternary form";
 
       Chemical.Components.Speciation speciation(NumberOfSubunits=N)
@@ -3659,52 +3685,56 @@ extends Modelica.Icons.ExamplesPackage;
       "Multiple-ligand allosteric hemoglobin model"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
       constant Real RT=Modelica.Constants.R*298.15;
 
       // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real L_old=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946 * (55.508/38.7)
-        "oxygen dissociation on relaxed(R) hemoglobin subunit";
+      parameter Modelica.Units.SI.Concentration KR=0.000671946*(55.508/
+          38.7) "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KRo37=KR*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KTo37=KT*OneLiter;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-8 "Slow down factor";
 
-      parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
+      parameter Modelica.Units.SI.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
-      parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
-      parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
+      parameter Modelica.Units.SI.MoleFraction initialH=10^(-7.2);
+      parameter Modelica.Units.SI.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction initialCO=1e-11
+      parameter Modelica.Units.SI.MoleFraction initialCO=1e-11
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
-      parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
+      parameter Modelica.Units.SI.MoleFraction KRh37=10^(-6.89);
+      parameter Modelica.Units.SI.MoleFraction KTh37=10^(-7.52);
 
-      parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
-      parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
+      parameter Modelica.Units.SI.MoleFraction KRz37=10^(-7.25);
+      parameter Modelica.Units.SI.MoleFraction KTz37=10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter);
+      parameter Modelica.Units.SI.MoleFraction KRc37=(10^(-8.35))/(
+          OneLiter);
+      parameter Modelica.Units.SI.MoleFraction KTc37=(10^(-7.54))/(
+          OneLiter);
 
       parameter Real L=L_old
         *
@@ -3725,7 +3755,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
           use_mass_start=false, amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
-      Modelica.Blocks.Sources.Clock oxygenSource(offset=1000)
+      Modelica.Blocks.Sources.ContinuousClock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         usePartialPressureInput=true,
@@ -3888,61 +3918,72 @@ extends Modelica.Icons.ExamplesPackage;
         "Number of distinguished independent sides in quaternary structure";
       constant Real RT=Modelica.Constants.R*298.15;
 
-      parameter Modelica.SIunits.MolarEnthalpy Ho = 59000
+      parameter Modelica.Units.SI.MolarEnthalpy Ho=59000
         "Enthalpy of deoxygenation";
-      parameter Modelica.SIunits.MoleFraction Ko37 "KRx and KTx at 37degC";
-      parameter Modelica.SIunits.MoleFraction Ko25 = Ko37*exp((Ho/Modelica.Constants.R)*(1/310.15 - 1/298.15))
-        "KRx and KTx at 25degC";
+      parameter Modelica.Units.SI.MoleFraction Ko37
+        "KRx and KTx at 37degC";
+      parameter Modelica.Units.SI.MoleFraction Ko25=Ko37*exp((Ho/Modelica.Constants.R)
+          *(1/310.15 - 1/298.15)) "KRx and KTx at 25degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hco = 59000
+      parameter Modelica.Units.SI.MolarEnthalpy Hco=59000
         "Enthalpy of carbon monoxide dissociation";
-      parameter Modelica.SIunits.MoleFraction Kco37
+      parameter Modelica.Units.SI.MoleFraction Kco37
         "Carboxyhemoglobin dissociation at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kco25 = Kco37*exp((Hco/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kco25=Kco37*exp((Hco/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "Carboxyhemoglobin dissociation at 25degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hh
+      parameter Modelica.Units.SI.MolarEnthalpy Hh
         "Enthalpy of deprotonation of h site";
-      parameter Modelica.SIunits.MoleFraction Kh37 "KRhx and KThx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kh25 = Kh37*exp(((Hh)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kh37
+        "KRhx and KThx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kh25=Kh37*exp(((Hh)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRhx and KThx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hz
+      parameter Modelica.Units.SI.MolarEnthalpy Hz
         "Enthalpy of deprotonation of -NH3+ terminus";
-      parameter Modelica.SIunits.MoleFraction Kz37 "KRzx and KTzx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kz25 = Kz37*exp(((Hz)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kz37
+        "KRzx and KTzx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kz25=Kz37*exp(((Hz)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRzx and KTzx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hc "Enthalpy of carboxylation";
-      parameter Modelica.SIunits.MoleFraction Kc37 "KRcx and KTcx at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
-        "KRcx and KTcx at 25degC";
+      parameter Modelica.Units.SI.MolarEnthalpy Hc
+        "Enthalpy of carboxylation";
+      parameter Modelica.Units.SI.MoleFraction Kc37
+        "KRcx and KTcx at 37degC";
+      parameter Modelica.Units.SI.MoleFraction Kc25=Kc37*exp((Hc/Modelica.Constants.R)
+          *(1/310.15 - 1/298.15)) "KRcx and KTcx at 25degC";
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013)  + 0;
-      parameter Modelica.SIunits.ChemicalPotential DfH_O2 = 0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013)
+           + 0;
+      parameter Modelica.Units.SI.ChemicalPotential DfH_O2=0;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO=-RT*log(
+          0.00099) - 137300;                                                                       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO=-276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO2=-412900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
+      parameter Modelica.Units.SI.ChemicalPotential DfG_selectedForm
         "DfG_tR and DfG_tT";
-      parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
+      parameter Modelica.Units.SI.MolarEnthalpy DfH_selectedForm=0
         "DfH_tR and DfH_tT";
 
       parameter Real KC = 1e-3 "Slow down factor";
                                //0.000001
-      parameter Modelica.SIunits.MoleFraction initialO2
+      parameter Modelica.Units.SI.MoleFraction initialO2
         "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
-      parameter Modelica.SIunits.MoleFraction initialCO
+      parameter Modelica.Units.SI.MoleFraction initialCO
         "Initial mole fraction of unbound carbon monoxide disoluted around hemoglobin";
-      parameter Modelica.SIunits.MoleFraction initialH
+      parameter Modelica.Units.SI.MoleFraction initialH
         "Initial mole fraction of H+";
-      parameter Modelica.SIunits.MoleFraction initialCO2
+      parameter Modelica.Units.SI.MoleFraction initialCO2
         "Initial mole fraction of unbound carbon dioxide disoluted around hemoglobin";
-      parameter Modelica.SIunits.AmountOfSubstance initialHb
+      parameter Modelica.Units.SI.AmountOfSubstance initialHb
         "Initial amount of hemoglobin tetramers in this quaternary form";
 
       Chemical.Components.Speciation speciation(NumberOfSubunits=N)
@@ -4203,52 +4244,56 @@ extends Modelica.Icons.ExamplesPackage;
       "Multiple-ligand allosteric hemoglobin model"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
       constant Real RT=Modelica.Constants.R*298.15;
 
       // constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7
       //   "Amount of solution used for molarity to mole fraction conversion";
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real L_old=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946 * (55.508/38.7)
-        "oxygen dissociation on relaxed(R) hemoglobin subunit";
+      parameter Modelica.Units.SI.Concentration KR=0.000671946*(55.508/
+          38.7) "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KRo37=KR*OneLiter;
+      parameter Modelica.Units.SI.MoleFraction KTo37=KT*OneLiter;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-8 "Slow down factor";
 
-      parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
+      parameter Modelica.Units.SI.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
-      parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
-      parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
+      parameter Modelica.Units.SI.MoleFraction initialH=10^(-7.2);
+      parameter Modelica.Units.SI.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction initialCO=1e-12
+      parameter Modelica.Units.SI.MoleFraction initialCO=1e-12
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
-      parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
+      parameter Modelica.Units.SI.MoleFraction KRh37=10^(-6.89);
+      parameter Modelica.Units.SI.MoleFraction KTh37=10^(-7.52);
 
-      parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
-      parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
+      parameter Modelica.Units.SI.MoleFraction KRz37=10^(-7.25);
+      parameter Modelica.Units.SI.MoleFraction KTz37=10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter);
+      parameter Modelica.Units.SI.MoleFraction KRc37=(10^(-8.35))/(
+          OneLiter);
+      parameter Modelica.Units.SI.MoleFraction KTc37=(10^(-7.54))/(
+          OneLiter);
 
       parameter Real L=L_old
         *
@@ -4269,7 +4314,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
           use_mass_start=false, amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
-      Modelica.Blocks.Sources.Clock oxygenSource(offset=2000)
+      Modelica.Blocks.Sources.ContinuousClock oxygenSource(offset=2000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         usePartialPressureInput=true,
@@ -4477,54 +4522,63 @@ extends Modelica.Icons.ExamplesPackage;
   parameter Modelica.SIunits.MoleFraction Ko25 = Ko37*exp((Ho/Modelica.Constants.R)*(1/310.15 - 1/298.15))
     "KRx and KTx at 25degC";
 */
-      parameter Modelica.SIunits.MolarEnthalpy Hco = 59000
+      parameter Modelica.Units.SI.MolarEnthalpy Hco=59000
         "Enthalpy of carbon monoxide dissociation";
-      parameter Modelica.SIunits.MoleFraction Kco37
+      parameter Modelica.Units.SI.MoleFraction Kco37
         "Carboxyhemoglobin dissociation at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kco25 = Kco37*exp((Hco/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kco25=Kco37*exp((Hco/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "Carboxyhemoglobin dissociation at 25degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hh
+      parameter Modelica.Units.SI.MolarEnthalpy Hh
         "Enthalpy of deprotonation of h site";
-      parameter Modelica.SIunits.MoleFraction Kh37 "KRhx and KThx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kh25 = Kh37*exp(((Hh)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kh37
+        "KRhx and KThx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kh25=Kh37*exp(((Hh)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRhx and KThx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hz
+      parameter Modelica.Units.SI.MolarEnthalpy Hz
         "Enthalpy of deprotonation of -NH3+ terminus";
-      parameter Modelica.SIunits.MoleFraction Kz37 "KRzx and KTzx at 37 degC";
-      parameter Modelica.SIunits.MoleFraction Kz25 = Kz37*exp(((Hz)/Modelica.Constants.R)*(1/310.15 - 1/298.15))
+      parameter Modelica.Units.SI.MoleFraction Kz37
+        "KRzx and KTzx at 37 degC";
+      parameter Modelica.Units.SI.MoleFraction Kz25=Kz37*exp(((Hz)/
+          Modelica.Constants.R)*(1/310.15 - 1/298.15))
         "KRzx and KTzx at 25 degC";
 
-      parameter Modelica.SIunits.MolarEnthalpy Hc "Enthalpy of carboxylation";
-      parameter Modelica.SIunits.MoleFraction Kc37 "KRcx and KTcx at 37degC";
-      parameter Modelica.SIunits.MoleFraction Kc25 = Kc37*exp((Hc/Modelica.Constants.R)*(1/310.15 - 1/298.15))
-        "KRcx and KTcx at 25degC";
+      parameter Modelica.Units.SI.MolarEnthalpy Hc
+        "Enthalpy of carboxylation";
+      parameter Modelica.Units.SI.MoleFraction Kc37
+        "KRcx and KTcx at 37degC";
+      parameter Modelica.Units.SI.MoleFraction Kc25=Kc37*exp((Hc/Modelica.Constants.R)
+          *(1/310.15 - 1/298.15)) "KRcx and KTcx at 25degC";
 
       //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013/55.508)  + Chemical.Examples.Substances.Oxygen_gas.DfG;
       //  parameter Modelica.SIunits.ChemicalPotential DfH_O2 = Chemical.Examples.Substances.Oxygen_aqueous.DfH;
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO = -RT*log(0.00099)  -137300;             //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO = -276900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO=-RT*log(
+          0.00099) - 137300;                                                                       //==Chemical.Examples.Substances.CarbonMonoxide_aqueous.DfG
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO=-276900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
-      parameter Modelica.SIunits.ChemicalPotential DfH_CO2 = -412900;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfH_CO2=-412900;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_selectedForm
+      parameter Modelica.Units.SI.ChemicalPotential DfG_selectedForm
         "DfG_tR and DfG_tT";
-      parameter Modelica.SIunits.MolarEnthalpy DfH_selectedForm = 0
+      parameter Modelica.Units.SI.MolarEnthalpy DfH_selectedForm=0
         "DfH_tR and DfH_tT";
 
       parameter Real KC = 1e-5 "Slow down factor";
                                //0.000001
       //  parameter Modelica.SIunits.MoleFraction initialO2
       //    "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
-      parameter Modelica.SIunits.MoleFraction initialCO
+      parameter Modelica.Units.SI.MoleFraction initialCO
         "Initial mole fraction of unbound oxygen disoluted around hemoglobin";
-      parameter Modelica.SIunits.MoleFraction initialH
+      parameter Modelica.Units.SI.MoleFraction initialH
         "Initial mole fraction of H+";
-      parameter Modelica.SIunits.MoleFraction initialCO2
+      parameter Modelica.Units.SI.MoleFraction initialCO2
         "Initial mole fraction of unbound carbon dioxide disoluted around hemoglobin";
-      parameter Modelica.SIunits.AmountOfSubstance initialHb
+      parameter Modelica.Units.SI.AmountOfSubstance initialHb
         "Initial amount of hemoglobin tetramers in this quaternary form";
 
       Chemical.Components.Speciation speciation(NumberOfSubunits=N)
@@ -4749,59 +4803,66 @@ extends Modelica.Icons.ExamplesPackage;
       "Multiple-ligand allosteric hemoglobin model"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
+      constant Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=
+          38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real KRco37=KRo37/3200;
       parameter Real KTco37=KTo37/3200;
 
       parameter Real pH=7.4;
-      parameter Modelica.SIunits.Pressure pCO2=5330;
+      parameter Modelica.Units.SI.Pressure pCO2=5330;
 
       parameter Real L_old=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.Units.SI.Concentration KR=0.000671946
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KRo37=KR*OneLiter/
+          AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KTo37=KT*OneLiter/
+          AmountOfSolutionIn1L;
 
       //  parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034)  -394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-5 "Slow down factor";
 
-      parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
+      parameter Modelica.Units.SI.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
-      parameter Modelica.SIunits.MoleFraction initialH=10^(-pH);
-      parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
+      parameter Modelica.Units.SI.MoleFraction initialH=10^(-pH);
+      parameter Modelica.Units.SI.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";                      //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction initialCO=1e-10
+      parameter Modelica.Units.SI.MoleFraction initialCO=1e-10
         "Initial CO at 37degC, pCO=0mmHg";
       //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
-      parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
+      parameter Modelica.Units.SI.MoleFraction KRh37=10^(-6.89);
+      parameter Modelica.Units.SI.MoleFraction KTh37=10^(-7.52);
 
-      parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
-      parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
+      parameter Modelica.Units.SI.MoleFraction KRz37=10^(-7.25);
+      parameter Modelica.Units.SI.MoleFraction KTz37=10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter/AmountOfSolutionIn1L);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KRc37=(10^(-8.35))/(
+          OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KTc37=(10^(-7.54))/(
+          OneLiter/AmountOfSolutionIn1L);
 
       parameter Real L=L_old
         *
@@ -4824,7 +4885,7 @@ extends Modelica.Icons.ExamplesPackage;
         use_mass_start=false,
         amountOfSubstance_start=initialCO*AmountOfSolutionIn1L)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
-      Modelica.Blocks.Sources.Clock oxygenSource(offset=1)
+      Modelica.Blocks.Sources.ContinuousClock oxygenSource(offset=1)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
       Chemical.Sources.ExternalIdealGasSubstance CO_in_air(
         usePartialPressureInput=true,
@@ -5004,54 +5065,63 @@ extends Modelica.Icons.ExamplesPackage;
     model HemoglobinTitration "Multiple-ligand allosteric hemoglobin model"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
+      constant Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=
+          38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real L_old=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.Units.SI.Concentration KR=0.000671946
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KRo37=KR*OneLiter/
+          AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KTo37=KT*OneLiter/
+          AmountOfSolutionIn1L;
 
-      parameter Modelica.SIunits.MoleFraction KRco37 = (KR/218)*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTco37 = (KT/218)*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KRco37=(KR/218)*OneLiter/
+          AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KTco37=(KT/218)*OneLiter/
+          AmountOfSolutionIn1L;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034) -394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-2 "Slow down factor";
 
-      parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
+      parameter Modelica.Units.SI.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
-      parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
-      parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
+      parameter Modelica.Units.SI.MoleFraction initialH=10^(-7.2);
+      parameter Modelica.Units.SI.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";
       //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
-      parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
+      parameter Modelica.Units.SI.MoleFraction KRh37=10^(-6.89);
+      parameter Modelica.Units.SI.MoleFraction KTh37=10^(-7.52);
 
-      parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
-      parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
+      parameter Modelica.Units.SI.MoleFraction KRz37=10^(-7.25);
+      parameter Modelica.Units.SI.MoleFraction KTz37=10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter/AmountOfSolutionIn1L);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KRc37=(10^(-8.35))/(
+          OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KTc37=(10^(-7.54))/(
+          OneLiter/AmountOfSolutionIn1L);
 
       parameter Real L=L_old
         *
@@ -5072,7 +5142,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
           use_mass_start=false, amountOfSubstance_start=initialO2*AmountOfSolutionIn1L)
         annotation (Placement(transformation(extent={{-76,28},{-56,48}})));
-      Modelica.Blocks.Sources.Clock pHSource(offset=6.9)
+      Modelica.Blocks.Sources.ContinuousClock pHSource(offset=6.9)
         annotation (Placement(transformation(extent={{-60,-60},{-40,-40}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         substanceData=Chemical.Substances.Oxygen_gas(),
@@ -5233,54 +5303,63 @@ extends Modelica.Icons.ExamplesPackage;
     model HemoglobinCarboxylation "Multiple-ligand allosteric hemoglobin model"
       extends Modelica.Icons.Example;
 
-      constant Modelica.SIunits.AmountOfSubstance THb = 0.001
+      constant Modelica.Units.SI.AmountOfSubstance THb=0.001
         "Total amount of hemoglobin";
 
       constant Real RT=Modelica.Constants.R*298.15;
 
-      constant Modelica.SIunits.AmountOfSubstance AmountOfSolutionIn1L = 38.7/55.508
+      constant Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=
+          38.7/55.508
         "Amount of solution used for molarity to mole fraction conversion";
 
-      constant Modelica.SIunits.Volume OneLiter = 0.001;
+      constant Modelica.Units.SI.Volume OneLiter=0.001;
 
       parameter Real L_old=7.0529*10^6
         "=[T0]/[R0] .. dissociation constant of relaxed <-> tensed change of deoxyhemoglobin tetramer";
       parameter Real c=0.00431555
         "=KR/KT .. ration between oxygen affinities of relaxed vs. tensed subunit";
-      parameter Modelica.SIunits.Concentration KR=0.000671946
+      parameter Modelica.Units.SI.Concentration KR=0.000671946
         "oxygen dissociation on relaxed(R) hemoglobin subunit";
 
-      parameter Modelica.SIunits.Concentration KT=KR/c
+      parameter Modelica.Units.SI.Concentration KT=KR/c
         "oxygen dissociation on tensed(T) hemoglobin subunit";
 
-      parameter Modelica.SIunits.MoleFraction KRo37 = KR*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTo37 = KT*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KRo37=KR*OneLiter/
+          AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KTo37=KT*OneLiter/
+          AmountOfSolutionIn1L;
 
-      parameter Modelica.SIunits.MoleFraction KRco37 = (KR/218)*OneLiter/AmountOfSolutionIn1L;
-      parameter Modelica.SIunits.MoleFraction KTco37 = (KT/218)*OneLiter/AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KRco37=(KR/218)*OneLiter/
+          AmountOfSolutionIn1L;
+      parameter Modelica.Units.SI.MoleFraction KTco37=(KT/218)*OneLiter/
+          AmountOfSolutionIn1L;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_O2 = -RT*log(0.0013);
-      parameter Modelica.SIunits.ChemicalPotential DfG_CO2 = -RT*log(0.034) -394400;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_O2=-RT*log(0.0013);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_CO2=-RT*log(0.034)
+           - 394400;
 
-      parameter Modelica.SIunits.ChemicalPotential DfG_tT = 0;
-      parameter Modelica.SIunits.ChemicalPotential DfG_tR = DfG_tT + RT * log(L);
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tT=0;
+      parameter Modelica.Units.SI.ChemicalPotential DfG_tR=DfG_tT + RT*
+          log(L);
 
       parameter Real KC = 1e-3 "Slow down factor";
 
-      parameter Modelica.SIunits.MoleFraction initialO2=1.9594e-07
+      parameter Modelica.Units.SI.MoleFraction initialO2=1.9594e-07
         "Initial O2 at 37degC, pO2=100Pa";                         //at 25degC: 2.342e-8;
-      parameter Modelica.SIunits.MoleFraction initialH=10^(-7.2);
-      parameter Modelica.SIunits.MoleFraction initialCO2=2.4217e-10
+      parameter Modelica.Units.SI.MoleFraction initialH=10^(-7.2);
+      parameter Modelica.Units.SI.MoleFraction initialCO2=2.4217e-10
         "Initial CO2 at 37degC, pCO2=40mmHg";
       //at 25degC: 3.267e-5;
-      parameter Modelica.SIunits.MoleFraction KRh37 = 10^(-6.89);
-      parameter Modelica.SIunits.MoleFraction KTh37 = 10^(-7.52);
+      parameter Modelica.Units.SI.MoleFraction KRh37=10^(-6.89);
+      parameter Modelica.Units.SI.MoleFraction KTh37=10^(-7.52);
 
-      parameter Modelica.SIunits.MoleFraction KRz37 = 10^(-7.25);
-      parameter Modelica.SIunits.MoleFraction KTz37 = 10^(-7.73);
+      parameter Modelica.Units.SI.MoleFraction KRz37=10^(-7.25);
+      parameter Modelica.Units.SI.MoleFraction KTz37=10^(-7.73);
 
-      parameter Modelica.SIunits.MoleFraction KRc37 = (10^(-8.35)) / (OneLiter/AmountOfSolutionIn1L);
-      parameter Modelica.SIunits.MoleFraction KTc37 = (10^(-7.54)) / (OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KRc37=(10^(-8.35))/(
+          OneLiter/AmountOfSolutionIn1L);
+      parameter Modelica.Units.SI.MoleFraction KTc37=(10^(-7.54))/(
+          OneLiter/AmountOfSolutionIn1L);
 
       parameter Real L=L_old
         *
@@ -5301,7 +5380,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
           use_mass_start=false, amountOfSubstance_start=initialO2*AmountOfSolutionIn1L)
         annotation (Placement(transformation(extent={{-76,0},{-56,20}})));
-      Modelica.Blocks.Sources.Clock pHSource(offset=6.9)
+      Modelica.Blocks.Sources.ContinuousClock pHSource(offset=6.9)
         annotation (Placement(transformation(extent={{-60,-88},{-40,-68}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         substanceData=Chemical.Substances.Oxygen_gas(),
@@ -5466,7 +5545,8 @@ extends Modelica.Icons.ExamplesPackage;
 
       constant Real K = 2 "Dissociation constant of the reaction";
 
-      constant Modelica.SIunits.Temperature T_25degC = 298.15 "Temperature";
+      constant Modelica.Units.SI.Temperature T_25degC=298.15
+        "Temperature";
       constant Real R = Modelica.Constants.R "Gas constant";
 
     Chemical.Sensors.DissociationCoefficient dissociationCoefficient
@@ -5503,7 +5583,8 @@ extends Modelica.Icons.ExamplesPackage;
       constant Real Kx(unit="1") = Kb*55.508
         "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
 
-      constant Modelica.SIunits.Temperature T_25degC = 298.15 "Temperature";
+      constant Modelica.Units.SI.Temperature T_25degC=298.15
+        "Temperature";
       constant Real R = Modelica.Constants.R "Gas constant";
 
     Chemical.Sources.PureSubstance A
@@ -5800,8 +5881,8 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Sources.PureSubstance H2O(substanceData=
             Chemical.Substances.Water_liquid())
         annotation (Placement(transformation(extent={{-8,-36},{-28,-16}})));
-      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter =
-            Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
+      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter
+          = Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
         annotation (Placement(transformation(extent={{-80,12},{-60,32}})));
       Chemical.Sources.ExternalIdealGasSubstance H2(
         substanceData=Chemical.Substances.Hydrogen_gas(),
@@ -5939,7 +6020,8 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package
+        Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
@@ -5953,7 +6035,8 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Substance H2O_(substanceData=Chemical.Substances.Water_liquid(),
         mass_start=1)
       annotation (Placement(transformation(extent={{88,-6},{68,14}})));
-    Chemical.Components.FluidAdapter fluidConversion2(redeclare package Medium =
+    Chemical.Components.FluidAdapter fluidConversion2(redeclare package
+        Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
 
@@ -6123,7 +6206,8 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package
+        Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
@@ -6154,7 +6238,8 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package
+        Medium =
           Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
