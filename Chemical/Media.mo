@@ -405,7 +405,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -506,7 +505,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -620,7 +618,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -734,7 +731,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
