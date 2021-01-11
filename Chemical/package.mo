@@ -255,8 +255,7 @@ package Chemical "Physical Chemistry"
               extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
                 -100}})));
 
-      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
-            stateOfMatter) "Solution nonflows and flows"
+      Interfaces.SolutionPort solution "Solution nonflows and flows"
                                       annotation (Placement(
             transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
               {62,-96}})));
@@ -919,8 +918,7 @@ package Chemical "Physical Chemistry"
       parameter Integer NumberOfSubunits=1
       "Number of independent subunits occurring in macromolecule";
 
-      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
-            stateOfMatter)                                                              annotation (Placement(transformation(extent={{-70,
+      Interfaces.SolutionPort solution                                                              annotation (Placement(transformation(extent={{-70,
                 -110},{-50,-90}}),
             iconTransformation(extent={{-70,-110},{-50,-90}})));
 
@@ -930,8 +928,7 @@ package Chemical "Physical Chemistry"
         "Mole fraction of the macromolecule (all form of in the conformation)";
 
   public
-      Interfaces.SolutionPort subunitSolution(redeclare package stateOfMatter =
-            stateOfMatter) "The port to connect all subunits"
+      Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.SubstancePort_a port_a annotation (Placement(transformation(
@@ -1135,8 +1132,7 @@ package Chemical "Physical Chemistry"
             origin={30,-26})));
     Interfaces.SubstancePort_b port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
-          stateOfMatter)
+      Interfaces.SolutionPort solution
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
 
      parameter Boolean EnthalpyNotUsed=false annotation (
@@ -1239,28 +1235,29 @@ package Chemical "Physical Chemistry"
 
     model FluidAdapter
       "Adapter between chemical substances of one homogenous chemical solution and Modelica.Fluid package components of MSL 3.2, where substances are stored as molarities in expraProperties"
+    import Chemical;
 
       outer Modelica.Fluid.System system "System wide properties";
 
-      replaceable package Medium = Chemical.Interfaces.PartialMedium_C
-       constrainedby Interfaces.PartialMedium_C
+      replaceable package Medium = Chemical.Media.PartialMedium
+       constrainedby Chemical.Media.PartialMedium
           "Medium model"   annotation (choicesAllMatching=true);
 
 
-      package StateOfMatter = Medium.stateOfMatter
-      "State of matter of each chemical substance" annotation (choicesAllMatching = true);
+     /* package StateOfMatter = Medium.stateOfMatter
+  "State of matter of each chemical substance" annotation (choicesAllMatching = true);*/
 
-      parameter StateOfMatter.SubstanceData substanceData[Medium.nCS] = Medium.substanceData
-      "Definitions of all chemical substances"
-       annotation(Dialog(tab="Advanced"));
+     /* parameter StateOfMatter.SubstanceData substanceData[Medium.nCS] = Medium.substanceData
+  "Definitions of all chemical substances"
+   annotation(Dialog(tab="Advanced"));*/
 
       // Fluid Port definitions
       parameter Integer nFluidPorts=0 "Number of fluid ports"
         annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
 
-      Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare
-        each package Medium =       Medium)
+      Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare each
+        package      Medium =       Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -1276,8 +1273,7 @@ package Chemical "Physical Chemistry"
             extent={{-10,-40},{10,40}},
             rotation=180,
             origin={-100,0})));
-      Interfaces.SolutionPort solution(redeclare package stateOfMatter =
-            Medium.stateOfMatter) "Chemical solution"
+      Interfaces.SolutionPort solution "Chemical solution"
         annotation (Placement(transformation(extent={{-50,-40},{-30,-20}}),
             iconTransformation(extent={{-50,-40},{-30,-20}})));
 
@@ -1377,7 +1373,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       end for;
 
       //substances
-      molarMass = StateOfMatter.molarMass(Medium.substanceData);
+      molarMass = Medium.molarMasses(); // StateOfMatter.molarMass(Medium.substanceData);
 
       x_mass = substances.x_mass;
 
@@ -2218,8 +2214,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model ExternalIdealGasSubstance
     "Ideal gas substance with defined partial pressure"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter
-        =   Interfaces.IdealGas);
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
+            Interfaces.IdealGas);
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
@@ -3121,8 +3117,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       SubstancePort_a port_a "The substance"
      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-     replaceable package stateOfMatter = Incompressible constrainedby
-      StateOfMatter
+     replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -3620,18 +3615,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
-         = 0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") =
+           0.01801528 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
-         = DfG_25degC_1bar
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol") =
+           DfG_25degC_1bar
         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
-         = DfH_25degC
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol") =
+           DfH_25degC
         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -3642,8 +3637,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
-          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
+           "kJ/mol") = 0 "Obsolete parameter use DfH instead"
         annotation (Dialog(tab="Obsolete"));
 
       parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
@@ -3657,8 +3652,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
         "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-      parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3")
-         = 1000
+      parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3") =
+           1000
         "Density of the pure substance (default density of water at 25degC)";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
@@ -3811,18 +3806,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
-         = 0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") =
+           0.01801528 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
-         = DfG_25degC_1bar
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol") =
+           DfG_25degC_1bar
         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
-         = DfH_25degC
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol") =
+           DfH_25degC
         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -3833,8 +3828,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
-          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
+           "kJ/mol") = 0 "Obsolete parameter use DfH instead"
         annotation (Dialog(tab="Obsolete"));
 
       parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
@@ -4106,18 +4101,18 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare record extends SubstanceData
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
-         = 0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
+           0.01801528 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
-         = DfG_25degC_1bar
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
+           DfG_25degC_1bar
         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
-         = DfH_25degC
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
+           DfH_25degC
         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -4128,8 +4123,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        parameter String References[1]={""}
          "References of these thermodynamical values";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit
-          ="kJ/mol") = 0 "Obsolete parameter use DfH instead"
+      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
+           "kJ/mol") = 0 "Obsolete parameter use DfH instead"
         annotation (Dialog(tab="Obsolete"));
 
       parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
@@ -4384,11 +4379,10 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     flow Modelica.Units.SI.MoleFraction Ij
       "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
-      //suport for structural properties
-      replaceable package stateOfMatter = StateOfMatter  constrainedby
-      StateOfMatter
-      "Substance model to translate data into substance properties"
-         annotation (choicesAllMatching = true);
+    /*  //suport for structural properties
+  replaceable package stateOfMatter = StateOfMatter  constrainedby StateOfMatter
+  "Substance model to translate data into substance properties"
+     annotation (choicesAllMatching = true);*/
 
 
 
@@ -4424,8 +4418,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
-      SolutionPort solution(redeclare package stateOfMatter =
-          stateOfMatter)
+      SolutionPort solution
         annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
       parameter Boolean ElectricGround = true
@@ -4935,53 +4928,6 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 </html>"));
     end SubstanceMolarityPort_b;
 
-    partial package PartialMedium_C
-
-    extends Modelica.Media.Interfaces.PartialMedium;
-
-    replaceable package stateOfMatter =
-                            Chemical.Interfaces.StateOfMatter constrainedby
-      Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-       annotation (choicesAllMatching = true);
-
-      constant Integer nCS=0 "Number of chemical substances";
-
-      constant stateOfMatter.SubstanceData substanceData[nCS]
-    "Definition of the substances"
-    annotation (choicesAllMatching = true);
-
-
-      replaceable partial function C_outflow "Outflow values for extra properties of fluid connector"
-      input Modelica.Units.SI.MassFraction x_mass[nCS];
-        output Real C_outflow[nC];
-      end C_outflow;
-
-      replaceable partial function Xi_outflow "Outflow values for mass fracion of fluid connector"
-      input Modelica.Units.SI.MassFraction x_mass[nCS];
-      output Modelica.Units.SI.MassFraction Xi[nXi];
-      end Xi_outflow;
-
-      replaceable partial function x_mass "Mass fractions from actual streams of fluid connector"
-      input Modelica.Units.SI.MassFraction actualStream_Xi[nXi];
-        input Real actualStream_C[nC];
-      output Modelica.Units.SI.MassFraction x_mass[nCS];
-      end x_mass;
-
-      replaceable partial function concentration "Concentration of substances from Xi and C"
-        input ThermodynamicState state;
-      input Modelica.Units.SI.MassFraction Xi[nXi];
-        input Real C[nC];
-      output Modelica.Units.SI.Concentration concentration[nCS];
-      end concentration;
-
-      replaceable partial function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
-      input Modelica.Units.SI.ElectricPotential v=0;
-       input Real I=0;
-       output SpecificEnthalpy h[nCS];
-      end specificEnthalpyOffsets;
-
-    end PartialMedium_C;
   end Interfaces;
 
   annotation (
