@@ -22,6 +22,34 @@ package Media
       Chemical.Substances.Water_liquid_without_selfClustering()}
        "Definition of the substances";
 
+    replaceable model ChemicalSolution
+      Chemical.Interfaces.SubstancePorts_a substances[nCS];
+      input Modelica.Units.SI.Pressure p "pressure";
+      input Modelica.Units.SI.SpecificEnthalpy h "specific enthalpy";
+      input Modelica.Units.SI.MassFraction X[nCS] "mass fractions of substances";
+      input Modelica.Units.SI.ElectricPotential v=0 "electric potential";
+      input Modelica.Units.SI.MoleFraction I=0 "mole fraction based ionic strength";
+
+      Modelica.Blocks.Interfaces.RealOutput molarFlows[nCS](each unit="mol/s") "molar flows of substances";
+      Modelica.Blocks.Interfaces.RealOutput actualStreamMolarEnthalpies[nCS](each unit="J/mol") "molar enthalpies in streams";
+      Modelica.Blocks.Interfaces.RealOutput T "temperature";
+      parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+    protected
+      ThermodynamicState state = setState_phX(p,h,X);
+    equation
+      T=state.T;
+      actualStreamMolarEnthalpies =
+        if EnthalpyNotUsed then zeros(nCS)
+        else actualStream(substances.h_outflow);
+      substances.u = electrochemicalPotentials_pTXvI(p,T,X,v,I);
+      substances.h_outflow = molarEnthalpies_pTvI(p,T,v,I);
+      molarFlows = substances.q;
+    end ChemicalSolution;
+
     redeclare model extends BaseProperties(final standardOrderComponents=true)
       "Base properties of medium"
 
@@ -49,6 +77,13 @@ package Media
 
 </html>"));
     end ThermodynamicState;
+
+    replaceable function molarMasses
+     output Modelica.Units.SI.MolarMass molarMasses[nCS];
+    algorithm
+      molarMasses := {stateOfMatter.molarMass(substanceData[1])};
+      annotation(Inline=true);
+    end molarMasses;
 
     redeclare function extends setState_pTX
       "Return thermodynamic state as function of p, T and composition X or Xi"
@@ -182,19 +217,21 @@ package Media
       input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
       output Modelica.Units.SI.MolarEnthalpy h[nCS];
     algorithm
-      h:= stateOfMatter.molarEnthalpy(
-          substanceData, T, p, electricPotential, moleFractionBasedIonicStrength);
+      h:= if (nCS==nS) then stateOfMatter.molarEnthalpy(substanceData,T,p,electricPotential,
+        moleFractionBasedIonicStrength)
+          else zeros(nCS);
+
     end molarEnthalpies_pTvI;
 
-    function C_outflow
+    replaceable function C_outflow
       input Modelica.Units.SI.MassFraction x_mass[nCS];
      output Real C_outflow[nC];
     algorithm
-      C_outflow := C_default;
+      C_outflow := x_mass[1:nC];
       annotation(Inline=true);
     end C_outflow;
 
-    function Xi_outflow
+    replaceable function Xi_outflow
       input Modelica.Units.SI.MassFraction x_mass[nCS];
       output Modelica.Units.SI.MassFraction Xi[nXi];
     algorithm
@@ -202,25 +239,25 @@ package Media
       annotation(Inline=true);
     end Xi_outflow;
 
-    function x_mass
+    replaceable function x_mass
       input Modelica.Units.SI.MassFraction actualStream_Xi[nXi];
       input Real actualStream_C[nC];
       output Modelica.Units.SI.MassFraction x_mass[nCS];
     algorithm
-      x_mass := {1};
+      x_mass := if nC>0 then actualStream_C else {1};
       annotation(Inline=true);
     end x_mass;
 
-    function concentration "Concentration of base substance molecules from Xi and C"
+    replaceable function concentration "Concentration of base substance molecules from Xi and C"
       input ThermodynamicState state;
       input Modelica.Units.SI.MassFraction Xi[nXi];
       input Real C[nC];
       output Modelica.Units.SI.Concentration concentration[nCS];
     algorithm
-      concentration := { 1/stateOfMatter.molarVolume(substanceData[1])};
+      concentration := if (nC>0) then C else { 1/stateOfMatter.molarVolume(substanceData[1])};
     end concentration;
 
-    function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
+    replaceable function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
       input Modelica.Units.SI.ElectricPotential v=0;
       input Real I=0;
       output SpecificEnthalpy h[nCS];
@@ -273,6 +310,15 @@ Modelica source.
         stateOfMatter.SubstanceData(                data=data[i]) for i in 1:nX}
          "Definition of the substances";
 
+
+      constant Modelica.Units.SI.MolarMass MM[nCS] = stateOfMatter.molarMass(substanceData);
+
+      replaceable function molarMasses
+       output Modelica.Units.SI.MolarMass molarMasses[nCS];
+      algorithm
+        molarMasses := MM;
+        annotation(Inline=true);
+      end molarMasses;
 
       replaceable function electrochemicalPotentials_pTXvI
         input Modelica.Units.SI.Pressure p;
@@ -380,6 +426,11 @@ Modelica source.
         Chemical.Substances.Nitrogen_gas()}
          "Definition of the substances";
 
+      replaceable function molarMasses
+       output Modelica.Units.SI.MolarMass molarMasses[nCS];
+      algorithm
+        molarMasses := stateOfMatter.molarMass(substanceData);
+      end molarMasses;
 
      replaceable function electrochemicalPotentials_pTXvI
         input Modelica.Units.SI.Pressure p;
@@ -405,7 +456,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -482,6 +532,12 @@ Modelica source.
         Chemical.Substances.Oxygen_gas()}
          "Definition of the substances";
 
+      replaceable function molarMasses
+       output Modelica.Units.SI.MolarMass molarMasses[nCS];
+      algorithm
+        molarMasses := stateOfMatter.molarMass(substanceData);
+      end molarMasses;
+
       replaceable function electrochemicalPotentials_pTXvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
@@ -506,7 +562,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -596,6 +651,12 @@ Modelica source.
           Substances.Ethanol_liquid()}
            "Definition of the substances";
 
+      replaceable function molarMasses
+       output Modelica.Units.SI.MolarMass molarMasses[nCS];
+      algorithm
+        molarMasses := stateOfMatter.molarMass(substanceData);
+      end molarMasses;
+
         replaceable function electrochemicalPotentials_pTXvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
@@ -620,7 +681,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -710,6 +770,12 @@ Modelica source.
           Substances.Water_liquid()}
            "Definition of the substances";
 
+        replaceable function molarMasses
+        output Modelica.Units.SI.MolarMass molarMasses[nCS];
+        algorithm
+        molarMasses := stateOfMatter.molarMass(substanceData);
+        end molarMasses;
+
         replaceable function electrochemicalPotentials_pTXvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
@@ -734,7 +800,6 @@ Modelica source.
       replaceable function molarEnthalpies_pTvI
         input Modelica.Units.SI.Pressure p;
         input Modelica.Units.SI.Temperature T;
-        input Modelica.Units.SI.MassFraction X[nCS];
         input Modelica.Units.SI.ElectricPotential electricPotential=0;
         input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0;
         output Modelica.Units.SI.MolarEnthalpy h[nCS];
@@ -794,4 +859,73 @@ Modelica source.
         h := H;
      end specificEnthalpyOffsets;
     end StandardWater_C;
+
+  partial package PartialMedium "Interface for Chemical Medium"
+    extends Modelica.Media.Interfaces.PartialMedium(
+      reference_T = 310.15,
+      reference_p = 101325,
+      Temperature(start=298.15));
+
+    constant Integer nCS=1 "Number of chemical substances";
+
+    replaceable partial model ChemicalSolution
+      Chemical.Interfaces.SubstancePorts_a substances[nCS];
+      input Modelica.Units.SI.Pressure p "pressure";
+      input Modelica.Units.SI.SpecificEnthalpy h "specific enthalpy";
+      input Modelica.Units.SI.MassFraction X[nCS] "mass fractions of substances";
+      input Modelica.Units.SI.ElectricPotential v=0 "electric potential";
+      input Modelica.Units.SI.MoleFraction I=0 "mole fraction based ionic strength";
+
+      Modelica.Blocks.Interfaces.RealOutput molarFlows[nCS](each unit="mol/s") "molar flows of substances";
+      Modelica.Blocks.Interfaces.RealOutput actualStreamMolarEnthalpies[nCS](each unit="J/mol") "molar enthalpies in streams";
+      Modelica.Blocks.Interfaces.RealOutput T "temperature";
+      parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+    end ChemicalSolution;
+
+    replaceable partial function molarMasses
+     output Modelica.Units.SI.MolarMass molarMasses[nCS];
+    end molarMasses;
+
+    replaceable function C_outflow
+      input Modelica.Units.SI.MassFraction x_mass[nCS];
+      output Real C_outflow[nC];
+    end C_outflow;
+
+    replaceable function Xi_outflow
+      input Modelica.Units.SI.MassFraction x_mass[nCS];
+      output Modelica.Units.SI.MassFraction Xi[nXi];
+    end Xi_outflow;
+
+    replaceable function x_mass
+      input Modelica.Units.SI.MassFraction actualStream_Xi[nXi];
+      input Real actualStream_C[nC];
+      output Modelica.Units.SI.MassFraction x_mass[nCS];
+    end x_mass;
+
+    replaceable function concentration "Concentration of base substance molecules from Xi and C"
+      input ThermodynamicState state;
+      input Modelica.Units.SI.MassFraction Xi[nXi];
+      input Real C[nC];
+      output Modelica.Units.SI.Concentration concentration[nCS];
+    end concentration;
+
+    replaceable function specificEnthalpyOffsets "Difference between chemical substance enthalpy and medium substance enthalpy at temperature 298.15 K and 100kPa"
+      input Modelica.Units.SI.ElectricPotential v=0;
+      input Real I=0;
+      output SpecificEnthalpy h[nCS];
+    end specificEnthalpyOffsets;
+    annotation (Documentation(info="<html>
+<p>
+This package is a <strong>template</strong> for <strong>new medium</strong> models. For a new
+medium model just make a copy of this package, remove the
+\"partial\" keyword from the package and provide
+the information that is requested in the comments of the
+Modelica source.
+</p>
+</html>"));
+  end PartialMedium;
 end Media;

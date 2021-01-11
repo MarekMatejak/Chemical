@@ -7875,10 +7875,11 @@ package Substances "Definitions of substances"
       DfG=-227230,
       Cp=75.3,
       SelfClustering = true,
-      SelfClustering_dH = -77.95928,
+      SelfClustering_dH = -81.6348,
       SelfClustering_dS = 32.845554,
         References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"});
+                                    //-77.95928,
 
   /*  SelfClustering_dH = -81.6348,
     SelfClustering_dS = 32.8344,
