@@ -178,8 +178,29 @@ package Media
 
     redeclare function extends density
     algorithm
-      d := stateOfMatter.molarMass(substanceData[1]) / stateOfMatter.molarVolume(substanceData[1]);
+      d := 1000; //stateOfMatter.molarMass(substanceData[1]) / stateOfMatter.molarVolume(substanceData[1]);
     end density;
+
+    redeclare replaceable function density_pTX "Return density from p, T, and X or Xi"
+        extends Modelica.Icons.Function;
+        input AbsolutePressure p "Pressure";
+        input Temperature T "Temperature";
+        input MassFraction X[:] "Mass fractions";
+        output Density d "Density";
+    algorithm
+      d := 1000;//stateOfMatter.molarMass(substanceData[1]) / stateOfMatter.molarVolume(substanceData[1]);
+    end density_pTX;
+
+    redeclare replaceable function density_phX "Return density from p, h, and X or Xi"
+        extends Modelica.Icons.Function;
+        input AbsolutePressure p "Pressure";
+        input SpecificEnthalpy h "Specific enthalpy";
+        input MassFraction X[:]=reference_X "Mass fractions";
+        output Density d "Density";
+    algorithm
+      d := 1000; //stateOfMatter.molarMass(substanceData[1]) / stateOfMatter.molarVolume(substanceData[1]);
+    end density_phX;
+
 
     redeclare function extends temperature
     algorithm

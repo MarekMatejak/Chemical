@@ -662,8 +662,7 @@ package Chemical "Physical Chemistry"
     model ElectronTransfer
     "Electron transfer from the solution to electric circuit"
       extends Icons.ElectronTransfer;
-      extends Interfaces.PartialSubstanceInSolution(redeclare package
-        stateOfMatter =
+      extends Interfaces.PartialSubstanceInSolution(redeclare package stateOfMatter =
             Chemical.Interfaces.Incompressible,
         final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
         MolarWeight=5.4857990946e-7,
@@ -1257,7 +1256,7 @@ package Chemical "Physical Chemistry"
 
 
       Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare each
-        package      Medium =       Medium)
+        package Medium =            Medium)
       "Fluid inlets and outlets"
         annotation (Placement(transformation(extent={{-40,-10},{40,10}},
           origin={100,0},
@@ -3999,8 +3998,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
          function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
-           extends
-          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+           extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
            input Modelica.Media.IdealGases.Common.DataRecord data "Ideal gas data";
            input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
          algorithm
@@ -4206,8 +4204,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
           function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
-            extends
-          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+            extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
             input SubstanceData data "Ideal gas data";
             input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
           algorithm
@@ -4927,12 +4924,11 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end SubstanceMolarityPort_b;
-
   end Interfaces;
 
   annotation (
 preferredView="info",
-version="1.4.0-alpha3",
+version="1.4.0-alpha4",
 versionDate="2020-12-15",
 dateModified = "2020-12-15 14:14:41Z",
 conversion(

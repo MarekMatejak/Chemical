@@ -2746,8 +2746,7 @@ extends Modelica.Icons.ExamplesPackage;
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
       extends Modelica.Icons.Example;
 
-      Chemical.Components.Solution solution(redeclare package
-          stateOfMatter =
+      Chemical.Components.Solution solution(redeclare package stateOfMatter =
             Interfaces.Incompressible)
         annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
 
@@ -3278,8 +3277,8 @@ extends Modelica.Icons.ExamplesPackage;
           use_mass_start=false,
         amountOfSubstance_start=2e-9)
         annotation (Placement(transformation(extent={{-2,6},{18,26}})));
-      Modelica.Blocks.Sources.ContinuousClock clock(offset=1) annotation
-        (Placement(transformation(extent={{-40,74},{-20,94}})));
+      Modelica.Blocks.Sources.ContinuousClock clock(offset=1) annotation (
+         Placement(transformation(extent={{-40,74},{-20,94}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
           usePartialPressureInput=true, substanceData=
             Chemical.Substances.Oxygen_gas()) annotation (Placement(
@@ -5881,8 +5880,8 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Sources.PureSubstance H2O(substanceData=
             Chemical.Substances.Water_liquid())
         annotation (Placement(transformation(extent={{-8,-36},{-28,-16}})));
-      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter
-          = Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
+      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter =
+            Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
         annotation (Placement(transformation(extent={{-80,12},{-60,32}})));
       Chemical.Sources.ExternalIdealGasSubstance H2(
         substanceData=Chemical.Substances.Hydrogen_gas(),
@@ -6020,8 +6019,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package
-        Medium =
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
@@ -6035,8 +6033,7 @@ extends Modelica.Icons.ExamplesPackage;
     Components.Substance H2O_(substanceData=Chemical.Substances.Water_liquid(),
         mass_start=1)
       annotation (Placement(transformation(extent={{88,-6},{68,14}})));
-    Chemical.Components.FluidAdapter fluidConversion2(redeclare package
-        Medium =
+    Chemical.Components.FluidAdapter fluidConversion2(redeclare package Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{56,-2},{36,18}})));
 
@@ -6206,8 +6203,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     inner Modelica.Fluid.System system
       annotation (Placement(transformation(extent={{-82,66},{-62,86}})));
-    Chemical.Components.FluidAdapter fluidConversion1(redeclare package
-        Medium =
+    Chemical.Components.FluidAdapter fluidConversion1(redeclare package Medium =
           Medium, nFluidPorts=1)
       annotation (Placement(transformation(extent={{-50,-2},{-30,18}})));
 
@@ -6225,8 +6221,8 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=100)
       annotation (Placement(transformation(extent={{-70,18},{-50,38}})));
 
-    Modelica.Fluid.Sources.MassFlowSource_T boundary(m_flow=-1,           redeclare
-        package Medium = Medium,
+    Modelica.Fluid.Sources.MassFlowSource_T boundary(m_flow=-1,           redeclare package Medium =
+                         Medium,
       nPorts=1)
       annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
@@ -6238,8 +6234,7 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Fluid.Sensors.TraceSubstancesTwoPort etchanolFlow(substanceName="C2H5OH",
         redeclare package Medium = Medium)
       annotation (Placement(transformation(extent={{18,48},{38,68}})));
-    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package
-        Medium =
+    Modelica.Fluid.Sensors.MassFlowRate massFlowRate(redeclare package Medium =
           Medium)
       annotation (Placement(transformation(extent={{48,48},{68,68}})));
   equation
