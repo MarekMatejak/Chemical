@@ -1694,11 +1694,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
     "Meassure dissociation coefficient (mole fraction based) for pure substances"
       extends Modelica.Icons.RectangularSensor;
 
+      outer Modelica.Fluid.System system "System wide properties";
+
       parameter Boolean useTemperatureInput = false
       "=true, if temperature is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-    parameter Modelica.Units.SI.Temperature T=298.15
+      parameter Modelica.Units.SI.Temperature T=system.T_ambient
       "Temperature if not useTemperatureInput" annotation (HideResult=
           true, Dialog(enable=not useTemperatureInput));
 
