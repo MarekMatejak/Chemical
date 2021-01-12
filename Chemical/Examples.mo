@@ -5548,23 +5548,22 @@ extends Modelica.Icons.ExamplesPackage;
         "Temperature";
       constant Real R = Modelica.Constants.R "Gas constant";
 
-    Chemical.Sensors.DissociationCoefficient dissociationCoefficient
+    Chemical.Sensors.DissociationCoefficient dissociationCoefficient(nS=1, nP=1)
         annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-    Chemical.Sources.PureSubstance A
+    Chemical.Sources.PureSubstance A(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible, substanceData(DfG=0))
         annotation (Placement(transformation(extent={{-56,-10},{-36,10}})));
     Chemical.Sources.PureSubstance B(redeclare package stateOfMatter =
             Chemical.Interfaces.Incompressible, substanceData(DfG=-R*T_25degC
               *log(K)))
         annotation (Placement(transformation(extent={{60,-10},{40,10}})));
+      inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
+        annotation (Placement(transformation(extent={{-58,62},{-38,82}})));
     equation
-    connect(A.port_a, dissociationCoefficient.substrates[1]) annotation (Line(
-        points={{-36,0},{-10,0}},
-        color={158,66,200},
-        thickness=1));
-    connect(B.port_a, dissociationCoefficient.products[1]) annotation (Line(
-        points={{40,0},{10,0}},
-        color={158,66,200},
-        thickness=1));
+      connect(A.port_a, dissociationCoefficient.substrates[1])
+        annotation (Line(points={{-36,0},{-10,0}}, color={158,66,200}));
+      connect(dissociationCoefficient.products[1], B.port_a)
+        annotation (Line(points={{10,0},{40,0}}, color={158,66,200}));
       annotation (Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
