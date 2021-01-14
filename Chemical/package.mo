@@ -232,7 +232,7 @@ package Chemical "Physical Chemistry"
       extends Interfaces.PartialSolutionWithHeatPort(pressure(start=BasePressure));
 
     parameter Modelica.Units.SI.Pressure BasePressure=system.p_ambient
-      "Ambient pressure if useMechanicPort, start pressure or absolute pressure if ConstantPressure"
+      "Pressure at zero mechanic force (or if not useMechanicPorts)"
       annotation (HideResult=true);
 
       parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
@@ -359,13 +359,9 @@ package Chemical "Physical Chemistry"
       Modelica.Units.SI.AmountOfSubstance amountOfAdditionalBonds
         "Amount of hydrogen bonds between molecules in compartment";
 
-     // Real log10n(stateSelect=StateSelect.prefer, start=log10(mass_start/stateOfMatter.molarMass(substanceData)))
-     // "Decadic logarithm of the amount of all clusters in solution";
-
       Real logn(stateSelect=StateSelect.prefer, start=log(mass_start/stateOfMatter.molarMass(substanceData)))
       "Natural logarithm of the amount of all clusters in solution";
 
-    //  constant Real InvLog_10=1/log(10);
       constant Modelica.Units.SI.Mass OneKg=1;
 
 
@@ -404,7 +400,7 @@ package Chemical "Physical Chemistry"
 
         solution.dH =
           if (EnthalpyNotUsed) then  0
-          else      (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
+          else      (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
                       + der(molarEnthalpy)*amountOfBaseMolecules+
                     (if (calculateClusteringHeat) then
                         stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0)
@@ -421,7 +417,7 @@ package Chemical "Physical Chemistry"
 
         solution.dH =
           if (EnthalpyNotUsed) then  0
-          else       (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0))*q
+          else       (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
                       +der(molarEnthalpy)*amountOfBaseMolecules "change of substance enthalpy [J/s]";
 
         solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
@@ -430,8 +426,6 @@ package Chemical "Physical Chemistry"
 
       //The main accumulation equation is "der(amountOfBaseMolecules)=q"
       // However, the numerical solvers can handle it in form of log(n) much better. :-)
-     // der(log10n) = (InvLog_10)*(q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules [mol]";
-     // amountOfBaseMolecules = 10^log10n;
       der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
       amountOfBaseMolecules = exp(logn);
 
@@ -536,11 +530,11 @@ package Chemical "Physical Chemistry"
     equation
       //the main equation
       du = ((p * products.u) - (s * substrates.u));
-      rr = kC * du * exp(-kE*abs(du));
+      rr = - kC * du * exp(-kE*abs(du));
 
       //reaction molar rates
-      rr*s = -substrates.q;
-      rr*p = products.q;
+      rr*s = substrates.q;
+      rr*p = -products.q;
 
 
       // Implicit definition of the inStream()operator applied to inside connector i
@@ -549,10 +543,10 @@ package Chemical "Physical Chemistry"
       products.h_outflow = h_mix*ones(nP);
 
       if
-        (rr<0 and not EnthalpyNotUsed) then
+        (rr>0 and not EnthalpyNotUsed) then
         h_mix*(products.q*ones(nP)) + substrates.q*inStream(substrates.h_outflow) = 0;
       elseif
-            (rr>0 and not EnthalpyNotUsed) then
+            (rr<0 and not EnthalpyNotUsed) then
         h_mix*(substrates.q*ones(nS)) + products.q*inStream(products.h_outflow) = 0;
       else
         h_mix=0;
@@ -662,7 +656,8 @@ package Chemical "Physical Chemistry"
     model ElectronTransfer
     "Electron transfer from the solution to electric circuit"
       extends Icons.ElectronTransfer;
-      extends Interfaces.PartialSubstanceInSolution(redeclare package stateOfMatter =
+      extends Interfaces.PartialSubstanceInSolution(redeclare package
+        stateOfMatter =
             Chemical.Interfaces.Incompressible,
         final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
         MolarWeight=5.4857990946e-7,
@@ -735,22 +730,17 @@ package Chemical "Physical Chemistry"
 
       extends Icons.GasSolubility;
 
-    /*  parameter Boolean useWaterCorrection = true
-  "Are free Gibbs energy of aqueous formation shifted by 10 kJ/mol?"
-  annotation(Evaluate=true, HideResult=true, choices(checkBox=true));
-*/
-    Interfaces.SubstancePort_b gas_port "Gaseous solution"
-      annotation (Placement(transformation(extent={{-10,90},{10,110}})));
+      Interfaces.SubstancePort_b gas_port "Gaseous solution"
+        annotation (Placement(transformation(extent={{-10,90},{10,110}})));
 
-    Interfaces.SubstancePort_b liquid_port "Dissolved in liquid solution"
-      annotation (Placement(transformation(extent={{-10,-110},{10,-90}}),
-          iconTransformation(extent={{-10,-110},{10,-90}})));
+      Interfaces.SubstancePort_b liquid_port "Dissolved in liquid solution" annotation (Placement(
+            transformation(extent={{-10,-110},{10,-90}}), iconTransformation(extent={{-10,-110},{10,-90}})));
 
-       extends Interfaces.ConditionalKinetics;
+      extends Interfaces.ConditionalKinetics;
 
-      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+      parameter Real kE(unit="mol/J") = 0 "Kinetic turnover coefficient";
 
-       parameter Boolean EnthalpyNotUsed=false annotation (
+      parameter Boolean EnthalpyNotUsed=false annotation (
         Evaluate=true,
         HideResult=true,
         choices(checkBox=true),
@@ -759,20 +749,19 @@ package Chemical "Physical Chemistry"
       Modelica.Units.SI.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
-      gas_port.h_outflow = if
-                             (EnthalpyNotUsed) then 0 else inStream( liquid_port.h_outflow);
-      liquid_port.h_outflow = if
-                                (EnthalpyNotUsed) then 0 else inStream( gas_port.h_outflow);
 
       du = (liquid_port.u - gas_port.u);
-      // - (if useWaterCorrection then Modelica.Constants.R*(298.15)*log(0.01801528) else 0));
-      // the main equation
-      liquid_port.q = kC * du * exp(-kE*abs(du));
 
-       annotation (Documentation(revisions="<html>
+      liquid_port.q = kC*du*exp(-kE*abs(du));
+
+
+      gas_port.h_outflow = if (EnthalpyNotUsed) then 0 else inStream(liquid_port.h_outflow);
+      liquid_port.h_outflow = if (EnthalpyNotUsed) then 0 else inStream(gas_port.h_outflow);
+
+      annotation (Documentation(revisions="<html>
 <p><i>2009-2015 </i></p>
 <p><i>by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>", info="<html>
+</html>",     info="<html>
 <p>Gaseuous substance dissolition in liquid (Henry&apos;s law, Raoult&apos;s law, Nernst dissolution in one). </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -1231,180 +1220,6 @@ package Chemical "Physical Chemistry"
 <br/>
 </html>"));
     end Stream;
-
-    model FluidAdapter
-      "Adapter between chemical substances of one homogenous chemical solution and Modelica.Fluid package components of MSL 3.2, where substances are stored as molarities in expraProperties"
-    import Chemical;
-
-      outer Modelica.Fluid.System system "System wide properties";
-
-      replaceable package Medium = Chemical.Media.PartialMedium
-       constrainedby Chemical.Media.PartialMedium
-          "Medium model"   annotation (choicesAllMatching=true);
-
-
-     /* package StateOfMatter = Medium.stateOfMatter
-  "State of matter of each chemical substance" annotation (choicesAllMatching = true);*/
-
-     /* parameter StateOfMatter.SubstanceData substanceData[Medium.nCS] = Medium.substanceData
-  "Definitions of all chemical substances"
-   annotation(Dialog(tab="Advanced"));*/
-
-      // Fluid Port definitions
-      parameter Integer nFluidPorts=0 "Number of fluid ports"
-        annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
-
-      Modelica.Fluid.Vessels.BaseClasses.VesselFluidPorts_b fluidPorts[nFluidPorts](redeclare each
-        package Medium =            Medium)
-      "Fluid inlets and outlets"
-        annotation (Placement(transformation(extent={{-40,-10},{40,10}},
-          origin={100,0},
-            rotation=90)));
-
-      Interfaces.SubstanceMassPorts_a
-                                   substances[Medium.nCS]
-        "All chemical substances of the solution" annotation (Placement(
-            transformation(
-            extent={{-10,-40},{10,40}},
-            rotation=180,
-            origin={-100,0}), iconTransformation(
-            extent={{-10,-40},{10,40}},
-            rotation=180,
-            origin={-100,0})));
-      Interfaces.SolutionPort solution "Chemical solution"
-        annotation (Placement(transformation(extent={{-50,-40},{-30,-20}}),
-            iconTransformation(extent={{-50,-40},{-30,-20}})));
-
-    Modelica.Units.SI.MassFraction x_mass[Medium.nCS]
-      "Mass fraction of the substance from Chemical.Substance[]";
-    Modelica.Units.SI.MassFraction xx_mass[nFluidPorts,Medium.nCS]
-      "Mass fraction of the substance per actual stream in fluid port";
-    Modelica.Units.SI.MassFlowRate m_flow[nFluidPorts,Medium.nCS]
-      "Mass flow rate from fluid ports";
-    Modelica.Units.SI.MassFlowRate m_flow_sum[Medium.nCS]
-      "Mass flow rate of substance";
-    Modelica.Units.SI.Concentration actualC_outflow[nFluidPorts,Medium.nC]
-      "Actual C at fluid ports";
-    Modelica.Units.SI.Concentration actualC_outflow_sum[nFluidPorts]
-      "Sum of all C at fluid port";
-    Modelica.Units.SI.MassFraction actualXi_outflow[nFluidPorts,Medium.nXi]
-      "Actual Xi at fluid ports";
-    Modelica.Units.SI.MassFraction actualXi_outflow_sum[nFluidPorts]
-      "Sum of all Xi at fluid port";
-
-
-    Modelica.Units.SI.MolarMass molarMass[Medium.nCS]
-      "Molar mass of the substance";
-
-    Modelica.Units.SI.Temperature temperature
-      "Temperature of the solution";
-
-    Modelica.Units.SI.Pressure pressure "Pressure of the solution";
-
-    Modelica.Units.SI.ElectricPotential electricPotential(start=0)
-      "Electric potential of the solution";
-
-
-      Medium.ThermodynamicState state;
-
-      parameter Boolean EnthalpyNotUsed = false
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(tab="Advanced", group="Performance"));
-
-    equation
-      //fluid connectors
-      for i in 1:nFluidPorts loop
-    /*   assert(cardinality(fluidPorts[i]) <= 1,"
-each fluidPorts[i] of boundary shall at most be connected to one component.
-If two or more connections are present, ideal mixing takes
-place with these connections, which is usually not the intention
-of the modeller. Increase nFuildPorts to add an additional fluidPort.
-");*/
-
-         fluidPorts[i].p         = pressure;
-
-        //tok smerom zo substancii
-         fluidPorts[i].C_outflow = Medium.C_outflow(x_mass); //e.g. (x_mass ./ molarMass);
-         fluidPorts[i].Xi_outflow = Medium.Xi_outflow(x_mass); //e.g. Medium.X_default[1:Medium.nXi];
-
-         //molarne frakce v jednotlivych fluid portoch smerom zo i do substancii
-         actualC_outflow[i,:] = actualStream(fluidPorts[i].C_outflow);
-         actualC_outflow_sum[i] = actualStream(fluidPorts[i].C_outflow)*ones(Medium.nC);
-         actualXi_outflow[i,:] = actualStream(fluidPorts[i].Xi_outflow);
-         actualXi_outflow_sum[i] = actualStream(fluidPorts[i].Xi_outflow)*ones(Medium.nXi);
-
-         if
-           (Medium.nXi > 0 or Medium.nC>0) then
-           xx_mass[i,:] =  Medium.x_mass(actualStream_Xi=actualStream(fluidPorts[i].Xi_outflow),actualStream_C=actualStream(fluidPorts[i].C_outflow));
-         else
-           xx_mass[i,:] = ones(Medium.nCS);
-         end if;
-
-          //(molarMass.*actualStream(fluidPorts[i].C_outflow)) ./
-          //(molarMass.*actualStream(fluidPorts[i].C_outflow)*ones(Medium.nC));
-
-         //molarne toky v jednotlivych fluid portoch smerom zo i do substancii
-         for s in 1:Medium.nCS loop
-            m_flow[i,s] = (xx_mass[i,s]*fluidPorts[i].m_flow); // / molarMass[s];
-         end for;
-
-         //energy balance
-         if (EnthalpyNotUsed) then
-            fluidPorts[i].h_outflow  = Medium.h_default;
-         else
-            fluidPorts[i].h_outflow  = Medium.specificEnthalpy(state);
-         end if;
-
-     //    actualStreamThermodynamicState[i] = Medium.setState_phX(pressure, actualStream(fluidPorts[i].h_outflow), actualStream(fluidPorts[i].Xi_outflow));
-         //, electricPotential, solution.I);
-     //    actualStreamSpecificInternalEnergy[i] = Medium.specificInternalEnergy(actualStreamThermodynamicState[i]);
-      end for;
-
-      state = Medium.setState_pTX(pressure, temperature, x_mass); //, electricPotential, solution.I);
-    //  density = 1; //Medium.density(state);
-
-      //substance flow balances
-
-      for s in 1:Medium.nCS loop
-         //fluidPorts.m_flow * actualStream(fluidPorts.C_outflow[s])/density + substances[s].q = 0;
-         m_flow[:,s]*ones(nFluidPorts) + substances[s].m_flow = 0;
-         m_flow_sum[s] = m_flow[:,s]*ones(nFluidPorts);
-      end for;
-
-      //substances
-      molarMass = Medium.molarMasses(); // StateOfMatter.molarMass(Medium.substanceData);
-
-      x_mass = substances.x_mass;
-
-      //solution aliasses
-      temperature = solution.T;
-      pressure = solution.p;
-      electricPotential = solution.v;
-
-      //solution.dH = -fluidPorts.m_flow*actualStream(fluidPorts.h_outflow);
-      if (EnthalpyNotUsed) then
-        solution.dH = 0;
-      else
-        solution.dH = -fluidPorts.m_flow*(actualStream(fluidPorts.h_outflow)+(xx_mass*Medium.specificEnthalpyOffsets(electricPotential,solution.I)));
-      end if;
-
-     //do not affect solution at port?
-      solution.i = 0;
-      solution.dV = 0;
-      solution.Gj = 0;
-      solution.nj = 0;
-      solution.mj = 0;
-      solution.Qj = 0;
-      solution.Ij = 0;
-      solution.Vj = 0;
-
-
-      annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=false, extent={{-100,-100},{100,100}}), graphics={Line(
-              points={{-90,0},{90,0}},
-              color={158,66,200},
-              thickness=1)}));
-    end FluidAdapter;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -1576,7 +1391,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       extends Interfaces.PartialSubstanceSensor;
 
     parameter Modelica.Units.SI.AmountOfSubstance
-      AmountOfSolutionInOneLiter=55.508
+      AmountOfSolutionInOneLiter=1
       "Amount of all particles in one liter of the solution";
 
        Modelica.Blocks.Interfaces.RealOutput molarConcentration(final unit="mol/m3", displayUnit="mol/l")
@@ -1618,7 +1433,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       extends Interfaces.PartialSubstanceSensor;
 
     parameter Modelica.Units.SI.AmountOfSubstance
-      AmountOfSolutionInOneKilogram=55.508
+      AmountOfSolutionInOneKilogram=1
       "Amount of all particles in one kilogram of the solution";
 
        Modelica.Blocks.Interfaces.RealOutput massFraction(final unit="kg/kg")
@@ -1886,11 +1701,13 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       "Calculate activity coefficient for product[1]"
       extends Modelica.Icons.RectangularSensor;
 
+      outer Modelica.Fluid.System system "System wide properties";
+
       parameter Boolean useTemperatureInput = false
       "=true, if temperature is from input instead of parameter"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-    parameter Modelica.Units.SI.Temperature T=298.15
+    parameter Modelica.Units.SI.Temperature T=system.T_ambient
       "Temperature if not useTemperatureInput" annotation (HideResult=
           true, Dialog(enable=not useTemperatureInput));
 
@@ -2215,8 +2032,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     model ExternalIdealGasSubstance
     "Ideal gas substance with defined partial pressure"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
-            Interfaces.IdealGas);
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter
+        =   Interfaces.IdealGas);
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
@@ -2618,8 +2435,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
     Interfaces.SubstancePort_b port_b "Outflow"
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-    parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
 
+      parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
     equation
       port_b.q = -q;
       port_b.h_outflow = MolarHeat;
@@ -2863,7 +2680,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
-      streamEnthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpy(
+      streamEnthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpyOffset(
          substanceData);
 
       solution.dH =streamEnthalpy*port_a.q - der(molarEnthalpy)*nFreeBuffer;
@@ -2891,6 +2708,60 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end Buffer;
+
+    model SubstanceInflowT
+      "Molar pump of substance at defined temperature to system"
+      extends Interfaces.ConditionalSubstanceFlow;
+
+    Interfaces.SubstancePort_b port_b "Outflow"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
+     outer Modelica.Fluid.System system "System wide properties";
+
+     replaceable package stateOfMatter =
+        Chemical.Interfaces.Incompressible                                  constrainedby
+      Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+     parameter stateOfMatter.SubstanceData substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
+
+     parameter Modelica.Units.SI.Temperature T=system.T_ambient;
+    equation
+      port_b.q = -q;
+      port_b.h_outflow = stateOfMatter.molarEnthalpy(substanceData,T) - stateOfMatter.molarEnthalpyOffset(substanceData);
+
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+                100,100}}), graphics={
+            Rectangle(
+              extent={{-100,-42},{100,40}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-48,20},{50,0},{-48,-21},{-48,20}},
+              lineColor={0,0,127},
+              fillColor={0,0,127},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-220,-80},{220,-60}},
+              textString="%name",
+              lineColor={128,0,255})}),      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SubstanceInflowT;
   end Sources;
 
   package Interfaces "Chemical interfaces"
@@ -3118,7 +2989,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
       SubstancePort_a port_a "The substance"
      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-     replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
+     replaceable package stateOfMatter = Incompressible constrainedby
+      StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -3223,7 +3095,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        + Modelica.Constants.R*temperature*log(a)
        + z*Modelica.Constants.F*electricPotential;
 
-     port_a.h_outflow = molarEnthalpy - stateOfMatter.molarEnthalpy(substanceData,298.15,100000,0,0); //heat as molar enthalpy
+     port_a.h_outflow = molarEnthalpy - stateOfMatter.molarEnthalpyOffset(substanceData); //heat as molar enthalpy
 
      annotation (
        Documentation(revisions="<html>
@@ -3603,6 +3475,17 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
         "Molar heat capacity at constant volume";
       end molarHeatCapacityCv;
 
+      replaceable function molarEnthalpyOffset
+       "Stream molar entalpies offset : h_outflow = molarEnthalpy - molarEnthalpyOffset"
+        extends Modelica.Icons.Function;
+        input SubstanceData substanceData "Data record of substance";
+        output Modelica.Units.SI.MolarEnthalpy molarEnthalpyOffset
+        "Molar enthalpy offset";
+      algorithm
+        molarEnthalpyOffset:=0; //molarEnthalpy(substanceData,298.15);
+        annotation (Inline=true, smoothOrder=2);
+      end molarEnthalpyOffset;
+
 
 
       annotation (Documentation(revisions="<html>
@@ -3616,8 +3499,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") =
-           0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
+         = 0.01801528 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -3807,8 +3690,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
        redeclare record extends SubstanceData "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") =
-           0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")
+         = 0.01801528 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -4000,7 +3883,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
        redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
          function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
-           extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+           extends
+          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
            input Modelica.Media.IdealGases.Common.DataRecord data "Ideal gas data";
            input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
          algorithm
@@ -4206,7 +4090,8 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
      redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
           function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
-            extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+            extends
+          Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
             input SubstanceData data "Ideal gas data";
             input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
           algorithm
@@ -4930,7 +4815,7 @@ of the modeller. Increase nFuildPorts to add an additional fluidPort.
 
   annotation (
 preferredView="info",
-version="1.4.0-alpha4",
+version="1.4.0-alpha5",
 versionDate="2020-12-15",
 dateModified = "2020-12-15 14:14:41Z",
 conversion(
@@ -4945,7 +4830,7 @@ conversion(
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
         to="1.4.0-alpha2"),
       from(version="1.4.0-alpha2", script="modelica://Chemical/Resources/Scripts/ConvertFromChemical_1.4.0-alpha2.mos")),
-uses( Modelica(version="4.0.0")),
+      uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
