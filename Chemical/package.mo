@@ -375,7 +375,6 @@ package Chemical "Physical Chemistry"
     initial equation
 
       amountOfBaseMolecules = mass_start/stateOfMatter.molarMass(substanceData);
-
     equation
 
       if stateOfMatter.selfClustering(substanceData) then
@@ -398,13 +397,15 @@ package Chemical "Physical Chemistry"
         //TODO: more precise calculation of other properties
 
 
+       //der(enthalpy) = solution.dH + (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q;
+       //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
         solution.dH =
           if (EnthalpyNotUsed) then  0
-          else      (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
-                      + der(molarEnthalpy)*amountOfBaseMolecules+
-                    (if (calculateClusteringHeat) then
+          else      der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
+                    - (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
+                    +(if (calculateClusteringHeat) then
                         stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0)
-                        "change of substance enthalpy [J/s]";
+                        "heat transfer from other substances in solution [J/s]";
 
         solution.Gj = amountOfBaseMolecules*port_a.u + amountOfAdditionalBonds*SelfClustering_dG
                         "Gibbs energy of the substance";
@@ -415,14 +416,19 @@ package Chemical "Physical Chemistry"
         amountOfBaseMolecules = amountOfFreeMolecule;
         amountOfAdditionalBonds = 0;
 
+        //der(enthalpy) = solution.dH + (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q;
+        //enthalpy = molarEnthalpy*amountOfBaseMolecules;
         solution.dH =
           if (EnthalpyNotUsed) then  0
-          else       (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
-                      +der(molarEnthalpy)*amountOfBaseMolecules "change of substance enthalpy [J/s]";
+          else    der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
+                  -(actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
+                  "heat transfer from other substances in solution [J/s]";
 
         solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
 
       end if;
+
+
 
       //The main accumulation equation is "der(amountOfBaseMolecules)=q"
       // However, the numerical solvers can handle it in form of log(n) much better. :-)
@@ -2032,8 +2038,8 @@ package Chemical "Physical Chemistry"
 
     model ExternalIdealGasSubstance
     "Ideal gas substance with defined partial pressure"
-      extends Interfaces.PartialSubstance(redeclare package stateOfMatter
-        =   Interfaces.IdealGas);
+      extends Interfaces.PartialSubstance(redeclare package stateOfMatter =
+            Interfaces.IdealGas);
 
       parameter Boolean usePartialPressureInput = false
       "=true, if fixed partial pressure is from input instead of parameter"
@@ -3096,6 +3102,7 @@ package Chemical "Physical Chemistry"
        + z*Modelica.Constants.F*electricPotential;
 
      port_a.h_outflow = molarEnthalpy - stateOfMatter.molarEnthalpyOffset(substanceData); //heat as molar enthalpy
+
 
      annotation (
        Documentation(revisions="<html>
