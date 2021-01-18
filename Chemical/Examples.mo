@@ -471,7 +471,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{68,-53},{68,-58}},   color={0,127,0}));
     connect(reaction1.products[1], H2O_gas1.port_a)
       annotation (Line(points={{78,0},{92,0}},     color={158,66,200}));
-    annotation ( experiment(StopTime=0.67, __Dymola_Algorithm="Dassl"),
+    annotation ( experiment(StopTime=0.39, __Dymola_Algorithm="Dassl"),
                                          Documentation(info="<html>
 <p>The gaseous reaction of hydrogen combustion: </p>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>

@@ -397,12 +397,12 @@ package Chemical "Physical Chemistry"
         //TODO: more precise calculation of other properties
 
 
-       //der(enthalpy) = solution.dH + (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q;
+       //der(enthalpy) = solution.dH + q*actualStream(port_a.h_outflow);
        //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
         solution.dH =
           if (EnthalpyNotUsed) then  0
           else      der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
-                    - (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
+                    - q*actualStream(port_a.h_outflow)
                     +(if (calculateClusteringHeat) then
                         stateOfMatter.selfClusteringEnthalpy(substanceData)*der(amountOfAdditionalBonds) else 0)
                         "heat transfer from other substances in solution [J/s]";
@@ -416,12 +416,12 @@ package Chemical "Physical Chemistry"
         amountOfBaseMolecules = amountOfFreeMolecule;
         amountOfAdditionalBonds = 0;
 
-        //der(enthalpy) = solution.dH + (actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q;
+        //der(enthalpy) = solution.dH + q*actualStream(port_a.h_outflow);
         //enthalpy = molarEnthalpy*amountOfBaseMolecules;
         solution.dH =
           if (EnthalpyNotUsed) then  0
           else    der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
-                  -(actualStream(port_a.h_outflow)+stateOfMatter.molarEnthalpyOffset(substanceData))*q
+                  -q*actualStream(port_a.h_outflow)
                   "heat transfer from other substances in solution [J/s]";
 
         solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
@@ -2686,8 +2686,7 @@ package Chemical "Physical Chemistry"
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
-      streamEnthalpy = actualStream(port_a.h_outflow) + stateOfMatter.molarEnthalpyOffset(
-         substanceData);
+      streamEnthalpy = actualStream(port_a.h_outflow);
 
       solution.dH =streamEnthalpy*port_a.q - der(molarEnthalpy)*nFreeBuffer;
       solution.i = Modelica.Constants.F * z * port_a.q - Modelica.Constants.F*der(z)*nFreeBuffer;
@@ -2745,7 +2744,7 @@ package Chemical "Physical Chemistry"
      parameter Modelica.Units.SI.Temperature T=system.T_ambient;
     equation
       port_b.q = -q;
-      port_b.h_outflow = stateOfMatter.molarEnthalpy(substanceData,T) - stateOfMatter.molarEnthalpyOffset(substanceData);
+      port_b.h_outflow = stateOfMatter.molarEnthalpy(substanceData,T);
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -3101,7 +3100,7 @@ package Chemical "Physical Chemistry"
        + Modelica.Constants.R*temperature*log(a)
        + z*Modelica.Constants.F*electricPotential;
 
-     port_a.h_outflow = molarEnthalpy - stateOfMatter.molarEnthalpyOffset(substanceData); //heat as molar enthalpy
+     port_a.h_outflow = molarEnthalpy;
 
 
      annotation (
@@ -3481,17 +3480,6 @@ package Chemical "Physical Chemistry"
       output Modelica.Units.SI.MolarHeatCapacity molarHeatCapacityCv
         "Molar heat capacity at constant volume";
       end molarHeatCapacityCv;
-
-      replaceable function molarEnthalpyOffset
-       "Stream molar entalpies offset : h_outflow = molarEnthalpy - molarEnthalpyOffset"
-        extends Modelica.Icons.Function;
-        input SubstanceData substanceData "Data record of substance";
-        output Modelica.Units.SI.MolarEnthalpy molarEnthalpyOffset
-        "Molar enthalpy offset";
-      algorithm
-        molarEnthalpyOffset:=0; //molarEnthalpy(substanceData,298.15);
-        annotation (Inline=true, smoothOrder=2);
-      end molarEnthalpyOffset;
 
 
 
