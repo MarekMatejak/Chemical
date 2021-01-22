@@ -23,7 +23,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Reaction reaction(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Components.Substance B(
-      substanceData(DfG=-R*T_25degC*log(K),MolarWeight=1),
+      substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{62,-8},{42,12}})));
@@ -63,15 +63,14 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solution
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Components.Substance A(use_mass_start=false,
-        amountOfSubstance_start=0.1)
+    Chemical.Components.Substance A(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Chemical.Components.Reaction reaction(nS=2, nP=1)
       annotation (Placement(transformation(extent={{4,-8},{24,12}})));
-    Chemical.Components.Substance B(use_mass_start=false,
-        amountOfSubstance_start=0.1)
+    Chemical.Components.Substance B(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-    Chemical.Components.Substance C(substanceData(DfG=-R*T_25degC*log(Kx)),
+    Chemical.Components.Substance C(
+      substanceData(DfG=-R*T_25degC*log(Kx)),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{68,-8},{48,12}})));
@@ -197,13 +196,12 @@ extends Modelica.Icons.ExamplesPackage;
       useMechanicPorts=true,
       ConstantTemperature=false)
       annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
-    Chemical.Components.Substance A(
-      use_mass_start=false,
-      amountOfSubstance_start=0.9)
+    Chemical.Components.Substance A(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
     Chemical.Components.Reaction reaction(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
-    Chemical.Components.Substance B(substanceData(DfH=ReactionEnthalpy),
+    Chemical.Components.Substance B(
+      substanceData(DfH=ReactionEnthalpy),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{40,-60},{20,-40}})));
@@ -212,13 +210,12 @@ extends Modelica.Icons.ExamplesPackage;
       useMechanicPorts=true,
       useThermalPort=true)
       annotation (Placement(transformation(extent={{-100,0},{98,94}})));
-    Chemical.Components.Substance A1(
-      use_mass_start=false,
-      amountOfSubstance_start=0.9)
+    Chemical.Components.Substance A1(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
     Chemical.Components.Reaction reaction1(nS=1, nP=1)
       annotation (Placement(transformation(extent={{-8,40},{12,60}})));
-    Chemical.Components.Substance B1(substanceData(DfH=ReactionEnthalpy),
+    Chemical.Components.Substance B1(
+      substanceData(DfH=ReactionEnthalpy),
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{40,40},{20,60}})));
@@ -689,10 +686,9 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Components.Substance CO2_25(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in water at 25 degC"
+      use_mass_start=false) "Free dissolved CO2 in water at 25 degC"
       annotation (Placement(transformation(extent={{-150,-26},{-130,-6}})));
     Chemical.Components.GasSolubility O2_dissolutionP
       annotation (Placement(transformation(extent={{-100,42},{-80,62}})));
@@ -704,10 +700,9 @@ extends Modelica.Icons.ExamplesPackage;
       Temperature=298.15)
       annotation (Placement(transformation(extent={{-114,74},{-94,94}})));
     Chemical.Components.Substance O2_25(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in water at 25 degC"
+      use_mass_start=false) "Free dissolved O2 in water at 25 degC"
       annotation (Placement(transformation(extent={{-114,-26},{-94,-6}})));
     Chemical.Components.GasSolubility CO2_dissolutionE
       annotation (Placement(transformation(extent={{-26,42},{-6,62}})));
@@ -720,19 +715,17 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-154,74},{-134,94}})));
 
     Chemical.Components.Substance CO2_37(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in water at 37degC"
+      use_mass_start=false) "Free dissolved CO2 in water at 37degC"
       annotation (Placement(transformation(extent={{-42,-34},{-22,-14}})));
 
     Chemical.Components.GasSolubility O2_dissolutionE_NIST
       annotation (Placement(transformation(extent={{18,42},{38,62}})));
     Chemical.Components.Substance O2_37(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in water at 37degC"
+      use_mass_start=false) "Free dissolved O2 in water at 37degC"
       annotation (Placement(transformation(extent={{-2,-34},{18,-14}})));
     Components.Substance water_25(substanceData=
           Chemical.Substances.Water_liquid(), mass_start=1)
@@ -758,18 +751,16 @@ extends Modelica.Icons.ExamplesPackage;
     Components.GasSolubility          CO2_dissolutionE1
       annotation (Placement(transformation(extent={{92,42},{112,62}})));
     Components.Substance CO2_0(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in water at 0degC"
+      use_mass_start=false) "Free dissolved CO2 in water at 0degC"
       annotation (Placement(transformation(extent={{76,-34},{96,-14}})));
     Components.GasSolubility          O2_dissolutionE_NIST1
       annotation (Placement(transformation(extent={{136,42},{156,62}})));
     Components.Substance O2_0(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in water at 0degC"
+      use_mass_start=false) "Free dissolved O2 in water at 0degC"
       annotation (Placement(transformation(extent={{116,-34},{136,-14}})));
     Components.Substance water_0(substanceData=Chemical.Substances.Water_liquid(),
         mass_start=1)
@@ -915,10 +906,9 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-78,44},{-58,64}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Components.Substance CO2_unbound_plasma(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in blood plasma"
+      use_mass_start=false) "Free dissolved CO2 in blood plasma"
       annotation (Placement(transformation(extent={{-90,-24},{-70,-4}})));
     Chemical.Components.GasSolubility O2_dissolutionP
       annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
@@ -929,10 +919,9 @@ extends Modelica.Icons.ExamplesPackage;
       TotalPressure=system.p_ambient)
       annotation (Placement(transformation(extent={{22,76},{42,96}})));
     Chemical.Components.Substance O2_unbound_plasma(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in blood plasma"
+      use_mass_start=false) "Free dissolved O2 in blood plasma"
       annotation (Placement(transformation(extent={{-50,-26},{-30,-6}})));
     Chemical.Components.GasSolubility CO2_dissolutionE
       annotation (Placement(transformation(extent={{36,44},{56,64}})));
@@ -944,19 +933,17 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-58,78},{-38,98}})));
 
     Chemical.Components.Substance CO2_unbound_erythrocyte(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in red cells"
+      use_mass_start=false) "Free dissolved CO2 in red cells"
       annotation (Placement(transformation(extent={{18,-32},{38,-12}})));
 
     Chemical.Components.GasSolubility O2_dissolutionE_NIST
       annotation (Placement(transformation(extent={{78,44},{98,64}})));
     Chemical.Components.Substance O2_unbound_erythrocyte_NIST(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in red cells"
+      use_mass_start=false) "Free dissolved O2 in red cells"
       annotation (Placement(transformation(extent={{58,-32},{78,-12}})));
     Components.Substance water_plasma(substanceData=
           Chemical.Substances.Water_liquid(), mass_start=0.82)
@@ -1052,10 +1039,9 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-78,44},{-58,64}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Components.Substance CO2_unbound_plasma(
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.001)
-      "Free dissolved CO2 in blood plasma"
+      use_mass_start=false) "Free dissolved CO2 in blood plasma"
       annotation (Placement(transformation(extent={{-90,-24},{-70,-4}})));
     Chemical.Components.GasSolubility O2_dissolutionP
       annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
@@ -1066,10 +1052,9 @@ extends Modelica.Icons.ExamplesPackage;
       TotalPressure=system.p_ambient)
       annotation (Placement(transformation(extent={{22,76},{42,96}})));
     Chemical.Components.Substance O2_unbound_plasma(
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       substanceData=Chemical.Substances.Oxygen_aqueous(),
-      use_mass_start=false,
-      amountOfSubstance_start(displayUnit="mmol") = 0.0001)
-      "Free dissolved O2 in blood plasma"
+      use_mass_start=false) "Free dissolved O2 in blood plasma"
       annotation (Placement(transformation(extent={{-50,-26},{-30,-6}})));
 
     Chemical.Sources.ExternalIdealGasSubstance CO2_g_n2(
@@ -1137,13 +1122,12 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Components.Substance P(substanceData(DfG=-Modelica.Constants.R*
-            298.15*50),
+    Chemical.Components.Substance P(
+      substanceData(DfG=-Modelica.Constants.R*298.15*50),
       use_mass_start=false,
       amountOfSubstance_start=1e-8)
       annotation (Placement(transformation(extent={{92,-12},{72,8}})));
-    Chemical.Components.Substance S(use_mass_start=false,
-        amountOfSubstance_start=1)
+    Chemical.Components.Substance S(use_mass_start=false, amountOfSubstance_start=1)
       annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
     parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
@@ -1157,13 +1141,12 @@ extends Modelica.Icons.ExamplesPackage;
       "Maximal molar flow";
 
 
-    Chemical.Components.Substance ES(substanceData(DfG=-Modelica.Constants.R*
-            298.15*log(2/Km)),
+    Chemical.Components.Substance ES(
+      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
       use_mass_start=false,
       amountOfSubstance_start=tE/2)
       annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Chemical.Components.Substance E(use_mass_start=false,
-        amountOfSubstance_start=tE/2)
+    Chemical.Components.Substance E(use_mass_start=false, amountOfSubstance_start=tE/2)
       annotation (Placement(transformation(extent={{-10,38},{10,58}})));
     Chemical.Components.Reaction chemicalReaction(
       nS=2,
@@ -1448,16 +1431,16 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Substance PbO2(
       substanceData=Chemical.Substances.LeadDioxide_solid(),
       use_mass_start=false,
-      amountOfSubstance_start=50) annotation (Placement(transformation(extent={
-              {-10,-10},{10,10}}, origin={-60,-58})));
+      amountOfSubstance_start=50) annotation (Placement(transformation(extent={{-10,-10},
+              {10,10}}, origin={-60,-58})));
     Components.Substance H2O(mass_start(displayUnit="g") = 0.114, substanceData=
          Chemical.Substances.Water_liquid())
       annotation (Placement(transformation(extent={{-2,-8},{-22,12}})));
     Chemical.Components.Substance PbSO4(
       amountOfSubstance_start=0.001,
       substanceData=Chemical.Substances.LeadSulfate_solid(),
-      use_mass_start=false) annotation (Placement(transformation(extent={{-10,-10},
-              {10,10}}, origin={-60,6})));
+      use_mass_start=false) annotation (Placement(transformation(extent={{-10,-10},{10,
+              10}}, origin={-60,6})));
 
   Modelica.Electrical.Analog.Basic.Ground ground
     annotation (Placement(transformation(extent={{16,30},{36,50}})));
@@ -1602,13 +1585,13 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance H3O(
         substanceData=Chemical.Substances.Hydronium_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}}, origin={30,70})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{10,
+                -10},{-10,10}}, origin={30,70})));
       Chemical.Components.Substance OH(
         substanceData=Chemical.Substances.Hydroxide_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}}, origin={30,26})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{10,
+                -10},{-10,10}}, origin={30,26})));
       Chemical.Components.Substance H2O(mass_start=1, substanceData=
             Chemical.Substances.Water_liquid()) annotation (Placement(
             transformation(extent={{-10,-10},{10,10}}, origin={-30,46})));
@@ -1619,13 +1602,13 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance H_(
         substanceData=Chemical.Substances.Proton_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}}, origin={28,-30})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{10,
+                -10},{-10,10}}, origin={28,-30})));
       Chemical.Components.Substance OH_(
         substanceData=Chemical.Substances.Hydroxide_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}}, origin={28,-76})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{10,
+                -10},{-10,10}}, origin={28,-76})));
       Chemical.Components.Substance H2O_(mass_start=1, substanceData=
             Chemical.Substances.Water_liquid()) annotation (Placement(
             transformation(extent={{-10,-10},{10,10}}, origin={-32,-56})));
@@ -1702,9 +1685,9 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Solution solution
         annotation (Placement(transformation(extent={{-100,-100},{100,46}})));
       Chemical.Components.Substance HCO3(
+        amountOfSubstance_start(displayUnit="mmol") = 1e-08,
         substanceData=Chemical.Substances.Bicarbonate_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start(displayUnit="mmol") = 1e-08)
+        use_mass_start=false)
         annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
       Chemical.Components.Reaction HendersonHasselbalch(
         KC=1e-4*KC,                                     nP=2, nS=2,
@@ -1721,16 +1704,16 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance H(
         substanceData=Chemical.Substances.Proton_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}}, origin={10,-30})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,
+                -10},{10,10}}, origin={10,-30})));
       Chemical.Components.GasSolubility gasSolubility(KC=KC)
         annotation (Placement(transformation(extent={{-70,36},{-50,56}})));
                                             /*(C=2400, kH_T0(
         displayUnit="(mmol/l)/kPa at 25degC") = 0.81805576878885)*/
       Chemical.Components.Substance CO2_liquid(
+        amountOfSubstance_start(displayUnit="mmol") = 0.001,
         substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start(displayUnit="mmol") = 0.001)
+        use_mass_start=false)
         annotation (Placement(transformation(extent={{-82,-6},{-62,14}})));
       Real pH;
 
@@ -1742,8 +1725,8 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance OH(
         substanceData=Chemical.Substances.Hydroxide_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-7) annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}}, origin={12,-72})));
+        amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,
+                -10},{10,10}}, origin={12,-72})));
       Chemical.Components.Reaction waterDissociation(
         KC=KC,
         nP=2,
@@ -1829,7 +1812,7 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.Substances.Proton_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start=10^(-7.4)) "hydrogen ions activity" annotation (
-         Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-14})));
+          Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-14})));
 
       Chemical.Components.Substance H3PO4(
         substanceData=Chemical.Substances.PhosphoricAcid_aqueous(),
@@ -1869,8 +1852,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance OH(
         substanceData=Chemical.Substances.Hydroxide_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=10^(-14 + 7.4))
-                                      annotation (Placement(transformation(
+        amountOfSubstance_start=10^(-14 + 7.4)) annotation (Placement(transformation(
               extent={{-10,-10},{10,10}}, origin={28,32})));
       Chemical.Components.Reaction reaction(
         KC=KC,
@@ -1962,8 +1944,8 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Substance HCO3(
         substanceData=Chemical.Substances.Bicarbonate_blood(),
         use_mass_start=false,
-        amountOfSubstance_start=0.024) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}}, origin={18,24})));
+        amountOfSubstance_start=0.024) annotation (Placement(transformation(extent={{
+                10,-10},{-10,10}}, origin={18,24})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Substances.CarbonDioxide_gas(),
         TotalPressure(displayUnit="mmHg") = 101325.0144354,
@@ -2036,18 +2018,23 @@ extends Modelica.Icons.ExamplesPackage;
       Modelica.Blocks.Sources.ContinuousClock clock(offset=5000)
         annotation (Placement(transformation(extent={{-54,62},{-34,82}})));
       Chemical.Components.Substance others_E(
-         substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
-          density=(1.045 - 0.695523)*1000/(1 - 0.697583),
-          References={"erythrocyte intracellular fluid density 1045kg/m3"},
-          MolarWeight=(1.045 - 0.695523)/(38.7*(1 - 0.994648) - 0.0499 - 0.0116
-               - 0.00123)), use_mass_start=false, amountOfSubstance_start=0.1444)
+        substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
+                density=(1.045 - 0.695523)*1000/(1 - 0.697583),
+                References={"erythrocyte intracellular fluid density 1045kg/m3"},
+                MolarWeight=(1.045 - 0.695523)/(38.7*(1 - 0.994648) - 0.0499 - 0.0116
+               - 0.00123)),
+        use_mass_start=false,
+        amountOfSubstance_start=0.1444)
         annotation (Placement(transformation(extent={{68,-88},{88,-68}})));
-      Chemical.Components.Substance others_P(substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
-          References={
+      Chemical.Components.Substance others_P(
+        substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
+                References={
               "to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
-          density=(1.024 - 0.933373)*1000/(1 - 0.936137),
-          MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024
-               - 0.0017)), use_mass_start=false, amountOfSubstance_start=0.1487)
+                density=(1.024 - 0.933373)*1000/(1 - 0.936137),
+                MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024 -
+              0.0017)),
+        use_mass_start=false,
+        amountOfSubstance_start=0.1487)
         annotation (Placement(transformation(extent={{70,14},{90,34}})));
       Chemical.Components.Diffusion diffusion annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
@@ -2246,8 +2233,8 @@ extends Modelica.Icons.ExamplesPackage;
         Chemical.Components.Substance HCO3(
           substanceData=Chemical.Substances.Bicarbonate_blood(),
           use_mass_start=false,
-          amountOfSubstance_start=0.024) annotation (Placement(transformation(
-                extent={{-10,-10},{10,10}}, origin={-18,30})));
+          amountOfSubstance_start=0.024) annotation (Placement(transformation(extent={
+                  {-10,-10},{10,10}}, origin={-18,30})));
 
         Components.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
             mass_start=51.8*0.994648/55.508)
@@ -2271,10 +2258,13 @@ extends Modelica.Icons.ExamplesPackage;
           use_mass_start=false,
           amountOfSubstance_start=0.103)
           annotation (Placement(transformation(extent={{-4,20},{16,40}})));
-        Chemical.Components.Substance albumin(substanceData(
+        Chemical.Components.Substance albumin(
+          substanceData(
             MolarWeight=66.463,
             z=-17,
-            density=1080), use_mass_start=false, amountOfSubstance_start=0.0007)
+            density=1080),
+          use_mass_start=false,
+          amountOfSubstance_start=0.0007)
           annotation (Placement(transformation(extent={{112,76},{92,96}})));
         Real pH_e,pH_p;
 
@@ -2293,13 +2283,18 @@ extends Modelica.Icons.ExamplesPackage;
               extent={{-10,-10},{10,10}},
               rotation=270,
               origin={18,0})));
-        Chemical.Components.Substance permeableUncharged(use_mass_start=false, amountOfSubstance_start=0.0118)
+        Chemical.Components.Substance permeableUncharged(use_mass_start=false,
+            amountOfSubstance_start=0.0118)
           annotation (Placement(transformation(extent={{166,20},{146,40}})));
-        Chemical.Components.Substance permeableUncharged_E(substanceData(
-              MolarWeight=0.1), use_mass_start=false, amountOfSubstance_start=0.00903)
+        Chemical.Components.Substance permeableUncharged_E(
+          substanceData(MolarWeight=0.1),
+          use_mass_start=false,
+          amountOfSubstance_start=0.00903)
           annotation (Placement(transformation(extent={{164,-38},{144,-18}})));
-        Chemical.Components.Substance chargedImpermeable_E(substanceData(
-              MolarWeight=1), use_mass_start=false, amountOfSubstance_start=0.0165)
+        Chemical.Components.Substance chargedImpermeable_E(
+          substanceData(MolarWeight=1),
+          use_mass_start=false,
+          amountOfSubstance_start=0.0165)
           annotation (Placement(transformation(extent={{144,-62},{164,-42}})));
         Chemical.Components.Membrane leak(useKineticsInput=false, KC=KC)
           annotation (Placement(transformation(
@@ -2379,8 +2374,8 @@ extends Modelica.Icons.ExamplesPackage;
         Chemical.Components.Substance Na_E(
           substanceData=Chemical.Substances.Sodium_aqueous(),
           use_mass_start=false,
-          amountOfSubstance_start=0.007) annotation (Placement(transformation(
-                extent={{-118,-38},{-138,-18}})));
+          amountOfSubstance_start=0.007)
+          annotation (Placement(transformation(extent={{-118,-38},{-138,-18}})));
         Chemical.Components.Substance K_E(
           substanceData=Chemical.Substances.Potassium_aqueous(),
           use_mass_start=false,
@@ -2391,25 +2386,34 @@ extends Modelica.Icons.ExamplesPackage;
           use_mass_start=false,
           amountOfSubstance_start=0.000175)
           annotation (Placement(transformation(extent={{-84,-38},{-64,-18}})));
-        Chemical.Components.Substance ADP_E(substanceData(z=-3), use_mass_start=false, amountOfSubstance_start=9.6e-05)
+        Chemical.Components.Substance ADP_E(
+          substanceData(z=-3),
+          use_mass_start=false,
+          amountOfSubstance_start=9.6e-05)
           annotation (Placement(transformation(extent={{-114,-62},{-94,-42}})));
-        Chemical.Components.Substance ATP_E(substanceData(
+        Chemical.Components.Substance ATP_E(
+          substanceData(
             z=-4,
             DfH=16700,
             DfG=30500,
             References={
                 "http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
-            use_mass_start=false, amountOfSubstance_start=0.00128) annotation (
-            Placement(transformation(extent={{-146,-62},{-166,-42}})));
+
+          use_mass_start=false,
+          amountOfSubstance_start=0.00128)
+          annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
         Chemical.Components.Substance HPO4_E(
           substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.000495)
           annotation (Placement(transformation(extent={{-84,-62},{-64,-42}})));
-        Chemical.Components.Substance globulins(substanceData(
+        Chemical.Components.Substance globulins(
+          substanceData(
             MolarWeight=34,
             z=-2.43,
-            density=1080), use_mass_start=false, amountOfSubstance_start=0.00082)
+            density=1080),
+          use_mass_start=false,
+          amountOfSubstance_start=0.00082)
           annotation (Placement(transformation(extent={{150,76},{130,96}})));
         Chemical.Components.Substance Ca(
           substanceData=Chemical.Substances.Calcium_aqueous(),
@@ -2421,15 +2425,21 @@ extends Modelica.Icons.ExamplesPackage;
           use_mass_start=false,
           amountOfSubstance_start=0.00108) "Mg2+"
           annotation (Placement(transformation(extent={{-112,-84},{-92,-64}})));
-        Chemical.Components.Substance DPG(substanceData(
+        Chemical.Components.Substance DPG(
+          substanceData(
             MolarWeight=0.266,
             z=-2.2,
-            density=1000), use_mass_start=false, amountOfSubstance_start=0.0051)
+            density=1000),
+          use_mass_start=false,
+          amountOfSubstance_start=0.0051)
           annotation (Placement(transformation(extent={{128,-94},{108,-74}})));
-        Chemical.Components.Substance GSH(substanceData(
+        Chemical.Components.Substance GSH(
+          substanceData(
             MolarWeight=0.2,
             z=-1,
-            density=1000), use_mass_start=false, amountOfSubstance_start=0.00223)
+            density=1000),
+          use_mass_start=false,
+          amountOfSubstance_start=0.00223)
           annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
         Components.Reaction          HendersonHasselbalch(nP=2, nS=2,
         useKineticsInput=false) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"
@@ -2658,29 +2668,29 @@ extends Modelica.Icons.ExamplesPackage;
               rotation=270,
               origin={0,8})));
         Components.Substance Na_ICF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.01,
           substanceData=Chemical.Substances.Sodium_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.01)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{-82,38},{-62,58}})));
         Components.Substance K_ICF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.14,
           substanceData=Chemical.Substances.Potassium_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.14)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{-82,10},{-62,30}})));
         Components.Substance ATP4_ICF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.0038,
           substanceData=Chemical.Substances.ATP4_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.0038)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{-82,-16},{-62,4}})));
         Components.Substance Na_ECF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.14,
           substanceData=Chemical.Substances.Sodium_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.14)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{58,-26},{38,-6}})));
         Components.Substance K_ECF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.005,
           substanceData=Chemical.Substances.Potassium_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.005)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{58,28},{38,48}})));
         Components.Substance ADP3(
           substanceData=Chemical.Substances.ADP3_aqueous(),
@@ -2688,21 +2698,21 @@ extends Modelica.Icons.ExamplesPackage;
           amountOfSubstance_start=0.005/150)
           annotation (Placement(transformation(extent={{-82,-42},{-62,-22}})));
         Components.Substance H2PO4_ICF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.036,
           substanceData=Chemical.Substances.DihydrogenPhosphate_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.036)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{-82,-68},{-62,-48}})));
         inner Modelica.Fluid.System system(T_ambient=310.15)
           annotation (Placement(transformation(extent={{-6,-90},{14,-70}})));
         Components.Substance Cl_ICF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.0987,
           substanceData=Chemical.Substances.Chloride_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.0987)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{-82,-92},{-62,-72}})));
         Components.Substance Cl_ECF(
+          amountOfSubstance_start(displayUnit="mmol") = 0.145,
           substanceData=Chemical.Substances.Chloride_aqueous(),
-          use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mmol") = 0.145)
+          use_mass_start=false)
           annotation (Placement(transformation(extent={{50,-72},{70,-52}})));
       equation
         connect(water_ICF.solution, ICF.solution) annotation (Line(points={{-78,70},
@@ -2751,8 +2761,7 @@ extends Modelica.Icons.ExamplesPackage;
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
       extends Modelica.Icons.Example;
 
-      Chemical.Components.Solution solution(redeclare package
-          stateOfMatter =
+      Chemical.Components.Solution solution(redeclare package stateOfMatter =
             Interfaces.Incompressible)
         annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
 
@@ -2762,13 +2771,19 @@ extends Modelica.Icons.ExamplesPackage;
       constant Real K[n]=fill(10.0, n) .^ (-pKAs);
       constant Real DfG[n]= Modelica.Constants.R*(298.15)*log(K);
 
-      Chemical.Components.Substance A[n](substanceData(each z=-1), each use_mass_start=false, each amountOfSubstance_start=0.00033) "deprotonated acid groups"
+      Chemical.Components.Substance A[n](
+        substanceData(each z=-1),
+        each use_mass_start=false,
+        each amountOfSubstance_start=0.00033) "deprotonated acid groups"
         annotation (Placement(transformation(extent={{26,-16},{6,4}})));
       Chemical.Components.Reaction react[n](
         each KC=1e-9,                            each nS=1, each nP=2)
         annotation (Placement(transformation(extent={{-44,-2},{-24,18}})));
 
-      Chemical.Components.Substance HA[n](substanceData(DfG=DfG), each use_mass_start=false, each amountOfSubstance_start=0.00033) "protonated acid groups"
+      Chemical.Components.Substance HA[n](
+        substanceData(DfG=DfG),
+        each use_mass_start=false,
+        each amountOfSubstance_start=0.00033) "protonated acid groups"
         annotation (Placement(transformation(extent={{-78,-2},{-58,18}})));
 
       Components.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
@@ -2863,41 +2878,70 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Components.Solution solution
         annotation (Placement(transformation(extent={{-72,-102},{94,124}})));
 
-      Chemical.Components.Substance oxygen_unbound(substanceData(DfG=GO2aq),
-          use_mass_start=false,
+      Chemical.Components.Substance oxygen_unbound(
+        substanceData(DfG=GO2aq),
+        use_mass_start=false,
         amountOfSubstance_start=1e-7)
         annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
 
-      Chemical.Components.Substance T0(substanceData(DfG=GT0),
-    use_mass_start=false, amountOfSubstance_start=(THb))
+      Chemical.Components.Substance T0(
+        substanceData(DfG=GT0),
+        use_mass_start=false,
+        amountOfSubstance_start=(THb))
         annotation (Placement(transformation(extent={{34,78},{54,98}})));
 
-      Chemical.Components.Substance T1(substanceData(DfG=GT1),
-          use_mass_start=false, amountOfSubstance_start=(THb*            1e-4))
+      Chemical.Components.Substance T1(
+        substanceData(DfG=GT1),
+        use_mass_start=false,
+        amountOfSubstance_start=(THb*1e-4))
         annotation (Placement(transformation(extent={{34,36},{54,56}})));
 
-      Chemical.Components.Substance T2(substanceData(DfG=GT2), use_mass_start=false, amountOfSubstance_start=THb*           1e-8)
+      Chemical.Components.Substance T2(
+        substanceData(DfG=GT2),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-8)
         annotation (Placement(transformation(extent={{34,-10},{54,10}})));
 
-      Chemical.Components.Substance R1(substanceData(DfG=GR1), use_mass_start=false, amountOfSubstance_start=THb*            1e-8)
+      Chemical.Components.Substance R1(
+        substanceData(DfG=GR1),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-8)
         annotation (Placement(transformation(extent={{-20,36},{0,56}})));
 
-      Chemical.Components.Substance R2(substanceData(DfG=GR2), use_mass_start=false, amountOfSubstance_start=THb*            1e-10)
+      Chemical.Components.Substance R2(
+        substanceData(DfG=GR2),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-10)
         annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
 
-      Chemical.Components.Substance T3(substanceData(DfG=GT3), use_mass_start=false, amountOfSubstance_start=THb*            1e-12)
+      Chemical.Components.Substance T3(
+        substanceData(DfG=GT3),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-12)
         annotation (Placement(transformation(extent={{34,-54},{54,-34}})));
 
-      Chemical.Components.Substance R3(substanceData(DfG=GR3), use_mass_start=false, amountOfSubstance_start=THb*            1e-12)
+      Chemical.Components.Substance R3(
+        substanceData(DfG=GR3),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-12)
         annotation (Placement(transformation(extent={{-20,-54},{0,-34}})));
 
-      Chemical.Components.Substance T4(substanceData(DfG=GT4), use_mass_start=false, amountOfSubstance_start=THb*            1e-17)
+      Chemical.Components.Substance T4(
+        substanceData(DfG=GT4),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-17)
         annotation (Placement(transformation(extent={{34,-92},{54,-72}})));
 
-      Chemical.Components.Substance R4(substanceData(DfG=GR4), use_mass_start=false, amountOfSubstance_start=THb*            1e-14)
+      Chemical.Components.Substance R4(
+        substanceData(DfG=GR4),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-14)
         annotation (Placement(transformation(extent={{-20,-92},{0,-72}})));
 
-      Chemical.Components.Substance R0(substanceData(DfG=GR0), use_mass_start=false, amountOfSubstance_start=THb*            1e-7)
+      Chemical.Components.Substance R0(
+        substanceData(DfG=GR0),
+        use_mass_start=false,
+        amountOfSubstance_start=THb*1e-7)
         annotation (Placement(transformation(extent={{-20,78},{0,98}})));
 
       Chemical.Components.Reaction quaternaryForm(
@@ -3234,8 +3278,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{76,-48},{56,-28}})));
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyRHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KRx) + DfG_tR/4),
         each use_mass_start=false,
         each amountOfSubstance_start=5.88e-9)
@@ -3248,8 +3291,7 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-68,-18},{-48,2}})));
       Chemical.Components.Substance DeoxyRHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_tR/4),
         each use_mass_start=false,
         each amountOfSubstance_start=1.58e-7)
@@ -3257,8 +3299,7 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{-8,-20},{-28,0}})));
 
       Chemical.Components.Substance OxyTHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KTx) + DfG_tT/4),
         each use_mass_start=false,
         each amountOfSubstance_start=1e-4)
@@ -3271,16 +3312,16 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{42,-18},{62,2}})));
       Chemical.Components.Substance DeoxyTHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_tT/4),
         each use_mass_start=false,
         each amountOfSubstance_start=THb - 1e-4 - 1.58e-7 - 5.88e-9)
         "Deoxygenated subunit in T structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{96,-20},{76,0}})));
 
-      Chemical.Components.Substance oxygen_unbound(substanceData(DfG=DfG_O2),
-          use_mass_start=false,
+      Chemical.Components.Substance oxygen_unbound(
+        substanceData(DfG=DfG_O2),
+        use_mass_start=false,
         amountOfSubstance_start=2e-9)
         annotation (Placement(transformation(extent={{-2,6},{18,26}})));
       Modelica.Blocks.Sources.ContinuousClock clock(offset=1) annotation (
@@ -3472,10 +3513,9 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=4e-11)
       // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
-        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=
-              DfH_O2 - Ho + DfH_selectedForm/N),
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=DfH_O2
+               - Ho + DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=initialO2*initialHb/(Ko37 + initialO2))
         "Oxygenated subunit"
@@ -3487,8 +3527,7 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Ko37*initialHb/(Ko37 + initialO2))
@@ -3505,8 +3544,7 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{26,-82},{46,-62}}), iconTransformation(
               extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N, DfH=-Hh +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -3520,8 +3558,7 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
@@ -3529,13 +3566,12 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
 
       Chemical.Components.Substance HmNH3[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N, DfH=-Hz +
               DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
-            Kc37*initialCO2))
+        each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*
+            Kz37 + Kz37*Kc37*initialCO2))
         "Protonated z site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{-84,-42},{-64,-22}})));
 
@@ -3545,12 +3581,11 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
-            Kc37*initialCO2))
+        each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*
+            Kz37 + Kz37*Kc37*initialCO2))
         "Deprotonated z site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{12,-44},{-8,-24}})));
 
@@ -3563,13 +3598,12 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-8,-26},{12,-6}}), iconTransformation(
               extent={{10,70},{30,90}})));
       Chemical.Components.Substance HmNHCOO[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/N, DfH=
-             DfH_CO2 + Hc + DfH_selectedForm/N),
+              DfH_CO2 + Hc + DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 + initialH*
-            Kz37 + Kz37*Kc37*initialCO2))
+        each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 +
+            initialH*Kz37 + Kz37*Kc37*initialCO2))
         "Carboxylated c site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{70,-44},{50,-24}})));
 
@@ -3761,8 +3795,10 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC)
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
-      Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2)
+      Chemical.Components.Substance O2_free(
+        substanceData(DfG=DfG_O2, DfH=-11700),
+        use_mass_start=false,
+        amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.ContinuousClock oxygenSource(offset=1000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -3819,8 +3855,10 @@ extends Modelica.Icons.ExamplesPackage;
         MoleFraction=initialH,
         Temperature=310.15) annotation (Placement(transformation(extent={{10,-10},
                 {-10,10}}, origin={-12,-18})));
-      Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2)
+      Chemical.Components.Substance CO2_free(
+        substanceData(DfG=DfG_CO2, DfH=-412900),
+        use_mass_start=false,
+        amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Substances.CarbonDioxide_gas(),
@@ -4000,13 +4038,12 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=4e-11)
       // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Components.Substance OxyHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
-        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=
-              DfH_O2 - Ho + DfH_selectedForm/N),
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        each substanceData(DfG=DfG_O2 + RT*log(Ko25) + DfG_selectedForm/N, DfH=DfH_O2
+               - Ho + DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(initialO2/Ko37)*initialHb/(1 + initialO2/Ko37 + initialCO/
-            Kco37)) "Oxygenated subunit"
+        each amountOfSubstance_start=(initialO2/Ko37)*initialHb/(1 + initialO2/Ko37 +
+            initialCO/Kco37)) "Oxygenated subunit"
         annotation (Placement(transformation(extent={{-88,14},{-68,34}})));
 
       Chemical.Components.Reaction o[4](
@@ -4015,11 +4052,11 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
       Chemical.Components.Substance DeoxyHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=initialHb/(1 + initialO2/Ko37 + initialCO/Kco37)) "Deoxygenated subunit"
+        each amountOfSubstance_start=initialHb/(1 + initialO2/Ko37 + initialCO/Kco37))
+        "Deoxygenated subunit"
         annotation (Placement(transformation(extent={{-8,12},{-28,32}})));
 
       Chemical.Interfaces.SolutionPort solution annotation (Placement(
@@ -4032,8 +4069,7 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{26,-82},{46,-62}}), iconTransformation(
               extent={{30,-90},{50,-70}})));
       Chemical.Components.Substance HmAH[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kh25) + DfG_selectedForm/N, DfH=-Hh +
               DfH_selectedForm/N),
         each use_mass_start=false,
@@ -4047,8 +4083,7 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{36,32},{56,12}})));
       Chemical.Components.Substance HmA[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
         each amountOfSubstance_start=Kh37*initialHb/(Kh37 + initialH))
@@ -4056,13 +4091,12 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{92,14},{72,34}})));
 
       Chemical.Components.Substance HmNH3[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=RT*log(Kz25) + DfG_selectedForm/N, DfH=-Hz +
               DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
-            Kc37*initialCO2))
+        each amountOfSubstance_start=(initialH^2)*initialHb/(initialH^2 + initialH*
+            Kz37 + Kz37*Kc37*initialCO2))
         "Protonated z site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{-84,-42},{-64,-22}})));
 
@@ -4072,12 +4106,11 @@ extends Modelica.Icons.ExamplesPackage;
         each KC=KC)
         annotation (Placement(transformation(extent={{-54,-42},{-34,-22}})));
       Chemical.Components.Substance HmNH2[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_selectedForm/N, DfH=DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*Kz37 + Kz37*
-            Kc37*initialCO2))
+        each amountOfSubstance_start=initialH*Kz37*initialHb/(initialH^2 + initialH*
+            Kz37 + Kz37*Kc37*initialCO2))
         "Deprotonated z site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{12,-44},{-8,-24}})));
 
@@ -4090,26 +4123,24 @@ extends Modelica.Icons.ExamplesPackage;
             transformation(extent={{-8,-26},{12,-6}}), iconTransformation(
               extent={{10,70},{30,90}})));
       Chemical.Components.Substance HmNHCOO[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_CO2 - RT*log(Kc25) + DfG_selectedForm/N, DfH=
-             DfH_CO2 + Hc + DfH_selectedForm/N),
+              DfH_CO2 + Hc + DfH_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 + initialH*
-            Kz37 + Kz37*Kc37*initialCO2))
+        each amountOfSubstance_start=(Kz37*Kc37*initialCO2)*initialHb/(initialH^2 +
+            initialH*Kz37 + Kz37*Kc37*initialCO2))
         "Carboxylated c site of subunit in quaternary structure of hemoglobin tetramer"
         annotation (Placement(transformation(extent={{70,-44},{50,-24}})));
 
       Interfaces.SubstancePort_b H annotation (Placement(transformation(extent={{50,-12},
                 {70,8}}),      iconTransformation(extent={{70,70},{90,90}})));
       Chemical.Components.Substance COHm[4](
-        redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible,
-        each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N, DfG=DfG_CO +
-              RT*log(Kco25) + DfG_selectedForm/N),
+        redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
+        each substanceData(DfH=DfH_CO - Hco + DfH_selectedForm/N, DfG=DfG_CO + RT*log(
+              Kco25) + DfG_selectedForm/N),
         each use_mass_start=false,
-        each amountOfSubstance_start=(initialCO/Kco37)*initialHb/(1 + initialO2/Ko37 + initialCO
-            /Kco37)) "Subunit with Carbon Monoxide"
+        each amountOfSubstance_start=(initialCO/Kco37)*initialHb/(1 + initialO2/Ko37
+             + initialCO/Kco37)) "Subunit with Carbon Monoxide"
         annotation (Placement(transformation(extent={{78,44},{58,64}})));
 
       Chemical.Components.Reaction o1[4](
@@ -4320,8 +4351,10 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC)
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
-      Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2)
+      Chemical.Components.Substance O2_free(
+        substanceData(DfG=DfG_O2, DfH=-11700),
+        use_mass_start=false,
+        amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Modelica.Blocks.Sources.ContinuousClock oxygenSource(offset=2000)
         annotation (Placement(transformation(extent={{-78,48},{-58,68}})));
@@ -4379,8 +4412,10 @@ extends Modelica.Icons.ExamplesPackage;
         MoleFraction=initialH,
         Temperature=310.15) annotation (Placement(transformation(extent={{10,-10},
                 {-10,10}}, origin={-12,-18})));
-      Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2)
+      Chemical.Components.Substance CO2_free(
+        substanceData(DfG=DfG_CO2, DfH=-412900),
+        use_mass_start=false,
+        amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Substances.CarbonDioxide_gas(),
@@ -4605,8 +4640,10 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC)
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
-      Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2)
+      Chemical.Components.Substance O2_free(
+        substanceData(DfG=DfG_O2, DfH=-11700),
+        use_mass_start=false,
+        amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         usePartialPressureInput=false,
@@ -4664,12 +4701,14 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15) annotation (Placement(transformation(extent={{10,-10},
                 {-10,10}}, origin={-12,-18},
             rotation=270)));
-      Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2)
+      Chemical.Components.Substance CO2_free(
+        substanceData(DfG=DfG_CO2, DfH=-412900),
+        use_mass_start=false,
+        amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Substances.CarbonDioxide_gas(),
-        PartialPressure(displayUnit="kPa") = 5330,
+        PartialPressure(displayUnit="mmHg") = 5332.8954966,
         Temperature=310.15) annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
@@ -4850,8 +4889,10 @@ extends Modelica.Icons.ExamplesPackage;
         KC=KC)
         annotation (Placement(transformation(extent={{-22,-52},{-2,-32}})));
 
-      Chemical.Components.Substance O2_free(substanceData(DfG=DfG_O2, DfH=-11700),
-          use_mass_start=false, amountOfSubstance_start=initialO2)
+      Chemical.Components.Substance O2_free(
+        substanceData(DfG=DfG_O2, DfH=-11700),
+        use_mass_start=false,
+        amountOfSubstance_start=initialO2)
         annotation (Placement(transformation(extent={{-76,-12},{-56,8}})));
       Chemical.Sources.ExternalIdealGasSubstance oxygen_in_air(
         usePartialPressureInput=false,
@@ -4909,8 +4950,10 @@ extends Modelica.Icons.ExamplesPackage;
         Temperature=310.15) annotation (Placement(transformation(extent={{10,-10},
                 {-10,10}}, origin={-12,-18},
             rotation=270)));
-      Chemical.Components.Substance CO2_free(substanceData(DfG=DfG_CO2, DfH=-412900),
-          use_mass_start=false, amountOfSubstance_start=initialCO2)
+      Chemical.Components.Substance CO2_free(
+        substanceData(DfG=DfG_CO2, DfH=-412900),
+        use_mass_start=false,
+        amountOfSubstance_start=initialCO2)
         annotation (Placement(transformation(extent={{86,-8},{66,12}})));
       Chemical.Sources.ExternalIdealGasSubstance CO2_gas(
         substanceData=Chemical.Substances.CarbonDioxide_gas(),
@@ -5495,7 +5538,7 @@ extends Modelica.Icons.ExamplesPackage;
       points={{84,-28},{84,48},{60,48},{60,80},{-22,80}},
       color={0,0,255}));
   connect(electrone.solution,anode. solution) annotation (Line(
-      points={{80,-38},{80,-78},{85.54,-78}},
+      points={{80,-38},{80,-76.92},{85.2,-76.92}},
       color={127,127,0}));
   connect(electrone1.pin,currentSensor. p) annotation (Line(
       points={{-84,-24},{-92,-24},{-92,48},{-66,48}},
@@ -5504,17 +5547,16 @@ extends Modelica.Icons.ExamplesPackage;
       points={{-46,48},{-36,48}},
       color={0,0,255}));
   connect(electrone1.solution,cathode. solution) annotation (Line(
-      points={{-80,-34},{-80,-66},{-74,-66},{-74,-80},{-62.46,-80}},
+      points={{-80,-34},{-80,-66},{-74,-66},{-74,-78.92},{-62.8,-78.92}},
       color={127,127,0}));
-    connect(O2_gas.solution, air.solution) annotation (Line(points={{-18,-6},{
-            -16,-6},{-16,-16},{32.9,-16}}, color={127,127,0}));
-    connect(H2_gas.solution, air.solution) annotation (Line(points={{20,-6},{20,
-            -16},{32.9,-16}},
-                          color={127,127,0}));
+    connect(O2_gas.solution, air.solution) annotation (Line(points={{-18,-6},{-16,-6},
+            {-16,-15.58},{32,-15.58}},     color={127,127,0}));
+    connect(H2_gas.solution, air.solution) annotation (Line(points={{20,-6},{20,-15.58},
+            {32,-15.58}}, color={127,127,0}));
     connect(electrone1.port_a, reaction.substrates[2]) annotation (Line(points={{-64,-24},
             {-48,-24},{-48,-33.2},{-34,-33.2}},      color={158,66,200}));
-    connect(H2_gas.port_a, reaction.products[1]) annotation (Line(points={{36,4},{
-            42,4},{42,-34},{-12,-34},{-12,-28.0667}}, color={158,66,200}));
+    connect(H2_gas.port_a, reaction.products[1]) annotation (Line(points={{36,4},{42,4},
+            {42,-34},{-12,-34},{-12,-28.0667}},       color={158,66,200}));
     connect(O2_gas.port_a, reaction.products[2]) annotation (Line(points={{-2,4},{
             2,4},{2,-31},{-12,-31}}, color={158,66,200}));
     connect(electrone.port_a, reaction.products[3]) annotation (Line(points={{64,-28},
@@ -5525,8 +5567,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
     connect(constantVoltage.p, ground.p)
       annotation (Line(points={{18,48},{48,48},{48,46}}, color={0,0,255}));
-    connect(liquidWater.solution, water.solution) annotation (Line(points={{-10,-72},
-            {-10,-80},{9.26,-80}},           color={127,127,0}));
+    connect(liquidWater.solution, water.solution) annotation (Line(points={{-10,-72},{
+            -10,-79.66},{8.8,-79.66}},       color={127,127,0}));
     connect(liquidWater.port_a, reaction.substrates[1]) annotation (Line(points={{6,-62},
             {-48,-62},{-48,-28.8},{-34,-28.8}},         color={158,66,200}));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
