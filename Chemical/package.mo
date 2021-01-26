@@ -316,15 +316,13 @@ package Chemical "Physical Chemistry"
       parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
 
-    parameter Modelica.Units.SI.Mass mass_start=if use_mass_start then 1 else
-        amountOfSubstance_start*molarMassOfBaseMolecule
+    parameter Modelica.Units.SI.Mass mass_start=1
       "Initial mass of the substance"
-      annotation (Dialog(group="Initialization", enable=use_mass_start));
+      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
 
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=if
-        use_mass_start then mass_start/molarMassOfBaseMolecule else 1
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
       "Initial amount of substance base molecules"
-        annotation (Dialog(group="Initialization", enable=not use_mass_start));
+        annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
 
 
       Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
@@ -334,21 +332,24 @@ package Chemical "Physical Chemistry"
           annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
   protected
+      parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+        amountOfSubstance_start*molarMassOfBaseMolecule;
+
       parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
 
       Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
-           mass_start/molarMassOfBaseMolecule)
+           m_start/molarMassOfBaseMolecule)
         "Amount of base molecules inside all clusters in compartment";
 
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
-           mass_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+           m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
                                        substanceData,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
         "Amount of free molecules not included inside any clusters in compartment";
 
       Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
-           mass_start*stateOfMatter.specificAmountOfParticles(
+           m_start*stateOfMatter.specificAmountOfParticles(
                                        substanceData,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
@@ -366,7 +367,7 @@ package Chemical "Physical Chemistry"
       Modelica.Units.SI.AmountOfSubstance amountOfBonds
         "Amount of hydrogen bonds between molecules in compartment";
 
-      Real logn(stateSelect=StateSelect.prefer, start=log(mass_start/molarMassOfBaseMolecule))
+      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule))
       "Natural logarithm of the amount of base molecules in solution";
 
 
@@ -379,7 +380,7 @@ package Chemical "Physical Chemistry"
 
     initial equation
 
-      amountOfBaseMolecules = mass_start/molarMassOfBaseMolecule;
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
     equation
 
       if stateOfMatter.selfClustering(substanceData) then
