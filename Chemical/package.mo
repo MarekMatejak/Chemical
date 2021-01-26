@@ -313,7 +313,7 @@ package Chemical "Physical Chemistry"
 
 
 
-      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfBaseMolecule_start"
+      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
         annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
 
     parameter Modelica.Units.SI.Mass mass_start=if use_mass_start then 1 else
