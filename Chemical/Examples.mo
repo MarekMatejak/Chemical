@@ -2398,10 +2398,10 @@ extends Modelica.Icons.ExamplesPackage;
             DfG=30500,
             References={
                 "http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
-
           use_mass_start=false,
           amountOfSubstance_start=0.00128)
           annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
+
         Chemical.Components.Substance HPO4_E(
           substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
           use_mass_start=false,

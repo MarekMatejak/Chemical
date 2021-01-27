@@ -3477,7 +3477,7 @@ package Chemical "Physical Chemistry"
       end specificAmountOfFreeBaseMolecule;
 
 
-    /* replaceable function solution_temperature_ 
+    /* replaceable function solution_temperature_
     "Temperature of the solution from specific enthalpy and mass fractions of substances"
      extends Modelica.Icons.Function;
     input SubstanceData substanceData[:] "Data record of substances";
@@ -3492,7 +3492,7 @@ package Chemical "Physical Chemistry"
     "Ionic strengh (mole fraction based)";
 
   output Modelica.Units.SI.Temperature T "Temperature";
-    annotation (__Dymola_DymolaStoredErrors(thetext="/*replaceable function solution_temperature_ 
+    annotation (__Dymola_DymolaStoredErrors(thetext="/*replaceable function solution_temperature_
   \"Temperature of the solution from specific enthalpy and mass fractions of substances\"
     extends Modelica.Icons.Function;
    input SubstanceData substanceData[:] \"Data record of substances\";
@@ -3971,7 +3971,7 @@ end solution_temperature_;
     protected
         Modelica.Units.SI.SpecificEnthalpy solution_h_base;
       /*  Modelica.Units.SI.SpecificHeatCapacity solution_Cp=sum(X[i]*
-      substanceData[i].Cp/molarMassOfBaseMolecule(substanceData[i]) for 
+      substanceData[i].Cp/molarMassOfBaseMolecule(substanceData[i]) for
       i in 1:size(X, 1));*/
       algorithm
         solution_h_base := X*specificEnthalpy(
@@ -5108,9 +5108,9 @@ end solution_temperature_;
 
   annotation (
 preferredView="info",
-version="1.4.0-alpha7",
-versionDate="2021-01-21",
-dateModified = "2021-01-21 11:10:41Z",
+version="1.4.0",
+versionDate="2021-01-27",
+dateModified = "2021-01-27 11:10:41Z",
 conversion(
   from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
         to="1.4.0-alpha2"),
@@ -5125,7 +5125,7 @@ conversion(
       from(version="1.4.0-alpha2", script="modelica://Chemical/Resources/Scripts/ConvertFromChemical_1.4.0-alpha2.mos")),
       uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
-<p>Copyright (c) 2008-2020, Marek Matej&aacute;k, Charles University in Prague </p>
+<p>Copyright (c) 2021, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <ol>
