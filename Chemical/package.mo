@@ -150,6 +150,20 @@ package Chemical "Physical Chemistry"
 </html>"));
   end Version_1_3;
 
+  class Version_1_4 "Version 1.4.0 (Jan. 27, 2021)"
+    extends Modelica.Icons.ReleaseNotes;
+
+  annotation (Documentation(info="<html>
+<ul>
+<li>1241 gaseous substances fererenced to MSL data (Chemical.Substances.IdelGasesMSL)</li>
+<li>fix of enthalpy streams</li>
+<li>fix vaporization with water clustering</li>
+<li>specific properties calculation for self-clustering substances</li>
+<li>fix usage of molar mass (e.g. as mass of base molecule for self clustering substance)</li>
+<li>changed of some function interfaces for StateOfMatter</li>
+</ul>
+</html>"));
+  end Version_1_4;
    annotation (Documentation(info="<html>
 <p>This section summarizes the changes that have been performed on the Chemical. </p>
 </html>"));

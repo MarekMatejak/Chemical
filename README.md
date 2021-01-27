@@ -7,7 +7,7 @@ Modelica Library of Chemical processes
 ## Current release
 
 
-Download [Chemical 1.3.0 (2020-11-24)](../../archive/v1.3.0.zip)
+Download [Chemical 1.4.0 (2021-01-27)](../../archive/v1.4.0.zip)
 
 
 ## Main references
