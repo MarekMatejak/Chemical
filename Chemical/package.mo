@@ -1,5 +1,5 @@
 within ;
-package Chemical "Physical Chemistry"
+package Chemical "Chemical library"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
 
@@ -343,13 +343,13 @@ package Chemical "Physical Chemistry"
           molarMassOfBaseMolecule "Mass";
 
       parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
-          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substance)));
 
   protected
       parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
         amountOfSubstance_start*molarMassOfBaseMolecule;
 
-      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substance);
 
       Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
            m_start/molarMassOfBaseMolecule)
@@ -357,14 +357,14 @@ package Chemical "Physical Chemistry"
 
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
-                                       substanceData,
+                                       substance,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
         "Amount of free molecules not included inside any clusters in compartment";
 
       Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
            m_start*stateOfMatter.specificAmountOfParticles(
-                                       substanceData,
+                                       substance,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
         "Amount of particles/clusters in compartment";
@@ -374,15 +374,15 @@ package Chemical "Physical Chemistry"
         "Dissociation constant of hydrogen bond between base molecules";
 
       Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-          stateOfMatter.selfClusteringBondEnthalpy(substanceData)
-        - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+          stateOfMatter.selfClusteringBondEnthalpy(substance)
+        - solution.T * stateOfMatter.selfClusteringBondEntropy(substance)
         "Gibbs energy of hydrogen bond between H2O molecules";
 
       Modelica.Units.SI.AmountOfSubstance amountOfBonds
         "Amount of hydrogen bonds between molecules in compartment";
 
-      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule))
-      "Natural logarithm of the amount of base molecules in solution";
+    //  Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule))
+    //  "Natural logarithm of the amount of base molecules in solution";
 
 
       parameter Boolean EnthalpyNotUsed=false annotation (
@@ -397,7 +397,7 @@ package Chemical "Physical Chemistry"
       amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
     equation
 
-      if stateOfMatter.selfClustering(substanceData) then
+      if stateOfMatter.selfClustering(substance) then
 
         //Liquid cluster theory - equilibrium:
         //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
@@ -422,12 +422,12 @@ package Chemical "Physical Chemistry"
         solution.dH =if (EnthalpyNotUsed) then 0 else der(molarEnthalpy)*
           amountOfBaseMolecules + q*molarEnthalpy - q*actualStream(port_a.h_outflow) + (
           if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-          substanceData)*der(amountOfBonds) else 0)
+          substance)*der(amountOfBonds) else 0)
                         "heat transfer from other substances in solution [J/s]";
 
-        solution.Gj =amountOfBaseMolecules*port_a.u + amountOfBonds*SelfClustering_dG
-                        "Gibbs energy of the substance";
-
+    /*    solution.Gj =amountOfBaseMolecules*port_a.u + amountOfBonds*SelfClustering_dG
+                    "Gibbs energy of the substance";
+*/
       else
 
         amountOfParticles = amountOfFreeMolecule;
@@ -442,7 +442,7 @@ package Chemical "Physical Chemistry"
                   -q*actualStream(port_a.h_outflow)
                   "heat transfer from other substances in solution [J/s]";
 
-        solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
+     //   solution.Gj = amountOfBaseMolecules*port_a.u "Gibbs energy of the substance [J]";
 
       end if;
 
@@ -450,8 +450,9 @@ package Chemical "Physical Chemistry"
 
       //The main accumulation equation is "der(amountOfBaseMolecules)=q"
       // However, the numerical solvers can handle it in form of log(n) much better. :-)
-      der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
-      amountOfBaseMolecules = exp(logn);
+      //der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+      //amountOfBaseMolecules = exp(logn);
+      der(amountOfBaseMolecules)=q;
 
       x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
 
@@ -507,12 +508,26 @@ package Chemical "Physical Chemistry"
     model Reaction "Chemical Reaction"
       extends Interfaces.ConditionalKinetics;
 
+      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
       parameter Integer nS=0 "Number of substrate types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
 
       parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
-        "Stoichiometric reaction coefficient for substrates"
-        annotation (HideResult=true);
+        "Stoichiometric reaction coefficient for substrates";
+      parameter Modelica.Units.SI.StoichiometricNumber so[nS]=s
+        "Kinetic order for substrates";
 
       parameter Integer nP=0 "Number of product types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
@@ -520,13 +535,16 @@ package Chemical "Physical Chemistry"
       parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
         "Stoichiometric reaction coefficients for products"
         annotation (HideResult=true);
+      parameter Modelica.Units.SI.StoichiometricNumber po[nP]=p
+        "Kinetic order for products";
 
-      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
-        annotation(Dialog(group="Chemical kinetics"));
+    //  parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
+    //    annotation(Dialog(group="Chemical kinetics"));
 
       Modelica.Units.SI.MolarFlowRate rr(start=0) "Reaction molar flow rate";
 
-      Interfaces.SubstancePorts_b substrates[nS] annotation (Placement(
+      Interfaces.SubstancePorts_b substrates[nS]( redeclare each package stateOfMatter
+        =   stateOfMatter)                                                                              annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
           rotation=180,
           origin={-100,0}),                             iconTransformation(
@@ -534,7 +552,8 @@ package Chemical "Physical Chemistry"
           rotation=180,
           origin={-100,0})));
 
-      Interfaces.SubstancePorts_b products[nP] annotation (Placement(
+      Interfaces.SubstancePorts_b products[nP]( redeclare each package stateOfMatter
+        =   stateOfMatter)                                                                            annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
           rotation=180,
           origin={100,0}),                            iconTransformation(extent={{-10,-40},
@@ -549,12 +568,15 @@ package Chemical "Physical Chemistry"
         HideResult=true,
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
+        //  Modelica.Units.SI.ChemicalPotential du;
   protected
-      Modelica.Units.SI.ChemicalPotential du;
+      Real ln_k = log(k);
     equation
       //the main equation
-      du = ((p * products.u) - (s * substrates.u));
-      rr = - kC * du * exp(-kE*abs(du));
+        rr = exp(ln_k * (products.g * po)) - exp(ln_k * (substrates.g * so));
+
+    //  du = ((p * products.u) - (s * substrates.u));
+    //  rr = - kC * du * exp(-kE*abs(du));
 
       //reaction molar rates
       rr*s = substrates.q;
@@ -711,7 +733,7 @@ package Chemical "Physical Chemistry"
       solution.nj=0;
       solution.mj=0;
       solution.Vj=0;
-      solution.Gj=0;
+    //  solution.Gj=0;
       solution.Qj=0;
       solution.Ij=0;
 
@@ -733,14 +755,14 @@ package Chemical "Physical Chemistry"
       extends Interfaces.OnePort;
       extends Interfaces.ConditionalKinetics;
 
-      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+    //  parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
-  protected
-    Modelica.Units.SI.ChemicalPotential du;
+    //Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
-      du = (port_b.u - port_a.u);
-      port_b.q = kC * du * exp(-kE*abs(du));
+    //  du = (port_b.u - port_a.u);
+    //  port_b.q = kC * du * exp(-kE*abs(du));
+        port_b.q = k * (1 - exp(port_a.g-port_b.g));
 
        annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -753,30 +775,61 @@ package Chemical "Physical Chemistry"
 
       extends Icons.GasSolubility;
 
-      Interfaces.SubstancePort_b gas_port "Gaseous solution"
+       replaceable package stateOfMatterGas = Interfaces.IdealGas constrainedby
+      Interfaces.StateOfMatter
+        "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+
+      replaceable package stateOfMatterLiquid = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+
+
+      Interfaces.SubstancePort_b gas_port(redeclare package stateOfMatter =
+          stateOfMatterGas)                                                                   "Gaseous solution"
         annotation (Placement(transformation(extent={{-10,90},{10,110}})));
 
-      Interfaces.SubstancePort_b liquid_port "Dissolved in liquid solution" annotation (Placement(
+      Interfaces.SubstancePort_b liquid_port(redeclare package stateOfMatter =
+          stateOfMatterLiquid)                                                                      "Dissolved in liquid solution" annotation (Placement(
             transformation(extent={{-10,-110},{10,-90}}), iconTransformation(extent={{-10,-110},{10,-90}})));
 
       extends Interfaces.ConditionalKinetics;
 
-      parameter Real kE(unit="mol/J") = 0 "Kinetic turnover coefficient";
+    //  parameter Real kE(unit="mol/J") = 0 "Kinetic turnover coefficient";
 
       parameter Boolean EnthalpyNotUsed=false annotation (
         Evaluate=true,
         HideResult=true,
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
-  protected
-      Modelica.Units.SI.ChemicalPotential du;
+    //  Modelica.Units.SI.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
 
-      du = (liquid_port.u - gas_port.u);
+    //  du = (liquid_port.u - gas_port.u);
 
-      liquid_port.q = kC*du*exp(-kE*abs(du));
+    //  liquid_port.q = kC*du*exp(-kE*abs(du));
 
+      liquid_port.q = k*(1-exp(gas_port.g-liquid_port.g));
 
       gas_port.h_outflow = if (EnthalpyNotUsed) then 0 else inStream(liquid_port.h_outflow);
       liquid_port.h_outflow = if (EnthalpyNotUsed) then 0 else inStream(gas_port.h_outflow);
@@ -859,14 +912,15 @@ package Chemical "Physical Chemistry"
       extends Interfaces.OnePort;
       extends Interfaces.ConditionalKinetics;
 
-      parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
+    //  parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
-  protected
-    Modelica.Units.SI.ChemicalPotential du;
+    //Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
-      du = (port_a.u - port_b.u);
-      port_a.q = kC * du * exp(-kE*abs(du));
+    //  du = (port_a.u - port_b.u);
+    //  port_a.q = kC * du * exp(-kE*abs(du));
+
+      port_a.q = k * (1-exp(port_b.g - port_a.g));
 
       annotation ( Documentation(info="<html>
 <p><u><b><font style=\"color: #008000; \">Filtration throught semipermeable membrane.</font></b></u></p>
@@ -971,9 +1025,13 @@ package Chemical "Physical Chemistry"
       xm = nm/solution.n;
 
       //electrochemical potential of the specific form
-      port_a.u = Modelica.Constants.R*solution.T*log(xm) +
-            sum(subunits.u - Modelica.Constants.R*solution.T*log(xm)
-             * ones(NumberOfSubunits));
+    /*  port_a.u = Modelica.Constants.R*solution.T*log(xm) +
+        sum(subunits.u - Modelica.Constants.R*solution.T*log(xm)
+         * ones(NumberOfSubunits));
+         */
+
+      port_a.g = (1-NumberOfSubunits)*log(xm) + sum(subunits.g);
+
 
       port_a.h_outflow = h_mix;
       subunits.h_outflow = (h_mix/NumberOfSubunits)*ones(NumberOfSubunits);
@@ -1000,7 +1058,7 @@ package Chemical "Physical Chemistry"
       subunitSolution.nj + solution.nj*NumberOfSubunits = 0; //only amount of substance is necessery to express between sites' solution and real solution
       subunitSolution.mj + solution.mj = 0;
       subunitSolution.Vj + solution.Vj = 0;
-      subunitSolution.Gj + solution.Gj = 0;
+    //  subunitSolution.Gj + solution.Gj = 0;
       subunitSolution.dV + solution.dV = 0;
 
       //shift global solution status to subunits
@@ -1010,7 +1068,7 @@ package Chemical "Physical Chemistry"
       subunitSolution.n = solution.n;
       subunitSolution.m = solution.m;
       subunitSolution.V = solution.V;
-      subunitSolution.G = solution.G;
+    //  subunitSolution.G = solution.G;
       subunitSolution.Q = solution.Q;
       subunitSolution.I = solution.I;
 
@@ -1109,20 +1167,19 @@ package Chemical "Physical Chemistry"
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
-      parameter stateOfMatter.SubstanceData substanceData
-      "Definition of the substance"
-         annotation (choicesAllMatching = true);
 
-    Interfaces.SubstancePort_b port_b annotation (Placement(transformation(
+
+      Interfaces.SubstancePort_b port_b(redeclare package stateOfMatter =
+          stateOfMatter)                annotation (Placement(transformation(
             extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
               {-90,10}})));
       Sensors.MoleFractionSensor moleFractionSensor(
          redeclare package stateOfMatter = stateOfMatter,
-         substanceData=substanceData)
+         substanceData=port_a.substanceData)
         annotation (Placement(transformation(extent={{56,-10},{76,10}})));
       Sensors.MoleFractionSensor moleFractionSensor1(
          redeclare package stateOfMatter = stateOfMatter,
-         substanceData=substanceData)
+         substanceData=port_b.substanceData)
         annotation (Placement(transformation(extent={{-56,-10},{-76,10}})));
       SubstancePump substancePump(useSubstanceFlowInput=true,EnthalpyNotUsed=EnthalpyNotUsed)
         annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
@@ -1141,7 +1198,7 @@ package Chemical "Physical Chemistry"
             extent={{-10,-10},{10,10}},
             rotation=180,
             origin={30,-26})));
-    Interfaces.SubstancePort_b port_a
+    Interfaces.SubstancePort_b port_a(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
       Interfaces.SolutionPort solution
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
@@ -1265,7 +1322,7 @@ package Chemical "Physical Chemistry"
     equation
       molarFlowRate = port_a.q;
 
-      port_a.u = port_b.u;
+      port_a.g = port_b.g;
 
      annotation (
         Documentation(revisions="<html>
@@ -1344,12 +1401,25 @@ package Chemical "Physical Chemistry"
 
     Interfaces.SubstancePort_b port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      Interfaces.SolutionPort solution
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
     equation
 
-      port_a.u = u;
+      Modelica.Constants.R*solution.T*port_a.g = u;
 
       port_a.q = 0;
       port_a.h_outflow = 0;
+
+
+      solution.dH = 0;
+      solution.i = 0;
+      solution.dV = 0;
+    //  solution.Gj = 0;
+      solution.nj = 0;
+      solution.mj = 0;
+      solution.Qj = 0;
+      solution.Ij = 0;
+      solution.Vj = 0;
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -1473,7 +1543,7 @@ package Chemical "Physical Chemistry"
     equation
       port_a.q = 0;
 
-      x=(massFraction*stateOfMatter.specificAmountOfParticles(substanceData)) / AmountOfSolutionInOneKilogram;
+      x=(massFraction*stateOfMatter.specificAmountOfParticles(substance)) / AmountOfSolutionInOneKilogram;
 
      annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -1591,7 +1661,7 @@ package Chemical "Physical Chemistry"
     Interfaces.SubstancePort_b substrates[nS] "Substrates"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-    Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
+    //Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
       Modelica.Blocks.Interfaces.RealOutput DissociationCoefficient_MoleFractionBased
       "Dissociation constant (if all substances has activity=1)"   annotation (Placement(transformation(
@@ -1626,9 +1696,11 @@ package Chemical "Physical Chemistry"
       products.h_outflow = zeros(nP);
 
 
-      DrG = ((p * products.u) - (s * substrates.u));
+     // DrG = ((p * products.u) - (s * substrates.u));
 
-      DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+     // DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+
+      DissociationCoefficient_MoleFractionBased = exp(products.g * p - substrates.g * s);
 
       pK=-log10(DissociationCoefficient_MoleFractionBased);
 
@@ -1782,7 +1854,7 @@ package Chemical "Physical Chemistry"
     Interfaces.SubstancePort_b substrates[nS] "Substrates"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-    Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
+    //Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
       Modelica.Blocks.Interfaces.RealOutput activityCoeficient
       "Activity coeficient of one product"   annotation (Placement(transformation(
@@ -1822,9 +1894,14 @@ package Chemical "Physical Chemistry"
       products.q = zeros(nP);
       products.h_outflow = zeros(nP);
 
-      DrG = ((p * products.u) - (s * substrates.u)) + (if (nP>0) then p[1] else 1)*Modelica.Constants.R*T*log(activityCoeficient);
+      // DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
 
-      DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+      DissociationCoefficient_MoleFractionBased = (exp(products.g * p - substrates.g * s)) * (activityCoeficient^(if (nP>0) then p[1] else 1));
+
+
+    //  DrG = ((p * products.u) - (s * substrates.u)) + (if (nP>0) then p[1] else 1)*Modelica.Constants.R*T*log(activityCoeficient);
+
+    //  DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
 
       pK=-log10(DissociationCoefficient_MoleFractionBased);
 
@@ -1981,16 +2058,16 @@ package Chemical "Physical Chemistry"
         "Dissociation constant of hydrogen bond between base molecules";
       Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
           stateOfMatter.selfClusteringBondEnthalpy(
-                                               substanceData) - temperature*
+                                               substance) - temperature*
           stateOfMatter.selfClusteringBondEntropy(
-                                              substanceData)
+                                              substance)
         "Gibbs energy of hydrogen bond between H2O molecules";
 
 
     equation
 
 
-       if stateOfMatter.selfClustering(substanceData) then
+       if stateOfMatter.selfClustering(substance) then
 
         //Liquid cluster theory - equilibrium:
         //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
@@ -2156,7 +2233,7 @@ package Chemical "Physical Chemistry"
         annotation (HideResult=true, Dialog(enable=not useMolalityInput));
 
       parameter Modelica.Units.SI.AmountOfSubstance
-        AmountOfSolutionPer1KgSolvent=55.508
+        AmountOfSolutionPer1KgSolvent=1
         "Amount of all particles in the solution per one kilogram of solvent";
 
         parameter Boolean useMolalityInput = false
@@ -2241,7 +2318,7 @@ package Chemical "Physical Chemistry"
       "Fixed molarity of the substance if useMolarityInput=false"
         annotation (HideResult=true, Dialog(enable=not useMolarityInput));
 
-      parameter Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=55.508
+      parameter Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=1
         "Amount of all particles in the solution one liter of solvent";
 
         parameter Boolean useMolarityInput = false
@@ -2393,27 +2470,37 @@ package Chemical "Physical Chemistry"
     end ExternalMoleFraction;
 
     model ExternalElectroChemicalPotential
-    "Constant source of electro-chemical potential"
+      "Constant source of electro-chemical potential"
 
-    parameter Modelica.Units.SI.ChemicalPotential U=1e-8
+      outer Modelica.Fluid.System system "System wide properties";
+
+
+      parameter Modelica.Units.SI.ChemicalPotential U=1e-8
       "Fixed electro-chemical potential of the substance if usePotentialInput=false"
       annotation (HideResult=true, Dialog(enable=not usePotentialInput));
+      parameter Modelica.Units.SI.Temperature Temperature=system.T_ambient
+        "Temperature";
 
        parameter Boolean usePotentialInput = false
       "Is electro-chemical potential of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u if
+      Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=u if
            usePotentialInput annotation (HideResult=true, Placement(transformation(
               extent={{-120,-20},{-80,20}})));
 
     Interfaces.SubstancePort_a port_a
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-    parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
+      parameter Modelica.Units.SI.MolarEnthalpy MolarHeat=0;
+
+  protected
+      Modelica.Units.SI.ChemicalPotential u "electro-chemical potential of the substance";
     equation
        if not usePotentialInput then
-         port_a.u=U;
+         u=U;
        end if;
+
+       port_a.g = u/(Modelica.Constants.R*Temperature);
 
 
       port_a.h_outflow = MolarHeat;
@@ -2667,7 +2754,7 @@ package Chemical "Physical Chemistry"
       "Is buffer value of the substance an input?"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-          extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
+          extends Interfaces.ConditionalKinetics;
 
           Real bufferValue(final unit="1");
 
@@ -2701,7 +2788,7 @@ package Chemical "Physical Chemistry"
 
         xFreeBuffer = nFreeBuffer/solution.n;
        // port_a.q = (solution.n*KC)*(xFreeBuffer - xref);
-        port_a.q = KC*(Modelica.Constants.R*solution.T*log(xFreeBuffer) - Modelica.Constants.R*solution.T*log(xref)); //alternative kinetics
+        port_a.q = K*(xFreeBuffer - xref); //first order kinetics
         xref = -log10(a)*(bufferValue/solution.n);
 
       //solution flows
@@ -2713,9 +2800,9 @@ package Chemical "Physical Chemistry"
 
       //extensive properties
       solution.nj=0;
-      solution.mj=-nFreeBuffer*stateOfMatter.molarMassOfBaseMolecule(substanceData);
+      solution.mj=-nFreeBuffer*stateOfMatter.molarMassOfBaseMolecule(substance);
       solution.Vj=-nFreeBuffer*molarVolume;
-      solution.Gj=-nFreeBuffer*port_a.u;
+    //  solution.Gj=-nFreeBuffer*port_a.u;
       solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
       solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
 
@@ -2792,17 +2879,35 @@ package Chemical "Physical Chemistry"
     extends Modelica.Icons.InterfacesPackage;
 
     connector SubstancePort
-    "Electro-chemical potential and molar change of the substance in the solution"
+      "Substance port"
 
-    Modelica.Units.SI.ChemicalPotential u
-      "Electro-chemical potential of the substance in the solution";
+    Real g
+      "Electro-chemical potential of the substance divided by (gas constant * current temperature)";
 
     flow Modelica.Units.SI.MolarFlowRate q
       "Molar change of the substance";
 
-      //with molar flow of substance heat energy is changing also..
     stream Modelica.Units.SI.MolarEnthalpy h_outflow
       "Outgoing molar enthalphy";
+
+
+    replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    parameter stateOfMatter.SubstanceData substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
+
+    parameter Boolean substanceData_fromChemicalProcess=false "Is the substance defined by some process";
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -3010,7 +3115,9 @@ package Chemical "Physical Chemistry"
 
      outer Modelica.Fluid.System system "System wide properties";
 
-      SubstancePort_a port_a "The substance"
+      SubstancePort_a port_a(substanceData=substance,
+         redeclare package stateOfMatter = stateOfMatter)
+         "The substance"
      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
@@ -3028,7 +3135,7 @@ package Chemical "Physical Chemistry"
 
      parameter stateOfMatter.SubstanceData substanceData
      "Definition of the substance"
-        annotation (choicesAllMatching = true);
+        annotation (choicesAllMatching = true, HideResult=true, Dialog(enable=not port_a.substanceData_fromChemicalProcess));
 
     Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
 
@@ -3036,6 +3143,9 @@ package Chemical "Physical Chemistry"
       "Activity of the substance (mole-fraction based)";
 
   protected
+      parameter stateOfMatter.SubstanceData substance
+     "Current definition of the substance";
+
     Modelica.Units.SI.ActivityCoefficient gamma
       "Activity coefficient of the substance";
 
@@ -3066,6 +3176,9 @@ package Chemical "Physical Chemistry"
     Modelica.Units.SI.ChemicalPotential uPure
       "Electro-Chemical potential of the pure substance";
 
+    Modelica.Units.SI.ChemicalPotential u
+      "Electro-Chemical potential of the substance in solution";
+
     Modelica.Units.SI.MolarVolume molarVolume
       "Molar volume of the substance";
 
@@ -3079,37 +3192,43 @@ package Chemical "Physical Chemistry"
       //    "Molar heat capacity of the substance at constant pressure";
 
 
+    initial equation
+      if
+        (not port_a.substanceData_fromChemicalProcess) then
+        port_a.substanceData = substanceData;
+       // port_a.stateOfMatter = StateOfMatter;
+      end if;
 
     equation
      //aliases
-     gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-     z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     gamma = stateOfMatter.activityCoefficient(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     z = stateOfMatter.chargeNumberOfIon(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
     // molarMass = stateOfMatter.molarMass(substanceData);
 
-     molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-     molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarEnthalpy = stateOfMatter.molarEnthalpy(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarEntropyPure = stateOfMatter.molarEntropyPure(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
      u0 = stateOfMatter.chemicalPotentialPure(
-       substanceData,
+       substance,
        temperature,
        pressure,
        electricPotential,
        moleFractionBasedIonicStrength);
      uPure = stateOfMatter.electroChemicalPotentialPure(
-       substanceData,
+       substance,
        temperature,
        pressure,
        electricPotential,
        moleFractionBasedIonicStrength);
-     molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-     molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-     molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarVolume = stateOfMatter.molarVolume(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarVolumePure = stateOfMatter.molarVolumePure(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarVolumeExcess = stateOfMatter.molarVolumeExcess(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
      //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
      //activity of the substance
      a = gamma*x;
 
      //electro-chemical potential of the substance in the solution
-     port_a.u = stateOfMatter.chemicalPotentialPure(
+     u = stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
        pressure,
@@ -3117,6 +3236,9 @@ package Chemical "Physical Chemistry"
        moleFractionBasedIonicStrength)
        + Modelica.Constants.R*temperature*log(a)
        + z*Modelica.Constants.F*electricPotential;
+
+
+     port_a.g = u/(Modelica.Constants.R*temperature);
 
      port_a.h_outflow = molarEnthalpy;
 
@@ -3171,7 +3293,7 @@ package Chemical "Physical Chemistry"
 
     equation
       //molar mass flow
-      q=(port_a.q + port_c.q + port_m.m_flow/stateOfMatter.molarMassOfBaseMolecule(substanceData));
+      q=(port_a.q + port_c.q + port_m.m_flow/stateOfMatter.molarMassOfBaseMolecule(substance));
 
       //substance mass fraction
       port_m.x_mass = solution.mj/solution.m;
@@ -3188,7 +3310,7 @@ package Chemical "Physical Chemistry"
       solution.dH = 0;
       solution.i = 0;
       solution.dV = 0;
-      solution.Gj = 0;
+    //  solution.Gj = 0;
       solution.nj = 0;
       solution.mj = 0;
       solution.Qj = 0;
@@ -3671,8 +3793,8 @@ end solution_temperature_;
 
         parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
           "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-        parameter String References[1]={""}
-          "References of these thermodynamical values";
+      //  parameter String References[1]={""}
+      //    "References of these thermodynamical values";
 
         parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=
              0 "Obsolete parameter use DfH instead"
@@ -4033,8 +4155,8 @@ end solution_temperature_;
 
         parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-       parameter String References[1]={""}
-         "References of these thermodynamical values";
+      //  parameter String References[1]={""}
+      //    "References of these thermodynamical values";
 
         parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
            "kJ/mol") = 0 "Obsolete parameter use DfH instead"
@@ -4309,8 +4431,8 @@ end solution_temperature_;
 
       parameter Modelica.Units.SI.MolarHeatCapacity Cp=cp_25degC
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-       parameter String References[1]={""}
-         "References of these thermodynamical values";
+      //   parameter String References[1]={""}
+      //     "References of these thermodynamical values";
 
       parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
            "kJ/mol") = 0 "Obsolete parameter use DfH instead"
@@ -4554,10 +4676,11 @@ end solution_temperature_;
     flow Modelica.Units.SI.Volume Vj
       "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
-      //Gibbs energy of substances
-    Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
-    flow Modelica.Units.SI.Energy Gj
-      "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+    /*  //Gibbs energy of substances
+Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
+flow Modelica.Units.SI.Energy Gj
+  "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+  */
 
       //electric charge of the substance
     Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
@@ -4625,8 +4748,8 @@ end solution_temperature_;
         annotation (Placement(transformation(extent={{100,80},{120,100}})));
       Modelica.Blocks.Interfaces.RealOutput enthalpy_der "derivation of enthalpy"
         annotation (Placement(transformation(extent={{100,50},{120,70}})));
-      Modelica.Blocks.Interfaces.RealOutput gibbsEnergy "Gibbs Energy of solution"
-        annotation (Placement(transformation(extent={{100,20},{120,40}})));
+    /*  Modelica.Blocks.Interfaces.RealOutput gibbsEnergy "Gibbs Energy of solution"
+    annotation (Placement(transformation(extent={{100,20},{120,40}})));*/
       Modelica.Blocks.Interfaces.RealOutput charge
                                                "electric charge"
         annotation (Placement(transformation(extent={{100,-40},{120,-20}})));
@@ -4645,7 +4768,7 @@ end solution_temperature_;
       enthalpy_der + solution.dH = 0;
 
        //aliases
-      solution.G = gibbsEnergy;
+     // solution.G = gibbsEnergy;
       solution.Q = charge;
       solution.V = volume;
       solution.m = mass;
@@ -4672,7 +4795,7 @@ end solution_temperature_;
       solution.m + solution.mj = 0; //total mass of solution is the sum masses of each substance
 
       //Gibs energy
-      solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
+    //  solution.G + solution.Gj = 0; //total free Gibbs energy of solution is the sum of free Gibbs energies of each substance
 
       //enthalpy
     //  solution.H + solution.Hj = 0;  //total free enthalpy of solution is the sum of enthalpies of each substance
@@ -4738,10 +4861,10 @@ end solution_temperature_;
         annotation (Placement(transformation(extent={{74,-96},{94,-76}})));
 
 
+    /*Modelica.Units.SI.Energy gibbsEnergy
+  "Gibbs energy of the solution relative to start of the simulation";
+*/
   protected
-    Modelica.Units.SI.Energy gibbsEnergy
-      "Gibbs energy of the solution relative to start of the simulation";
-
     Modelica.Units.SI.HeatFlowRate heatFromEnvironment
       "External heat flow rate";
 
@@ -4762,7 +4885,7 @@ end solution_temperature_;
       //total outputs = extensible properties
       enthalpy_der = total.enthalpy_der;
       volume_der = total.volume_der;
-      gibbsEnergy = total.gibbsEnergy;
+     // gibbsEnergy = total.gibbsEnergy;
       charge = total.charge;
       volume = total.volume;
       mass = total.mass;
@@ -4897,12 +5020,12 @@ end solution_temperature_;
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
           Dialog(group="Chemical kinetics", __Dymola_compact=true));
 
-      parameter Real KC(final unit="mol2.s-1.J-1")=1
+      parameter Modelica.Units.SI.MolarFlowRate K=1e50
         "Chemical kinetics coefficient if useKineticsInput=false"
         annotation (HideResult=true, Dialog(group="Chemical kinetics", enable=not useKineticsInput));
 
-      Modelica.Blocks.Interfaces.RealInput kineticsCoefficientInput(start=KC, final unit="mol2.s-1.J-1")=
-         kC if useKineticsInput
+      Modelica.Blocks.Interfaces.RealInput kineticsCoefficientInput(start=K, final unit="mol.s-1")=
+         k if useKineticsInput
          annotation ( HideResult=true, Placement(transformation(
             extent={{-20,-20},{20,20}},
             rotation=270,
@@ -4912,11 +5035,11 @@ end solution_temperature_;
             rotation=270,
             origin={-60,40})));
 
-      Real kC(final unit="mol2.s-1.J-1") "Current kinetics coefficient";
+      Modelica.Units.SI.MolarFlowRate k "Current kinetics coefficient";
 
     equation
       if not useKineticsInput then
-        kC = KC;
+        k = K;
       end if;
 
     end ConditionalKinetics;
@@ -5122,20 +5245,20 @@ end solution_temperature_;
 
   annotation (
 preferredView="info",
-version="1.4.0",
-versionDate="2021-01-27",
-dateModified = "2021-01-27 11:10:41Z",
+version="2.0.0-alpha1",
+versionDate="2021-02-01",
+dateModified = "2021-02-01 11:10:41Z",
 conversion(
   from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0-alpha2"),
+        to="1.4.0"),
   from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0-alpha2"),
+        to="1.4.0"),
   from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0-alpha2"),
+        to="1.4.0"),
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos",
-        to="1.4.0-alpha2"),
+        to="1.4.0"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
-        to="1.4.0-alpha2"),
+        to="1.4.0"),
       from(version="1.4.0-alpha2", script="modelica://Chemical/Resources/Scripts/ConvertFromChemical_1.4.0-alpha2.mos")),
       uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
