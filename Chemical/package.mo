@@ -155,7 +155,7 @@ package Chemical "Physical Chemistry"
 
   annotation (Documentation(info="<html>
 <ul>
-<li>1241 gaseous substances fererenced to MSL data (Chemical.Substances.IdelGasesMSL)</li>
+<li>1241 gaseous substances referenced to MSL data (Chemical.Substances.IdelGasesMSL)</li>
 <li>fix of enthalpy streams</li>
 <li>fix vaporization with water clustering</li>
 <li>specific properties calculation for self-clustering substances</li>
