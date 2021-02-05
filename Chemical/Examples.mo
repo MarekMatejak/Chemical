@@ -11,7 +11,7 @@ extends Modelica.Icons.ExamplesPackage;
     constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
     constant Real R = Modelica.Constants.R "Gas constant";
 
-    Chemical.Components.Solution solution
+    Chemical.Components.Solution solution(temperature_start=298.15)
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     Chemical.Components.Substance A(
@@ -21,7 +21,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
     Chemical.Components.Reaction reaction(
-      K=1000,                             nS=1, nP=1)
+      K=1000,
+      Ea=1000,                            nS=1, nP=1)
       annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Components.Substance B(
       substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
@@ -55,18 +56,19 @@ extends Modelica.Icons.ExamplesPackage;
     constant Real Kb(unit="kg/mol") = 2
       "Molarity based dissociation constant of the reaction with one more reactant";
 
-    constant Real Kx(unit="1") = Kb*55.508
-      "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
+    constant Real Kx(unit="1") = Kb
+      "Mole fraction based dissociation constant of the reaction in the pure water";
 
     constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
     constant Real R = Modelica.Constants.R "Gas constant";
 
-    Chemical.Components.Solution solution
+    Chemical.Components.Solution solution(temperature_start=298.15)
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     Chemical.Components.Substance A(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
-    Chemical.Components.Reaction reaction(nS=2, nP=1)
+    Chemical.Components.Reaction reaction(
+      K=1,                                nS=2, nP=1)
       annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Components.Substance B(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));

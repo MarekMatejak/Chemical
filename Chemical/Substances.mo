@@ -7663,18 +7663,32 @@ package Substances "Definitions of substances"
   end IdealGasesMSL;
     extends Modelica.Icons.Package;
 
+  record Water_liquid "H2O(l)"
+   extends Chemical.Interfaces.Incompressible.SubstanceData(
+    MolarWeight(start=0.018015)=0.018015,
+    DfH(start=-285830)=-285830,
+    DfG(start=-227230)=-227230,
+    Cp(start=75.3)=75.3,
+    z(start=0)=0,
+    SelfClustering(start=true) = true,
+    SelfClustering_dH(start=-81.6348) = -81.6348,
+    SelfClustering_dS(start=32.845554) = 32.845554,
+    gamma(start=1)=1,
+    density(start=1000)=1000);
+         annotation (preferredView = "info");
+  end Water_liquid;
+
   record Silver_solid "Ag(s)"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.1078682,
       z=0,
       DfH=0,
       DfG=0,
-      Cp=25.4
-/*,
+      Cp=25.4);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Silver_solid;
 
@@ -7683,12 +7697,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.1078682,
       z=1,
       DfH=105900,
-      DfG=77100
-/*,
+      DfG=77100);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Silver_aqueous;
 
@@ -7698,12 +7711,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-127030,
       DfG=-109720,
-      Cp=50.8
-/*,
+      Cp=50.8);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end SilverChloride_solid;
 
@@ -7712,12 +7724,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.0401,
       z=2,
       DfH=-542960,
-      DfG=-542960 - 298.15*(33.67)
-/*,
+      DfG=-542960 - 298.15*(33.67));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Calcium_aqueous;
 
@@ -7726,12 +7737,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.03545,
       z=-1,
       DfH=-167460,
-      DfG=-131170
-/*,
+      DfG=-131170);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Chloride_aqueous;
 
@@ -7740,12 +7750,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.02801,
       DfH=-110500,
       DfG=-137300,
-      Cp=29.13
-/*,
+      Cp=29.13);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.engineeringtoolbox.com/carbon-monoxide-d_975.html"}
 */
-);
         annotation (preferredView = "info");
   end CarbonMonoxide_gas;
 
@@ -7753,12 +7762,11 @@ package Substances "Definitions of substances"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.02801,
       DfH=-276900,
-      DfG=-110200
-/*,
+      DfG=-110200);
+    /*,
       References={
           "Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10"}
 */
-);
     annotation (preferredView = "info");
   end CarbonMonoxide_aqueous;
             //  DfG = -8.314*298.15*log(0.00099/55.508)  +  -137300
@@ -7768,12 +7776,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.044,
       DfH=-393500,
       DfG=-394400,
-      Cp=37.1
-/*,
+      Cp=37.1);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end CarbonDioxide_gas;
 
@@ -7782,12 +7789,11 @@ package Substances "Definitions of substances"
       gamma=1.17385,
       MolarWeight=0.044,
       DfH=-412900,
-      DfG=-386200
-/*,
+      DfG=-386200);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end CarbonDioxide_aqueous;
 
@@ -7796,12 +7802,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.06001,
       z=-2,
       DfH=-676300,
-      DfG=-676300 - 298.15*(-497.065)
-/*,
+      DfG=-676300 - 298.15*(-497.065));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Carbonate_aqueous;
 
@@ -7811,12 +7816,11 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=0,
       DfG=0,
-      Cp=0
-/*,
+      Cp=0);
+    /*,
       References={
           "http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials"}
 */
-);
         annotation (preferredView = "info");
   end Electrone_solid;
 
@@ -7825,12 +7829,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.05585,
       z=2,
       DfH=-87860,
-      DfG=-87860 - 298.15*(-9.93)
-/*,
+      DfG=-87860 - 298.15*(-9.93));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Iron2_aqueous;
 
@@ -7839,12 +7842,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.05585,
       z=3,
       DfH=-47700,
-      DfG=-47700 - 298.15*(-124.77)
-/*,
+      DfG=-47700 - 298.15*(-124.77));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Iron3_aqueous;
 
@@ -7852,12 +7854,11 @@ package Substances "Definitions of substances"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.1806,
       DfH=-1274500,
-      DfG=-1274500 - 298.15*(-1220.66)
-/*,
+      DfG=-1274500 - 298.15*(-1220.66));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Glucose_solid;
 
@@ -7867,12 +7868,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=0,
       DfG=0,
-      Cp=28.8
-/*,
+      Cp=28.8);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Hydrogen_gas;
 
@@ -7880,12 +7880,11 @@ package Substances "Definitions of substances"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.062027,
       DfH=-699700,
-      DfG=-699700 - 298.15*(-256.582)
-/*,
+      DfG=-699700 - 298.15*(-256.582));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end CarbonicAcid_aqueous;
 
@@ -7894,12 +7893,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.018015,
       DfH=-241830,
       DfG=-228590,
-      Cp=33.6
-/*,
+      Cp=33.6);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Water_gas;
 
@@ -7908,12 +7906,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.018015,
       DfH=-285840,
       DfG=-237190,
-      Cp=75.3
-/*,
+      Cp=75.3);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
 
       annotation (preferredView = "info", Documentation(info="<html>
 <p><br><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
@@ -7921,21 +7918,21 @@ package Substances "Definitions of substances"
   end Water_liquid_without_selfClustering;
   //   Cv=74.539,
   // Enthalpy as in H2O(l) = with assumption that hydrogen bonds do not have significant enthaplies
-
+/*
   record Water_liquid "H2O(l) with self-clustering"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.018015,
       DfH=-285830,
       DfG=-227230,
       Cp=75.3,
+      z=0,
       SelfClustering = true,
       SelfClustering_dH = -81.6348,
-      SelfClustering_dS = 32.845554
-/*,
+      SelfClustering_dS = 32.845554);
+    /*,
         References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
                                     //-77.95928,
 
   /*  SelfClustering_dH = -81.6348,
@@ -7944,23 +7941,23 @@ package Substances "Definitions of substances"
 
     // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
     // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25),
-    annotation (preferredView = "info", Documentation(info="<html>
+/*   annotation (preferredView = "info", Documentation(info="<html>
 <p><span style=\"font-family: Courier New;\">Even the tabulated formation Gibbs energy is DfG=-237190 there is another values because of water self-clustering. </span></p>
 <p><br><span style=\"font-family: Courier New;\">New reported values for free water molecule in solution is calculated from water dissociation reaction.</span></p>
 <p><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
 </html>"));
   end Water_liquid;
+*/
 
   record Water_IceIh "H2O(s) - Ice I h"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.018015,
       DfH=-292639,
       DfG=-236590,
-      Cp=37.77
-/*,
+      Cp=37.77);
+    /*,
       References={"http://www1.lsbu.ac.uk/water/water_properties.html#pot"}
 */
-);
     annotation (preferredView = "info");
   end Water_IceIh;
 
@@ -7969,12 +7966,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.095,
       z=-1,
       DfH=-1302480,
-      DfG=-1302480 - 298.15*(-561.395)
-/*,
+      DfG=-1302480 - 298.15*(-561.395));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end DihydrogenPhosphate_aqueous;
 
@@ -7983,12 +7979,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.019022,
       z=1,
       DfH=-285840,
-      DfG=-285840 - 298.15*(-163.17)
-/*,
+      DfG=-285840 - 298.15*(-163.17));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Hydronium_aqueous;
 
@@ -7996,12 +7991,11 @@ package Substances "Definitions of substances"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.095,
       DfH=-1288000,
-      DfG=-1288000 - 298.15*(-496.4)
-/*,
+      DfG=-1288000 - 298.15*(-496.4));
+    /*,
       References={
           "https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"}
 */
-);
         annotation (preferredView = "info");
   end PhosphoricAcid_aqueous;
 
@@ -8010,12 +8004,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.001007,
       z=1,
       DfH=0,
-      DfG=0
-/*,
+      DfG=0);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Proton_aqueous;
                      // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
@@ -8025,12 +8018,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.06102,
       z=-1,
       DfH=-691100,
-      DfG=-691100 - 298.15*(-348.82)
-/*,
+      DfG=-691100 - 298.15*(-348.82));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Bicarbonate_aqueous;
 
@@ -8040,12 +8032,11 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-691100,
       DfG=-691100 - 298.15*(-348.82),
-      gamma=0.79
-/*,
+      gamma=0.79);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Bicarbonate_blood;
 
@@ -8054,12 +8045,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.095,
       z=-2,
       DfH=-1298700,
-      DfG=-1298700 - 298.15*(-686.232)
-/*,
+      DfG=-1298700 - 298.15*(-686.232));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end HydrogenPhosphate_aqueous;
 
@@ -8069,12 +8059,11 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-885750,
       DfG=-752870,
-      density=1800
-/*,
+      density=1800);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end HydrogenSulfate_aqueous;
 
@@ -8083,12 +8072,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.0391,
       z=1,
       DfH=-251200,
-      DfG=-251200 - 298.15*(103.97)
-/*,
+      DfG=-251200 - 298.15*(103.97));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Potassium_aqueous;
 
@@ -8097,12 +8085,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.0243,
       z=2,
       DfH=-461960,
-      DfG=-461960 - 298.15*(-19.99)
-/*,
+      DfG=-461960 - 298.15*(-19.99));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
         annotation (preferredView = "info");
   end Magnesium_aqueous;
 
@@ -8111,12 +8098,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.02299,
       z=1,
       DfH=-239660,
-      DfG=-239660 - 298.15*(74.49)
-/*,
+      DfG=-239660 - 298.15*(74.49));
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Sodium_aqueous;
 
@@ -8125,12 +8111,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.01804,
       z=1,
       DfH=-132800,
-      DfG=-132800 - 298.15*(-178.77)
-/*,
+      DfG=-132800 - 298.15*(-178.77));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Amonium_aqueous;
 
@@ -8139,12 +8124,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.032,
       DfH=0,
       DfG=0,
-      Cp=29.4
-/*,
+      Cp=29.4);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Oxygen_gas;
 
@@ -8157,12 +8141,11 @@ package Substances "Definitions of substances"
       B=6.137261,
       C=-1.186521,
       D=0.09578,
-      E=-0.219663
-/*,
+      E=-0.219663);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"}
 */
-);
     annotation (preferredView = "info");
   end Oxygen_gas_Shomate_298_6000;
 
@@ -8176,12 +8159,11 @@ package Substances "Definitions of substances"
       C=2.456517,
       D=-0.16151,
       E=0.175056,
-      X=44.837013
-/*,
+      X=44.837013);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"}
 */
-);
     annotation (preferredView = "info");
   end Oxygen_gas_Shomate_200_5000;
             //A=8.99044,
@@ -8190,12 +8172,11 @@ package Substances "Definitions of substances"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
       MolarWeight=0.032,
       DfH=-11700,
-      DfG=16320
-/*,
+      DfG=16320);
+    /*,
       References={
           "http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"}
 */
-);
         annotation (preferredView = "info");
   end Oxygen_aqueous;
 
@@ -8204,12 +8185,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.017006,
       z=-1,
       DfH=-229940,
-      DfG=-157300
-/*,
+      DfG=-157300);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Hydroxide_aqueous;
 
@@ -8219,12 +8199,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=0,
       DfG=0,
-      Cp=26.4
-/*,
+      Cp=26.4);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Lead_solid;
 
@@ -8234,12 +8213,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-276600,
       DfG=-219000,
-      Cp=64.6
-/*,
+      Cp=64.6);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}
 */
-);
         annotation (preferredView = "info");
   end LeadDioxide_solid;
 
@@ -8249,12 +8227,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-918400,
       DfG=-811200,
-      Cp=103.2
-/*,
+      Cp=103.2);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"}
 */
-);
         annotation (preferredView = "info");
   end LeadSulfate_solid;
 
@@ -8263,12 +8240,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.095,
       z=-3,
       DfH=-1284070,
-      DfG=-1284070 - 298.15*(-866.946)
-/*,
+      DfG=-1284070 - 298.15*(-866.946));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Phosphate_aqueous;
 
@@ -8277,12 +8253,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.09607,
       z=-2,
       DfH=-907500,
-      DfG=-907500 - 298.15*(-555.123)
-/*,
+      DfG=-907500 - 298.15*(-555.123));
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"}
 */
-);
         annotation (preferredView = "info");
   end Sulphates_aqueous;
 
@@ -8293,12 +8268,11 @@ package Substances "Definitions of substances"
       DfH=-276980,
       DfG=-174180,
       Cp=112.4,
-      density=789
-/*,
+      density=789);
+    /*,
       References={
           "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)"}
 */
-);
         annotation (preferredView = "info");
   end Ethanol_liquid;
     //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
@@ -8309,11 +8283,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.06006,
       z=0,
       DfH=-333189,
-      DfG=-197150
-/*,
+      DfG=-197150);
+    /*,
       References={"https://en.wikipedia.org/wiki/Urea"}
 */
-);
         annotation (preferredView = "info");
   end Urea_aqueous;
 
@@ -8322,11 +8295,10 @@ package Substances "Definitions of substances"
       MolarWeight=66.5,
       z=-4,
       DfH=0,
-      DfG=0
-/*,
+      DfG=0);
+    /*,
       References={"https://en.wikipedia.org/wiki/Human_serum_albumin"}
 */
-);
         annotation (preferredView = "info");
   end Globulins_aqueous;
 
@@ -8335,11 +8307,10 @@ package Substances "Definitions of substances"
       MolarWeight=66.5,
       z=-11.4,
       DfH=0,
-      DfG=0
-/*,
+      DfG=0);
+    /*,
       References={"https://en.wikipedia.org/wiki/Human_serum_albumin"}
 */
-);
         annotation (preferredView = "info");
   end Albumin_aqueous;
 
@@ -8348,11 +8319,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.427201,
       z=-3,
       DfH=0,
-      DfG=0
-/*,
+      DfG=0);
+    /*,
       References={"relative - designed only for ATP hydrolysis example"}
 */
-);
     annotation (preferredView = "info");
   end ADP3_aqueous;
 
@@ -8361,11 +8331,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.427201,
       z=-4,
       DfH = -1.0263e+6,
-      DfG = -882161
-/*,
+      DfG = -882161);
+    /*,
       References={"relative - designed only for ATP hydrolysis example"}
 */
-);
       // dle reakce: ATP + H2O <-> ADP + H2PO4-  (G=-30.5 kJ/mol. H=-20 kJ/mol)
     annotation (preferredView = "info");
   end ATP4_aqueous;
@@ -8375,11 +8344,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.427201,
       z=-4,
       DfH = -1.0263e+6,
-      DfG = -919245
-/*,
+      DfG = -919245);
+    /*,
       References={"relative - designed only for ATP hydrolysis example"}
 */
-);
       // dle reakce: ATP^4- + H+ <-> ATP^3-  (pKa=6.5, H=0 kJ/mol)
     annotation (preferredView = "info");
   end ATP3_aqueous;
@@ -8410,12 +8378,11 @@ package Substances "Definitions of substances"
         MolarWeight=0.0280134,
         DfH=0,
         DfG=0,
-        Cp=29.1
-/*,
+        Cp=29.1);
+    /*,
         References={
             "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Type=JANAFG&Plot=on"}
 */
-);
       annotation (preferredView = "info");
   end Nitrogen_gas;
 
@@ -8424,11 +8391,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.01604246,
       z=0,
       DfH = -74848,
-      DfG = -50794
-/*,
+      DfG = -50794);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
 
     annotation (preferredView = "info");
   end Methan_gas;
@@ -8438,11 +8404,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.01604246,
       z=0,
       DfH = -88151,
-      DfG = -34504
-/*,
+      DfG = -34504);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C74828&Mask=10#Solubility"}
 */
-);
 
     annotation (preferredView = "info");
   end Methan_aqueous;
@@ -8452,11 +8417,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.060052,
       z=0,
       DfH = -436071,
-      DfG = -378978
-/*,
+      DfG = -378978);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64197&Mask=10#Solubility"}
 */
-);
 
     annotation (preferredView = "info");
   end AceticAcid_gas;
@@ -8466,11 +8430,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.060052,
       z=0,
       DfH = -488453,
-      DfG = -399600
-/*,
+      DfG = -399600);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
 
     annotation (preferredView = "info");
   end AceticAcid_aqueous;
@@ -8480,11 +8443,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.059052,
       z=-1,
       DfH = -488871,
-      DfG = -372500
-/*,
+      DfG = -372500);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
     annotation (preferredView = "info");
   end Acetate_aqueous;
 
@@ -8493,12 +8455,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.00201588,
       z=0,
       DfH=-4157,
-      DfG=17740
-/*,
+      DfG=17740);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&Mask=10#Solubility"}
 */
-);
     annotation (preferredView = "info");
   end Hydrogen_aqueous;
 
@@ -8507,11 +8468,10 @@ package Substances "Definitions of substances"
       MolarWeight=0.04607,
       z=0,
       DfH = -235400,
-      DfG = -168600
-/*,
+      DfG = -168600);
+    /*,
       References={"http://www.vias.org/genchem/standard_enthalpies_table.html"}
 */
-);
 
     annotation (preferredView = "info");
   end Ethanol_gas;
@@ -8521,12 +8481,11 @@ package Substances "Definitions of substances"
       MolarWeight=0.04607,
       z=0,
       DfH=-290276,
-      DfG=-181607
-/*,
+      DfG=-181607);
+    /*,
       References={
           "http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI&Mask=10#Solubility"}
 */
-);
     annotation (preferredView = "info");
   end Ethanol_aqueous;
 end Substances;

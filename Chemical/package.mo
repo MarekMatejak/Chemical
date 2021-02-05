@@ -597,7 +597,7 @@ package Chemical "Chemical library"
       uM = stateOfMatter.electroChemicalPotentialPure(transitionStateData,Ts);
 
       Ts = stateOfMatter.molarTemperature(substrates.substanceData,actualStream(substrates.h_outflow),s);
-      Tp = stateOfMatter.molarTemperature(products.substanceData,actualStream(products.h_outflow),s);
+      Tp = stateOfMatter.molarTemperature(products.substanceData,actualStream(products.h_outflow),p);
 
 
     //  du = ((p * products.u) - (s * substrates.u));
@@ -3912,48 +3912,61 @@ end solution_temperature_;
 
       redeclare record extends SubstanceData "Base substance data"
 
-        Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa", start=
-             0.01801528) "Molar weight of the substance";
+        Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
 
-        Modelica.Units.SI.ChargeNumberOfIon z(start=0)
+        Modelica.Units.SI.ChargeNumberOfIon z
           "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-        Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol",start=0)
+        Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
           "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-        Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol",start=0)
+        Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
           "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-        Modelica.Units.SI.ActivityCoefficient gamma(start=1)
+        Modelica.Units.SI.ActivityCoefficient gamma
           "Activity coefficient of the substance";
 
-        Modelica.Units.SI.MolarHeatCapacity Cp(start=75.3)
+        Modelica.Units.SI.MolarHeatCapacity Cp
           "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-      //  parameter String References[1]={""}
-      //    "References of these thermodynamical values";
 
 
-
-        Boolean SelfClustering(start=false)
+        Boolean SelfClustering
           "Pure substance is making clusters (weak bonds between molecules)";
 
-        Modelica.Units.SI.ChemicalPotential SelfClustering_dH(start=0)
+        Modelica.Units.SI.ChemicalPotential SelfClustering_dH
           "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
         //-20000
-        Modelica.Units.SI.MolarEntropy SelfClustering_dS(start=0)
+        Modelica.Units.SI.MolarEntropy SelfClustering_dS
           "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-        Modelica.Units.SI.Density density(displayUnit="kg/dm3", start = 1000)
+        Modelica.Units.SI.Density density(displayUnit="kg/dm3")
           "Density of the pure substance (default density of water at 25degC)";
 
-        //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
-        //      "Molar heat capacity of the substance at constant volume";
+
 
         annotation (preferredView="info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
       end SubstanceData;
+
+      record SubstanceDataWithDefaultValues
+        extends SubstanceData(
+          MolarWeight=0.01801528,
+          z=0,
+          DfG=0,
+          DfH=0,
+          gamma=1,
+          Cp=75.3,
+          SelfClustering=false,
+          SelfClustering_dH=0,
+          SelfClustering_dS=0,
+          density=1000);
+        annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+      end SubstanceDataWithDefaultValues;
 
       redeclare function extends activityCoefficient
         "Return activity coefficient of the substance in the solution"
