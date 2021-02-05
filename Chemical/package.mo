@@ -4052,7 +4052,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         mixedSubstanceData := SubstanceData(
            MolarWeight = x*substanceData.MolarWeight,
            z = x*substanceData.z,
-           DfG = x*substanceData.DfG,
+           DfG = x*substanceData.DfG + addH0,
            DfH = x*substanceData.DfH + addH0,
            gamma = x*substanceData.gamma,
            Cp = x*substanceData.Cp,
@@ -4419,7 +4419,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         mixedSubstanceData := SubstanceData(
            MolarWeight = x*substanceData.MolarWeight,
            z = x*substanceData.z,
-           DfG = x*substanceData.DfG,
+           DfG = x*substanceData.DfG + addH0,
            DfH = x*substanceData.DfH + addH0,
            gamma = x*substanceData.gamma,
            Cp = x*substanceData.Cp);
