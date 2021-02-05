@@ -526,8 +526,6 @@ package Chemical "Chemical library"
 
       parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
         "Stoichiometric reaction coefficient for substrates";
-      parameter Modelica.Units.SI.StoichiometricNumber so[nS]=s
-        "Kinetic order for substrates";
 
       parameter Integer nP=0 "Number of product types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
@@ -535,16 +533,14 @@ package Chemical "Chemical library"
       parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
         "Stoichiometric reaction coefficients for products"
         annotation (HideResult=true);
-      parameter Modelica.Units.SI.StoichiometricNumber po[nP]=p
-        "Kinetic order for products";
 
     //  parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient"
     //    annotation(Dialog(group="Chemical kinetics"));
 
       Modelica.Units.SI.MolarFlowRate rr(start=0) "Reaction molar flow rate";
 
-      Interfaces.SubstancePorts_b substrates[nS]( redeclare each package stateOfMatter
-        =   stateOfMatter)                                                                              annotation (Placement(
+      Interfaces.SubstancePorts_b substrates[nS]( redeclare each package stateOfMatter =
+            stateOfMatter)                                                                              annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
           rotation=180,
           origin={-100,0}),                             iconTransformation(
@@ -552,8 +548,8 @@ package Chemical "Chemical library"
           rotation=180,
           origin={-100,0})));
 
-      Interfaces.SubstancePorts_b products[nP]( redeclare each package stateOfMatter
-        =   stateOfMatter)                                                                            annotation (Placement(
+      Interfaces.SubstancePorts_b products[nP]( redeclare each package stateOfMatter =
+            stateOfMatter)                                                                            annotation (Placement(
           transformation(extent={{-10,-40},{10,40}},
           rotation=180,
           origin={100,0}),                            iconTransformation(extent={{-10,-40},
@@ -569,11 +565,40 @@ package Chemical "Chemical library"
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
         //  Modelica.Units.SI.ChemicalPotential du;
+      //Real ln_k = log(k);
+
+      parameter Modelica.Units.SI.ChemicalPotential Ea=0 "Arrhenius activation energy";
+
+
   protected
-      Real ln_k = log(k);
+      Modelica.Units.SI.Temperature Tp "Temperature of products";
+      Modelica.Units.SI.Temperature Ts "Temperature of substrates";
+
+      stateOfMatter.SubstanceData transitionStateData = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s),Ea);
+
+      Modelica.Units.SI.ChemicalPotential uM "Electro-chemical potential of transition state";
+
+      //debug:
+      stateOfMatter.SubstanceData transitionStateData0 = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s));
+      Modelica.Units.SI.ChemicalPotential uS0 "Electro-chemical potential of mixed substrates";
+      Modelica.Units.SI.ChemicalPotential uM0 "Electro-chemical potential of transition state without activation energy";
+      Modelica.Units.SI.ChemicalPotential Ea_1, Ea_2;
     equation
+      //debug:
+      uS0=s*stateOfMatter.electroChemicalPotentialPure(substrates.substanceData,Ts);
+      uM0=stateOfMatter.electroChemicalPotentialPure(transitionStateData0,Ts);
+      Ea_1 = uM - uM0;
+      Ea_2 = uM - uS0;
+      //--debug
+
       //the main equation
-        rr = exp(ln_k * (products.g * po)) - exp(ln_k * (substrates.g * so));
+        rr = k * ( exp(substrates.g * s-uM/(Modelica.Constants.R*Ts)) - exp(products.g * p-uM/(Modelica.Constants.R*Tp)));
+
+      uM = stateOfMatter.electroChemicalPotentialPure(transitionStateData,Ts);
+
+      Ts = stateOfMatter.molarTemperature(substrates.substanceData,actualStream(substrates.h_outflow),s);
+      Tp = stateOfMatter.molarTemperature(products.substanceData,actualStream(products.h_outflow),s);
+
 
     //  du = ((p * products.u) - (s * substrates.u));
     //  rr = - kC * du * exp(-kE*abs(du));
@@ -2878,8 +2903,7 @@ package Chemical "Chemical library"
   package Interfaces "Chemical interfaces"
     extends Modelica.Icons.InterfacesPackage;
 
-    connector SubstancePort
-      "Substance port"
+    connector DefinitionSubstancePort "Substance port"
 
     Real g
       "Electro-chemical potential of the substance divided by (gas constant * current temperature)";
@@ -2889,7 +2913,6 @@ package Chemical "Chemical library"
 
     stream Modelica.Units.SI.MolarEnthalpy h_outflow
       "Outgoing molar enthalphy";
-
 
     replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
       "Substance model to translate data into substance properties"
@@ -2903,11 +2926,11 @@ package Chemical "Chemical library"
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    parameter stateOfMatter.SubstanceData substanceData
+    output stateOfMatter.SubstanceData substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true);
 
-    parameter Boolean substanceData_fromChemicalProcess=false "Is the substance defined by some process";
+
 
       annotation (Documentation(revisions="<html>
 <p><i>2015</i></p>
@@ -2930,11 +2953,62 @@ package Chemical "Chemical library"
 <p>DfS .. free entropy of formation of the substance </p>
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
-    end SubstancePort;
+    end DefinitionSubstancePort;
+
+    connector UsageSubstancePort "Substance port"
+
+    Real g
+      "Electro-chemical potential of the substance divided by (gas constant * current temperature)";
+
+    flow Modelica.Units.SI.MolarFlowRate q
+      "Molar change of the substance";
+
+    stream Modelica.Units.SI.MolarEnthalpy h_outflow
+      "Outgoing molar enthalphy";
+
+    replaceable package stateOfMatter = Incompressible constrainedby StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    input stateOfMatter.SubstanceData substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
+
+
+      annotation (Documentation(revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end UsageSubstancePort;
 
     connector SubstancePort_a
     "Electro-chemical potential and molar flow of the substance in the solution"
-      extends SubstancePort;
+      extends UsageSubstancePort;
 
     annotation (
         defaultComponentName="port_a",
@@ -2963,9 +3037,50 @@ package Chemical "Chemical library"
 </html>"));
     end SubstancePort_a;
 
+    connector DefinitionSubstancePort_a
+      "Electro-chemical potential and molar flow of the substance in the solution"
+      extends DefinitionSubstancePort;
+
+    annotation (
+        defaultComponentName="port_a",
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,
+                100}}),     graphics={Rectangle(
+              extent={{-20,10},{20,-10}},
+              lineColor={158,66,200}),Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={158,66,200},
+            fillColor={158,66,200},
+            fillPattern=FillPattern.Solid),
+          Ellipse(
+            extent={{-42,42},{54,-46}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+        Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100,-100},{100,100}}),
+            graphics={Rectangle(
+              extent={{-40,40},{40,-40}},
+              lineColor={158,66,200},
+              fillColor={158,66,200},
+              fillPattern=FillPattern.Solid,
+              lineThickness=1),
+       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name"),
+          Ellipse(
+            extent={{-16,18},{18,-16}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+        Documentation(info="<html>
+<p>Chemical port with internal definition of the substance inside the component. </p>
+</html>",
+        revisions="<html>
+<p><i>2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end DefinitionSubstancePort_a;
+
     connector SubstancePort_b
     "Electro-chemical potential and molar flow of the substance in the solution"
-      extends SubstancePort;
+      extends UsageSubstancePort;
 
     annotation (
         defaultComponentName="port_b",
@@ -3018,7 +3133,7 @@ package Chemical "Chemical library"
     end OnePort;
 
     connector SubstancePorts_a
-      extends SubstancePort;
+      extends UsageSubstancePort;
       annotation (
          defaultComponentName="ports_a",
          Diagram(coordinateSystem(
@@ -3069,7 +3184,7 @@ package Chemical "Chemical library"
     end SubstancePorts_a;
 
     connector SubstancePorts_b
-      extends SubstancePort;
+      extends UsageSubstancePort;
       annotation (
          defaultComponentName="ports_b",
          Diagram(coordinateSystem(
@@ -3115,7 +3230,7 @@ package Chemical "Chemical library"
 
      outer Modelica.Fluid.System system "System wide properties";
 
-      SubstancePort_a port_a(substanceData=substance,
+      DefinitionSubstancePort_a port_a(substanceData=substanceData,
          redeclare package stateOfMatter = stateOfMatter)
          "The substance"
      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
@@ -3143,7 +3258,7 @@ package Chemical "Chemical library"
       "Activity of the substance (mole-fraction based)";
 
   protected
-      parameter stateOfMatter.SubstanceData substance
+      parameter stateOfMatter.SubstanceData substance=substanceData
      "Current definition of the substance";
 
     Modelica.Units.SI.ActivityCoefficient gamma
@@ -3192,13 +3307,12 @@ package Chemical "Chemical library"
       //    "Molar heat capacity of the substance at constant pressure";
 
 
-    initial equation
-      if
-        (not port_a.substanceData_fromChemicalProcess) then
-        port_a.substanceData = substanceData;
-       // port_a.stateOfMatter = StateOfMatter;
-      end if;
-
+    /*initial equation 
+  if(not port_a.substanceData_fromChemicalProcess) then
+    substance = substanceData;
+   // port_a.stateOfMatter = StateOfMatter;
+  end if;
+*/
     equation
      //aliases
      gamma = stateOfMatter.activityCoefficient(substance,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
@@ -3536,6 +3650,31 @@ package Chemical "Chemical library"
       output Modelica.Units.SI.MolarMass molarMass "Molar mass";
      end molarMassOfBaseMolecule;
 
+     replaceable function mixedSubstanceData
+       "Definition of substance as mix of substances"
+        extends Modelica.Icons.Function;
+       input SubstanceData substanceData[:] "Data record of substances";
+       input Modelica.Units.SI.MoleFraction x[size(substanceData,1)] "mole fractions";
+       input Modelica.Units.SI.MolarEnthalpy addH0=0 "Additional temperature independent molar enthalpy";
+       output SubstanceData mixedSubstanceData "Definition of substance as mix of substances";
+     end mixedSubstanceData;
+
+     replaceable function molarTemperature
+      "Temperature from substance molar enthalpies with given stoichimetry"
+        extends Modelica.Icons.Function;
+      input SubstanceData substanceData[:] "Data record of substances";
+      input Modelica.Units.SI.MolarEnthalpy Hf[size(substanceData,1)] "Molar enthalpies of substances";
+      input Modelica.Units.SI.StoichiometricNumber s[size(substanceData,1)]=ones(size(substanceData,1)) "Stoichiometry of substances";
+
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.Temperature T "Temperature";
+     end molarTemperature;
+
      replaceable function selfClustering "returns true if substance molecules are joining together to clusters"
          extends Modelica.Icons.Function;
             input SubstanceData substanceData "Data record of substance";
@@ -3543,7 +3682,6 @@ package Chemical "Chemical library"
      algorithm
        selfClustering:=false;
      end selfClustering;
-
 
 
      replaceable function selfClusteringBondEnthalpy
@@ -3774,46 +3912,38 @@ end solution_temperature_;
 
       redeclare record extends SubstanceData "Base substance data"
 
-        parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
-             0.01801528 "Molar weight of the substance";
+        Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa", start=
+             0.01801528) "Molar weight of the substance";
 
-        parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        Modelica.Units.SI.ChargeNumberOfIon z(start=0)
           "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-        parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-          DfG_25degC_1bar
+        Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol",start=0)
           "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-        parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-          DfH_25degC
+        Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol",start=0)
           "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-        parameter Modelica.Units.SI.ActivityCoefficient gamma=1
+        Modelica.Units.SI.ActivityCoefficient gamma(start=1)
           "Activity coefficient of the substance";
 
-        parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
+        Modelica.Units.SI.MolarHeatCapacity Cp(start=75.3)
           "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
       //  parameter String References[1]={""}
       //    "References of these thermodynamical values";
 
-        parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=
-             0 "Obsolete parameter use DfH instead"
-          annotation (Dialog(tab="Obsolete"));
 
-        parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=
-             0 "Obsolete parameter use DfG instead"
-          annotation (Dialog(tab="Obsolete"));
 
-        parameter Boolean SelfClustering=false
+        Boolean SelfClustering(start=false)
           "Pure substance is making clusters (weak bonds between molecules)";
 
-        parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+        Modelica.Units.SI.ChemicalPotential SelfClustering_dH(start=0)
           "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
         //-20000
-        parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+        Modelica.Units.SI.MolarEntropy SelfClustering_dS(start=0)
           "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-        parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3") = 1000
+        Modelica.Units.SI.Density density(displayUnit="kg/dm3", start = 1000)
           "Density of the pure substance (default density of water at 25degC)";
 
         //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
@@ -3897,6 +4027,47 @@ end solution_temperature_;
       algorithm
         molarMass := substanceData.MolarWeight;
       end molarMassOfBaseMolecule;
+
+      redeclare function extends molarTemperature
+      "Temperature from substance molar enthalpies with given stoichimetry"
+        /*    extends Modelica.Icons.Function;
+    input SubstanceData substanceData[:] "Data record of substances";
+  input Modelica.Units.SI.MolarEnthalpy Hf[:] "Molar enthalpies of substances";
+  input Modelica.Units.SI.StoichiometricNumber s[:] "Stoichiometry of substances";
+
+  input Modelica.Units.SI.Pressure p=100000 "Pressure";
+  input Modelica.Units.SI.ElectricPotential v=0
+    "Electric potential of the substance";
+  input Modelica.Units.SI.MoleFraction I=0
+    "Ionic strengh (mole fraction based)";
+
+output Modelica.Units.SI.Temperature T "Temperature";*/
+      algorithm
+         T:=298.15 + (Hf*s - substanceData.DfH*s)/(substanceData.Cp*s);
+      end molarTemperature;
+
+      redeclare function extends mixedSubstanceData
+       "Definition of transition substance as molar mix of substances"
+      algorithm
+        mixedSubstanceData := SubstanceData(
+           MolarWeight = x*substanceData.MolarWeight,
+           z = x*substanceData.z,
+           DfG = x*substanceData.DfG,
+           DfH = x*substanceData.DfH + addH0,
+           gamma = x*substanceData.gamma,
+           Cp = x*substanceData.Cp,
+           SelfClustering = false,
+           SelfClustering_dH = 0,
+           SelfClustering_dS = 0,
+           density = x*substanceData.density);
+
+           //TODO self-clustering not allowed
+
+        annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+      end mixedSubstanceData;
 
       redeclare function selfClustering
         "returns true if substance molecules are joining together to clusters"
@@ -4155,8 +4326,8 @@ end solution_temperature_;
 
         parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-      //  parameter String References[1]={""}
-      //    "References of these thermodynamical values";
+        //  parameter String References[1]={""}
+        //    "References of these thermodynamical values";
 
         parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
            "kJ/mol") = 0 "Obsolete parameter use DfH instead"
@@ -4235,6 +4406,31 @@ end solution_temperature_;
      algorithm
          molarMass := substanceData.MolarWeight;
      end molarMassOfBaseMolecule;
+
+     replaceable function extends molarTemperature
+      "Temperature from substance molar enthalpies with given stoichimetry"
+     algorithm
+         T:=298.15 + (Hf*s - substanceData.DfH*s)/(substanceData.Cp*s);
+     end molarTemperature;
+
+      redeclare function extends mixedSubstanceData
+       "Definition of transition substance as molar mix of substances"
+      algorithm
+        mixedSubstanceData := SubstanceData(
+           MolarWeight = x*substanceData.MolarWeight,
+           z = x*substanceData.z,
+           DfG = x*substanceData.DfG,
+           DfH = x*substanceData.DfH + addH0,
+           gamma = x*substanceData.gamma,
+           Cp = x*substanceData.Cp);
+           //TODO self-clustering not allowed
+
+        annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+      end mixedSubstanceData;
+
 
      redeclare function extends temperature "Temperature of substance from its enthalpy"
      algorithm
@@ -4350,6 +4546,53 @@ end solution_temperature_;
         annotation (Inline=true, smoothOrder=2);
       end molarMassOfBaseMolecule;
 
+      redeclare function extends molarTemperature
+      "Temperature from molar enthalpies os substances with defined stoiciometric numbers"
+    protected
+         Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
+         Modelica.Media.IdealGases.Common.DataRecord solutionData = Modelica.Media.IdealGases.Common.DataRecord(
+                 name="solution_temperature",
+                 MM= 1/sum(X./substanceData.data.MM),
+                 Hf= X*substanceData.data.Hf,
+                 H0= X*substanceData.data.H0,
+                 Tlimit = substanceData.data.Tlimit,
+                 alow = X*substanceData.data.alow,
+                 blow = X*substanceData.data.blow,
+                 ahigh = X*substanceData.data.ahigh,
+                 bhigh = X*substanceData.data.bhigh,
+                 R_s = X*substanceData.data.R_s);
+         Modelica.Units.SI.SpecificEnthalpy h;
+      algorithm
+          h := (Hf*s)/(s*molarMassOfBaseMolecule(substanceData)) "the same as X*(Hf./MMb)";
+          T := temperature(SubstanceData(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+      end molarTemperature;
+
+       redeclare function extends mixedSubstanceData
+       "Definition of transition substance as molar mix of substances"
+    protected
+         Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (x.*molarMassOfBaseMolecule(substanceData))/(x*molarMassOfBaseMolecule(substanceData));
+         Modelica.Media.IdealGases.Common.DataRecord dataRecord = Modelica.Media.IdealGases.Common.DataRecord(
+                 name="solution_temperature",
+                 MM= 1/sum(X./substanceData.data.MM),
+                 Hf= X*substanceData.data.Hf,
+                 H0= X*substanceData.data.H0,
+                 Tlimit = substanceData.data.Tlimit,
+                 alow = X*substanceData.data.alow,
+                 blow = X*substanceData.data.blow,
+                 ahigh = X*substanceData.data.ahigh,
+                 bhigh = X*substanceData.data.bhigh,
+                 R_s = X*substanceData.data.R_s);
+       algorithm
+        dataRecord.blow[1] := dataRecord.blow[1] + addH0/Modelica.Constants.R;
+        dataRecord.bhigh[1] := dataRecord.bhigh[1] + addH0/Modelica.Constants.R;
+        mixedSubstanceData := SubstanceData(data=dataRecord,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData)));
+
+        annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+       end mixedSubstanceData;
+
 
       redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
@@ -4370,10 +4613,6 @@ end solution_temperature_;
 
       redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
-       // Modelica.Units.SI.MolarMass MM=x*substanceData.data.MM
-       //   "molar mass of solution";
-       // Modelica.Units.SI.MassFraction x_mass[:]=(x .* substanceData.data.MM) ./
-       //     MM "mass fractions";
     protected
           Modelica.Media.IdealGases.Common.DataRecord solutionData=
              Modelica.Media.IdealGases.Common.DataRecord(
@@ -4381,15 +4620,12 @@ end solution_temperature_;
                  MM= 1/sum(X./substanceData.data.MM),
                  Hf= X*substanceData.data.Hf,
                  H0= X*substanceData.data.H0,
-                 Tlimit = X*substanceData.data.Tlimit,
+                 Tlimit = substanceData.data.Tlimit,
                  alow = X*substanceData.data.alow,
                  blow = X*substanceData.data.blow,
                  ahigh = X*substanceData.data.ahigh,
                  bhigh = X*substanceData.data.bhigh,
                  R_s = X*substanceData.data.R_s);
-                       //),
-              //sum through moles, not masses
-
       algorithm
           T := temperature(SubstanceData(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
       end solution_temperature;
@@ -4583,6 +4819,55 @@ end solution_temperature_;
          molarMass := substanceData.MolarWeight;
      end molarMassOfBaseMolecule;
 
+     redeclare function extends molarTemperature
+      "Temperature from molar enthalpies os substances with given stoichiometry"
+        //this is gas, so the self-clustering is not included:
+    protected
+        Modelica.Units.SI.MoleFraction x[size(substanceData,1)]=s./sum(s) "mole fractions of substances";
+        SubstanceData solutionData= SubstanceData(
+               MolarWeight = x*substanceData.MolarWeight,
+               z = x*substanceData.z,
+               DfG = x*substanceData.DfG,
+               DfH = x*substanceData.DfH,
+               gamma =  x*substanceData.gamma,
+               Cp =  x*substanceData.cp_25degC,
+               B =  x*substanceData.B,
+               C =  x*substanceData.C,
+               D =  x*substanceData.D,
+               E =  x*substanceData.E,
+               X =  x*substanceData.X,
+               A_ = x*substanceData.A_,
+               E_ = x*substanceData.E_);      //TODO: gamma,X,E_ are only estimations
+       Modelica.Units.SI.SpecificEnthalpy h = (Hf*s)/(s*molarMassOfBaseMolecule(substanceData));
+     algorithm
+         T := temperature(solutionData,h,p,v,I);
+     end molarTemperature;
+
+     redeclare function extends mixedSubstanceData
+        "Definition of transition substance as molar mix of substances"
+
+     algorithm
+     mixedSubstanceData := SubstanceData(
+               MolarWeight = x*substanceData.MolarWeight,
+               z = x*substanceData.z,
+               DfG = x*substanceData.DfG,
+               DfH = x*substanceData.DfH + addH0,
+               gamma =  x*substanceData.gamma,
+               Cp =  x*substanceData.cp_25degC,
+               B =  x*substanceData.B,
+               C =  x*substanceData.C,
+               D =  x*substanceData.D,
+               E =  x*substanceData.E,
+               X =  x*substanceData.X,
+               A_ = x*substanceData.A_,
+               E_ = x*substanceData.E_);
+
+     annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+     end mixedSubstanceData;
+
      redeclare function extends temperature "Temperature of substance from its enthalpy"
     protected
           function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
@@ -4602,25 +4887,24 @@ end solution_temperature_;
 
       redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
-    protected
-        Modelica.Units.SI.MolarMass bMM[size(X,1)] = molarMassOfBaseMolecule(substanceData);
         //this is gas, so the self-clustering is not included:
+    protected
         Modelica.Units.SI.MoleFraction x[size(X,1)]=(X./molarMassOfBaseMolecule(substanceData))/
           sum(X./molarMassOfBaseMolecule(substanceData)) "mole fractions of substances";
         SubstanceData solutionData= SubstanceData(
-               MolarWeight = sum(x[i]*substanceData[i].MolarWeight for i in 1:size(X,1)),
-               z = sum(x[i]*substanceData[i].z for i in 1:size(X,1)),
-               DfG = sum(x[i]*substanceData[i].DfG for i in 1:size(X,1)),
-               DfH = sum(x[i]*substanceData[i].DfH for i in 1:size(X,1)),
-               gamma =  sum(x[i]*substanceData[i].gamma for i in 1:size(X,1)),
-               Cp =  sum(x[i]*substanceData[i].cp_25degC for i in 1:size(X,1)),
-               B =  sum(x[i]*substanceData[i].B for i in 1:size(X,1)),
-               C =  sum(x[i]*substanceData[i].C for i in 1:size(X,1)),
-               D =  sum(x[i]*substanceData[i].D for i in 1:size(X,1)),
-               E =  sum(x[i]*substanceData[i].E for i in 1:size(X,1)),
-               X =  sum(x[i]*substanceData[i].X for i in 1:size(X,1)),
-               A_ = sum(x[i]*substanceData[i].A_ for i in 1:size(X,1)),
-               E_ = sum(x[i]*substanceData[i].E_ for i in 1:size(X,1)));      //TODO: gamma,X,E_ are only estimations
+               MolarWeight = x*substanceData.MolarWeight,
+               z = x*substanceData.z,
+               DfG = x*substanceData.DfG,
+               DfH = x*substanceData.DfH,
+               gamma =  x*substanceData.gamma,
+               Cp =  x*substanceData.cp_25degC,
+               B =  x*substanceData.B,
+               C =  x*substanceData.C,
+               D =  x*substanceData.D,
+               E =  x*substanceData.E,
+               X =  x*substanceData.X,
+               A_ = x*substanceData.A_,
+               E_ = x*substanceData.E_);      //TODO: gamma,X,E_ are only estimations
       algorithm
         assert(abs(sum(X))<1e-5,"sum(X) must be 1");
         T := temperature(solutionData,h,p,v,I);

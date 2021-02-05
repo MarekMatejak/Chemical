@@ -6236,4 +6236,34 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
     end ElectrochemicalAcetateProduction;
   end ClimateChange;
+
+  model SimpleReaction_ "The simple chemical reaction A<->B with equilibrium B/A = 2"
+     extends Modelica.Icons.Example;
+
+    constant Real K = 2 "Dissociation constant of the reaction";
+
+    constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+    constant Real R = Modelica.Constants.R "Gas constant";
+
+    Chemical.Components.Solution solution
+      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+    Chemical.Components.Substance A(
+      substanceData(MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.9)
+      annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+
+  equation
+    connect(A.solution, solution.solution) annotation (Line(
+        points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
+        color={127,127,0}));
+    annotation (Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
+</html>"),
+      experiment(StopTime=0.001));
+  end SimpleReaction_;
 end Examples;
