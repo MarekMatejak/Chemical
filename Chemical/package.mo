@@ -2926,7 +2926,7 @@ package Chemical "Chemical library"
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    output stateOfMatter.SubstanceData substanceData
+     output stateOfMatter.SubstanceDefinition substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true);
 
@@ -2978,7 +2978,7 @@ package Chemical "Chemical library"
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    input stateOfMatter.SubstanceData substanceData
+    input stateOfMatter.SubstanceDefinition substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true);
 
@@ -3436,8 +3436,13 @@ package Chemical "Chemical library"
     partial package StateOfMatter "Abstract package for all state of matters"
 
 
+     replaceable partial record SubstanceDefinition
+       "Definition definition of the chemical substance"
+
+     end SubstanceDefinition;
+
      replaceable partial record SubstanceData
-        "Definition data of the chemical substance"
+        "Definition data of the chemical substance (SubstanceDefinition as parameters)"
 
      end SubstanceData;
 
@@ -3910,7 +3915,7 @@ end solution_temperature_;
     package Incompressible "Incompressible as basic state of matter"
       extends StateOfMatter;
 
-      redeclare record extends SubstanceData "Base substance data"
+      redeclare record extends SubstanceDefinition "Substance definition"
 
         Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
 
@@ -3948,25 +3953,46 @@ end solution_temperature_;
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-      end SubstanceData;
+      end SubstanceDefinition;
 
-      record SubstanceDataWithDefaultValues
-        extends SubstanceData(
-          MolarWeight=0.01801528,
-          z=0,
-          DfG=0,
-          DfH=0,
-          gamma=1,
-          Cp=75.3,
-          SelfClustering=false,
-          SelfClustering_dH=0,
-          SelfClustering_dS=0,
-          density=1000);
+      redeclare record extends SubstanceData "Base substance data"
+
+        parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
+             0.01801528 "Molar weight of the substance";
+
+        parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+          "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+        parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=0
+          "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+        parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=0
+          "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+        parameter Modelica.Units.SI.ActivityCoefficient gamma=1
+          "Activity coefficient of the substance";
+
+        parameter Modelica.Units.SI.MolarHeatCapacity Cp=0
+          "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+
+        parameter Boolean SelfClustering=false
+          "Pure substance is making clusters (weak bonds between molecules)";
+
+        parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+          "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
+        //-20000
+        parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+          "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+        parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3") = 1000
+          "Density of the pure substance (default density of water at 25degC)";
+
+
         annotation (preferredView="info", Documentation(revisions="<html>
-<p><i>2021</i></p>
+<p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-      end SubstanceDataWithDefaultValues;
+      end SubstanceData;
 
       redeclare function extends activityCoefficient
         "Return activity coefficient of the substance in the solution"
@@ -4318,6 +4344,41 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
     package IdealGas "Ideal gas with constant heat capacity"
        extends StateOfMatter;
 
+       redeclare record extends SubstanceDefinition "Base substance data"
+
+        Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
+
+        Modelica.Units.SI.ChargeNumberOfIon z
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+        Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+        "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+        Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+        "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+        Modelica.Units.SI.ActivityCoefficient gamma
+        "Activity coefficient of the substance";
+
+        Modelica.Units.SI.MolarHeatCapacity Cp
+        "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+        //  parameter String References[1]={""}
+        //    "References of these thermodynamical values";
+
+
+        Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+
+        Modelica.Units.SI.ChemicalPotential SelfClustering_dH
+        "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+        Modelica.Units.SI.MolarEntropy SelfClustering_dS
+        "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+        annotation ( preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+       end SubstanceDefinition;
+
        redeclare record extends SubstanceData "Base substance data"
 
         parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
@@ -4326,12 +4387,10 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-        parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-           DfG_25degC_1bar
+        parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=0
         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-        parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-           DfH_25degC
+        parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=0
         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
         parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -4342,13 +4401,6 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         //  parameter String References[1]={""}
         //    "References of these thermodynamical values";
 
-        parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
-           "kJ/mol") = 0 "Obsolete parameter use DfH instead"
-        annotation (Dialog(tab="Obsolete"));
-
-        parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
-            "kJ/mol") = 0 "Obsolete parameter use DfG instead"
-        annotation (Dialog(tab="Obsolete"));
 
        parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
@@ -4476,6 +4528,15 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
     package IdealGasMSL "Ideal gas from Modelica Standard Library 3.2"
       extends StateOfMatter;
 
+      redeclare record SubstanceDefinition
+
+        Modelica.Media.IdealGases.Common.DataRecord data "NASA definition of the substance";
+
+        Modelica.Units.SI.ChargeNumberOfIon z
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+      end SubstanceDefinition;
+
       redeclare record SubstanceData
 
         parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
@@ -4560,22 +4621,36 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
       end molarMassOfBaseMolecule;
 
       redeclare function extends molarTemperature
-      "Temperature from molar enthalpies os substances with defined stoiciometric numbers"
+       "Temperature from substance molar enthalpies with given stoichimetry"
+         extends Modelica.Icons.Function;
+       input SubstanceData substanceData[:] "Data record of substances";
+       input Modelica.Units.SI.MolarEnthalpy Hf[size(substanceData,1)] "Molar enthalpies of substances";
+       input Modelica.Units.SI.StoichiometricNumber s[size(substanceData,1)]=ones(size(substanceData,1)) "Stoichiometry of substances";
+
+       input Modelica.Units.SI.Pressure p=100000 "Pressure";
+       input Modelica.Units.SI.ElectricPotential v=0
+         "Electric potential of the substance";
+       input Modelica.Units.SI.MoleFraction I=0
+         "Ionic strengh (mole fraction based)";
+
+       output Modelica.Units.SI.Temperature T "Temperature";
     protected
-         Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
-         Modelica.Media.IdealGases.Common.DataRecord solutionData = Modelica.Media.IdealGases.Common.DataRecord(
+         Modelica.Units.SI.MassFraction X[size(substanceData,1)];
+         Modelica.Media.IdealGases.Common.DataRecord solutionData;
+         Modelica.Units.SI.SpecificEnthalpy h;
+      algorithm
+          X := (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
+          solutionData := Modelica.Media.IdealGases.Common.DataRecord(
                  name="solution_temperature",
                  MM= 1/sum(X./substanceData.data.MM),
                  Hf= X*substanceData.data.Hf,
                  H0= X*substanceData.data.H0,
-                 Tlimit = substanceData.data.Tlimit,
+                 Tlimit = X*substanceData.data.Tlimit,
                  alow = X*substanceData.data.alow,
                  blow = X*substanceData.data.blow,
                  ahigh = X*substanceData.data.ahigh,
                  bhigh = X*substanceData.data.bhigh,
                  R_s = X*substanceData.data.R_s);
-         Modelica.Units.SI.SpecificEnthalpy h;
-      algorithm
           h := (Hf*s)/(s*molarMassOfBaseMolecule(substanceData)) "the same as X*(Hf./MMb)";
           T := temperature(SubstanceData(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
       end molarTemperature;
@@ -4589,7 +4664,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
                  MM= 1/sum(X./substanceData.data.MM),
                  Hf= X*substanceData.data.Hf,
                  H0= X*substanceData.data.H0,
-                 Tlimit = substanceData.data.Tlimit,
+                 Tlimit = X*substanceData.data.Tlimit,
                  alow = X*substanceData.data.alow,
                  blow = X*substanceData.data.blow,
                  ahigh = X*substanceData.data.ahigh,
@@ -4633,7 +4708,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
                  MM= 1/sum(X./substanceData.data.MM),
                  Hf= X*substanceData.data.Hf,
                  H0= X*substanceData.data.H0,
-                 Tlimit = substanceData.data.Tlimit,
+                 Tlimit = X*substanceData.data.Tlimit,
                  alow = X*substanceData.data.alow,
                  blow = X*substanceData.data.blow,
                  ahigh = X*substanceData.data.ahigh,
@@ -4658,6 +4733,52 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
     package IdealGasShomate "Ideal gas based on Shomate equations"
        extends StateOfMatter;
 
+     redeclare record extends SubstanceDefinition
+       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
+
+      Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+      Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+        "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+      Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+        "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+      Modelica.Units.SI.ActivityCoefficient gamma
+        "Activity coefficient of the substance";
+
+      Modelica.Units.SI.MolarHeatCapacity Cp
+        "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+      //   parameter String References[1]={""}
+      //     "References of these thermodynamical values";
+
+
+      Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dH
+        "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+      Modelica.Units.SI.MolarEntropy SelfClustering_dS
+        "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+          Real B(unit="J.mol-1") "Shomate parameter B";
+          Real C(unit="J.mol-1") "Shomate parameter C";
+          Real D(unit="J.K.mol-1") "Shomate parameter D";
+          Real E(unit="J.K2.mol-1") "Shomate parameter E";
+          Real X "Shomate parameter X";
+          Real A_(unit="J.K-1.mol-1") "Shomate parameter A'";
+          Real E_(unit="K") "Shomate parameter E'";
+
+
+
+        annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2016-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+     end SubstanceDefinition;
+
      redeclare record extends SubstanceData
       "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
@@ -4667,29 +4788,21 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-           DfG_25degC_1bar
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=0
         "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-           DfH_25degC
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=0
         "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
 
-      parameter Modelica.Units.SI.MolarHeatCapacity Cp=cp_25degC
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp= 33.6
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
       //   parameter String References[1]={""}
       //     "References of these thermodynamical values";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
-           "kJ/mol") = 0 "Obsolete parameter use DfH instead"
-        annotation (Dialog(tab="Obsolete"));
 
-      parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
-            "kJ/mol") = 0 "Obsolete parameter use DfG instead"
-        annotation (Dialog(tab="Obsolete"));
 
        parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
@@ -4706,9 +4819,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
           parameter Real A_(unit="J.K-1.mol-1")=0 "Shomate parameter A'";
           parameter Real E_(unit="K")=1e-8 "Shomate parameter E'";
 
-          parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
-           "Obsolete parameter use Cp instead"
-           annotation (Dialog(tab="Obsolete"));
+
 
         annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2016-2018</i></p>
@@ -4843,7 +4954,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
                DfG = x*substanceData.DfG,
                DfH = x*substanceData.DfH,
                gamma =  x*substanceData.gamma,
-               Cp =  x*substanceData.cp_25degC,
+               Cp =  x*substanceData.Cp,
                B =  x*substanceData.B,
                C =  x*substanceData.C,
                D =  x*substanceData.D,
@@ -4866,7 +4977,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
                DfG = x*substanceData.DfG,
                DfH = x*substanceData.DfH + addH0,
                gamma =  x*substanceData.gamma,
-               Cp =  x*substanceData.cp_25degC,
+               Cp =  x*substanceData.Cp,
                B =  x*substanceData.B,
                C =  x*substanceData.C,
                D =  x*substanceData.D,
@@ -4910,7 +5021,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
                DfG = x*substanceData.DfG,
                DfH = x*substanceData.DfH,
                gamma =  x*substanceData.gamma,
-               Cp =  x*substanceData.cp_25degC,
+               Cp =  x*substanceData.Cp,
                B =  x*substanceData.B,
                C =  x*substanceData.C,
                D =  x*substanceData.D,

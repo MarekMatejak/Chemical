@@ -7663,19 +7663,31 @@ package Substances "Definitions of substances"
   end IdealGasesMSL;
     extends Modelica.Icons.Package;
 
-  record Water_liquid "H2O(l)"
+  record Water_liquid "H2O(l) with self-clustering"
    extends Chemical.Interfaces.Incompressible.SubstanceData(
-    MolarWeight(start=0.018015)=0.018015,
-    DfH(start=-285830)=-285830,
-    DfG(start=-227230)=-227230,
-    Cp(start=75.3)=75.3,
-    z(start=0)=0,
-    SelfClustering(start=true) = true,
-    SelfClustering_dH(start=-81.6348) = -81.6348,
-    SelfClustering_dS(start=32.845554) = 32.845554,
-    gamma(start=1)=1,
-    density(start=1000)=1000);
-         annotation (preferredView = "info");
+      MolarWeight=0.018015,
+      DfH=-285830,
+      DfG=-227230,
+      Cp=75.3,
+      SelfClustering = true,
+      SelfClustering_dH = -81.6348,
+      SelfClustering_dS = 32.845554);
+     /*   References={
+   "http://www.vias.org/genchem/standard_enthalpies_table.html"}
+   */
+                                    //-77.95928,
+
+  /*  SelfClustering_dH = -81.6348,
+    SelfClustering_dS = 32.8344,
+*/
+
+    // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
+    // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25),
+    annotation (preferredView = "info", Documentation(info="<html>
+<p><span style=\"font-family: Courier New;\">Even the tabulated formation Gibbs energy is DfG=-237190 there is another values because of water self-clustering. </span></p>
+<p><br><span style=\"font-family: Courier New;\">New reported values for free water molecule in solution is calculated from water dissociation reaction.</span></p>
+<p><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+</html>"));
   end Water_liquid;
 
   record Silver_solid "Ag(s)"
