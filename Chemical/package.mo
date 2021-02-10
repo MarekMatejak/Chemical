@@ -574,12 +574,12 @@ package Chemical "Chemical library"
       Modelica.Units.SI.Temperature Tp "Temperature of products";
       Modelica.Units.SI.Temperature Ts "Temperature of substrates";
 
-      stateOfMatter.SubstanceData transitionStateData = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s),Ea);
+      stateOfMatter.SubstanceDefinition transitionStateData = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s),Ea);
 
       Modelica.Units.SI.ChemicalPotential uM "Electro-chemical potential of transition state";
 
       //debug:
-      stateOfMatter.SubstanceData transitionStateData0 = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s));
+      stateOfMatter.SubstanceDefinition transitionStateData0 = stateOfMatter.mixedSubstanceData(substrates.substanceData,s/sum(s));
       Modelica.Units.SI.ChemicalPotential uS0 "Electro-chemical potential of mixed substrates";
       Modelica.Units.SI.ChemicalPotential uM0 "Electro-chemical potential of transition state without activation energy";
       Modelica.Units.SI.ChemicalPotential Ea_1, Ea_2;
