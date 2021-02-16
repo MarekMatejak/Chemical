@@ -5820,7 +5820,6 @@ extends Modelica.Icons.ExamplesPackage;
         mass_start=1)
         annotation (Placement(transformation(extent={{36,36},{56,56}})));
       Components.Reaction reaction(
-        KC=1e-7,
         s={4,1},
         p={1,2},
         nS=2,
@@ -6240,8 +6239,8 @@ extends Modelica.Icons.ExamplesPackage;
               {-80,-34},{-80,-88.96},{55.6,-88.96}},color={127,127,0}));
       connect(AcAc.solution, solution1.solution) annotation (Line(points={{56,
               -60},{58,-60},{58,-88.96},{55.6,-88.96}}, color={127,127,0}));
-      connect(CO2.port_a, reaction.substrates[1]) annotation (Line(points={{10,-24},
-              {20,-24},{20,52},{52.6667,52},{52.6667,40}},      color={158,66,
+      connect(CO2.port_a, reaction.substrates[1]) annotation (Line(points={{10,-24},{
+              20,-24},{20,52},{52.6667,52},{52.6667,40}},       color={158,66,
               200}));
       connect(H.port_a, reaction.substrates[2]) annotation (Line(points={{-64,
               -4},{14,-4},{14,56},{50,56},{50,40}}, color={158,66,200}));

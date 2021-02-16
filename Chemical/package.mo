@@ -4595,24 +4595,75 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
       extends StateOfMatter;
 
       redeclare record SubstanceDefinition
-
-        Modelica.Media.IdealGases.Common.DataRecord data "NASA definition of the substance";
+        extends  Modelica.Media.IdealGases.Common.DataRecord;
 
         Modelica.Units.SI.ChargeNumberOfIon z
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
+      annotation (Documentation(info="<html>
+<p><br>a .. array of parameters to fit specific heat capacity cp on temperature T: </p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-uGwPiS2g.png\" alt=\"cp(T)/R = a_1/T^2 + a_2/T + a_3 + a_4*T+a_5*T^2+a_6*T^3+a_7*T^4\"/></p>
+<p><br>Using this definition of cp and following relations:</p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-pCOu8iud.png\" alt=\"der(h,T) = cp\"/></p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-xirdzUAH.png\" alt=\"der((h-T*s_0),T) = s_0\"/></p>
+<p><br>it is possible to determine enthalpy and entropy relations on temperature T.</p>
+<p><br>Shift to some absolute value can be done by fiting some standard condition point such as enthalpy of formation or standard entropy.</p>
+</html>"));
       end SubstanceDefinition;
 
       redeclare record SubstanceData
 
-        parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
+        extends Modelica.Icons.Record;
+        parameter String name = "N2(g)" "Name of ideal gas";
+        parameter Modelica.Units.SI.MolarMass MM = 0.0280134 "Molar mass";
+        parameter Modelica.Units.SI.SpecificEnthalpy Hf = 0 "Enthalpy of formation at 298.15K";
+        parameter Modelica.Units.SI.SpecificEnthalpy H0 = 309498.4543111511 "H0(298.15K) - H0(0K)";
+        parameter Modelica.Units.SI.Temperature Tlimit = 1000 "Temperature limit between low and high data sets";
+        parameter Real alow[7] = {22103.71497,-381.846182,6.08273836,-0.00853091441,1.384646189e-005,-9.62579362e-009,
+            2.519705809e-012} "Low temperature coefficients a";
+        parameter Real blow[2] = {710.846086,-10.76003744} "Low temperature constants b";
+        parameter Real ahigh[7] = {587712.406,-2239.249073,6.06694922,-0.00061396855,1.491806679e-007,-1.923105485e-011,
+            1.061954386e-015} "High temperature coefficients a";
+        parameter Real bhigh[2] = {12832.10415,-15.86640027} "High temperature constants b";
+        parameter Modelica.Units.SI.SpecificHeatCapacity R_s=296.8033869505308 "Gas constant";
 
-      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
+      annotation (Documentation(info="<html>
+<p>
+This data record contains the coefficients for the
+ideal gas equations according to:
+</p>
+<blockquote>
+  <p>McBride B.J., Zehe M.J., and Gordon S. (2002): <strong>NASA Glenn Coefficients
+  for Calculating Thermodynamic Properties of Individual Species</strong>. NASA
+  report TP-2002-211556</p>
+</blockquote>
+<p>
+The equations have the following structure:
+</p>
+<div><img src=\"modelica://Modelica/Resources/Images/Media/IdealGases/Common/singleEquations.png\"></div>
+<p>
+The polynomials for h(T) and s0(T) are derived via integration from the one for cp(T)  and contain the integration constants b1, b2 that define the reference specific enthalpy and entropy. For entropy differences the reference pressure p0 is arbitrary, but not for absolute entropies. It is chosen as 1 standard atmosphere (101325 Pa).
+</p>
+<p>
+For most gases, the region of validity is from 200 K to 6000 K.
+The equations are split into two regions that are separated
+by Tlimit (usually 1000 K). In both regions the gas is described
+by the data above. The two branches are continuous and in most
+gases also differentiable at Tlimit.
+</p>
+</html>"));
       end SubstanceData;
 
-
+      function createSubstanceData
+        input Modelica.Media.IdealGases.Common.DataRecord d;
+        input Real z;
+        output SubstanceData r;
+      algorithm
+        r:=SubstanceData(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z);
+      end createSubstanceData;
 
 
       redeclare function extends activityCoefficient
@@ -4636,9 +4687,9 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         // - temperature shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - R*dT)
         //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
         //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
-        molarEnthalpyElectroneutral := substanceData.data.MM*
+        molarEnthalpyElectroneutral := substanceData.MM*
           Modelica.Media.IdealGases.Common.Functions.h_T(
-            substanceData.data,
+            substanceData,
             T,
             false,
             Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
@@ -4655,9 +4706,9 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
         // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
         // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
 
-        molarEntropyPure := substanceData.data.MM*(
-          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData.data, T) -
-          substanceData.data.R_s*log(p/100000));
+        molarEntropyPure := substanceData.MM*(
+          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T) -
+          substanceData.R_s*log(p/100000));
 
         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
@@ -4667,7 +4718,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
       redeclare function extends molarVolumePure
         "Molar volume of the pure substance"
       algorithm
-        molarVolumePure := substanceData.data.MM*substanceData.data.R_s*T/p;
+        molarVolumePure := substanceData.MM*substanceData.R_s*T/p;
         //ideal gas
         annotation (Inline=true, smoothOrder=2);
       end molarVolumePure;
@@ -4675,14 +4726,14 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
       redeclare function extends molarHeatCapacityCp
         "Molar heat capacity of the substance at constant pressure"
       algorithm
-        molarHeatCapacityCp := substanceData.data.MM*
-          Modelica.Media.IdealGases.Common.Functions.cp_T(substanceData.data, T);
+        molarHeatCapacityCp := substanceData.MM*
+          Modelica.Media.IdealGases.Common.Functions.cp_T(substanceData, T);
         annotation (Inline=true, smoothOrder=2);
       end molarHeatCapacityCp;
 
       redeclare function extends molarMassOfBaseMolecule "Molar mass of the substance"
       algorithm
-        molarMass := substanceData.data.MM;
+        molarMass := substanceData.MM;
         annotation (Inline=true, smoothOrder=2);
       end molarMassOfBaseMolecule;
 
@@ -4700,46 +4751,54 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
          "Ionic strengh (mole fraction based)";
 
        output Modelica.Units.SI.Temperature T "Temperature";
+      //   Modelica.Units.SI.MassFraction X[size(substanceData,1)];
     protected
-         Modelica.Units.SI.MassFraction X[size(substanceData,1)];
-         Modelica.Media.IdealGases.Common.DataRecord solutionData;
+         SubstanceDefinition solution;
          Modelica.Units.SI.SpecificEnthalpy h;
       algorithm
-          X := (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
-          solutionData := Modelica.Media.IdealGases.Common.DataRecord(
-                 name="solution_temperature",
-                 MM= 1/sum(X./substanceData.data.MM),
-                 Hf= X*substanceData.data.Hf,
-                 H0= X*substanceData.data.H0,
-                 Tlimit = X*substanceData.data.Tlimit,
-                 alow = X*substanceData.data.alow,
-                 blow = X*substanceData.data.blow,
-                 ahigh = X*substanceData.data.ahigh,
-                 bhigh = X*substanceData.data.bhigh,
-                 R_s = X*substanceData.data.R_s);
+       /*   X := (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
+    solutionData := Modelica.Media.IdealGases.Common.DataRecord(
+           name="solution_temperature",
+           MM= 1/sum(X./substanceData.data.MM),
+           Hf= X*substanceData.data.Hf,
+           H0= X*substanceData.data.H0,
+           Tlimit = X*substanceData.data.Tlimit,
+           alow = X*substanceData.data.alow,
+           blow = X*substanceData.data.blow,
+           ahigh = X*substanceData.data.ahigh,
+           bhigh = X*substanceData.data.bhigh,
+           R_s = X*substanceData.data.R_s);
+       T := temperature(SubstanceDefinition(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+        
+           */
+          solution := mixedSubstance(substanceData,s/sum(s));
+
           h := (Hf*s)/(s*molarMassOfBaseMolecule(substanceData)) "the same as X*(Hf./MMb)";
-          T := temperature(SubstanceDefinition(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+
+          T := temperature(solution,h,p,v,I);
       end molarTemperature;
 
        redeclare function extends mixedSubstance
-      "Definition of transition substance as molar mix of substances"
+        "Definition of transition substance as molar mix of substances"
     protected
          Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (x.*molarMassOfBaseMolecule(substanceData))/(x*molarMassOfBaseMolecule(substanceData));
-         Modelica.Media.IdealGases.Common.DataRecord dataRecord = Modelica.Media.IdealGases.Common.DataRecord(
-                 name="solution_temperature",
-                 MM= 1/sum(X./substanceData.data.MM),
-                 Hf= X*substanceData.data.Hf,
-                 H0= X*substanceData.data.H0,
-                 Tlimit = X*substanceData.data.Tlimit,
-                 alow = X*substanceData.data.alow,
-                 blow = X*substanceData.data.blow,
-                 ahigh = X*substanceData.data.ahigh,
-                 bhigh = X*substanceData.data.bhigh,
-                 R_s = X*substanceData.data.R_s);
+         SubstanceDefinition substanceDefinition;
        algorithm
-        dataRecord.blow[1] := dataRecord.blow[1] + addH0/Modelica.Constants.R;
-        dataRecord.bhigh[1] := dataRecord.bhigh[1] + addH0/Modelica.Constants.R;
-        mixedSubstanceData := SubstanceDefinition(data=dataRecord,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData)));
+         substanceDefinition := SubstanceDefinition(
+                 name="mixed substance",
+                 MM= 1/sum(X./substanceData.MM),
+                 Hf= X*substanceData.Hf,
+                 H0= X*substanceData.H0,
+                 Tlimit = X*substanceData.Tlimit,
+                 alow = X*substanceData.alow,
+                 blow = X*substanceData.blow,
+                 ahigh = X*substanceData.ahigh,
+                 bhigh = X*substanceData.bhigh,
+                 R_s = X*substanceData.R_s,
+                 z = x*substanceData.z);
+        substanceDefinition.blow[1]  := substanceDefinition.blow[1] + addH0/Modelica.Constants.R;
+        substanceDefinition.bhigh[1] := substanceDefinition.bhigh[1] + addH0/Modelica.Constants.R;
+        mixedSubstanceData := substanceDefinition;
 
         annotation (preferredView="info", Documentation(revisions="<html>
 <p><i>2021</i></p>
@@ -4762,37 +4821,91 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
 
       algorithm
          T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
-           function f_nonlinear(data=substanceData.data, h=h), 200, 6000);
+           function f_nonlinear(data=substanceData, h=h), 200, 6000);
       end temperature;
 
       redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
+        /*  Modelica.Media.IdealGases.Common.DataRecord solutionData=
+       Modelica.Media.IdealGases.Common.DataRecord(
+           name="solution_temperature",
+           MM= 1/sum(X./substanceData.data.MM),
+           Hf= X*substanceData.data.Hf,
+           H0= X*substanceData.data.H0,
+           Tlimit = X*substanceData.data.Tlimit,
+           alow = X*substanceData.data.alow,
+           blow = X*substanceData.data.blow,
+           ahigh = X*substanceData.data.ahigh,
+           bhigh = X*substanceData.data.bhigh,
+           R_s = X*substanceData.data.R_s);
+           
+           
+    Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (x.*molarMassOfBaseMolecule(substanceData))/(x*molarMassOfBaseMolecule(substanceData));
+  
+           
+           */
     protected
-          Modelica.Media.IdealGases.Common.DataRecord solutionData=
-             Modelica.Media.IdealGases.Common.DataRecord(
-                 name="solution_temperature",
-                 MM= 1/sum(X./substanceData.data.MM),
-                 Hf= X*substanceData.data.Hf,
-                 H0= X*substanceData.data.H0,
-                 Tlimit = X*substanceData.data.Tlimit,
-                 alow = X*substanceData.data.alow,
-                 blow = X*substanceData.data.blow,
-                 ahigh = X*substanceData.data.ahigh,
-                 bhigh = X*substanceData.data.bhigh,
-                 R_s = X*substanceData.data.R_s);
+          Modelica.Units.SI.MoleFraction x[size(substanceData,1)] = (X./molarMassOfBaseMolecule(substanceData))/sum(X./molarMassOfBaseMolecule(substanceData));
+
       algorithm
-          T := temperature(SubstanceDefinition(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+          T := temperature(mixedSubstance(substanceData,x),h,p,v,I);
       end solution_temperature;
 
       redeclare function extends density
         "Return density of the substance in the solution"
       algorithm
-        density := p/(substanceData.data.R_s*T);
+        density := p/(substanceData.R_s*T);
         annotation (Inline=true, smoothOrder=2);
       end density;
       annotation (Documentation(revisions="<html>
-<p><i>2015</i></p>
+<p><i>2015-2021</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p><b>Substance definitions</b></p>
+<p><br>Parameters and functions to define substance properties such as: molar mass MM, heat capacity cp, enthalpy of formation Hf, entropy S0 of the substance, ... at temperature T, pressure p and electric potential v. </p>
+<p><br><b><span style=\"font-size: 8pt;\">Usage of substance definitions</span></b></p>
+<p><br>Process Gibbs energy is difference between sum of products Gibbs energies and sum of substrates Gibbs energies.</p>
+<p>Process enthalpy is difference between sum of products enthalpies and sum of substrates enthalpies.</p>
+<p><br>=&gt;</p>
+<p>Process entropy is difference between sum of products entropies and sum of substrates entropies.</p>
+<p>This process entropy Sr can be calculated from entropies of formation Sf := (Gf-Hf)/T, where Gf is gibbs energy of formation and Hf is enthalpy formation Hf at temperature T.</p>
+<p>Or it can be calculated from absolute entropies S0 (has different value from Sf). However, the value of process entropy must be the same.</p>
+<p><br>So the formation entropy Sf has relative definition and his value can be shifted by addition of the same value on both side of this equation such as enthalpy of formation.</p>
+<p>This allows us to join absolute entropy S0 with enthalpy of formation Hf at temperature T. And we define the Gibbs energy of the pure electroneutral substance as</p>
+<p><br>Gf0 = Hf - T*S0</p>
+<p><br>where Gf0 (has different value from Gf), Hf and S0 are substance definition functions at temperature T and pressure p. </p>
+<p>Then each process Gibbs energy calculated fom Gf0 must be the same such as calculated from Gibbs energies of formation Gf.</p>
+<p><br>Then we define gibbs function gf0 of pure substance and gibbs function g of substance in solution from Gf0 such as:</p>
+<p><br>gf0 = (Gf0 + z*F*v)/(R*T)</p>
+<p>g = gf0 + ln(a) </p>
+<p><br>where R is gas constant, T is temperature, a is activity of the substance, z is charge number of the substance, F is Farraday constant, v is electric potential.</p>
+<p><br><b><span style=\"font-size: 6pt;\">Chemical reaction kinetics</span></b> can be defined as</p>
+<p><br>r = exp( s*g_s - g_t) - exp( p*g_p - g_t) </p>
+<p><br>where </p>
+<p>s is array of stoichiometric coefficient of substrates [1]</p>
+<p>p is array of stoichiometric coefficient of products [1]</p>
+<p>r is the rate of reaction, where r*s are rates of substrates and -r*p are rates of products [mol/s]</p>
+<p>g_s is array of gibbs functions of substrates [1]</p>
+<p>g_p is array of gibbs functions of products [1]</p>
+<p>g_t is defined from: s*g_s - g_t is gibbs function of binding place on substrates or p*g_p - g_t is gibbs function of binding place on products</p>
+<p><br>in details:</p>
+<p>g_s=gf0_s + ln(a_s)</p>
+<p>g_p=gf0_p + ln(a_p)</p>
+<p>g_t = H_t - T*S0_t</p>
+<p><br>gf0_s is array of gibbs functions of pure substrates [1]</p>
+<p>gf0_p is array of gibbs functions of pure products [1]</p>
+<p>a_s is array of activities of substances in solution [mol/mol]</p>
+<p>a_p is array of activities of products in solution [mol/mol]</p>
+<p>H_t is defined from the binding place enthalpy on substrates (or negatice forward activation energy) = s*Hf_s - H_t </p>
+<p>S0_t can be defined from the binding place entropy on substrates = s*S0_s - S0_t </p>
+<p><br>Then other properties of chemical reaction can be expressed as:</p>
+<p>K = exp (s*g_s - p*g_p) .. dissociation coefficient of the reaction = kf/kb = product(a_p) / product(a_s)</p>
+<p>kf = exp( s*gf0_s - g_t) .. forward rate coefficient of the reaction</p>
+<p>kb = exp( p*gf0_p - g_t) .. backward rate coefficient of the reaction</p>
+<p>Arrhenius equation for forward reaction: kf = Af*exp(-Eaf/(RT)), where</p>
+<p>Af = exp( - s*S0_s/R + S0_t/R), Eaf = H_t - s*Hf_s. </p>
+<p>And Arrhenius equation for backward reaction: kb = Ab*exp(-Eab/(RT)), where </p>
+<p>Ab = exp( - p*S0_p/R + S0_t/R), Eab = H_t - p*Hf_p.</p>
 </html>"));
     end IdealGasMSL;
 
@@ -5727,6 +5840,715 @@ flow Modelica.Units.SI.Energy Gj
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end SubstanceMolarityPort_b;
+
+    package Substance "Definition os substance"
+
+      record SubstanceDefinition "Definition of substance in selected state of matter"
+         extends Modelica.Icons.Record;
+
+        String name  "Name of ideal gas";
+        Modelica.Units.SI.MolarMass MM  "Molar mass";
+        Modelica.Units.SI.SpecificEnthalpy Hf  "Enthalpy of formation at 298.15K";
+        Modelica.Units.SI.SpecificEnthalpy H0  "H0(298.15K) - H0(0K)";
+        Modelica.Units.SI.Temperature Tlimit  "Temperature limit between low and high data sets";
+        Real alow[7]  "Low temperature coefficients a";
+        Real blow[2]  "Low temperature constants b";
+        Real ahigh[7]  "High temperature coefficients a";
+        Real bhigh[2] "High temperature constants b";
+        Modelica.Units.SI.SpecificHeatCapacity R_s "Gas constant";
+
+        Modelica.Units.SI.ChargeNumberOfIon z
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+      annotation (Documentation(info="<html>
+<p><br>a .. array of parameters to fit specific heat capacity cp on temperature T: </p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-uGwPiS2g.png\" alt=\"cp(T)/R = a_1/T^2 + a_2/T + a_3 + a_4*T+a_5*T^2+a_6*T^3+a_7*T^4\"/></p>
+<p><br>Using this definition of cp and following relations:</p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-pCOu8iud.png\" alt=\"der(h,T) = cp\"/></p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-xirdzUAH.png\" alt=\"der((h-T*s_0),T) = s_0\"/></p>
+<p><br>it is possible to determine enthalpy and entropy relations on temperature T.</p>
+<p><br>Shift to some absolute value can be done by fiting some standard condition point such as enthalpy of formation or standard entropy.</p>
+</html>"));
+      end SubstanceDefinition;
+
+      record SubstanceData "Definition of substance"
+        extends Modelica.Icons.Record;
+
+        replaceable type SM = enumeration(
+          gas                                 "Ideal gas") "Defined states of matter";
+
+        parameter String name = "N2(g)" "Name of ideal gas";
+        parameter Modelica.Units.SI.MolarMass MM = 0.0280134 "Molar mass";
+        parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+        "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+        parameter Modelica.Units.SI.SpecificEnthalpy Hf[SM] = {0} "Enthalpy of formation at 298.15K";
+        parameter Modelica.Units.SI.SpecificEnthalpy H0[SM] = {309498.4543111511} "H0(298.15K) - H0(0K)";
+        parameter Modelica.Units.SI.Temperature Tlimit[SM] = {1000} "Temperature limit between low and high data sets";
+        parameter Real alow[SM,7] = {{22103.71497,-381.846182,6.08273836,-0.00853091441,1.384646189e-005,-9.62579362e-009,
+            2.519705809e-012}} "Low temperature coefficients a";
+        parameter Real blow[SM,2] = {{710.846086,-10.76003744}} "Low temperature constants b";
+        parameter Real ahigh[SM,7] = {{587712.406,-2239.249073,6.06694922,-0.00061396855,1.491806679e-007,-1.923105485e-011,
+            1.061954386e-015}} "High temperature coefficients a";
+        parameter Real bhigh[SM,2] = {{12832.10415,-15.86640027}} "High temperature constants b";
+        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM]={296.8033869505308} "Gas constant";
+
+
+      annotation (Documentation(info="<html>
+<p>
+This data record contains the coefficients for the
+ideal gas equations according to:
+</p>
+<blockquote>
+  <p>McBride B.J., Zehe M.J., and Gordon S. (2002): <strong>NASA Glenn Coefficients
+  for Calculating Thermodynamic Properties of Individual Species</strong>. NASA
+  report TP-2002-211556</p>
+</blockquote>
+<p>
+The equations have the following structure:
+</p>
+<div><img src=\"modelica://Modelica/Resources/Images/Media/IdealGases/Common/singleEquations.png\"></div>
+<p>
+The polynomials for h(T) and s0(T) are derived via integration from the one for cp(T)  and contain the integration constants b1, b2 that define the reference specific enthalpy and entropy. For entropy differences the reference pressure p0 is arbitrary, but not for absolute entropies. It is chosen as 1 standard atmosphere (101325 Pa).
+</p>
+<p>
+For most gases, the region of validity is from 200 K to 6000 K.
+The equations are split into two regions that are separated
+by Tlimit (usually 1000 K). In both regions the gas is described
+by the data above. The two branches are continuous and in most
+gases also differentiable at Tlimit.
+</p>
+</html>"));
+      end SubstanceData;
+
+      function createSubstanceDefinitionFromMSL
+        input Modelica.Media.IdealGases.Common.DataRecord d;
+        input Real z;
+        output SubstanceDefinition r;
+      algorithm
+        r:=SubstanceDefinition(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z);
+      end createSubstanceDefinitionFromMSL;
+
+
+
+
+
+
+     function molarEnthalpy
+      "Molar enthalpy of the substance with electric potential dependence"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpy
+        "Molar enthalpy";
+     algorithm
+        molarEnthalpy := molarEnthalpyElectroneutral(substanceData,T,p,v,I) +
+             Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
+        annotation (Inline=true, smoothOrder=2);
+     end molarEnthalpy;
+
+
+      function molarEntropy "Molar entropy of the substance in the solution"
+            extends Modelica.Icons.Function;
+      input Modelica.Units.SI.ChemicalPotential u
+        "Electro-chemical potential of the substance";
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.MolarEntropy molarEntropy "Molar entropy";
+      algorithm
+          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
+      end molarEntropy;
+
+     function chemicalPotentialPure "Chemical potential of the pure substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.ChemicalPotential chemicalPotentialPure
+        "Base chemical potential";
+     algorithm
+         chemicalPotentialPure :=  molarEnthalpyElectroneutral(substanceData,T,p,v,I) - T*molarEntropyPure(substanceData,T,p,v,I);
+     end chemicalPotentialPure;
+
+     function electroChemicalPotentialPure
+      "Electro-chemical potential of the pure substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.ChemicalPotential
+        electroChemicalPotentialPure "Base electro-chemical potential";
+     algorithm
+      electroChemicalPotentialPure := chemicalPotentialPure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + Modelica.Constants.F*chargeNumberOfIon(substanceData,T,p,v,I)*v;
+     end electroChemicalPotentialPure;
+
+
+     function molarVolumeExcess
+      "Excess molar volume of the substance in the solution"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.MolarVolume molarVolumeExcess
+        "Excess molar volume of the substance in the solution";
+     algorithm
+        molarVolumeExcess := molarVolumePure(substanceData,T,p,v,I)*
+           log(activityCoefficient(substanceData,T,p,v,I)); //zero if activityCoefficient==1
+        annotation (Inline=true, smoothOrder=2);
+     end molarVolumeExcess;
+
+     function molarVolume "Molar volume of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.MolarVolume molarVolume "Molar volume";
+     algorithm
+      molarVolume :=molarVolumePure(
+           substanceData,
+           T,
+           p,
+           v,
+           I) + molarVolumeExcess(
+           substanceData,
+           T,
+           p,
+           v,
+           I);
+        annotation (Inline=true, smoothOrder=2);
+     end molarVolume;
+
+
+
+     function selfClustering "returns true if substance molecules are joining together to clusters"
+         extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+            output Boolean selfClustering;
+     algorithm
+       selfClustering:=false;
+     end selfClustering;
+
+     function selfClusteringBondEnthalpy
+      "Enthalpy of joining two base molecules of the substance together to cluster"
+         extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+      output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
+     algorithm
+       selfClusteringEnthalpy:=0;
+     end selfClusteringBondEnthalpy;
+
+     function selfClusteringBondEntropy
+      "Entropy of joining two base molecules of the substance together to cluster"
+         extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+      output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
+     algorithm
+       selfClusteringEntropy:=0;
+     end selfClusteringBondEntropy;
+
+    function selfClusteringBondVolume
+         extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+      output Modelica.Units.SI.MolarVolume selfClusteringBondVolume;
+    algorithm
+       selfClusteringBondVolume:=0;
+    end selfClusteringBondVolume;
+
+     function selfClusteringBondHeatCapacityCp
+        extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+      output Modelica.Units.SI.MolarHeatCapacity selfClusteringBondHeatCapacityCp;
+     algorithm
+       selfClusteringBondHeatCapacityCp:=0;
+     end selfClusteringBondHeatCapacityCp;
+
+      function specificAmountOfParticles
+        "Amount of particles per mass of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+        input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+        input Modelica.Units.SI.Pressure p=100000 "Pressure";
+        input Modelica.Units.SI.ElectricPotential v=0
+          "Electric potential of the substance";
+        input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+        output Real specificAmountOfSubstance(unit="mol/kg")
+          "Amount of substance particles per its mass";
+      algorithm
+        specificAmountOfSubstance := 1/molarMassOfBaseMolecule(substanceData);
+        annotation (Inline=true, smoothOrder=2);
+      end specificAmountOfParticles;
+
+      function specificAmountOfFreeBaseMolecule
+        "Amount of substance free base molecule per mass of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+        input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+        input Modelica.Units.SI.Pressure p=100000 "Pressure";
+        input Modelica.Units.SI.ElectricPotential v=0
+          "Electric potential of the substance";
+        input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+        output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
+          "Amount of substance free base molecule per substance mass";
+      algorithm
+        specificAmountOfFreeBaseMolecule := 1/molarMassOfBaseMolecule(substanceData);
+        annotation (Inline=true, smoothOrder=2);
+      end specificAmountOfFreeBaseMolecule;
+
+
+
+     replaceable function specificEnthalpy
+       "Specific molar enthalpy of the substance with electric potential dependence"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
+        "Specific enthalpy";
+
+     algorithm
+
+       specificEnthalpy := molarEnthalpy(
+         substanceData,
+         T,
+         p,
+         v,
+         I)/
+         molarMassOfBaseMolecule(substanceData);
+     end specificEnthalpy;
+
+     replaceable function specificVolume "Specific volume of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.SpecificVolume specificVolume "Specific volume";
+
+     algorithm
+
+      specificVolume := molarVolume(
+           substanceData,
+           T,
+           p,
+           v,
+           I) /
+         molarMassOfBaseMolecule(substanceData);
+     end specificVolume;
+
+      replaceable function specificHeatCapacityCp
+      "Specific heat capacity at constant pressure"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
+        "Specific heat capacity at constant pressure";
+
+      algorithm
+
+      specificHeatCapacityCp := molarHeatCapacityCp(
+           substanceData,
+           T,
+           p,
+           v,
+           I) /
+         molarMassOfBaseMolecule(substanceData);
+      end specificHeatCapacityCp;
+
+
+
+
+
+
+
+
+
+
+
+
+      function activityCoefficient
+        "Return activity coefficient of the substance in the solution"
+        extends Modelica.Icons.Function;
+      input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+        output Real activityCoefficient "Activity Coefficient";
+      algorithm
+        activityCoefficient := 1;
+        annotation (Inline=true, smoothOrder=2);
+      end activityCoefficient;
+
+      function chargeNumberOfIon
+       "Return charge number of the substance in the solution"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.ChargeNumberOfIon chargeNumberOfIon
+        "Charge number of ion";
+      algorithm
+        chargeNumberOfIon := substanceData.z;
+        annotation (Inline=true, smoothOrder=2);
+      end chargeNumberOfIon;
+
+      function molarEnthalpyElectroneutral
+        "Molar enthalpy of the substance in electroneutral solution"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpyElectroneutral
+        "Molar enthalpy";
+      algorithm
+        //Molar enthalpy:
+        // - temperature shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - R*dT)
+        //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - R. As a result dH = dT*(Cv+R) for ideal gas.
+        //   And the relation with molar heat capacity at constant pressure as Cp=Cv+R makes dH = dT*Cp.
+        molarEnthalpyElectroneutral := substanceData.MM*
+          Modelica.Media.IdealGases.Common.Functions.h_T(
+            substanceData,
+            T,
+            false,
+            Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
+        annotation (Inline=true, smoothOrder=2);
+      end molarEnthalpyElectroneutral;
+
+      function molarEntropyPure
+       "Molar entropy of the pure substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.MolarEntropy molarEntropyPure
+        "Molar entropy of the pure substance";
+      algorithm
+        //molarEntropyPure := ((substanceData.data.DfH - substanceData.data.DfG)/298.15)
+        //+ (substanceData.data.Cp+Modelica.Constants.R)*log(T/298.15);
+
+        //Molar entropy:
+        // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
+        // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
+
+        molarEntropyPure := substanceData.MM*(
+          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T) -
+          substanceData.R_s*log(p/100000));
+
+        //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+        //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
+        annotation (Inline=true, smoothOrder=2);
+      end molarEntropyPure;
+
+      function molarVolumePure
+        "Molar volume of the pure substance"
+          extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
+      algorithm
+        molarVolumePure := substanceData.MM*substanceData.R_s*T/p;
+        //ideal gas
+        annotation (Inline=true, smoothOrder=2);
+      end molarVolumePure;
+
+      function molarHeatCapacityCp
+        "Molar heat capacity of the substance at constant pressure"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+      output Modelica.Units.SI.MolarHeatCapacity molarHeatCapacityCp
+        "Molar heat capacity at constant pressure";
+      algorithm
+        molarHeatCapacityCp := substanceData.MM*
+          Modelica.Media.IdealGases.Common.Functions.cp_T(substanceData, T);
+        annotation (Inline=true, smoothOrder=2);
+      end molarHeatCapacityCp;
+
+      function molarMassOfBaseMolecule
+        "Molar mass of base molecule of the substance"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      output Modelica.Units.SI.MolarMass molarMass "Molar mass";
+      algorithm
+        molarMass := substanceData.MM;
+        annotation (Inline=true, smoothOrder=2);
+      end molarMassOfBaseMolecule;
+
+      function molarTemperature
+       "Temperature from substance molar enthalpies with given stoichimetry"
+         extends Modelica.Icons.Function;
+       input SubstanceDefinition substanceData[:] "Data record of substances";
+       input Modelica.Units.SI.MolarEnthalpy Hf[size(substanceData,1)] "Molar enthalpies of substances";
+       input Modelica.Units.SI.StoichiometricNumber s[size(substanceData,1)]=ones(size(substanceData,1)) "Stoichiometry of substances";
+
+       input Modelica.Units.SI.Pressure p=100000 "Pressure";
+       input Modelica.Units.SI.ElectricPotential v=0
+         "Electric potential of the substance";
+       input Modelica.Units.SI.MoleFraction I=0
+         "Ionic strengh (mole fraction based)";
+
+       output Modelica.Units.SI.Temperature T "Temperature";
+      //   Modelica.Units.SI.MassFraction X[size(substanceData,1)];
+    protected
+         SubstanceDefinition solution;
+         Modelica.Units.SI.SpecificEnthalpy h;
+      algorithm
+       /*   X := (s.*molarMassOfBaseMolecule(substanceData))/(s*molarMassOfBaseMolecule(substanceData));
+    solutionData := Modelica.Media.IdealGases.Common.DataRecord(
+           name="solution_temperature",
+           MM= 1/sum(X./substanceData.data.MM),
+           Hf= X*substanceData.data.Hf,
+           H0= X*substanceData.data.H0,
+           Tlimit = X*substanceData.data.Tlimit,
+           alow = X*substanceData.data.alow,
+           blow = X*substanceData.data.blow,
+           ahigh = X*substanceData.data.ahigh,
+           bhigh = X*substanceData.data.bhigh,
+           R_s = X*substanceData.data.R_s);
+       T := temperature(SubstanceDefinition(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+        
+           */
+          solution := mixedSubstance(substanceData,s/sum(s));
+
+          h := (Hf*s)/(s*molarMassOfBaseMolecule(substanceData)) "the same as X*(Hf./MMb)";
+
+          T := temperature(solution,h,p,v,I);
+      end molarTemperature;
+
+      function mixedSubstance
+        "Definition of substance as mix of substances"
+        extends Modelica.Icons.Function;
+       input SubstanceDefinition substanceData[:] "Data record of substances";
+       input Modelica.Units.SI.MoleFraction x[size(substanceData,1)] "mole fractions";
+       input Modelica.Units.SI.MolarEnthalpy addH0=0 "Additional temperature independent molar enthalpy";
+       output SubstanceDefinition mixedSubstanceData "Definition of substance as mix of substances";
+    protected
+         Modelica.Units.SI.MassFraction X[size(substanceData,1)] = (x.*molarMassOfBaseMolecule(substanceData))/(x*molarMassOfBaseMolecule(substanceData));
+         SubstanceDefinition substanceDefinition;
+      algorithm
+         substanceDefinition := SubstanceDefinition(
+                 name="mixed substance",
+                 MM= 1/sum(X./substanceData.MM),
+                 Hf= X*substanceData.Hf,
+                 H0= X*substanceData.H0,
+                 Tlimit = X*substanceData.Tlimit,
+                 alow = X*substanceData.alow,
+                 blow = X*substanceData.blow,
+                 ahigh = X*substanceData.ahigh,
+                 bhigh = X*substanceData.bhigh,
+                 R_s = X*substanceData.R_s,
+                 z = x*substanceData.z);
+        substanceDefinition.blow[1]  := substanceDefinition.blow[1] + addH0/Modelica.Constants.R;
+        substanceDefinition.bhigh[1] := substanceDefinition.bhigh[1] + addH0/Modelica.Constants.R;
+        mixedSubstanceData := substanceDefinition;
+
+        annotation (preferredView="info", Documentation(revisions="<html>
+<p><i>2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+      end mixedSubstance;
+
+      function temperature "Temperature of substance from its enthalpy"
+        extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.Temperature T "Temperature";
+    protected
+         function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
+           extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+           input Modelica.Media.IdealGases.Common.DataRecord data "Ideal gas data";
+           input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
+         algorithm
+           y := Modelica.Media.IdealGases.Common.Functions.h_T(data=data, T=u,
+           exclEnthForm=false,refChoice=Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C)
+                  - h;
+         end f_nonlinear;
+
+      algorithm
+         T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
+           function f_nonlinear(data=substanceData, h=h), 200, 6000);
+      end temperature;
+
+      function solution_temperature
+       "Temperature of the solution from specific enthalpy and mass fractions of substances"
+         extends Modelica.Icons.Function;
+        input SubstanceDefinition substanceData[:] "Data record of substances";
+      input Modelica.Units.SI.SpecificEnthalpy h
+        "Specific enthalpy of solution";
+      input Modelica.Units.SI.MassFraction X[:]
+        "Mass fractions of substances";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.Temperature T "Temperature";
+
+    protected
+          Modelica.Units.SI.MoleFraction x[size(substanceData,1)] = (X./molarMassOfBaseMolecule(substanceData))/sum(X./molarMassOfBaseMolecule(substanceData));
+
+      algorithm
+          T := temperature(mixedSubstance(substanceData,x),h,p,v,I);
+      end solution_temperature;
+
+      function density
+        "Return density of the substance in the solution"
+            extends Modelica.Icons.Function;
+            input SubstanceDefinition substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure p=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential v=0
+        "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction I=0
+        "Ionic strengh (mole fraction based)";
+
+      output Modelica.Units.SI.Density density "Density";
+      algorithm
+        density := p/(substanceData.R_s*T);
+        annotation (Inline=true, smoothOrder=2);
+      end density;
+
+
+
+
+
+
+
+
+
+      annotation (Documentation(revisions="<html>
+<p><i>2015-2021</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p><b>Substance definitions</b></p>
+<p><br>Parameters and functions to define substance properties such as: molar mass MM, heat capacity cp, enthalpy of formation Hf, entropy S0 of the substance, ... at temperature T, pressure p and electric potential v. </p>
+<p><br><b><span style=\"font-size: 8pt;\">Usage of substance definitions</span></b></p>
+<p><br>Process Gibbs energy is difference between sum of products Gibbs energies and sum of substrates Gibbs energies.</p>
+<p>Process enthalpy is difference between sum of products enthalpies and sum of substrates enthalpies.</p>
+<p><br>=&gt;</p>
+<p>Process entropy is difference between sum of products entropies and sum of substrates entropies.</p>
+<p>This process entropy Sr can be calculated from entropies of formation Sf := (Gf-Hf)/T, where Gf is gibbs energy of formation and Hf is enthalpy formation Hf at temperature T.</p>
+<p>Or it can be calculated from absolute entropies S0 (has different value from Sf). However, the value of process entropy must be the same.</p>
+<p><br>So the formation entropy Sf has relative definition and his value can be shifted by addition of the same value on both side of this equation such as enthalpy of formation.</p>
+<p>This allows us to join absolute entropy S0 with enthalpy of formation Hf at temperature T. And we define the Gibbs energy of the pure electroneutral substance as</p>
+<p><br>Gf0 = Hf - T*S0</p>
+<p><br>where Gf0 (has different value from Gf), Hf and S0 are substance definition functions at temperature T and pressure p. </p>
+<p>Then each process Gibbs energy calculated fom Gf0 must be the same such as calculated from Gibbs energies of formation Gf.</p>
+<p><br>Then we define gibbs function gf0 of pure substance and gibbs function g of substance in solution from Gf0 such as:</p>
+<p><br>gf0 = (Gf0 + z*F*v)/(R*T)</p>
+<p>g = gf0 + ln(a) </p>
+<p><br>where R is gas constant, T is temperature, a is activity of the substance, z is charge number of the substance, F is Farraday constant, v is electric potential.</p>
+<p><br><b><span style=\"font-size: 6pt;\">Chemical reaction kinetics</span></b> can be defined as</p>
+<p><br>r = exp( s*g_s - g_t) - exp( p*g_p - g_t) </p>
+<p><br>where </p>
+<p>s is array of stoichiometric coefficient of substrates [1]</p>
+<p>p is array of stoichiometric coefficient of products [1]</p>
+<p>r is the rate of reaction, where r*s are rates of substrates and -r*p are rates of products [mol/s]</p>
+<p>g_s is array of gibbs functions of substrates [1]</p>
+<p>g_p is array of gibbs functions of products [1]</p>
+<p>g_t is defined from: s*g_s - g_t is gibbs function of binding place on substrates or p*g_p - g_t is gibbs function of binding place on products</p>
+<p><br>in details:</p>
+<p>g_s=gf0_s + ln(a_s)</p>
+<p>g_p=gf0_p + ln(a_p)</p>
+<p>g_t = H_t - T*S0_t</p>
+<p><br>gf0_s is array of gibbs functions of pure substrates [1]</p>
+<p>gf0_p is array of gibbs functions of pure products [1]</p>
+<p>a_s is array of activities of substances in solution [mol/mol]</p>
+<p>a_p is array of activities of products in solution [mol/mol]</p>
+<p>H_t is defined from the binding place enthalpy on substrates (or negatice forward activation energy) = s*Hf_s - H_t </p>
+<p>S0_t can be defined from the binding place entropy on substrates = s*S0_s - S0_t </p>
+<p><br>Then other properties of chemical reaction can be expressed as:</p>
+<p>K = exp (s*g_s - p*g_p) .. dissociation coefficient of the reaction = kf/kb = product(a_p) / product(a_s)</p>
+<p>kf = exp( s*gf0_s - g_t) .. forward rate coefficient of the reaction</p>
+<p>kb = exp( p*gf0_p - g_t) .. backward rate coefficient of the reaction</p>
+<p>Arrhenius equation for forward reaction: kf = Af*exp(-Eaf/(RT)), where</p>
+<p>Af = exp( - s*S0_s/R + S0_t/R), Eaf = H_t - s*Hf_s. </p>
+<p>And Arrhenius equation for backward reaction: kb = Ab*exp(-Eab/(RT)), where </p>
+<p>Ab = exp( - p*S0_p/R + S0_t/R), Eab = H_t - p*Hf_p.</p>
+</html>"));
+    end Substance;
   end Interfaces;
 
   annotation (

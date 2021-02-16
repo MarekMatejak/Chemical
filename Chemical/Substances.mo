@@ -4,8 +4,21 @@ package Substances "Definitions of substances"
 
   record Ag "Ag(g) MSL"
    extends Chemical.Interfaces.IdealGasMSL.SubstanceData(
-    data = Modelica.Media.IdealGases.Common.SingleGasesData.Ag);
-   annotation (preferredView = "info");
+      name="Ag",
+      MM=0.1078682,
+      Hf=2641186.188329832,
+      H0=57453.70739476509,
+      Tlimit=1000,
+      alow={0,0,2.5,0,0,0,0},
+      blow={33520.0237,6.56281935},
+      ahigh={-330992.637,982.0086420000001,1.381179917,0.0006170899989999999,-1.6881146e-007,
+          2.008826848e-011,-5.627285655e-016},
+      bhigh={27267.19171,14.56862733},
+      R_s=77.07991789980736);
+   annotation (preferredView = "info", Documentation(info="<html>
+<p>This data record contains the coefficients for the ideal gas equations according to: </p>
+<p>McBride B.J., Zehe M.J., and Gordon S. (2002): NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species. NASA report TP-2002-211556</p>
+</html>"));
   end Ag;
 
   record Agplus "Agplus(g) MSL"
@@ -8500,4 +8513,88 @@ package Substances "Definitions of substances"
 */
     annotation (preferredView = "info");
   end Ethanol_aqueous;
+
+  package Examples
+    extends Modelica.Icons.ExamplesPackage;
+    model GasProperties
+     extends Modelica.Icons.Example;
+      parameter Chemical.Interfaces.IdealGasMSL.SubstanceData substanceData = Chemical.Substances.IdealGasesMSL.Ag() "Gas definition";
+      parameter Modelica.Units.SI.Pressure p=1e5 "Pressure";
+      Modelica.Units.SI.SpecificHeatCapacity cp "Specific heat capacity";
+      Modelica.Units.SI.MolarHeatCapacity Cp "Molar heat capacity";
+      Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy of formation";
+      Modelica.Units.SI.MolarEnthalpy H "Molar enthalpy of formation";
+      Modelica.Units.SI.SpecificEntropy s "Specific entropy";
+      Modelica.Units.SI.MolarEntropy S "Molar entropy";
+      Modelica.Units.SI.Temperature T "Temperature";
+      Modelica.Units.SI.MolarEnergy G "Gibbs energy of formation based on absolute entropy";
+      Real g "Gibbs function based on absolute entropy";
+      Real idealGasDeviation "1 = ideal";
+    equation
+      T=time+273.15;
+      cp = Modelica.Media.IdealGases.Common.Functions.cp_T(substanceData,T);
+      h = Modelica.Media.IdealGases.Common.Functions.h_T(
+          substanceData,
+          T,
+          false,
+          Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
+      s = Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T)
+       - substanceData.R_s*log(p/100000);
+
+      Cp = substanceData.MM*cp;
+      H = substanceData.MM*h;
+      S = substanceData.MM*s;
+      G = H-T*S;
+      g = (h-T*s)/(substanceData.R_s*T);
+
+      idealGasDeviation = (substanceData.R_s * substanceData.MM) / Modelica.Constants.R;
+
+      annotation (experiment(StopTime=100));
+    end GasProperties;
+    annotation (Documentation(info="<html>
+<p>Calculation of base properties from substance definition at different temperatures.</p>
+<p><br>Process Gibbs energy is difference between sum of products Gibbs energies and sum of substrates Gibbs energies.</p>
+<p>Process enthalpy is difference between sum of products enthalpies and sum of substrates enthalpies.</p>
+<p><br>=&gt;</p>
+<p>Process entropy is difference between sum of products entropies and sum of substrates entropies.</p>
+<p>This process entropy Sr can be calculated from entropies of formation Sf := (Gf-Hf)/T, where Gf is gibbs energy of formation and Hf is enthalpy formation Hf at temperature T.</p>
+<p>Or it can be calculated from absolute entropies S0 (has different value from Sf). However, the value of process entropy must be the same.</p>
+<p><br>So the formation entropy Sf has relative definition and his value can be shifted by addition of the same value on both side of this equation such as enthalpy of formation.</p>
+<p>This allows us to join absolute entropy S0 with enthalpy of formation Hf at temperature T. And we define the Gibbs energy of the pure electroneutral substance as</p>
+<p><br>Gf0 = Hf - T*S0</p>
+<p><br>where Gf0 (has different value from Gf), Hf and S0 are substance definition functions at temperature T and pressure p. </p>
+<p>Then each process Gibbs energy calculated fom Gf0 must be the same such as calculated from Gibbs energies of formation Gf.</p>
+<p><br>Then we define gibbs function gf0 of pure substance and gibbs function g of substance in solution from Gf0 such as:</p>
+<p><br>gf0 = (Gf0 + z*F*v)/(R*T)</p>
+<p>g = gf0 + ln(a) </p>
+<p><br>where R is gas constant, T is temperature, a is activity of the substance, z is charge number of the substance, F is Farraday constant, v is electric potential.</p>
+<p><br>Chemical reaction kinetics can be defined as</p>
+<p><br>r = exp( s*g_s - g_t) - exp( p*g_p - g_t) </p>
+<p><br>where </p>
+<p>s is array of stoichiometric coefficient of substrates [1]</p>
+<p>p is array of stoichiometric coefficient of products [1]</p>
+<p>r is the rate of reaction, where r*s are rates of substrates and -r*p are rates of products [mol/s]</p>
+<p>g_s is array of gibbs functions of substrates [1]</p>
+<p>g_p is array of gibbs functions of products [1]</p>
+<p>g_t is defined from: s*g_s - g_t is gibbs function of binding place on substrates or p*g_p - g_t is gibbs function of binding place on products</p>
+<p><br>in details:</p>
+<p>g_s=gf0_s + ln(a_s)</p>
+<p>g_p=gf0_p + ln(a_p)</p>
+<p>g_t = H_t - T*S0_t</p>
+<p><br>gf0_s is array of gibbs functions of pure substrates [1]</p>
+<p>gf0_p is array of gibbs functions of pure products [1]</p>
+<p>a_s is array of activities of substances in solution [mol/mol]</p>
+<p>a_p is array of activities of products in solution [mol/mol]</p>
+<p>H_t is defined from the binding place enthalpy on substrates (or negatice forward activation energy) = s*Hf_s - H_t </p>
+<p>S0_t can be defined from the binding place entropy on substrates = s*S0_s - S0_t </p>
+<p><br>Then other properties of chemical reaction can be expressed as:</p>
+<p>K = exp (s*g_s - p*g_p) .. dissociation coefficient of the reaction = kf/kb = product(a_p) / product(a_s)</p>
+<p>kf = exp( s*gf0_s - g_t) .. forward rate coefficient of the reaction</p>
+<p>kb = exp( p*gf0_p - g_t) .. backward rate coefficient of the reaction</p>
+<p>Arrhenius equation for forward reaction: kf = Af*exp(-Eaf/(RT)), where</p>
+<p>Af = exp( - s*S0_s/R + S0_t/R), Eaf = H_t - s*Hf_s. </p>
+<p>And Arrhenius equation for backward reaction: kb = Ab*exp(-Eab/(RT)), where </p>
+<p>Ab = exp( - p*S0_p/R + S0_t/R), Eab = H_t - p*Hf_p.</p>
+</html>"));
+  end Examples;
 end Substances;
