@@ -814,7 +814,8 @@ package Chemical "Chemical library"
 
       extends Icons.GasSolubility;
 
-       replaceable package stateOfMatterGas = Interfaces.IdealGas constrainedby Interfaces.StateOfMatter
+       replaceable package stateOfMatterGas = Interfaces.IdealGas constrainedby
+      Interfaces.StateOfMatter
         "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -5879,42 +5880,45 @@ flow Modelica.Units.SI.Energy Gj
 
         replaceable type SM = enumeration(
           gas "Ideal gas") "Defined states of matter";
+        constant Integer NSM = Integer(SM.gas) "Size of SM";
 
         parameter String name = "N2(g)" "Name of ideal gas";
         parameter Modelica.Units.SI.MolarMass MM = 0.0280134 "Molar mass";
         parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-        parameter Modelica.Units.SI.Temperature Tlimit[SM] = fill(1000,size(R_s,1)) "Temperature limit between low and high data sets";
+        parameter Modelica.Units.SI.Temperature Tlimit[SM] = fill(1000,NSM) "Temperature limit between low and high data sets";
         parameter Real alow[SM,7] = {{22103.71497,-381.846182,6.08273836,-0.00853091441,1.384646189e-005,-9.62579362e-009,
             2.519705809e-012}} "Low temperature coefficients a";
         parameter Real blow[SM,2] = {{710.846086,-10.76003744}} "Low temperature constants b";
         parameter Real ahigh[SM,7] = {{587712.406,-2239.249073,6.06694922,-0.00061396855,1.491806679e-007,-1.923105485e-011,
             1.061954386e-015}} "High temperature coefficients a";
         parameter Real bhigh[SM,2] = {{12832.10415,-15.86640027}} "High temperature constants b";
-        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM]=fill(Modelica.Constants.R/MM,size(R_s,1)) "Gas constant";
+        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM] = fill(Modelica.Constants.R/MM,NSM) "Gas constant";
 
         //additional non-gas parameters
-        parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(size(gamma,1)) "Activity coefficient of the substance in solution";
-        parameter Boolean gas[SM] = cat(1,{true},fill(false,size(gas,1)-1)) "State of matter is gaseous";
-        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,size(density,1)-1)) "Density at standard conditions";
-        parameter Integer selfClustering[SM] = zeros(size(selfClustering,1)) "0 or index to alowSC,blowSC to identify the cp, h and s0 of the self clustering bond";
+        parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(NSM) "Activity coefficient of the substance in solution";
+        parameter Boolean gas[SM] = cat(1,{true},fill(false,NSM-1)) "State of matter is gaseous";
+        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,NSM-1)) "Density at standard conditions";
+        parameter Integer selfClustering[SM] = zeros(NSM) "0 or index to alowSC,blowSC to identify the cp, h and s0 of the self clustering bond";
 
         //Self-clustering data are optional (default are empty) - should be included only for substances, which molecules are binding together into clusters:
-        replaceable type SC = enumeration() "Self clustering bond";
-        parameter Modelica.Units.SI.Temperature TlimitSC[SC] = fill(1000,size(TlimitSC,1)) "Temperature limit between low and high data sets for self-clustering";
-        parameter Real alowSC[SC,7] = fill(0,size(alowSC,1),size(alowSC,2)) "Low temperature coefficients a for self-clustering";
-        parameter Real blowSC[SC,2] = fill(0,size(blowSC,1),size(blowSC,2)) "Low temperature constants b for self-clustering";
-        parameter Real ahighSC[SC,7] = fill(0,size(ahighSC,1),size(ahighSC,2)) "High temperature coefficients a for self-clustering";
-        parameter Real bhighSC[SC,2] = fill(0,size(bhighSC,1),size(bhighSC,2)) "High temperature constants b for self-clustering";
+        replaceable type SC = enumeration(:) "Self clustering bond";
+        constant Integer NSC = 0 "Size of SC";
+        parameter Modelica.Units.SI.Temperature TlimitSC[SC] = fill(1000,NSC) "Temperature limit between low and high data sets for self-clustering";
+        parameter Real alowSC[SC,7] = fill(0,NSC,7) "Low temperature coefficients a for self-clustering";
+        parameter Real blowSC[SC,2] = fill(0,NSC,2) "Low temperature constants b for self-clustering";
+        parameter Real ahighSC[SC,7] = fill(0,NSC,7) "High temperature coefficients a for self-clustering";
+        parameter Real bhighSC[SC,2] = fill(0,NSC,2) "High temperature constants b for self-clustering";
 
         //Binding site data are optional (default are empty) - these data could be used instead of forward and backward rate coefficient
-        replaceable type BS = enumeration() "Binding sites";
-        parameter Modelica.Units.SI.Temperature TlimitBS[SC] = fill(1000,size(TlimitBS,1)) "Temperature limit between low and high data sets for binding site";
-        parameter Real alowBS[BS,7] = fill(0,size(alowBS,1),size(alowBS,2)) "Low temperature coefficients a for binding site";
-        parameter Real blowBS[BS,2] = fill(0,size(blowBS,1),size(blowBS,2)) "Low temperature constants b for binding site";
-        parameter Real ahighBS[BS,7] = fill(0,size(ahighBS,1),size(ahighBS,2)) "High temperature coefficients a for binding site";
-        parameter Real bhighBS[BS,2] = fill(0,size(bhighBS,1),size(bhighBS,2)) "High temperature constants b for binding site";
+        replaceable type BS = enumeration(:) "Binding sites";
+        constant Integer NBS = 0 "Size of NBS";
+        parameter Modelica.Units.SI.Temperature TlimitBS[SC] = fill(1000,NBS) "Temperature limit between low and high data sets for binding site";
+        parameter Real alowBS[BS,7] = fill(0,NBS,7) "Low temperature coefficients a for binding site";
+        parameter Real blowBS[BS,2] = fill(0,NBS,2) "Low temperature constants b for binding site";
+        parameter Real ahighBS[BS,7] = fill(0,NBS,7) "High temperature coefficients a for binding site";
+        parameter Real bhighBS[BS,2] = fill(0,NBS,2) "High temperature constants b for binding site";
 
       annotation (Documentation(info="<html>
 <p>
