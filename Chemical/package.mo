@@ -814,8 +814,7 @@ package Chemical "Chemical library"
 
       extends Icons.GasSolubility;
 
-       replaceable package stateOfMatterGas = Interfaces.IdealGas constrainedby
-      Interfaces.StateOfMatter
+       replaceable package stateOfMatterGas = Interfaces.IdealGas constrainedby Interfaces.StateOfMatter
         "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -4248,7 +4247,7 @@ output Modelica.Units.SI.Temperature T "Temperature";*/
             selfClusteringBondEntropy(substanceData);
 
           SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
-          specificAmountOfFreeBaseMolecule :=(1- SelfClustering_K/(SelfClustering_K + 1)) / substanceData.MolarWeight;
+          specificAmountOfFreeBaseMolecule :=(1/(SelfClustering_K + 1)^2) / substanceData.MolarWeight;
         end if;
         annotation (Inline=true, smoothOrder=2);
       end specificAmountOfFreeBaseMolecule;
@@ -5860,6 +5859,10 @@ flow Modelica.Units.SI.Energy Gj
         Modelica.Units.SI.ChargeNumberOfIon z
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
+        Modelica.Units.SI.ActivityCoefficient gamma "Activity coefficient of the substance in solution";
+        Boolean gas "State of matter is gaseous";
+        Modelica.Units.SI.Density density "Density at standard conditions";
+
       annotation (Documentation(info="<html>
 <p><br>a .. array of parameters to fit specific heat capacity cp on temperature T: </p>
 <p><br><img src=\"modelica://Chemical/Resources/Images/equations/equation-uGwPiS2g.png\" alt=\"cp(T)/R = a_1/T^2 + a_2/T + a_3 + a_4*T+a_5*T^2+a_6*T^3+a_7*T^4\"/></p>
@@ -5875,23 +5878,43 @@ flow Modelica.Units.SI.Energy Gj
         extends Modelica.Icons.Record;
 
         replaceable type SM = enumeration(
-          gas                                 "Ideal gas") "Defined states of matter";
+          gas "Ideal gas") "Defined states of matter";
 
         parameter String name = "N2(g)" "Name of ideal gas";
         parameter Modelica.Units.SI.MolarMass MM = 0.0280134 "Molar mass";
         parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
-        parameter Modelica.Units.SI.SpecificEnthalpy Hf[SM] = {0} "Enthalpy of formation at 298.15K";
-        parameter Modelica.Units.SI.SpecificEnthalpy H0[SM] = {309498.4543111511} "H0(298.15K) - H0(0K)";
-        parameter Modelica.Units.SI.Temperature Tlimit[SM] = {1000} "Temperature limit between low and high data sets";
+
+        parameter Modelica.Units.SI.Temperature Tlimit[SM] = fill(1000,size(R_s,1)) "Temperature limit between low and high data sets";
         parameter Real alow[SM,7] = {{22103.71497,-381.846182,6.08273836,-0.00853091441,1.384646189e-005,-9.62579362e-009,
             2.519705809e-012}} "Low temperature coefficients a";
         parameter Real blow[SM,2] = {{710.846086,-10.76003744}} "Low temperature constants b";
         parameter Real ahigh[SM,7] = {{587712.406,-2239.249073,6.06694922,-0.00061396855,1.491806679e-007,-1.923105485e-011,
             1.061954386e-015}} "High temperature coefficients a";
         parameter Real bhigh[SM,2] = {{12832.10415,-15.86640027}} "High temperature constants b";
-        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM]={296.8033869505308} "Gas constant";
+        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM]=fill(Modelica.Constants.R/MM,size(R_s,1)) "Gas constant";
 
+        //additional non-gas parameters
+        parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(size(gamma,1)) "Activity coefficient of the substance in solution";
+        parameter Boolean gas[SM] = cat(1,{true},fill(false,size(gas,1)-1)) "State of matter is gaseous";
+        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,size(density,1)-1)) "Density at standard conditions";
+        parameter Integer selfClustering[SM] = zeros(size(selfClustering,1)) "0 or index to alowSC,blowSC to identify the cp, h and s0 of the self clustering bond";
+
+        //Self-clustering data are optional (default are empty) - should be included only for substances, which molecules are binding together into clusters:
+        replaceable type SC = enumeration() "Self clustering bond";
+        parameter Modelica.Units.SI.Temperature TlimitSC[SC] = fill(1000,size(TlimitSC,1)) "Temperature limit between low and high data sets for self-clustering";
+        parameter Real alowSC[SC,7] = fill(0,size(alowSC,1),size(alowSC,2)) "Low temperature coefficients a for self-clustering";
+        parameter Real blowSC[SC,2] = fill(0,size(blowSC,1),size(blowSC,2)) "Low temperature constants b for self-clustering";
+        parameter Real ahighSC[SC,7] = fill(0,size(ahighSC,1),size(ahighSC,2)) "High temperature coefficients a for self-clustering";
+        parameter Real bhighSC[SC,2] = fill(0,size(bhighSC,1),size(bhighSC,2)) "High temperature constants b for self-clustering";
+
+        //Binding site data are optional (default are empty) - these data could be used instead of forward and backward rate coefficient
+        replaceable type BS = enumeration() "Binding sites";
+        parameter Modelica.Units.SI.Temperature TlimitBS[SC] = fill(1000,size(TlimitBS,1)) "Temperature limit between low and high data sets for binding site";
+        parameter Real alowBS[BS,7] = fill(0,size(alowBS,1),size(alowBS,2)) "Low temperature coefficients a for binding site";
+        parameter Real blowBS[BS,2] = fill(0,size(blowBS,1),size(blowBS,2)) "Low temperature constants b for binding site";
+        parameter Real ahighBS[BS,7] = fill(0,size(ahighBS,1),size(ahighBS,2)) "High temperature coefficients a for binding site";
+        parameter Real bhighBS[BS,2] = fill(0,size(bhighBS,1),size(bhighBS,2)) "High temperature constants b for binding site";
 
       annotation (Documentation(info="<html>
 <p>
@@ -5918,6 +5941,7 @@ by the data above. The two branches are continuous and in most
 gases also differentiable at Tlimit.
 </p>
 </html>"));
+
       end SubstanceData;
 
       function createSubstanceDefinitionFromMSL
@@ -6225,7 +6249,7 @@ gases also differentiable at Tlimit.
 
         output Real activityCoefficient "Activity Coefficient";
       algorithm
-        activityCoefficient := 1;
+        activityCoefficient := substanceData.gamma;
         annotation (Inline=true, smoothOrder=2);
       end activityCoefficient;
 
@@ -6271,10 +6295,11 @@ gases also differentiable at Tlimit.
             T,
             false,
             Modelica.Media.Interfaces.Choices.ReferenceEnthalpy.ZeroAt25C);
+
         annotation (Inline=true, smoothOrder=2);
       end molarEnthalpyElectroneutral;
 
-      function molarEntropyPure
+      replaceable function molarEntropyPure
        "Molar entropy of the pure substance"
         extends Modelica.Icons.Function;
         input SubstanceDefinition substanceData "Data record of substance";
@@ -6296,8 +6321,16 @@ gases also differentiable at Tlimit.
         // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
 
         molarEntropyPure := substanceData.MM*(
-          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T) -
-          substanceData.R_s*log(p/100000));
+          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T)
+          -(if
+              (substanceData.gas) then
+              substanceData.R_s*log(p/100000)
+           else (molarVolumePure(
+              substanceData,
+              T,
+              p,
+              v,
+              I)/T)*(p - 100000)));
 
         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
@@ -6316,8 +6349,13 @@ gases also differentiable at Tlimit.
         "Ionic strengh (mole fraction based)";
       output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
       algorithm
-        molarVolumePure := substanceData.MM*substanceData.R_s*T/p;
-        //ideal gas
+        molarVolumePure :=
+        if
+          (substanceData.gas) then
+          substanceData.MM*substanceData.R_s*T/p
+        else
+          substanceData.MM/substanceData.density;
+        //ideal gas vs. incompressible
         annotation (Inline=true, smoothOrder=2);
       end molarVolumePure;
 
@@ -6486,14 +6524,209 @@ gases also differentiable at Tlimit.
 
       output Modelica.Units.SI.Density density "Density";
       algorithm
-        density := p/(substanceData.R_s*T);
+        density := if
+                     (substanceData.gas) then p/(substanceData.R_s*T) else substanceData.density;
         annotation (Inline=true, smoothOrder=2);
       end density;
 
 
 
 
+    /*
+ 
 
+
+  redeclare function selfClustering
+    "returns true if substance molecules are joining together to clusters"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    output Boolean selfClustering;
+  algorithm 
+    selfClustering := substanceData.SelfClustering;
+  end selfClustering;
+
+  redeclare function selfClusteringBondEnthalpy
+    "Enthalpy of joining two base molecules of the substance together to cluster"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
+  algorithm 
+    selfClusteringEnthalpy := substanceData.SelfClustering_dH;
+  end selfClusteringBondEnthalpy;
+
+  redeclare function selfClusteringBondEntropy
+    "Entropy of joining two base molecules of the substance together to cluster"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
+  algorithm 
+    selfClusteringEntropy := substanceData.SelfClustering_dS;
+  end selfClusteringBondEntropy;
+
+  redeclare replaceable function specificAmountOfParticles
+  "Amount of substance particles per its mass"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
+    output Real specificAmountOfSubstance(unit="mol/kg") "Amount of substance particles per its mass";
+  protected 
+    Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+    Real SelfClustering_K;
+  algorithm 
+    if not selfClustering(substanceData) then
+      specificAmountOfSubstance := 1/substanceData.MolarWeight;
+    else
+      SelfClustering_dG :=selfClusteringBondEnthalpy(substanceData) - T*
+        selfClusteringBondEntropy(substanceData);
+
+      SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
+
+      specificAmountOfSubstance := 1/((SelfClustering_K + 1)*substanceData.MolarWeight);
+    end if;
+  end specificAmountOfParticles;
+
+  redeclare function specificAmountOfFreeBaseMolecule
+    "Amount of substance free base molecule per mass of the substance"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+    output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
+      "Amount of substance free base molecule per substance mass";
+  protected 
+    Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+    Real SelfClustering_K;
+  algorithm 
+    if not selfClustering(substanceData) then
+      specificAmountOfFreeBaseMolecule := 1/substanceData.MolarWeight;
+    else
+      SelfClustering_dG :=selfClusteringBondEnthalpy(substanceData) - T*
+        selfClusteringBondEntropy(substanceData);
+
+      SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
+      specificAmountOfFreeBaseMolecule :=(1- SelfClustering_K/(SelfClustering_K + 1)) / substanceData.MolarWeight;
+    end if;
+    annotation (Inline=true, smoothOrder=2);
+  end specificAmountOfFreeBaseMolecule;
+
+
+
+  redeclare replaceable function specificEnthalpy
+    "Specific molar enthalpy of the substance with electric potential dependence"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
+
+    output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
+      "Specific enthalpy";
+  protected 
+    Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+    Real SelfClustering_K;
+  algorithm 
+    if selfClustering(substanceData) then
+      SelfClustering_dG := selfClusteringBondEnthalpy(substanceData) - T*
+        selfClusteringBondEntropy(substanceData);
+      SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
+    end if;
+
+    specificEnthalpy := (molarEnthalpy(
+        substanceData,
+        T,
+        p,
+        v,
+        I) + (if selfClustering(substanceData) then 
+      selfClusteringBondEnthalpy(substanceData)*SelfClustering_K/(
+      SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(substanceData);
+
+    annotation (Inline=true, smoothOrder=2);
+  end specificEnthalpy;
+
+  redeclare replaceable function specificVolume
+    "Specific volume of the substance"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
+
+    output Modelica.Units.SI.SpecificVolume specificVolume
+      "Specific volume";
+  protected 
+    Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+    Real SelfClustering_K;
+  algorithm 
+    if selfClustering(substanceData) then
+      SelfClustering_dG := selfClusteringBondEnthalpy(substanceData) - T*
+        selfClusteringBondEntropy(substanceData);
+      SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
+    end if;
+
+    specificVolume := (molarVolume(
+        substanceData,
+        T,
+        p,
+        v,
+        I) + (if selfClustering(substanceData) then 
+      selfClusteringBondVolume(substanceData)*SelfClustering_K/(
+      SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(substanceData);
+  end specificVolume;
+
+  redeclare replaceable function specificHeatCapacityCp
+    "Specific heat capacity at constant pressure"
+    extends Modelica.Icons.Function;
+    input SubstanceDefinition substanceData "Data record of substance";
+    input Modelica.Units.SI.Temperature T=298.15 "Temperature";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
+    output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
+      "Specific heat capacity at constant pressure";
+  protected 
+    Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+    Real SelfClustering_K;
+  algorithm 
+    if selfClustering(substanceData) then
+      SelfClustering_dG := selfClusteringBondEnthalpy(substanceData) - T*
+        selfClusteringBondEntropy(substanceData);
+      SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
+    end if;
+
+    specificHeatCapacityCp := (molarHeatCapacityCp(
+        substanceData,
+        T,
+        p,
+        v,
+        I) + (if selfClustering(substanceData) then 
+      selfClusteringBondHeatCapacityCp(substanceData)*SelfClustering_K/(
+      SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(substanceData);
+
+      //TODO: + selfClusteringBondEnthalpy * der(K/(K + 1))/der(T) .. if (selfClusteringBondHeatCapacityCp!=0)
+  end specificHeatCapacityCp;
+
+
+  
+  
+
+  
+*/
 
 
 
