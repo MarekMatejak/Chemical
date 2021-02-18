@@ -3604,7 +3604,7 @@ package Chemical "Chemical library"
 
       output Modelica.Units.SI.MolarEntropy molarEntropy "Molar entropy";
       algorithm
-          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
+          molarEntropy :=  -(u - molarEnthalpy(substanceData,T,p,v,I))/T;
       end molarEntropy;
 
      function chemicalPotentialPure "Chemical potential of the pure substance"
@@ -5878,47 +5878,47 @@ flow Modelica.Units.SI.Energy Gj
       record SubstanceData "Definition of substance"
         extends Modelica.Icons.Record;
 
-        replaceable type SM = enumeration(
-          gas "Ideal gas") "Defined states of matter";
-        constant Integer NSM = Integer(SM.gas) "Size of SM";
-
         parameter String name = "N2(g)" "Name of ideal gas";
         parameter Modelica.Units.SI.MolarMass MM = 0.0280134 "Molar mass";
         parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-        parameter Modelica.Units.SI.Temperature Tlimit[SM] = fill(1000,NSM) "Temperature limit between low and high data sets";
+        parameter String stateOfMatterNames[:] = {"gas"}   "Defined states of matter";
+        parameter Integer SM = size(stateOfMatterNames,1) "Number of defined state of matters" annotation (HideResult=true);
+
+        parameter Modelica.Units.SI.Temperature Tlimit[SM] = fill(1000,SM) "Temperature limit between low and high data sets";
         parameter Real alow[SM,7] = {{22103.71497,-381.846182,6.08273836,-0.00853091441,1.384646189e-005,-9.62579362e-009,
             2.519705809e-012}} "Low temperature coefficients a";
         parameter Real blow[SM,2] = {{710.846086,-10.76003744}} "Low temperature constants b";
         parameter Real ahigh[SM,7] = {{587712.406,-2239.249073,6.06694922,-0.00061396855,1.491806679e-007,-1.923105485e-011,
             1.061954386e-015}} "High temperature coefficients a";
         parameter Real bhigh[SM,2] = {{12832.10415,-15.86640027}} "High temperature constants b";
-        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM] = fill(Modelica.Constants.R/MM,NSM) "Gas constant";
+        parameter Modelica.Units.SI.SpecificHeatCapacity R_s[SM] = fill(Modelica.Constants.R/MM,SM) "Gas constant";
 
         //additional non-gas parameters
-        parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(NSM) "Activity coefficient of the substance in solution";
-        parameter Boolean gas[SM] = cat(1,{true},fill(false,NSM-1)) "State of matter is gaseous";
-        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,NSM-1)) "Density at standard conditions";
-        parameter Integer selfClustering[SM] = zeros(NSM) "0 or index to alowSC,blowSC to identify the cp, h and s0 of the self clustering bond";
+        parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(SM) "Activity coefficient of the substance in solution";
+        parameter Boolean gas[SM] = cat(1,{true},fill(false,SM-1)) "State of matter is gaseous";
+        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,SM-1)) "Density at standard conditions";
 
-        //Self-clustering data are optional (default are empty) - should be included only for substances, which molecules are binding together into clusters:
-        replaceable type SC = enumeration(:) "Self clustering bond";
-        constant Integer NSC = 0 "Size of SC";
-        parameter Modelica.Units.SI.Temperature TlimitSC[SC] = fill(1000,NSC) "Temperature limit between low and high data sets for self-clustering";
-        parameter Real alowSC[SC,7] = fill(0,NSC,7) "Low temperature coefficients a for self-clustering";
-        parameter Real blowSC[SC,2] = fill(0,NSC,2) "Low temperature constants b for self-clustering";
-        parameter Real ahighSC[SC,7] = fill(0,NSC,7) "High temperature coefficients a for self-clustering";
-        parameter Real bhighSC[SC,2] = fill(0,NSC,2) "High temperature constants b for self-clustering";
 
-        //Binding site data are optional (default are empty) - these data could be used instead of forward and backward rate coefficient
-        replaceable type BS = enumeration(:) "Binding sites";
-        constant Integer NBS = 0 "Size of NBS";
-        parameter Modelica.Units.SI.Temperature TlimitBS[SC] = fill(1000,NBS) "Temperature limit between low and high data sets for binding site";
-        parameter Real alowBS[BS,7] = fill(0,NBS,7) "Low temperature coefficients a for binding site";
-        parameter Real blowBS[BS,2] = fill(0,NBS,2) "Low temperature constants b for binding site";
-        parameter Real ahighBS[BS,7] = fill(0,NBS,7) "High temperature coefficients a for binding site";
-        parameter Real bhighBS[BS,2] = fill(0,NBS,2) "High temperature constants b for binding site";
+        //chemical bonding sites and bonds:
+
+        //Bonds and bonding sites data are optional (default are empty) - these data could be used instead of forward and backward rate coefficient
+        parameter String bondNames[:] = fill("",0)   "Bond or bonding site name";
+        parameter Integer BN = size(bondNames,1) "Number of defined bonds and bonding sites" annotation (HideResult=true);
+        parameter Modelica.Units.SI.Temperature TlimitB[BN] = fill(1000,BN) "Temperature limit between low and high data sets for bond/bonding site";
+        parameter Real alowB[BN,7] = fill(0,BN,7) "Low temperature coefficients a for bond/bonding site";
+        parameter Real blowB[BN,2] = fill(0,BN,2) "Low temperature constants b for bond/bonding site";
+        parameter Real ahighB[BN,7] = fill(0,BN,7) "High temperature coefficients a for bond/bonding site";
+        parameter Real bhighB[BN,2] = fill(0,BN,2) "High temperature constants b for bond/bonding site";
+
+        //self-clustering definition (substance molecules are bonding together creating clusters of any size)
+        //e.g. selg clustering of water with hydrogen bond:  (H2O)_n + H2O <-> (H2O)_(n+1)
+        //using oxygen bonding site and hydrogen bonding site to form hydrogen bond
+        parameter String selfClusteringReactionNames[:] = fill("",0)   "Self-clustering reaction name";
+        parameter Integer SC = size(selfClusteringReactionNames,1) "Number of defined self-clustering reactions" annotation (HideResult=true);
+        parameter Integer selfClusteringB[SC,3] = zeros(SC,3) "Indexes of alowB,blowB,TlimitB,ahighB,bhighB to identify the cp, h and s0 of the self clustering bonding sites [:,1] + [:,2] and bond [:,3]";
+
 
       annotation (Documentation(info="<html>
 <p>
@@ -5948,12 +5948,70 @@ gases also differentiable at Tlimit.
 
       end SubstanceData;
 
+      function substanceDefinition
+      input SubstanceData d;
+      input Integer stateOfMatter=1;
+      output SubstanceDefinition substanceDef;
+      algorithm
+      substanceDef:=SubstanceDefinition(
+        name=d.name,
+        MM=d.MM,
+        z=d.z,
+        Hf=0,
+        H0=0,
+        Tlimit=d.Tlimit[stateOfMatter],
+        alow = d.alow[stateOfMatter],
+        blow = d.blow[stateOfMatter],
+        ahigh= d.ahigh[stateOfMatter],
+        bhigh = d.bhigh[stateOfMatter],
+        R_s=d.R_s[stateOfMatter],
+        gamma = d.gamma[stateOfMatter],
+        gas = d.gas[stateOfMatter],
+        density = d.density[stateOfMatter]);
+      end substanceDefinition;
+
+      function selfClusteringBondDefinition
+        input SubstanceData d;
+        input Integer stateOfMatter=1;
+        input Integer selfClusteringBond=1;
+        output SubstanceDefinition selfClusteringBondDef;
+      algorithm
+        selfClusteringBondDef := SubstanceDefinition(
+      name=d.name,
+      MM=d.MM,
+      z=d.z,
+      Hf=0,
+      H0=0,
+      Tlimit=d.TlimitSC[selfClusteringBond],
+      alow = d.alowSC[selfClusteringBond],
+      blow = d.blowSC[selfClusteringBond],
+      ahigh= d.ahighSC[selfClusteringBond],
+      bhigh = d.bhighSC[selfClusteringBond],
+      R_s = d.R_s[stateOfMatter],
+      gamma = d.gamma[stateOfMatter],
+      gas = d.gas[stateOfMatter],
+      density = d.density[stateOfMatter]);
+      end selfClusteringBondDefinition;
+
+      function bindingSiteDefinition
+      input SubstanceData d;
+      input Integer stateOfMatter=1;
+      input Integer bindingSite=1;
+      output SubstanceDefinition bindingSiteDef;
+      algorithm
+      bindingSiteDef := SubstanceDefinition(name=d.name,MM=d.MM,z=d.z,Hf=0,H0=0,Tlimit=d.TlimitBS[
+        bindingSite],alow=d.alowBS[bindingSite],blow=d.blowBS[bindingSite],ahigh=d.ahighBS[
+        bindingSite],bhigh=d.bhighBS[bindingSite],R_s=d.R_s[stateOfMatter],gamma=d.gamma[
+        stateOfMatter],gas=d.gas[stateOfMatter],density=d.density[stateOfMatter]);
+      end bindingSiteDefinition;
+
+
       function createSubstanceDefinitionFromMSL
         input Modelica.Media.IdealGases.Common.DataRecord d;
         input Real z;
         output SubstanceDefinition r;
       algorithm
-        r:=SubstanceDefinition(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z);
+        r:=SubstanceDefinition(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z, gamma=1, gas=true, density=1e5/(d.R_s*298.15));
       end createSubstanceDefinitionFromMSL;
 
 
@@ -5995,7 +6053,7 @@ gases also differentiable at Tlimit.
 
       output Modelica.Units.SI.MolarEntropy molarEntropy "Molar entropy";
       algorithm
-          molarEntropy :=  (u - molarEnthalpy(substanceData,T,p,v,I))/T;
+          molarEntropy :=  -(u - molarEnthalpy(substanceData,T,p,v,I))/T;
       end molarEntropy;
 
      function chemicalPotentialPure "Chemical potential of the pure substance"
@@ -6325,7 +6383,7 @@ gases also differentiable at Tlimit.
         // - pressure shift: to reach the ideal gas equation at constant temperature Vm*dP = -T*dS (small amount of work)
 
         molarEntropyPure := substanceData.MM*(
-          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T)
+          Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T))
           -(if
               (substanceData.gas) then
               substanceData.R_s*log(p/100000)
@@ -6334,7 +6392,7 @@ gases also differentiable at Tlimit.
               T,
               p,
               v,
-              I)/T)*(p - 100000)));
+              I)/T)*(p - 100000));
 
         //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
         //At T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
@@ -6353,6 +6411,8 @@ gases also differentiable at Tlimit.
         "Ionic strengh (mole fraction based)";
       output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
       algorithm
+
+        //der(G,p)
         molarVolumePure :=
         if
           (substanceData.gas) then
@@ -6454,7 +6514,10 @@ gases also differentiable at Tlimit.
                  ahigh = X*substanceData.ahigh,
                  bhigh = X*substanceData.bhigh,
                  R_s = X*substanceData.R_s,
-                 z = x*substanceData.z);
+                 z = x*substanceData.z,
+                 gamma = x*substanceData.gamma,
+                 gas = substanceData[1].gas,
+                 density = 1/(X*(ones(size(substanceData,1))./substanceData.density)));
         substanceDefinition.blow[1]  := substanceDefinition.blow[1] + addH0/Modelica.Constants.R;
         substanceDefinition.bhigh[1] := substanceDefinition.bhigh[1] + addH0/Modelica.Constants.R;
         mixedSubstanceData := substanceDefinition;
