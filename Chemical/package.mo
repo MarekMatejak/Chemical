@@ -6386,7 +6386,7 @@ gases also differentiable at Tlimit.
           Modelica.Media.IdealGases.Common.Functions.s0_T(substanceData, T))
           -(if
               (substanceData.gas) then
-              substanceData.R_s*log(p/100000)
+              substanceData.MM*substanceData.R_s*log(p/100000)
            else (molarVolumePure(
               substanceData,
               T,
