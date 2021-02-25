@@ -5862,7 +5862,7 @@ flow Modelica.Units.SI.Energy Gj
 
         Modelica.Units.SI.ActivityCoefficient gamma "Activity coefficient of the substance in solution";
         Boolean gas "State of matter is gaseous";
-        Modelica.Units.SI.Density density "Density at standard conditions";
+        Real v[7] "Specific volume (1/density) at 1bar on temperature coefficients";
 
       annotation (Documentation(info="<html>
 <p><br>a .. array of parameters to fit specific heat capacity cp on temperature T: </p>
@@ -5898,8 +5898,7 @@ flow Modelica.Units.SI.Energy Gj
         //additional non-gas parameters
         parameter Modelica.Units.SI.ActivityCoefficient gamma[SM] = ones(SM) "Activity coefficient of the substance in solution";
         parameter Boolean gas[SM] = cat(1,{true},fill(false,SM-1)) "State of matter is gaseous";
-        parameter Modelica.Units.SI.Density density[SM] = cat(1,{1e5/(R_s[1]*298.15)},fill(1000,SM-1)) "Density at standard conditions";
-
+        parameter Real v[SM,7] = {if gas[i] then {0,0,0,R_s[i]/1e5,0,0,0} else {0,0,1/1000,0,0,0,0} for i in 1:SM} "Specific volume (=1/density) at 1bar on temperature coefficients";
 
         //chemical bonding sites and bonds:
 
@@ -5917,7 +5916,12 @@ flow Modelica.Units.SI.Energy Gj
         //using oxygen bonding site and hydrogen bonding site to form hydrogen bond
         parameter String selfClusteringReactionNames[:] = fill("",0)   "Self-clustering reaction name";
         parameter Integer SC = size(selfClusteringReactionNames,1) "Number of defined self-clustering reactions" annotation (HideResult=true);
-        parameter Integer selfClusteringB[SC,3] = zeros(SC,3) "Indexes of alowB,blowB,TlimitB,ahighB,bhighB to identify the cp, h and s0 of the self clustering bonding sites [:,1] + [:,2] and bond [:,3]";
+
+        parameter Modelica.Units.SI.Temperature TlimitSC[SC] = fill(1000,SC) "Temperature limit between low and high data sets for bond/bonding site";
+        parameter Real alowSC[SC,7] = fill(0,SC,7) "Low temperature coefficients a for bond/bonding site";
+        parameter Real blowSC[SC,2] = fill(0,SC,2) "Low temperature constants b for bond/bonding site";
+        parameter Real ahighSC[SC,7] = fill(0,SC,7) "High temperature coefficients a for bond/bonding site";
+        parameter Real bhighSC[SC,2] = fill(0,SC,2) "High temperature constants b for bond/bonding site";
 
 
       annotation (Documentation(info="<html>
@@ -5967,7 +5971,7 @@ gases also differentiable at Tlimit.
         R_s=d.R_s[stateOfMatter],
         gamma = d.gamma[stateOfMatter],
         gas = d.gas[stateOfMatter],
-        density = d.density[stateOfMatter]);
+        v = d.v[stateOfMatter]);
       end substanceDefinition;
 
       function selfClusteringBondDefinition
@@ -5990,7 +5994,7 @@ gases also differentiable at Tlimit.
       R_s = d.R_s[stateOfMatter],
       gamma = d.gamma[stateOfMatter],
       gas = d.gas[stateOfMatter],
-      density = d.density[stateOfMatter]);
+      v = d.v[stateOfMatter]);
       end selfClusteringBondDefinition;
 
       function bindingSiteDefinition
@@ -5999,10 +6003,10 @@ gases also differentiable at Tlimit.
       input Integer bindingSite=1;
       output SubstanceDefinition bindingSiteDef;
       algorithm
-      bindingSiteDef := SubstanceDefinition(name=d.name,MM=d.MM,z=d.z,Hf=0,H0=0,Tlimit=d.TlimitBS[
-        bindingSite],alow=d.alowBS[bindingSite],blow=d.blowBS[bindingSite],ahigh=d.ahighBS[
-        bindingSite],bhigh=d.bhighBS[bindingSite],R_s=d.R_s[stateOfMatter],gamma=d.gamma[
-        stateOfMatter],gas=d.gas[stateOfMatter],density=d.density[stateOfMatter]);
+      bindingSiteDef := SubstanceDefinition(name=d.name,MM=d.MM,z=d.z,Hf=0,H0=0,Tlimit=d.TlimitB[
+        bindingSite],alow=d.alowB[bindingSite],blow=d.blowB[bindingSite],ahigh=d.ahighB[
+        bindingSite],bhigh=d.bhighB[bindingSite],R_s=d.R_s[stateOfMatter],gamma=d.gamma[
+        stateOfMatter],gas=d.gas[stateOfMatter],v=d.v[stateOfMatter]);
       end bindingSiteDefinition;
 
 
@@ -6011,7 +6015,7 @@ gases also differentiable at Tlimit.
         input Real z;
         output SubstanceDefinition r;
       algorithm
-        r:=SubstanceDefinition(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z, gamma=1, gas=true, density=1e5/(d.R_s*298.15));
+        r:=SubstanceDefinition(name=d.name, MM=d.MM, Hf=d.Hf, H0=d.H0, Tlimit=d.Tlimit, alow=d.alow, blow = d.blow, ahigh= d.ahigh, bhigh=d.bhigh, R_s=d.R_s, z=z, gamma=1, gas=true, v={0,0,0,d.R_s/1e5,0,0,0});
       end createSubstanceDefinitionFromMSL;
 
 
@@ -6418,8 +6422,8 @@ gases also differentiable at Tlimit.
           (substanceData.gas) then
           substanceData.MM*substanceData.R_s*T/p
         else
-          substanceData.MM/substanceData.density;
-        //ideal gas vs. incompressible
+          substanceData.MM*sum(substanceData.v[i]*T^(i-3) for i in 1:7);
+        //ideal gas (R*T/p) vs. incompressible (MM/density)
         annotation (Inline=true, smoothOrder=2);
       end molarVolumePure;
 
@@ -6517,7 +6521,7 @@ gases also differentiable at Tlimit.
                  z = x*substanceData.z,
                  gamma = x*substanceData.gamma,
                  gas = substanceData[1].gas,
-                 density = 1/(X*(ones(size(substanceData,1))./substanceData.density)));
+                 v = X*substanceData.v);
         substanceDefinition.blow[1]  := substanceDefinition.blow[1] + addH0/Modelica.Constants.R;
         substanceDefinition.bhigh[1] := substanceDefinition.bhigh[1] + addH0/Modelica.Constants.R;
         mixedSubstanceData := substanceDefinition;
@@ -6591,8 +6595,10 @@ gases also differentiable at Tlimit.
 
       output Modelica.Units.SI.Density density "Density";
       algorithm
-        density := if
-                     (substanceData.gas) then p/(substanceData.R_s*T) else substanceData.density;
+        density := if (substanceData.gas) then
+                     p/(substanceData.R_s*T)
+                  else
+                     1/sum(substanceData.v[i]*T^(i-3) for i in 1:7);
         annotation (Inline=true, smoothOrder=2);
       end density;
 
