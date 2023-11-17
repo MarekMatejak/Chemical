@@ -273,7 +273,7 @@ package Chemical "Physical Chemistry"
                                       annotation (Placement(
             transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
               {62,-96}})));
-  protected
+    protected
     parameter Modelica.Units.SI.Position positionShift(fixed=false)
       "=0 absolute, otherwise negative";
     Modelica.Units.SI.Position top_s;
@@ -345,7 +345,7 @@ package Chemical "Physical Chemistry"
       parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
           annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
-  protected
+    protected
       parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
         amountOfSubstance_start*molarMassOfBaseMolecule;
 
@@ -357,6 +357,8 @@ package Chemical "Physical Chemistry"
 
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                       m_start,
+                                       1000,
                                        substanceData,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
@@ -549,7 +551,7 @@ package Chemical "Physical Chemistry"
         HideResult=true,
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
-  protected
+    protected
       Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
@@ -735,7 +737,7 @@ package Chemical "Physical Chemistry"
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
-  protected
+    protected
     Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
@@ -768,7 +770,7 @@ package Chemical "Physical Chemistry"
         HideResult=true,
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
-  protected
+    protected
       Modelica.Units.SI.ChemicalPotential du;
     equation
       gas_port.q + liquid_port.q = 0;
@@ -861,7 +863,7 @@ package Chemical "Physical Chemistry"
 
       parameter Real kE(unit="mol/J")=0 "Kinetic turnover coefficient";
 
-  protected
+    protected
     Modelica.Units.SI.ChemicalPotential du;
     equation
       //the main equation
@@ -938,7 +940,7 @@ package Chemical "Physical Chemistry"
       Modelica.Units.SI.MoleFraction xm
         "Mole fraction of the macromolecule (all form of in the conformation)";
 
-  public
+    public
       Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
         annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
             iconTransformation(extent={{30,50},{50,70}})));
@@ -958,7 +960,7 @@ package Chemical "Physical Chemistry"
         choices(checkBox=true),
         Dialog(tab="Advanced", group="Performance"));
 
-  protected
+    protected
       Modelica.Units.SI.MolarEnthalpy h_mix;
     equation
       //amount of macromolecule (all forms in conformation)
@@ -1386,7 +1388,7 @@ package Chemical "Physical Chemistry"
             origin={-100,0},
           rotation=180)));
 
-  protected
+    protected
     constant Modelica.Units.SI.Mass KG=1;
     equation
       port_a.q = 0;
@@ -1428,7 +1430,7 @@ package Chemical "Physical Chemistry"
             origin={-100,0},
           rotation=180)));
 
-  protected
+    protected
     constant Modelica.Units.SI.Volume L=0.001;
     equation
       port_a.q = 0;
@@ -1608,7 +1610,7 @@ package Chemical "Physical Chemistry"
       Real pK
       "= -log10('mole-fraction based dissociation coefficient')";
 
-  protected
+    protected
     Modelica.Units.SI.Temperature _temperature;
     Modelica.Units.SI.AmountOfSubstance _n;
     equation
@@ -1805,7 +1807,7 @@ package Chemical "Physical Chemistry"
       Real pK
       "= -log10('mole-fraction based dissociation coefficient')";
 
-  protected
+    protected
     Modelica.Units.SI.Temperature _temperature;
     Modelica.Units.SI.AmountOfSubstance _n;
     equation
@@ -1975,7 +1977,7 @@ package Chemical "Physical Chemistry"
       "Pressure"
         annotation (HideResult=true,Placement(transformation(extent={{-120,-100},
                 {-80,-60}}),iconTransformation(extent={{-120,-100},{-80,-60}})));
-  protected
+    protected
       Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
           Modelica.Constants.R*temperature))
         "Dissociation constant of hydrogen bond between base molecules";
@@ -2180,7 +2182,7 @@ package Chemical "Physical Chemistry"
 
       Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
 
-  protected
+    protected
       constant Modelica.Units.SI.Mass KG=1;
     equation
        if not useMolalityInput then
@@ -2263,7 +2265,7 @@ package Chemical "Physical Chemistry"
 
       Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
 
-  protected
+    protected
       constant Modelica.Units.SI.Volume L=0.001;
     equation
        if not useMolarityInput then
@@ -2682,7 +2684,7 @@ package Chemical "Physical Chemistry"
           *BufferValue) "amount of base molecules without H+";
     Modelica.Units.SI.MoleFraction xFreeBuffer;
 
-  protected
+    protected
     Modelica.Units.SI.MolarEnthalpy streamEnthalpy;
 
         constant Real InvLog_10=1/log(10);
@@ -3035,7 +3037,7 @@ package Chemical "Physical Chemistry"
     Modelica.Units.SI.ActivityOfSolute a
       "Activity of the substance (mole-fraction based)";
 
-  protected
+    protected
     Modelica.Units.SI.ActivityCoefficient gamma
       "Activity coefficient of the substance";
 
@@ -3138,7 +3140,7 @@ package Chemical "Physical Chemistry"
 
       extends PartialSubstance;
 
-  protected
+    protected
     Modelica.Units.SI.AmountOfSubstance amountOfSolution
       "Amount of all solution particles";
 
@@ -3477,6 +3479,8 @@ package Chemical "Physical Chemistry"
       replaceable function specificAmountOfFreeBaseMolecule
         "Amount of substance free base molecule per mass of the substance"
         extends Modelica.Icons.Function;
+        input Modelica.Units.SI.Mass massH2O "Mass of H2O";
+        input Modelica.Units.SI.AmountOfSubstance nSolution "Amount of substances in solution";
         input SubstanceData substanceData "Data record of substance";
         input Modelica.Units.SI.Temperature T=298.15 "Temperature";
         input Modelica.Units.SI.Pressure p=100000 "Pressure";
@@ -3814,7 +3818,7 @@ end solution_temperature_;
         input Modelica.Units.SI.MoleFraction I=0
           "Ionic strengh (mole fraction based)";
         output Real specificAmountOfSubstance(unit="mol/kg") "Amount of substance particles per its mass";
-    protected
+      protected
         Modelica.Units.SI.MolarEnergy SelfClustering_dG;
         Real SelfClustering_K;
       algorithm
@@ -3833,6 +3837,8 @@ end solution_temperature_;
       redeclare function specificAmountOfFreeBaseMolecule
         "Amount of substance free base molecule per mass of the substance"
         extends Modelica.Icons.Function;
+        input Modelica.Units.SI.Mass massH2O "Mass of H2O";
+        input Modelica.Units.SI.AmountOfSubstance nSolution "Amount of substances in solution";
         input SubstanceData substanceData "Data record of substance";
         input Modelica.Units.SI.Temperature T=298.15 "Temperature";
         input Modelica.Units.SI.Pressure p=100000 "Pressure";
@@ -3841,9 +3847,9 @@ end solution_temperature_;
         input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
         output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
           "Amount of substance free base molecule per substance mass";
-    protected
+      protected
         Modelica.Units.SI.MolarEnergy SelfClustering_dG;
-        Real SelfClustering_K;
+        Real SelfClustering_K,amountOfBaseMolecules,x;
       algorithm
         if not selfClustering(substanceData) then
           specificAmountOfFreeBaseMolecule := 1/substanceData.MolarWeight;
@@ -3852,7 +3858,14 @@ end solution_temperature_;
             selfClusteringBondEntropy(substanceData);
 
           SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
-          specificAmountOfFreeBaseMolecule :=(1- SelfClustering_K/(SelfClustering_K + 1)) / substanceData.MolarWeight;
+
+          amountOfBaseMolecules:=massH2O/substanceData.MolarWeight;
+          x:=((2*SelfClustering_K+nSolution/amountOfBaseMolecules) -
+           sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+
+           (nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+          specificAmountOfFreeBaseMolecule := (x*nSolution)/massH2O;
+
         end if;
         annotation (Inline=true, smoothOrder=2);
       end specificAmountOfFreeBaseMolecule;
@@ -3872,7 +3885,7 @@ end solution_temperature_;
 
         output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
           "Specific enthalpy";
-    protected
+      protected
         Modelica.Units.SI.MolarEnergy SelfClustering_dG;
         Real SelfClustering_K;
       algorithm
@@ -3907,7 +3920,7 @@ end solution_temperature_;
 
         output Modelica.Units.SI.SpecificVolume specificVolume
           "Specific volume";
-    protected
+      protected
         Modelica.Units.SI.MolarEnergy SelfClustering_dG;
         Real SelfClustering_K;
       algorithm
@@ -3939,7 +3952,7 @@ end solution_temperature_;
           "Ionic strengh (mole fraction based)";
         output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
           "Specific heat capacity at constant pressure";
-    protected
+      protected
         Modelica.Units.SI.MolarEnergy SelfClustering_dG;
         Real SelfClustering_K;
       algorithm
@@ -3964,7 +3977,7 @@ end solution_temperature_;
 
       redeclare function extends temperature
         "Temperature of substance from its enthalpy"
-    protected
+      protected
         Modelica.Units.SI.SpecificEnthalpy baseSpecificEnthalpy;
       algorithm
 
@@ -3982,7 +3995,7 @@ end solution_temperature_;
       redeclare function extends solution_temperature
         "Temperature of the solution from enthalpies os substances"
         // Modelica.Units.SI.MoleFraction x[size(X, 1)];
-    protected
+      protected
         Modelica.Units.SI.SpecificEnthalpy solution_h_base;
       /*  Modelica.Units.SI.SpecificHeatCapacity solution_Cp=sum(X[i]*
       substanceData[i].Cp/molarMassOfBaseMolecule(substanceData[i]) for
@@ -4230,7 +4243,7 @@ end solution_temperature_;
 
 
       redeclare function extends temperature "Temperature of substance from its enthalpy"
-    protected
+      protected
          function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
            extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
            input Modelica.Media.IdealGases.Common.DataRecord data "Ideal gas data";
@@ -4252,7 +4265,7 @@ end solution_temperature_;
        //   "molar mass of solution";
        // Modelica.Units.SI.MassFraction x_mass[:]=(x .* substanceData.data.MM) ./
        //     MM "mass fractions";
-    protected
+      protected
           Modelica.Media.IdealGases.Common.DataRecord solutionData=
              Modelica.Media.IdealGases.Common.DataRecord(
                  name="solution_temperature",
@@ -4362,7 +4375,7 @@ end solution_temperature_;
 
      redeclare function extends molarEnthalpyElectroneutral
       "Molar enthalpy of the pure substance in electroneutral solution, where der(Hm)=cp*der(T)"
-    protected
+      protected
        parameter Real T0=298.15;
        Real t=T/1000;
        parameter Real A=substanceData.Cp
@@ -4394,7 +4407,7 @@ end solution_temperature_;
 
      redeclare function extends molarEntropyPure
       "Molar entropy of the pure substance, where der(Sm) = cp*der(T)/T"
-    protected
+      protected
        parameter Real T0=298.15;
        Real t=T/1000;
        parameter Real A= substanceData.Cp
@@ -4443,7 +4456,7 @@ end solution_temperature_;
 
      redeclare function extends molarHeatCapacityCp
       "Molar heat capacity of the substance at constant pressure"
-    protected
+      protected
        parameter Real T0=298.15;
        Real t=T/1000;
        parameter Real A= substanceData.Cp
@@ -4462,7 +4475,7 @@ end solution_temperature_;
      end molarMassOfBaseMolecule;
 
      redeclare function extends temperature "Temperature of substance from its enthalpy"
-    protected
+      protected
           function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
             extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
             input SubstanceData data "Ideal gas data";
@@ -4480,7 +4493,7 @@ end solution_temperature_;
 
       redeclare function extends solution_temperature
       "Temperature of the solution from enthalpies os substances"
-    protected
+      protected
         Modelica.Units.SI.MolarMass bMM[size(X,1)] = molarMassOfBaseMolecule(substanceData);
         //this is gas, so the self-clustering is not included:
         Modelica.Units.SI.MoleFraction x[size(X,1)]=(X./molarMassOfBaseMolecule(substanceData))/
@@ -4738,7 +4751,7 @@ end solution_temperature_;
         annotation (Placement(transformation(extent={{74,-96},{94,-76}})));
 
 
-  protected
+    protected
     Modelica.Units.SI.Energy gibbsEnergy
       "Gibbs energy of the solution relative to start of the simulation";
 
@@ -4850,7 +4863,7 @@ end solution_temperature_;
 
     Modelica.Units.SI.MolarFlowRate q "Current molar solution flow";
 
-  protected
+    protected
     constant Modelica.Units.SI.Volume OneLiter=0.001 "One liter";
 
     equation
