@@ -236,7 +236,6 @@ package Chemical "Physical Chemistry"
 <p>Package <b>Chemical </b>is a modelica package for <b>Electro-Chemical processes </b>that is developed from <b>Physiolibrary</b> modelica implementation, see <a href=\"http://patf-biokyb.lf1.cuni.cz/wiki/hummod/hummod\">http://www.physiolibrary.org</a>. It provides connectors and model components fitted for electro-chemical models. </p>
 </html>"));
   end UsersGuide;
-
  extends Modelica.Icons.Package;
 
   package Components "Chemical Components"
@@ -923,8 +922,7 @@ package Chemical "Physical Chemistry"
     "Quaternary macromolecule form defined by all its subunits"
       extends Icons.Speciation;
 
-      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
-      Interfaces.StateOfMatter
+      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
@@ -1106,8 +1104,7 @@ package Chemical "Physical Chemistry"
     model Stream "Flow of whole solution"
       extends Interfaces.ConditionalSolutionFlow;
 
-      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
-      Interfaces.StateOfMatter
+      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
          annotation (choicesAllMatching = true);
 
@@ -2176,8 +2173,8 @@ package Chemical "Physical Chemistry"
 
 
 
-      Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG if
-           useMolalityInput
+      Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG
+        if useMolalityInput
         annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
 
       Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
@@ -2259,8 +2256,8 @@ package Chemical "Physical Chemistry"
       parameter Modelica.Units.SI.ElectricPotential ElectricPotential=0
         "Electric potential";
 
-      Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L if
-           useMolarityInput
+      Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L
+        if useMolarityInput
         annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
 
       Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
@@ -2342,8 +2339,8 @@ package Chemical "Physical Chemistry"
 
       Modelica.Blocks.Interfaces.RealInput moleFractionInput(
         final unit="mol/mol",
-        start=MoleFraction)=x if
-           useMoleFractionInput annotation (HideResult=true, Placement(transformation(
+        start=MoleFraction)=x
+        if useMoleFractionInput annotation (HideResult=true, Placement(transformation(
               extent={{-120,-20},{-80,20}})));
 
     equation
@@ -2405,8 +2402,8 @@ package Chemical "Physical Chemistry"
       "Is electro-chemical potential of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u if
-           usePotentialInput annotation (HideResult=true, Placement(transformation(
+      Modelica.Blocks.Interfaces.RealInput uInput(final unit="J/mol")=port_a.u
+        if usePotentialInput annotation (HideResult=true, Placement(transformation(
               extent={{-120,-20},{-80,20}})));
 
     Interfaces.SubstancePort_a port_a
@@ -2675,8 +2672,8 @@ package Chemical "Physical Chemistry"
 
         Modelica.Blocks.Interfaces.RealInput bufferValueInput(
           final unit="mol/mol",
-          start=BufferValue)=bufferValue if
-             useBufferValueInput annotation (HideResult=true, Placement(transformation(
+          start=BufferValue)=bufferValue
+          if useBufferValueInput annotation (HideResult=true, Placement(transformation(
                 extent={{-120,-20},{-80,20}})));
 
           Real xref;
@@ -2745,8 +2742,7 @@ package Chemical "Physical Chemistry"
      outer Modelica.Fluid.System system "System wide properties";
 
      replaceable package stateOfMatter =
-        Chemical.Interfaces.Incompressible                                  constrainedby
-      Chemical.Interfaces.StateOfMatter
+        Chemical.Interfaces.Incompressible                                  constrainedby Chemical.Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -4886,8 +4882,8 @@ end solution_temperature_;
       annotation (HideResult=true, Dialog(enable=not
             useSubstanceFlowInput));
 
-      Modelica.Blocks.Interfaces.RealInput substanceFlow(start=SubstanceFlow, final unit="mol/s")=q if
-           useSubstanceFlowInput
+      Modelica.Blocks.Interfaces.RealInput substanceFlow(start=SubstanceFlow, final unit="mol/s")=q
+        if useSubstanceFlowInput
            annotation (HideResult=true,
            Placement(transformation(
             extent={{-20,-20},{20,20}},
@@ -5132,10 +5128,9 @@ end solution_temperature_;
 </html>"));
     end SubstanceMolarityPort_b;
   end Interfaces;
-
   annotation (
 preferredView="info",
-version="1.4.0",
+version="1.5.0-alpha",
 versionDate="2021-01-27",
 dateModified = "2021-01-27 11:10:41Z",
 conversion(
