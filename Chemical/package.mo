@@ -1,4 +1,4 @@
-within ;
+﻿within ;
 package Chemical "Physical Chemistry"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
@@ -22,7 +22,7 @@ package Chemical "Physical Chemistry"
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Reaction1.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"Chemical.Examples.MichaelisMenten\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate. </p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Chemical.Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Chemical.Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"modelica://Chemical.Examples.EnzymeKinetics\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Diffusion1.png\"/></p></td>
@@ -62,7 +62,7 @@ package Chemical "Physical Chemistry"
 <td valign=\"middle\"><p>u .. electro-chemical potential of the chemical substance</p></td>
 <td valign=\"middle\"><p>q .. molar flow of the chemical substance</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.SubstancePort\">Chemical.Interfaces.SubstancePort</a> </p></td>
+<td valign=\"middle\"><p><br><a href=\"modelica://Chemical.Interfaces.SubstancePort\">Chemical.Interfaces.SubstancePort</a> </p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UsersGuide/ChemicalPorts.png\"/></p></td>
 </tr>
 <tr>
@@ -70,7 +70,7 @@ package Chemical "Physical Chemistry"
 <td valign=\"middle\"><p>p .. pressure of the solution</p><p>T .. temperature of the solution</p><p>v .. electric potential of the solution</p><p><br>n .. amount of all substances in the solution</p><p>m .. mass of the solution</p><p>V .. volume of the solution</p><p>G .. free Gibbs energy of the solution</p><p>Q .. electric charge of the solution</p><p>I .. ionic strength of the solution</p></td>
 <td valign=\"middle\"><p>dV .. change of the volume of the solution</p><p>dH .. enthalpy change of the solution</p><p>i .. electric charge change of the solution</p><p><br><i>nj ..  amount of the substance</i></p><p><i>mj .. mass of the substance</i></p><p><i>Vj .. volume of the substance</i></p><p><i>Gj .. free Gibbs energy of the substance</i></p><p><i>Qj .. electric charge of the substance</i></p><p><i>Ij .. ionic strength of the substance</i></p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.SolutionPort\">Chemical.Interfaces.SolutionPort</a></p></td>
+<td valign=\"middle\"><p><br><a href=\"modelica://Chemical.Interfaces.SolutionPort\">Chemical.Interfaces.SolutionPort</a></p></td>
 <td valign=\"middle\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/SolutionPort.png\"/></p></td>
 </tr>
 <tr>
@@ -78,7 +78,7 @@ package Chemical "Physical Chemistry"
 <td valign=\"middle\"><p>x_mass .. mass fraction of the chemical substance in solution</p></td>
 <td valign=\"middle\"><p>m_flow .. mass flow of the chemical substance</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.SubstanceMassPort\">Chemical.Interfaces.SubstanceMassPort</a> </p></td>
+<td valign=\"middle\"><p><br><a href=\"modelica://Chemical.Interfaces.SubstanceMassPort\">Chemical.Interfaces.SubstanceMassPort</a> </p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UsersGuide/ChemicalMassPorts.png\"/></p></td>
 </tr>
 <tr>
@@ -86,7 +86,7 @@ package Chemical "Physical Chemistry"
 <td valign=\"middle\"><p>c .. molar concentration per liter of the chemical substance in solution</p></td>
 <td valign=\"middle\"><p>q .. molar flow of the chemical substance</p></td>
 <td valign=\"middle\"></td>
-<td valign=\"middle\"><p><br><a href=\"Chemical.Interfaces.SubstanceMolarityPort\">Chemical.Interfaces.SubstanceMolarityPort</a> </p></td>
+<td valign=\"middle\"><p><br><a href=\"modelica://Chemical.Interfaces.SubstanceMolarityPort\">Chemical.Interfaces.SubstanceMolarityPort</a> </p></td>
 <td valign=\"middle\"><p><img src=\"modelica://Chemical/Resources/Images/UsersGuide/ChemicalMolarityPorts.png\"/></p></td>
 </tr>
 </table>
@@ -164,6 +164,18 @@ package Chemical "Physical Chemistry"
 </ul>
 </html>"));
   end Version_1_4;
+
+  class Version_1_4_1 "Version 1.4.1 (Nov. 23, 2023)"
+    extends Modelica.Icons.ReleaseNotes;
+
+  annotation (Documentation(info="<html>
+<ul>
+<li>FIX of Chemical.Interfaces.StateOfMatter.specificAmountOfFreeBaseMolecule,<br/>
+  e.g. Chemical.Interfaces.Incompressible.specificAmountOfFreeBaseMolecule(Chemical.Substances.Water_liquid());
+ = 0.018285267550297114</li>
+</ul>
+</html>"));
+  end Version_1_4_1;
    annotation (Documentation(info="<html>
 <p>This section summarizes the changes that have been performed on the Chemical. </p>
 </html>"));
@@ -188,15 +200,15 @@ package Chemical "Physical Chemistry"
 <p>All files in this directory (Physiolibrary) and in all subdirectories, especially all files that build package &quot;Physiolibrary&quot; are licensed by <u><b>Marek Matejak</b></u> under the <a href=\"http://opensource.org/licenses/BSD-3-Clause\">BSD 3-Clause License</a> (with exception of files &quot;Resources/*&quot;). </p>
 <h4>Licensor:</h4>
 <p>Marek Matej&aacute;k,</p>
-<p>Hviezdoslavova 632/41,</p>
-<p>916 01 Star&aacute; Tur&aacute;, </p>
-<p>Slovak Republic,</p>
+<p>5.května 50,</p>
+<p>250 82 Úvaly u Prahy, </p>
+<p>Czech Republic,</p>
 <p>email: marek@matfyz.cz</p>
 <h4><span style=\"color:#008000\">Organization: </span></h4>
 <p>Institute of Pathological Physiology, First Faculty of Medicine, Charles University in Prague,</p>
 <p>U Nemocnice 5, 128 53 Prague 2, Czech Republic</p>
 <br><h4>Copyright notices of the files:</h4>
-<p>Copyright (c) 2008-2015, Marek Matej&aacute;k, Charles University in Prague</p>
+<p>Copyright (c) 2008-2023, Marek Matej&aacute;k, Charles University in Prague</p>
 <p><br>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. </p>
@@ -356,8 +368,6 @@ package Chemical "Physical Chemistry"
 
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
-                                       m_start,
-                                       1000,
                                        substanceData,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
@@ -613,7 +623,7 @@ package Chemical "Physical Chemistry"
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
 <td><p>dissociation constant</p></td>
 </tr>
 <tr>
@@ -1654,7 +1664,7 @@ package Chemical "Physical Chemistry"
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
 <td><p>dissociation constant</p></td>
 </tr>
 <tr>
@@ -1850,7 +1860,7 @@ package Chemical "Physical Chemistry"
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
 <td><p>dissociation constant</p></td>
 </tr>
 <tr>
@@ -3475,14 +3485,14 @@ package Chemical "Physical Chemistry"
       replaceable function specificAmountOfFreeBaseMolecule
         "Amount of substance free base molecule per mass of the substance"
         extends Modelica.Icons.Function;
-        input Modelica.Units.SI.Mass massH2O "Mass of H2O";
-        input Modelica.Units.SI.AmountOfSubstance nSolution "Amount of substances in solution";
         input SubstanceData substanceData "Data record of substance";
         input Modelica.Units.SI.Temperature T=298.15 "Temperature";
         input Modelica.Units.SI.Pressure p=100000 "Pressure";
         input Modelica.Units.SI.ElectricPotential v=0
           "Electric potential of the substance";
         input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+        input Modelica.Units.SI.Mass massH2O=1 "Mass of H2O";
+        input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
         output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
           "Amount of substance free base molecule per substance mass";
       algorithm
@@ -3833,14 +3843,14 @@ end solution_temperature_;
       redeclare function specificAmountOfFreeBaseMolecule
         "Amount of substance free base molecule per mass of the substance"
         extends Modelica.Icons.Function;
-        input Modelica.Units.SI.Mass massH2O "Mass of H2O";
-        input Modelica.Units.SI.AmountOfSubstance nSolution "Amount of substances in solution";
         input SubstanceData substanceData "Data record of substance";
         input Modelica.Units.SI.Temperature T=298.15 "Temperature";
         input Modelica.Units.SI.Pressure p=100000 "Pressure";
         input Modelica.Units.SI.ElectricPotential v=0
           "Electric potential of the substance";
         input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+        input Modelica.Units.SI.Mass massH2O=1 "Mass of H2O in solution";
+        input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
         output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
           "Amount of substance free base molecule per substance mass";
       protected
@@ -5130,23 +5140,23 @@ end solution_temperature_;
   end Interfaces;
   annotation (
 preferredView="info",
-version="1.5.0-alpha",
-versionDate="2021-01-27",
-dateModified = "2021-01-27 11:10:41Z",
+version="1.4.1",
+versionDate="2023-11-23",
+dateModified = "2023-11-23 21:10:41Z",
 conversion(
   from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0"),
+        to="1.4.1"),
   from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0"),
+        to="1.4.1"),
   from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.0"),
+        to="1.4.1"),
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos",
-        to="1.4.0"),
+        to="1.4.1"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
-        to="1.4.0")),
+        to="1.4.1")),
       uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
-<p>Copyright (c) 2021, Marek Matej&aacute;k, Ph.D. </p>
+<p>Copyright (c) 2023, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <ol>

@@ -7,7 +7,7 @@ Modelica Library of Chemical processes
 ## Current release
 
 
-Download [Chemical 1.4.0 (2021-01-27)](../../archive/v1.4.0.zip)
+Download [Chemical 1.4.1 (2023-11-23)](../../archive/v1.4.1.zip)
 
 
 ## Main references
@@ -20,7 +20,7 @@ Download [Chemical 1.4.0 (2021-01-27)](../../archive/v1.4.0.zip)
 
 * Chemical Solution 
   * full thermodynamical state support: amount of substances, pressure, volume, temperature, electric potential, enthalpy, entropy
-  * thermal, electric and mechanic connectors from Modelica Standard Library 3.2
+  * thermal, electric and mechanic connectors from Modelica Standard Library 4.0
 * Chemical Substance 
   * ideal gas substance model 
     * with 6-parameters record as definition of gaseous chemical substance (all parameters of the substance are well described tabulated values)
@@ -60,7 +60,7 @@ Download [Chemical 1.4.0 (2021-01-27)](../../archive/v1.4.0.zip)
 
 ## License (BSD 3-Clause)
 
-Copyright (c) 2008-2020, Marek Mateják, Charles University in Prague
+Copyright (c) 2008-2023, Marek Mateják, Charles University in Prague
 
 All rights reserved. 
 
