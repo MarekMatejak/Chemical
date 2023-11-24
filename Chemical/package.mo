@@ -5137,6 +5137,174 @@ end solution_temperature_;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end SubstanceMolarityPort_b;
+
+    connector SubstanceInlet "Electro-chemical potential and molar change of the substance in the solution"
+
+    Modelica.Units.SI.ChemicalPotential r
+      "Inertial Electro-chemical potential";
+
+    flow Modelica.Units.SI.MolarFlowRate n_flow
+      "Molar change of the substance";
+
+    input Modelica.Units.SI.ChemicalPotential u
+      "Electro-chemical potential";
+
+    input Modelica.Units.SI.MolarEnthalpy h
+      "Enthalphy of the substance";
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+            Polygon(
+              points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5,
+              lineColor={158,66,200})}),
+        Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+            Polygon(
+              points={{52,0},{-48,50},{-28,0},{-48,-50},{52,0}},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5,
+              lineColor={158,66,200})}),
+        Documentation(revisions="<html>
+<p><i>2023</i></p>
+<p>Marek Matejak </p>
+</html>",     info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>r = der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. electro-chemical inertia</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end SubstanceInlet;
+
+    connector SubstanceOutlet "Electro-chemical potential and molar change of the substance in the solution"
+
+    Modelica.Units.SI.ChemicalPotential r
+      "Inertial Electro-chemical potential";
+
+    flow Modelica.Units.SI.MolarFlowRate n_flow
+      "Molar change of the substance";
+
+    output Modelica.Units.SI.ChemicalPotential u
+      "Electro-chemical potential";
+
+    output Modelica.Units.SI.MolarEnthalpy h
+      "Enthalphy of the substance";
+
+      annotation (
+        Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+            Polygon(
+              points={{100,0},{-100,100},{-40,0},{-100,-100},{100,0}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={158,66,200},
+              lineThickness=0.5)}),
+        Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+            Polygon(
+              points={{50,0},{-50,50},{-30,0},{-50,-50},{50,0}},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              lineColor={158,66,200},
+              lineThickness=0.5)}),
+         Documentation(revisions="<html>
+<p><i>2023</i></p>
+<p>Marek Matejak </p>
+</html>",     info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>r = der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. inertial electro-chemical potential</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end SubstanceOutlet;
+
+    partial model SISOFlow "Base Model with basic flow eqautions for SISO"
+
+      parameter Real L=1 "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_0=0 "Initial value for n_flow"
+        annotation (Dialog(
+          tab="Initialization",
+          group="Molar flow"));
+      parameter Real n_acceleration_0=0 "Initial value for der(n_flow)"
+        annotation (Dialog(
+          tab="Initialization",
+          group="Molar flow"));
+      SubstanceInlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+      SubstanceOutlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+
+      Modelica.Units.SI.MolarFlowRate n_flow
+      =inlet.n_flow "Molar flow through component";
+      Modelica.Units.SI.ChemicalPotential du;
+
+      // inlet state quantities
+    protected
+      Modelica.Units.SI.ChemicalPotential u_in=inlet.u "Electro-chemical potential of substance entering";
+      Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
+
+      //outlet state quantities
+      Modelica.Units.SI.ChemicalPotential u_out "Electro-chemical potential of substance exiting";
+      Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
+
+    initial equation
+      n_flow = n_flow_0;
+    equation
+
+      inlet.n_flow + outlet.n_flow = 0;
+      outlet.r = inlet.r  - der(inlet.n_flow) * L;
+
+      u_out = u_in + du;
+
+      outlet.u = u_out;
+      outlet.h = h_out;
+
+      annotation (Documentation(info="<html>
+<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
+<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
+</html>"));
+    end SISOFlow;
   end Interfaces;
   annotation (
 preferredView="info",
@@ -5154,7 +5322,7 @@ conversion(
         to="1.4.1"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
         to="1.4.1")),
-      uses( Modelica(version="4.0.0")),
+      uses( Modelica(version="4.0.0"), ThermofluidStream(version="1.1.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2023, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
