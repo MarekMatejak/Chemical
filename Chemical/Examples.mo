@@ -89,11 +89,11 @@ extends Modelica.Icons.ExamplesPackage;
           {-30,-90},{60,-90},{60,-98}},color={127,127,0}));
 
     connect(B.port_a, reaction.substrates[1]) annotation (Line(
-        points={{-14,-14},{-10,-14},{-10,4},{4,4}},
+        points={{-14,-14},{-10,-14},{-10,1},{4,1}},
         color={158,66,200},
         thickness=1));
     connect(A.port_a, reaction.substrates[2]) annotation (Line(
-        points={{-14,12},{-10,12},{-10,0},{4,0}},
+        points={{-14,12},{-10,12},{-10,3},{4,3}},
         color={158,66,200},
         thickness=1));
     annotation ( Documentation(revisions="<html>
@@ -6221,23 +6221,20 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Components.Solution solution
       annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Components.SubstanceS A(
+    Chemical.Boundaries.Substance A(
       useInlet=false,
       useOutlet=true,
       substanceData(MolarWeight=1),
       use_mass_start=false,
-      amountOfSubstance_start=0.9)
-      annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+      amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
-    Chemical.Components.Process reaction(n_flow_0=7000)
-      annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-    Chemical.Components.SubstanceS B(
+    Chemical.Processes.Process reaction(n_flow_0=7000) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
+    Chemical.Boundaries.Substance B(
       useInlet=true,
       useOutlet=false,
       substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
       use_mass_start=false,
-      amountOfSubstance_start=0.1)
-      annotation (Placement(transformation(extent={{42,-10},{62,10}})));
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{42,-10},{62,10}})));
 
     Components.Solution          solution1
       annotation (Placement(transformation(extent={{118,-98},{318,102}})));
@@ -6253,6 +6250,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{280,-6},{260,14}})));
+    inner DropOfCommons dropOfCommons(assertionLevel=AssertionLevel.warning) annotation (Placement(transformation(extent={{40,60},{60,80}})));
   equation
     connect(A.solution, solution.solution) annotation (Line(
         points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
@@ -6285,4 +6283,87 @@ extends Modelica.Icons.ExamplesPackage;
       Icon(coordinateSystem(extent={{-100,-100},{340,100}})),
       __Dymola_experimentSetupOutput);
   end SimpleReactionS;
+
+  model SimpleReaction2S "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
+     extends Modelica.Icons.Example;
+
+    constant Real Kb(unit="kg/mol") = 2
+      "Molarity based dissociation constant of the reaction with one more reactant";
+
+    constant Real Kx(unit="1") = Kb*55.508
+      "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
+
+    constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+    constant Real R = Modelica.Constants.R "Gas constant";
+
+    Chemical.Components.Solution solution
+      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+    Boundaries.Substance A(
+      useInlet=false,
+      useOutlet=true,
+      use_mass_start=false,
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
+    Chemical.Components.Reaction reaction(nS=2, nP=1)
+      annotation (Placement(transformation(extent={{4,-8},{24,12}})));
+    Boundaries.Substance B(
+      useInlet=false,
+      useOutlet=true,
+      use_mass_start=false,
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
+    Boundaries.Substance C(
+      useInlet=true,
+      useOutlet=false,
+      substanceData(DfG=-R*T_25degC*log(Kx)),
+      use_mass_start=false,
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+
+    Components.Solution          solution1
+      annotation (Placement(transformation(extent={{138,-100},{338,100}})));
+    Components.Substance          A1(use_mass_start=false, amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{204,2},{224,22}})));
+    Components.Reaction          reaction1(nS=2, nP=1)
+      annotation (Placement(transformation(extent={{242,-8},{262,12}})));
+    Components.Substance          B1(use_mass_start=false, amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{204,-24},{224,-4}})));
+    Components.Substance          C1(
+      substanceData(DfG=-R*T_25degC*log(Kx)),
+      use_mass_start=false,
+      amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{306,-8},{286,12}})));
+  equation
+    connect(A.solution, solution.solution) annotation (Line(
+        points={{-30,2},{-30,-90},{60,-90},{60,-98}},
+        color={127,127,0}));
+    connect(C.solution, solution.solution) annotation (Line(points={{52,-8},{66,-8},{66,-90},{60,-90},{60,-98}},
+                                               color={127,127,0}));
+    connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
+          {-30,-90},{60,-90},{60,-98}},color={127,127,0}));
+
+    connect(reaction1.products[1], C1.port_a) annotation (Line(
+        points={{262,2},{286,2}},
+        color={158,66,200},
+        thickness=1));
+    connect(A1.solution, solution1.solution) annotation (Line(points={{208,2},{132,2},{132,-106},{298,-106},{298,-98}}, color={127,127,0}));
+    connect(C1.solution, solution1.solution) annotation (Line(points={{302,-8},{344,-8},{344,-106},{298,-106},{298,-98}}, color={127,127,0}));
+    connect(B1.solution, solution1.solution) annotation (Line(points={{208,-24},{132,-24},{132,-106},{298,-106},{298,-98}}, color={127,127,0}));
+    connect(B1.port_a, reaction1.substrates[1])
+      annotation (Line(
+        points={{224,-14},{224,-16},{232,-16},{232,1},{242,1}},
+        color={158,66,200},
+        thickness=1));
+    connect(A1.port_a, reaction1.substrates[2]) annotation (Line(
+        points={{224,12},{234,12},{234,3},{242,3}},
+        color={158,66,200},
+        thickness=1));
+    annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
+</html>"),
+      experiment(StopTime=0.0001, __Dymola_Algorithm="Dassl"),
+      Diagram(coordinateSystem(extent={{-100,-100},{340,100}})),
+      Icon(coordinateSystem(extent={{-100,-100},{340,100}})));
+  end SimpleReaction2S;
 end Examples;
