@@ -1259,12 +1259,15 @@ package Chemical "Physical Chemistry"
 
        outer Modelica.Fluid.System system "System wide properties";
 
-       parameter Real L=1;
+       parameter Real L=1e-4;
 
-        Interfaces.SubstanceInlet inlet "The substance entering"
+        parameter Boolean useInlet = true "If true inlet is added";
+        parameter Boolean useOutlet = false "If true outlet is added";
+
+        Interfaces.SubstanceInlet inlet(r=r_in,n_flow=n_flow_in,u=u_in,h=h_in,n=n_in) if useInlet "The substance entering"
           annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-        Interfaces.SubstanceOutlet outlet "The substance exiting"
+        Interfaces.SubstanceOutlet outlet(r=r_out,n_flow=n_flow_out,u=u_out,h=h_out,n=n_out) if useOutlet "The substance exiting"
                                                           annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
        replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
@@ -1332,6 +1335,9 @@ package Chemical "Physical Chemistry"
         //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
         //    "Molar heat capacity of the substance at constant pressure";
 
+        Real r_in,n_flow_in,u_in,h_in,n_in;
+        Real r_out,n_flow_out,u_out,h_out,n_out;
+
       equation
        //aliases
        gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
@@ -1361,7 +1367,7 @@ package Chemical "Physical Chemistry"
        a = gamma*x;
 
        //electro-chemical potential of the substance in the solution
-       outlet.u = stateOfMatter.chemicalPotentialPure(
+       u_out = stateOfMatter.chemicalPotentialPure(
          substanceData,
          temperature,
          pressure,
@@ -1370,11 +1376,24 @@ package Chemical "Physical Chemistry"
          + Modelica.Constants.R*temperature*log(a)
          + z*Modelica.Constants.F*electricPotential;
 
-       outlet.h = molarEnthalpy;
-       der(outlet.n_flow)*L = outlet.r;
-       der(inlet.n_flow)*L = inlet.r - r;
+       h_out = molarEnthalpy;
+       der(n_flow_out)*L = r_out;
+       -der(n_flow_in)*L = r_in - r;
 
-       r + inlet.u = outlet.u;
+       //der(n_flow_out/n_out)*L = r_out;
+       //der(n_flow_in/n_in)*L = r_in - r;
+
+       r = u_in - u_out;
+
+       if not useInlet then
+         n_flow_in = 0;
+         h_in = 0;
+         u_in = u_out;
+         n_in = n_out;
+       end if;
+       if not useOutlet then
+         n_flow_out = 0;
+       end if;
 
        annotation (
          Documentation(revisions="<html>
@@ -1418,7 +1437,7 @@ package Chemical "Physical Chemistry"
 
       equation
         //molar mass flow
-        q=(inlet.n_flow + outlet.n_flow + port_c.q + port_m.m_flow/stateOfMatter.molarMassOfBaseMolecule(substanceData));
+        q=(n_flow_in + n_flow_out + port_c.q + port_m.m_flow/stateOfMatter.molarMassOfBaseMolecule(substanceData));
 
         //substance mass fraction
         port_m.x_mass = solution.mj/solution.m;
@@ -1429,6 +1448,7 @@ package Chemical "Physical Chemistry"
 
     model SubstanceS "Substance in solution"
       extends Icons.Substance;
+
 
       Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
         "Molar concentration of particles";
@@ -1500,7 +1520,11 @@ package Chemical "Physical Chemistry"
     initial equation
 
       amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+
+
     equation
+
+      n_out = amountOfFreeMolecule;
 
       if stateOfMatter.selfClustering(substanceData) then
 
@@ -1523,12 +1547,12 @@ package Chemical "Physical Chemistry"
        //der(enthalpy) = solution.dH + q*actualStream(port_a.h_outflow);
        //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
         solution.dH =if (EnthalpyNotUsed) then 0 else der(molarEnthalpy)*
-          amountOfBaseMolecules + q*molarEnthalpy - outlet.n_flow*outlet.h - inlet.n_flow*inlet.h + (
+          amountOfBaseMolecules + q*molarEnthalpy - n_flow_out*h_out - n_flow_in*h_in + (
           if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
           substanceData)*der(amountOfBonds) else 0)
                         "heat transfer from other substances in solution [J/s]";
 
-        solution.Gj =amountOfBaseMolecules*outlet.u + amountOfBonds*SelfClustering_dG
+        solution.Gj =amountOfBaseMolecules*u_out + amountOfBonds*SelfClustering_dG
                         "Gibbs energy of the substance";
 
       else
@@ -1542,10 +1566,10 @@ package Chemical "Physical Chemistry"
         solution.dH =
           if (EnthalpyNotUsed) then  0
           else    der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
-                  - outlet.n_flow*outlet.h - inlet.n_flow*inlet.h
+                  - n_flow_out*h_out - n_flow_in*h_in
                   "heat transfer from other substances in solution [J/s]";
 
-        solution.Gj = amountOfBaseMolecules*outlet.u "Gibbs energy of the substance [J]";
+        solution.Gj = amountOfBaseMolecules*u_out "Gibbs energy of the substance [J]";
 
       end if;
 
@@ -1613,7 +1637,7 @@ package Chemical "Physical Chemistry"
     equation
       //the main equation
 
-      n_flow = kC * du * exp(-kE*abs(du));
+      n_flow = - kC * du * exp(-kE*abs(du));
 
        annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -5520,6 +5544,10 @@ end solution_temperature_;
     input Modelica.Units.SI.MolarEnthalpy h
       "Enthalphy of the substance";
 
+    input Modelica.Units.SI.AmountOfSubstance n
+      "Amount of substance";
+
+
       annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
             Polygon(
               points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
@@ -5581,6 +5609,9 @@ end solution_temperature_;
     output Modelica.Units.SI.MolarEnthalpy h
       "Enthalphy of the substance";
 
+    output Modelica.Units.SI.AmountOfSubstance n
+      "Amount of substance";
+
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=true), graphics={
             Polygon(
@@ -5631,7 +5662,7 @@ end solution_temperature_;
 
     partial model SISOFlow "Base Model with basic flow eqautions for SISO"
 
-      parameter Real L=1 "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+      parameter Real L=1e-4 "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
       parameter Modelica.Units.SI.MolarFlowRate n_flow_0=0 "Initial value for n_flow"
         annotation (Dialog(
           tab="Initialization",
@@ -5651,24 +5682,34 @@ end solution_temperature_;
     protected
       Modelica.Units.SI.ChemicalPotential u_in=inlet.u "Electro-chemical potential of substance entering";
       Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
+      Modelica.Units.SI.AmountOfSubstance n_in=inlet.n "Amount of substance enetering";
+
 
       //outlet state quantities
       Modelica.Units.SI.ChemicalPotential u_out "Electro-chemical potential of substance exiting";
       Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
+      Modelica.Units.SI.AmountOfSubstance n_out "Amount of substance exiting";
+
 
     initial equation
       n_flow = n_flow_0;
     equation
 
       inlet.n_flow + outlet.n_flow = 0;
-      outlet.r = inlet.r  - der(inlet.n_flow) * L;
+      outlet.r = inlet.r + der(inlet.n_flow) * L;
 
-      u_out = u_in + du;
+      //r =  u_out - u_in;
+
+      //outlet.r = inlet.r  + der(inlet.n_flow/n_in) * L;
+
+      u_out - u_in = du;
 
       outlet.u = u_out;
       outlet.h = h_out;
+      outlet.n = n_out;
 
       h_out = h_in;
+      n_out = n_in;
 
       annotation (Documentation(info="<html>
 <p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>

@@ -6209,4 +6209,80 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"));
     end ElectrochemicalAcetateProduction;
   end ClimateChange;
+
+  model SimpleReactionS "The simple chemical reaction A<->B with equilibrium B/A = 2"
+     extends Modelica.Icons.Example;
+
+    constant Real K = 2 "Dissociation constant of the reaction";
+
+    constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+    constant Real R = Modelica.Constants.R "Gas constant";
+
+    Chemical.Components.Solution solution
+      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+    Chemical.Components.SubstanceS A(
+      useInlet=false,
+      useOutlet=true,
+      substanceData(MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.9)
+      annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+
+    Chemical.Components.Process reaction(n_flow_0=7000)
+      annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
+    Chemical.Components.SubstanceS B(
+      useInlet=true,
+      useOutlet=false,
+      substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{42,-10},{62,10}})));
+
+    Components.Solution          solution1
+      annotation (Placement(transformation(extent={{118,-98},{318,102}})));
+    Components.Substance          A1(
+      substanceData(MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.9)
+      annotation (Placement(transformation(extent={{166,-6},{186,14}})));
+    Components.Reaction          reaction1(nS=1, nP=1)
+      annotation (Placement(transformation(extent={{208,-6},{228,14}})));
+    Components.Substance          B1(
+      substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.1)
+      annotation (Placement(transformation(extent={{280,-6},{260,14}})));
+  equation
+    connect(A.solution, solution.solution) annotation (Line(
+        points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
+        color={127,127,0}));
+    connect(B.solution, solution.solution) annotation (Line(points={{46,-10},{46,-92},{60,-92},{60,-98}},
+                                       color={127,127,0}));
+    connect(B.inlet, reaction.outlet) annotation (Line(
+        points={{42,0},{42,2},{10,2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(reaction.inlet, A.outlet) annotation (Line(
+        points={{-10,2},{-32,2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(A1.solution, solution1.solution) annotation (Line(points={{170,-6},{170,-84},{278,-84},{278,-96}}, color={127,127,0}));
+    connect(B1.solution, solution1.solution) annotation (Line(points={{276,-6},{278,-6},{278,-96}}, color={127,127,0}));
+    connect(A1.port_a, reaction1.substrates[1]) annotation (Line(points={{186,4},{208,4}}, color={158,66,200}));
+    connect(reaction1.products[1], B1.port_a) annotation (Line(points={{228,4},{260,4}}, color={158,66,200}));
+    annotation (Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
+</html>"),
+      experiment(
+        StopTime=0.001,
+        Tolerance=1e-06,
+        __Dymola_Algorithm="Dassl"),
+      Diagram(coordinateSystem(extent={{-100,-100},{340,100}})),
+      Icon(coordinateSystem(extent={{-100,-100},{340,100}})),
+      __Dymola_experimentSetupOutput);
+  end SimpleReactionS;
 end Examples;
