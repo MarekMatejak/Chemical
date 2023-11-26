@@ -1312,27 +1312,27 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-6,-54},{14,-34}})));
   equation
     connect(Ag.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-        points={{-52,-20},{-42,-20},{-42,-10},{-38,-10}},
+        points={{-52,-20},{-42,-20},{-42,-10},{-41,-10}},
         color={158,66,200},
         thickness=1));
     connect(Cl.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-        points={{-20,-16},{-42,-16},{-42,-10}},
+        points={{-20,-16},{-39,-16},{-39,-10}},
         color={158,66,200},
         thickness=1));
     connect(AgCl.port_a, electrodeReaction1.products[1]) annotation (Line(
-        points={{-56,14},{-38,14},{-38,10}},
+        points={{-56,14},{-41,14},{-41,10}},
         color={158,66,200},
         thickness=1));
     connect(H.port_a, electrodeReaction.products[1]) annotation (Line(
-        points={{28,-16},{50,-16},{50,-4}},
+        points={{28,-16},{53,-16},{53,-4}},
         color={158,66,200},
         thickness=1));
     connect(electrodeReaction.products[2], electrone1.port_a) annotation (Line(
-        points={{54,-4},{54,-16},{68,-16}},
+        points={{51,-4},{51,-16},{68,-16}},
         color={158,66,200},
         thickness=1));
     connect(electrodeReaction1.products[2], electrone.port_a) annotation (Line(
-        points={{-42,10},{-42,42},{-58,42}},
+        points={{-39,10},{-39,42},{-58,42}},
         color={158,66,200},
         thickness=1));
     connect(Cl.solution, solution1.solution) annotation (Line(
@@ -1459,15 +1459,15 @@ extends Modelica.Icons.ExamplesPackage;
     voltage = voltageSensor.v;
 
     connect(Pb.port_a, electrodeReaction1.substrates[1]) annotation (Line(
-        points={{30,-56},{13.5,-56},{13.5,-26},{12,-26}},
+        points={{30,-56},{13.5,-56},{13.5,-26},{15,-26}},
         color={158,66,200},
         thickness=0.5));
     connect(HSO4.port_a, electrodeReaction1.substrates[2]) annotation (Line(
-        points={{-22,-60},{16,-60},{16,-26}},
+        points={{-22,-60},{13,-60},{13,-26}},
         color={158,66,200},
         thickness=0.5));
     connect(PbSO4_.port_a, electrodeReaction1.products[1]) annotation (Line(
-        points={{32,-20},{26,-20},{26,-2},{16,-2},{16,-6},{11.3333,-6}},
+        points={{32,-20},{26,-20},{26,-2},{16,-2},{16,-6},{15.3333,-6}},
         color={158,66,200},
         thickness=0.5));
     connect(HSO4.solution, solution1.solution) annotation (Line(
@@ -1480,27 +1480,27 @@ extends Modelica.Icons.ExamplesPackage;
         points={{-6,-8},{-6,-79},{-3.6,-79}},
         color={127,127,0}));
     connect(electrodeReaction.products[1], PbSO4.port_a) annotation (Line(
-        points={{-34,-4},{-34,6},{-50,6}},
+        points={{-37,-4},{-37,6},{-50,6}},
         color={158,66,200},
         thickness=0.5));
     connect(electrodeReaction.products[2], H2O.port_a) annotation (Line(
-        points={{-38,-4},{-38,2},{-22,2}},
+        points={{-35,-4},{-35,2},{-22,2}},
         color={158,66,200},
         thickness=0.5));
     connect(PbO2.port_a, electrodeReaction.substrates[1]) annotation (Line(
-        points={{-50,-58},{-36,-58},{-36,-24},{-33,-24}},
+        points={{-50,-58},{-36,-58},{-36,-24},{-37.5,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(HSO4.port_a, electrodeReaction.substrates[2]) annotation (Line(
-        points={{-22,-60},{-34,-60},{-34,-24},{-35,-24}},
+        points={{-22,-60},{-34,-60},{-34,-24},{-36.5,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(H.port_a, electrodeReaction.substrates[3]) annotation (Line(
-        points={{-22,-32},{-32,-32},{-32,-24},{-37,-24}},
+        points={{-22,-32},{-32,-32},{-32,-24},{-35.5,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(electrone1.port_a, electrodeReaction.substrates[4]) annotation (Line(
-        points={{-52,-28},{-38,-28},{-38,-24},{-39,-24}},
+        points={{-52,-28},{-38,-28},{-38,-24},{-34.5,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(H.port_a, electrodeReaction1.products[2]) annotation (Line(
@@ -1508,7 +1508,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(electrone.port_a, electrodeReaction1.products[3]) annotation (Line(
-        points={{30,12},{14,12},{14,-6},{16.6667,-6}},
+        points={{30,12},{14,12},{14,-6},{12.6667,-6}},
         color={158,66,200},
         thickness=0.5));
   connect(Pb.solution, anode.solution) annotation (Line(
@@ -6386,207 +6386,7 @@ extends Modelica.Icons.ExamplesPackage;
       Icon(coordinateSystem(extent={{-100,-100},{340,100}})));
   end SimpleReaction2S;
 
-  model EnzymeKinetics2 "Basic enzyme kinetics"
-    extends Modelica.Icons.Example;
-
-    Chemical.Components.Solution solution
-      annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Boundaries.Substance          P(
-      useInlet=true,
-      useOutlet=false,
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8)
-      annotation (Placement(transformation(extent={{72,-12},{92,8}})));
-    Boundaries.Substance          S(use_mass_start=false, amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
-
-    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
-      "Total amount of enzyme";
-       parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
-      "Forward rate of second reaction";
-    constant Modelica.Units.SI.Concentration Km=0.1
-      "Michaelis constant = substrate concentration at rate of half Vmax";
-
-    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
-      "Maximal molar flow";
-
-    Boundaries.Substance          ES(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Boundaries.Substance          E(
-      useInlet=true,
-      useOutlet=true,               use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{10,38},{-10,58}})));
-    Processes.Reaction           chemicalReaction(
-      KC=Vmax/(2*Modelica.Constants.R*298.15*log(2)),
-      nP=1,
-      nS=2)
-      annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
-
-    Processes.Reaction           chemicalReaction1(
-      KC=Vmax/(2*Modelica.Constants.R*298.15*(50 - log(2))),
-      nS=1,
-      nP=2) annotation (Placement(transformation(extent={{24,-10},{44,10}})));
-
-    Components.Substance liquidWater(substanceData=
-          Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-    Components.Solution          solution1
-      annotation (Placement(transformation(extent={{118,-100},{318,100}})));
-    Components.Substance          P1(
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8)
-      annotation (Placement(transformation(extent={{310,-12},{290,8}})));
-    Components.Substance          S1(use_mass_start=false, amountOfSubstance_start=1)
-      annotation (Placement(transformation(extent={{126,-14},{146,6}})));
-    Components.Substance          ES1(
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{206,-10},{226,10}})));
-    Components.Substance          E1(use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{208,38},{228,58}})));
-    Components.Reaction          chemicalReaction2(
-      nS=2,
-      KC=Vmax/(2*Modelica.Constants.R*298.15*log(2)),
-      nP=1)
-      annotation (Placement(transformation(extent={{176,-10},{196,10}})));
-    Components.Reaction          chemicalReaction3(
-      nP=2,
-      KC=Vmax/(2*Modelica.Constants.R*298.15*(50 - log(2))),
-      nS=1) annotation (Placement(transformation(extent={{242,-10},{262,10}})));
-    Components.Substance liquidWater1(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{260,-80},{280,-60}})));
-  equation
-    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
-    connect(E.solution, solution.solution) annotation (Line(
-        points={{6,38},{-8,38},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
-
-    connect(S.solution, solution.solution) annotation (Line(
-        points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(P.solution, solution.solution) annotation (Line(
-        points={{76,-12},{76,-98},{60,-98}},
-        color={127,127,0}));
-    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
-    connect(S1.port_a, chemicalReaction2.substrates[1])
-      annotation (Line(
-        points={{146,-4},{154,-4},{154,-1},{176,-1}},
-        color={158,66,200},
-        thickness=1));
-    connect(E1.port_a, chemicalReaction2.substrates[2])
-      annotation (Line(
-        points={{228,48},{228,50},{160,50},{160,1},{176,1}},
-        color={158,66,200},
-        thickness=1));
-    connect(E1.port_a, chemicalReaction3.products[2])
-      annotation (Line(
-        points={{228,48},{228,50},{274,50},{274,1},{262,1}},
-        color={158,66,200},
-        thickness=1));
-    connect(chemicalReaction3.products[1], P1.port_a)
-      annotation (Line(
-        points={{262,-1},{264,-1},{264,-2},{290,-2}},
-        color={158,66,200},
-        thickness=1));
-    connect(E1.solution, solution1.solution) annotation (Line(points={{212,38},{212,106},{324,106},{324,-106},{278,-106},{278,-98}}, color={127,127,0}));
-    connect(ES1.solution, solution1.solution) annotation (Line(points={{210,-10},{210,-106},{278,-106},{278,-98}}, color={127,127,0}));
-    connect(S1.solution, solution1.solution) annotation (Line(points={{130,-14},{112,-14},{112,-106},{278,-106},{278,-98}}, color={127,127,0}));
-    connect(P1.solution, solution1.solution) annotation (Line(points={{306,-12},{324,-12},{324,-106},{278,-106},{278,-98}}, color={127,127,0}));
-    connect(liquidWater1.solution, solution1.solution) annotation (Line(points={{264,-80},{264,-106},{278,-106},{278,-98}}, color={127,127,0}));
-    connect(chemicalReaction2.products[1], ES1.port_a) annotation (Line(points={{196,0},{226,0}}, color={158,66,200}));
-    connect(ES1.port_a, chemicalReaction3.substrates[1]) annotation (Line(points={{226,0},{242,0}}, color={158,66,200}));
-    connect(S.outlet, chemicalReaction.substrates[1])
-      annotation (Line(
-        points={{-72,-4},{-60,-4},{-60,-0.25},{-42,-0.25}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(E.outlet, chemicalReaction.substrates[2])
-      annotation (Line(
-        points={{-10,48},{-56,48},{-56,0.25},{-42,0.25}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction.products[1], ES.inlet) annotation (Line(
-        points={{-22,0},{-12,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(ES.outlet, chemicalReaction1.substrates[1]) annotation (Line(
-        points={{8,0},{24,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[1], P.inlet)
-      annotation (Line(
-        points={{44,-0.25},{60,-0.25},{60,-2},{72,-2}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[2], E.inlet)
-      annotation (Line(
-        points={{44,0.25},{58,0.25},{58,48},{10,48}},
-        color={158,66,200},
-        thickness=0.5));
-        annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
-<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
-<p>S = Km .. the amount of substrate is Km</p>
-<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
-<p>x(Km) = Km/MM</p>
-<p>x(tE) = tE/MM</p>
-<p>xS = S/MM = Km/MM</p>
-<p><br>The new kinetics of the system defined as:</p>
-<p>uS&deg; = DfG(S) = 0</p>
-<p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
-<p>uP&deg; = DfG(P) </p>
-<p><br>r = Vmax/2</p>
-<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
-<p>because xES=xE this time</p>
-<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
-<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
-<p><br>where</p>
-<p>AmountOfSolution = MM = 55.508 (for water)</p>
-<p>Tau = 1 s (just to be physical unit correct)</p>
-<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
-<h4>The maximum of the new enzyme kinetics</h4>
-<p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
-<p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-</html>"),
-      experiment(StopTime=199000, __Dymola_Algorithm="Dassl"),
-      Diagram(coordinateSystem(extent={{-100,-100},{320,100}})),
-      Icon(coordinateSystem(extent={{-100,-100},{320,100}})));
-  end EnzymeKinetics2;
-
-  model EnzymeKinetics3 "Basic enzyme kinetics"
+  model EnzymeKineticsS "Basic enzyme kinetics"
     extends Modelica.Icons.Example;
 
     Chemical.Components.Solution solution
@@ -6734,5 +6534,216 @@ extends Modelica.Icons.ExamplesPackage;
         __Dymola_Algorithm="Dassl"),
       Diagram(coordinateSystem(extent={{-100,-100},{320,100}})),
       Icon(coordinateSystem(extent={{-100,-100},{320,100}})));
-  end EnzymeKinetics3;
+  end EnzymeKineticsS;
+
+  model LeadAcidBatteryS "The electrochemical cell: PbSO4(s) | Pb(s) | HSO4-(aq) , H+(aq) | PbO2(s) | PbSO4(s) + 2 H2O"
+   extends Modelica.Icons.Example;
+
+    Chemical.Components.Solution anode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{24,-76},{58,32}})));
+
+    Chemical.Components.Solution cathode(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-80,-78},{-46,30}})));
+
+    Chemical.Components.Solution solution1(ElectricGround=false)
+      annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
+
+    Chemical.Boundaries.Substance Pb(
+      substanceData=Chemical.Substances.Lead_solid(),
+      use_mass_start=false,
+      amountOfSubstance_start=50)
+      annotation (Placement(transformation(extent={{50,-66},{30,-46}})));
+    Boundaries.Substance          HSO4(
+      substanceData=Chemical.Substances.HydrogenSulfate_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-2,-70},{-22,-50}})));
+    Chemical.Boundaries.Substance PbSO4_(
+      useInlet=true,
+      useOutlet=false,
+      amountOfSubstance_start(displayUnit="mol") = 0.001,
+      substanceData=Chemical.Substances.LeadSulfate_solid(),
+      use_mass_start=false)
+      annotation (Placement(transformation(extent={{32,-30},{52,-10}})));
+    Chemical.Boundaries.Substance H(
+      useInlet=true,
+      useOutlet=true,
+      substanceData=Chemical.Substances.Proton_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start=1)
+      annotation (Placement(transformation(extent={{-2,-42},{-22,-22}})));
+    Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
+      annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
+    Processes.Reaction           electrodeReaction(
+      s={1,1,3,2},
+      p={1,2},
+      nS=4,
+      nP=2)    annotation (Placement(transformation(
+          extent={{-10,10},{10,-10}},
+          rotation=90,
+          origin={-36,-14})));
+    Chemical.Processes.Reaction electrodeReaction1(
+      p={1,1,2},
+      nS=1,
+      nP=3)      annotation (Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={14,-16})));
+
+  Boundaries.ElectronTransfer          electrone(useInlet=true, useOutlet=false)
+      annotation (Placement(transformation(extent={{30,2},{50,22}})));
+  Boundaries.ElectronTransfer          electrone1
+      annotation (Placement(transformation(extent={{-72,-38},{-52,-18}})));
+    Boundaries.Substance          PbO2(
+      substanceData=Chemical.Substances.LeadDioxide_solid(),
+      use_mass_start=false,
+      amountOfSubstance_start=50) annotation (Placement(transformation(extent={{-10,-10},
+              {10,10}}, origin={-60,-58})));
+    Boundaries.Substance H2O(
+      useInlet=true,
+      useOutlet=false,       mass_start(displayUnit="g") = 0.114, substanceData=
+         Chemical.Substances.Water_liquid())
+      annotation (Placement(transformation(extent={{-22,-8},{-2,12}})));
+    Boundaries.Substance          PbSO4(
+      useInlet=true,
+      useOutlet=false,
+      amountOfSubstance_start=0.001,
+      substanceData=Chemical.Substances.LeadSulfate_solid(),
+      use_mass_start=false) annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+                    origin={-60,6})));
+
+  Modelica.Electrical.Analog.Basic.Ground ground
+    annotation (Placement(transformation(extent={{16,30},{36,50}})));
+  Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
+    annotation (Placement(transformation(extent={{-14,40},{6,60}})));
+  Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
+    annotation (Placement(transformation(extent={{-56,40},{-36,60}})));
+
+    Real density, molality, totalmolality, voltage;
+    inner Modelica.Fluid.System system(T_ambient=299.15)
+      annotation (Placement(transformation(extent={{62,64},{82,84}})));
+    inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{70,20},{90,40}})));
+  equation
+    density = solution1.solution.m/solution1.solution.V;
+    totalmolality = solution1.solution.n/((H2O.x*solution1.solution.n)*H2O.substanceData.MolarWeight);
+    molality = HSO4.x*solution1.solution.n/((H2O.x*solution1.solution.n)*H2O.substanceData.MolarWeight);
+    voltage = voltageSensor.v;
+
+    connect(HSO4.solution, solution1.solution) annotation (Line(
+        points={{-6,-70},{-6,-70},{-6,-78},{-3.6,-78},{-3.6,-79}},
+        color={127,127,0}));
+    connect(H.solution, solution1.solution) annotation (Line(points={{-6,-42},{-6,-78},{-3.6,-78},{-3.6,-79}},
+                                       color={127,127,0}));
+    connect(H2O.solution, solution1.solution) annotation (Line(
+        points={{-18,-8},{-18,-79},{-3.6,-79}},
+        color={127,127,0}));
+  connect(Pb.solution, anode.solution) annotation (Line(
+      points={{46,-66},{46,-74.92},{51.2,-74.92}},
+      color={127,127,0}));
+  connect(PbSO4_.solution, anode.solution) annotation (Line(
+      points={{36,-30},{36,-74.92},{51.2,-74.92}},
+      color={127,127,0}));
+  connect(PbO2.solution, cathode.solution) annotation (Line(
+      points={{-66,-68},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
+      color={127,127,0}));
+  connect(electrone1.pin, voltageSensor.p) annotation (Line(
+      points={{-62,-18.2},{-82,-18.2},{-82,50},{-64,50},{-64,82},{-32,82}},
+      color={0,0,255}));
+  connect(electrone.pin, voltageSensor.n) annotation (Line(
+      points={{40,21.8},{40,50},{26,50},{26,82},{-12,82},{-12,82}},
+      color={0,0,255}));
+  connect(electrone.solution, anode.solution) annotation (Line(
+      points={{34,2},{34,-74.92},{51.2,-74.92}},
+      color={127,127,0}));
+  connect(electrone.pin, ground.p) annotation (Line(
+      points={{40,21.8},{40,50},{26,50}},
+      color={0,0,255}));
+  connect(electrone1.pin, currentSensor.p) annotation (Line(
+      points={{-62,-18.2},{-82,-18.2},{-82,50},{-56,50}},
+      color={0,0,255}));
+  connect(currentSensor.n, resistor.p) annotation (Line(
+      points={{-36,50},{-14,50}},
+      color={0,0,255}));
+  connect(resistor.n, electrone.pin) annotation (Line(
+      points={{6,50},{40,50},{40,21.8}},
+      color={0,0,255}));
+  connect(PbSO4.solution, cathode.solution) annotation (Line(
+      points={{-54,-4},{-54,-70},{-60,-70},{-60,-76.92},{-52.8,-76.92}},
+      color={127,127,0}));
+  connect(electrone1.solution, cathode.solution) annotation (Line(
+      points={{-68,-38},{-66,-38},{-66,-70},{-60,-70},{-60,-76.92},{-52.8,
+            -76.92}},
+      color={127,127,0}));
+
+    connect(Pb.outlet, electrodeReaction1.substrates[1]) annotation (Line(
+        points={{30,-56},{14,-56},{14,-26}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone1.outlet, electrodeReaction.substrates[1])
+      annotation (Line(
+        points={{-52,-28},{-44,-28},{-44,-30},{-36.375,-30},{-36.375,-24}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(PbO2.outlet, electrodeReaction.substrates[2])
+      annotation (Line(
+        points={{-50,-58},{-44,-58},{-44,-56},{-36.125,-56},{-36.125,-24}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(HSO4.outlet, electrodeReaction.substrates[3])
+      annotation (Line(
+        points={{-22,-60},{-36,-60},{-36,-24},{-35.875,-24}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H.outlet, electrodeReaction.substrates[4])
+      annotation (Line(
+        points={{-22,-32},{-35.625,-32},{-35.625,-24}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrodeReaction.products[1], H2O.inlet)
+      annotation (Line(
+        points={{-36.25,-4},{-36.25,2},{-22,2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrodeReaction.products[2], PbSO4.inlet)
+      annotation (Line(
+        points={{-35.75,-4},{-38,-4},{-38,6},{-50,6}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrodeReaction1.products[1], electrone.inlet)
+      annotation (Line(
+        points={{14.3333,-6},{14.3333,12},{30,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(PbSO4_.inlet, electrodeReaction1.products[2])
+      annotation (Line(
+        points={{32,-20},{26,-20},{26,2},{14,2},{14,-6}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H.inlet, electrodeReaction1.products[3])
+      annotation (Line(
+        points={{-2,-32},{6,-32},{6,16},{13.6667,16},{13.6667,-6}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation (
+    experiment(StopTime=47800, __Dymola_Algorithm="Dassl"),
+                                Documentation(revisions=
+                      "<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>", info="<html>
+<p>The lead-acid electrochemical cells are characterized by two chemical reactions:</p>
+<table width=100%>
+<tr><th>PbO2 + HSO4- + 3 H+ +2 e- &harr; PbSO4 + 2 H2O</th><td>(1)</td></tr>
+<tr><th>Pb + HSO4- &harr; PbSO4 + H+ + 2 e-</th><td>(2)</td></tr>
+</table>
+<p>The building of one cell of a lead-acid battery starts with the definition of three solutions: two for the lead elec-trodes and one for the liquid-acid solution (Figure 1A). This can be done by dragging and dropping the library class &lsquo;Components.Solution&rsquo; into the diagram. We called the first instance &ldquo;cathode&rdquo;, the second &ldquo;solution&rdquo; and the last &ldquo;anode&rdquo;. We set the parameter &lsquo;Electri-calGround&rsquo; as &ldquo;false&rdquo; for all of these solutions in order to attain the possibility of non-zero voltages. Now we can specify the chemical substances inside the chemical solutions. We drag and drop the library class &lsquo;Compo-nents.Substance&rsquo; into the &ldquo;solution&rdquo; as chemical sub-stances (Figure 1B). H2O(liquid), H+(aqueous) and HSO4-(aqueous) representing the liquid aqueous solu-tion of sulfuric acid. PbSO4(solid) and PbO2(solid) are placed in the &ldquo;cathode&rdquo;, representing the elements of the positive electrode. The substances Pb(solid) and aP-bSO4(solid) are placed into the &ldquo;anode&rdquo;, representing the elements of the negative electrode. All of these sub-stances must be given unique names (e.g., &ldquo;PbSO4&rdquo; for the cathode and &ldquo;aPbSO4&rdquo; for the anode), because the Modelica language does not support two instances with the same name in a single class.</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/LeadAcidBatterry1.png\"/></p>
+<p>Figure 1) The building of one electro-chemical cell of a lead-acid battery in four steps: A) adding chemical solutions, B) adding chemical substances, C) adding electron transfers and D) adding chemical reactions.</p>
+<p>As mentioned above, the appropriate substance data for all these substances must be selected as predefined parametric records, e.g., &lsquo;Exam-ples.Substances.Water_liquid&rsquo;, &lsquo;.Lead_solid&rsquo;, &lsquo;.Lead_dioxide_solid&rsquo;, &lsquo;.Lead_sulfate_solid&rsquo;, and so on. The last, very special substance to be included is an electron. This class is called &lsquo;Compo-nents.ElectronTransfer&rsquo; and it must be added in order for each electrode to transfer electron from the chemical reaction to the electric circuit (Figure 1C). Each of these substances must be connected to the appropriate solu-tion using a solution port situated in the bottom of the component&rsquo;s icons to indicate that they are all mixed in the solution. By having all these substances, it is possi-ble to implement the chemical reactions. Dragging and dropping the library class &lsquo;Components.Reaction&rsquo; for both chemical reactions, and setting their parameters as an appropriate number of reactants, products and stoi-chiometry, allows the connection of each substance with the reaction, as expressed in reaction (1) and reaction (2). This setting can be done using the parameter dialog of the cathode chemical reaction (1) as there are four types of substrates (nS=4) with stoichiometric coeffi-cients: one for the first and second reactant, three for the third reactant and two for the fourth reactant (s={1,1,3,2}). There are also two types of products (nP=2) with stoichiometry: one for PbSO4 and two for water (p={1,2}), following the chemical scheme of the first chemical reaction above. After setting the number of reactants and products, it is possible to connect the substances with reactions. Each instance of reaction has an array of connectors for substrates and an array of con-nectors for products; the user must be very careful to connect each element of these arrays in the same order as defined by stoichiometric coefficients. This means that, for example, the water must be connected in index 2 to products of the first chemical reaction, because we had already selected the order of products by setting the array of stoichiometric coefficients in reaction (1). The chemical reaction (2) must be set analogically as nS=2, nP=3, p={1,1,2} with connections of substance ports of Pb to substrate[1], HSO4- to substrate[2], PbSO4 to prod-uct[1], H+ to product[2] and e- to product[3], as repre-sented in Figure 1D.</p>
+<p>The electrochemical cell has already been imple-mented at this stage. However, the simulation requires the initial state of substances, which for the fully charged battery means that almost all elements of the cathode are PbO2 and almost all elements of the anode are Pb. In this state, the sulfuric acid can be concen-trated, which increases the effectiveness of the electro-chemical cell. To set this state, it is possible to just dou-ble-click on PbO2 and Pb and set the amount, e.g., 1mol. To set the pure concentrated sulfuric acid we can also set the amount of SO4- and H+ as 1mol. This fully charged ideal state is ready to simulate when it is con-nected to the electric ground via one of the electric ports of the one electron transfer component.</p>
+<p>These batteries can be connected to any electrical cir-cuit that is slowly discharging. For example, if we only connect the simple electric resistance of 1 Ohm as ex-pressed in Figure 1D, then the simulation of the dis-charging process over 13 hours and 45 minutes gives the results of electric current and electric potential, as can be seen in Figure 2. The exchange of the resistor with a voltage source can simulate the charging process for a discharged cell.</p>
+<p><img src=\"modelica://Chemical/Resources/Images/Examples/LeadAcidBatterry2.png\"/></p>
+<p>Figure 2) Discharging simulation of the lead-acid battery cell from Figure 2D, with the initial amount of substances as described in the text.</p>
+</html>"));
+  end LeadAcidBatteryS;
 end Examples;

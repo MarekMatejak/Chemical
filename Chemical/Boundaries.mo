@@ -4,11 +4,10 @@ extends Modelica.Icons.SourcesPackage;
 
   model Substance "Substance in solution"
     extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
 
     Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
       "Molar concentration of particles";
-
-    extends Internal.PartialSubstanceInSolutionWithAdditionalPorts;
 
     parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
       annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
@@ -96,10 +95,10 @@ extends Modelica.Icons.SourcesPackage;
       //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
       //TODO: more precise calculation of other properties
 
-     //der(enthalpy) = solution.dH + q*actualStream(port_a.h_outflow);
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
      //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
       solution.dH =if (EnthalpyNotUsed) then 0 else der(molarEnthalpy)*
-        amountOfBaseMolecules + q*molarEnthalpy - n_flow_out*h_out - n_flow_in*h_in + (
+        amountOfBaseMolecules + n_flow*molarEnthalpy - n_flow_out*h_out - n_flow_in*h_in + (
         if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
         substanceData)*der(amountOfBonds) else 0)
                       "heat transfer from other substances in solution [J/s]";
@@ -113,11 +112,11 @@ extends Modelica.Icons.SourcesPackage;
       amountOfBaseMolecules = amountOfFreeMolecule;
       amountOfBonds = 0;
 
-      //der(enthalpy) = solution.dH + q*actualStream(port_a.h_outflow);
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
       //enthalpy = molarEnthalpy*amountOfBaseMolecules;
       solution.dH =
         if (EnthalpyNotUsed) then  0
-        else    der(molarEnthalpy)*amountOfBaseMolecules + q*molarEnthalpy
+        else    der(molarEnthalpy)*amountOfBaseMolecules + n_flow*molarEnthalpy
                 - n_flow_out*h_out - n_flow_in*h_in
                 "heat transfer from other substances in solution [J/s]";
 
@@ -125,9 +124,9 @@ extends Modelica.Icons.SourcesPackage;
 
     end if;
 
-    //The main accumulation equation is "der(amountOfBaseMolecules)=q"
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
     // However, the numerical solvers can handle it in form of log(n) much better. :-)
-    der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
     amountOfBaseMolecules = exp(logn);
 
     x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
@@ -135,9 +134,9 @@ extends Modelica.Icons.SourcesPackage;
     c = amountOfParticles/solution.V "concentration [mol/m3]";
 
     //solution flows
-    solution.i = Modelica.Constants.F*z*q +
+    solution.i = Modelica.Constants.F*z*n_flow +
         Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
-    solution.dV = molarVolume*q + der(molarVolume)*amountOfBaseMolecules "change of substance volume [m3/s]";
+    solution.dV = molarVolume*n_flow + der(molarVolume)*amountOfBaseMolecules "change of substance volume [m3/s]";
 
     //extensive properties
     solution.nj = amountOfParticles;
@@ -521,7 +520,9 @@ Test package for the Boundaries package of ThermofluidStream.
     Modelica.Units.SI.ActivityOfSolute a
       "Activity of the substance (mole-fraction based)";
 
-     Real r;
+     Modelica.Units.SI.ChemicalPotential r "Inertial electro-chemical potential";
+
+     Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
 
     protected
       outer Chemical.DropOfCommons dropOfCommons;
@@ -576,6 +577,7 @@ Test package for the Boundaries package of ThermofluidStream.
       assert(-n_flow_out > n_flow_assert, "Positive massflow at Volume outlet", dropOfCommons.assertionLevel);
       assert(x > 0, "Molar fraction must be positive");
 
+     n_flow = n_flow_in + n_flow_out;
 
      //aliases
      gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
@@ -658,30 +660,60 @@ Test package for the Boundaries package of ThermofluidStream.
 
     end PartialSubstanceInSolution;
 
-    partial model PartialSubstanceInSolutionWithAdditionalPorts "Substance properties for components, where the substance is connected with the solution"
-
-      extends Boundaries.Internal.PartialSubstanceInSolution;
-
-    Modelica.Units.SI.MolarFlowRate q
-      "Molar flow rate of the substance into the component";
-
-      Interfaces.SubstanceMassPort_a port_m "Substance mass fraction port" annotation (Placement(transformation(extent={{92,-110},{112,-90}})));
-
-      Interfaces.SubstanceMolarityPort_a port_c annotation (Placement(transformation(extent={{90,90},{110,110}})));
-
-    equation
-      //molar mass flow
-      q=(n_flow_in + n_flow_out + port_c.q + port_m.m_flow/stateOfMatter.molarMassOfBaseMolecule(substanceData));
-
-      //substance mass fraction
-      port_m.x_mass = solution.mj/solution.m;
-      port_c.c = solution.nj/solution.V;
-
-    end PartialSubstanceInSolutionWithAdditionalPorts;
   annotation (Documentation(info="<html>
 <p>This package contains all internal functions, partials, and other (e.g. experimental) models for the Boundaries package.</p>
 </html>"));
   end Internal;
+
+  model ElectronTransfer "Electron transfer from the solution to electric circuit"
+    extends Icons.ElectronTransfer;
+    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
+      final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+      MolarWeight=5.4857990946e-7,
+      z=-1,
+      DfH=0,
+      DfG=0,
+      Cp=0,
+      density=1e20));
+
+    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+        Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
+            extent={{-10,88},{10,108}})));
+
+  equation
+
+    //electric
+    pin.v = electricPotential;
+    pin.i + z*Modelica.Constants.F*n_flow + solution.i = 0;
+
+    //pure substance
+    x = 1;
+
+    //solution changes
+    solution.dH = 0;
+    solution.dV = 0;
+
+    //extensive properties of the solution
+    solution.nj=0;
+    solution.mj=0;
+    solution.Vj=0;
+    solution.Gj=0;
+    solution.Qj=0;
+    solution.Ij=0;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Text(
+            extent={{-146,-44},{154,-84}},
+            textString="%name",
+            lineColor={128,0,255})}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ElectronTransfer;
   annotation (Documentation(revisions="<html>
 <p><img src=\"modelica:/ThermofluidStream/Resources/dlr_logo.png\"/>(c) 2020-2021, DLR, Institute of System Dynamics and Control</p>
 
