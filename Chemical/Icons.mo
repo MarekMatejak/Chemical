@@ -5,8 +5,7 @@ package Icons "Icons for chemical models"
 
   partial class Diffusion
 
-    annotation (Icon(graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                "modelica://Chemical/Resources/Icons/diffusion.png")}));
+    annotation (Icon(graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName="modelica://Chemical/Resources/Icons/diffusion.png")}));
 
   end Diffusion;
 
@@ -14,16 +13,14 @@ package Icons "Icons for chemical models"
 
       annotation ( Icon(coordinateSystem(
             preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                "modelica://Chemical/Resources/Icons/Substance.png")}));
+          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName="modelica://Chemical/Resources/Icons/Substance.png")}));
   end Substance;
 
   class Speciation
 
     annotation ( Icon(coordinateSystem(
             preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                "modelica://Chemical/Resources/Icons/Speciation.png")}));
+          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName="modelica://Chemical/Resources/Icons/Speciation.png")}));
   end Speciation;
 
   class GasSolubility
@@ -31,8 +28,7 @@ package Icons "Icons for chemical models"
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
               -100},{100,100}}), graphics={Bitmap(extent={{-100,-100},{100,
               100}},
-              fileName=
-                "modelica://Chemical/Resources/Icons/GasSolubility.png")}));
+              fileName="modelica://Chemical/Resources/Icons/GasSolubility.png")}));
   end GasSolubility;
 
   class Membrane
@@ -46,8 +42,7 @@ package Icons "Icons for chemical models"
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
               -100},{100,100}}), graphics={Bitmap(extent={{-80,-26},{86,84}},
-              fileName=
-                "modelica://Chemical/Resources/Icons/EnzymeKinetics.png")}));
+              fileName="modelica://Chemical/Resources/Icons/EnzymeKinetics.png")}));
   end EnzymeKinetics;
 
   class Solution
@@ -70,16 +65,14 @@ package Icons "Icons for chemical models"
 
       annotation ( Icon(coordinateSystem(
             preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                "modelica://Chemical/Resources/Icons/buffer.png")}));
+          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName="modelica://Chemical/Resources/Icons/buffer.png")}));
   end Buffer;
 
   class ElectronTransfer
 
       annotation ( Icon(coordinateSystem(
             preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-              "modelica://Chemical/Resources/Icons/electron.png")}));
+          graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName="modelica://Chemical/Resources/Icons/electron.png")}));
   end ElectronTransfer;
   annotation (Documentation(revisions=""));
 end Icons;

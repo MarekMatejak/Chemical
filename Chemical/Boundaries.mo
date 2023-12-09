@@ -179,8 +179,376 @@ extends Modelica.Icons.SourcesPackage;
 </html>"));
   end Substance;
 
-  model Source "Boundary model of a source"
+  model ElectronTransfer "Electron transfer from the solution to electric circuit"
+    extends Icons.ElectronTransfer;
+    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible,
+      final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+      MolarWeight=5.4857990946e-7,
+      z=-1,
+      DfH=0,
+      DfG=0,
+      Cp=0,
+      density=1e20));
 
+    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+        Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
+            extent={{-10,88},{10,108}})));
+
+  equation
+
+    //electric
+    pin.v = electricPotential;
+    pin.i + z*Modelica.Constants.F*n_flow + solution.i = 0;
+
+    //pure substance
+    x = 1;
+
+    //solution changes
+    solution.dH = 0;
+    solution.dV = 0;
+
+    //extensive properties of the solution
+    solution.nj=0;
+    solution.mj=0;
+    solution.Vj=0;
+    solution.Gj=0;
+    solution.Qj=0;
+    solution.Ij=0;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Text(
+            extent={{-146,-44},{154,-84}},
+            textString="%name",
+            lineColor={128,0,255})}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ElectronTransfer;
+
+  model ExternalIdealGasSubstance "Ideal gas substance with defined partial pressure"
+    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter =
+          Interfaces.IdealGas);
+    extends Internal.PartialSolutionSensor;
+
+    parameter Boolean usePartialPressureInput = false
+    "=true, if fixed partial pressure is from input instead of parameter"
+    annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+    parameter Modelica.Units.SI.Pressure PartialPressure=0
+      "Fixed partial pressure if usePartialPressureInput=false" annotation (
+       HideResult=true, Dialog(enable=not usePartialPressureInput));
+
+    Modelica.Blocks.Interfaces.RealInput partialPressure(start=
+          PartialPressure, final unit="Pa")=p if usePartialPressureInput
+    "Partial pressure of gas = total pressure * gas fraction"
+      annotation (HideResult=true,Placement(transformation(extent={{-120,-20},{-80,20}})));
+
+    Modelica.Units.SI.Pressure p "Current partial pressure";
+
+  equation
+
+    if not usePartialPressureInput then
+      p=PartialPressure;
+    end if;
+
+    //mole fraction
+    x = p / solution.p;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Rectangle(
+          extent={{-100,100},{100,-100}},
+          lineColor={0,0,0},
+          pattern=LinePattern.None,
+          fillColor={170,255,255},
+          fillPattern=FillPattern.Backward),
+          Polygon(
+            points={{-100,100},{100,-100},{100,100},{-100,100}},
+            fillColor={159,159,223},
+            fillPattern=FillPattern.Backward,
+            pattern=LinePattern.None,
+            lineColor={0,0,0}),
+          Text(
+            extent={{0,0},{-100,-100}},
+            lineColor={0,0,0},
+            textString="P,T"),
+          Line(
+            points={{-62,0},{56,0}},
+            color={191,0,0},
+            thickness=0.5),
+          Polygon(
+            points={{38,-20},{38,20},{78,0},{38,-20}},
+            lineColor={191,0,0},
+            fillColor={191,0,0},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-150,150},{150,110}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-100,-102},{104,-126}},
+            lineColor={0,0,0},
+            textString="%T K")}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ExternalIdealGasSubstance;
+
+  model PureSubstance "Constant source of pure substance"
+    extends Internal.PartialSubstanceInSolution;
+    extends Internal.PartialSolutionSensor;
+
+  protected
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*temperature))
+      "Dissociation constant of hydrogen bond between base molecules";
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(
+                                             substanceData) - temperature*
+        stateOfMatter.selfClusteringBondEntropy(
+                                            substanceData)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+  equation
+
+     if stateOfMatter.selfClustering(substanceData) then
+
+      //Liquid cluster theory - equilibrium:
+      //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
+
+      //sum(x[i]) = x/(1-K*x) = amountOfParticles/amountOfParticles = 1;
+      x = 1/(1+SelfClustering_K) "mole fraction of free base molecule";
+    else
+      x = 1 "pure substance is composed only with free base molecules";
+    end if;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={0,0,0},
+            pattern=LinePattern.None,
+            fillColor={107,45,134},
+            fillPattern=FillPattern.Backward),
+          Text(
+            extent={{10,8},{-90,-92}},
+            lineColor={0,0,0},
+            textString="pure"),
+          Line(
+            points={{-62,0},{56,0}},
+            color={191,0,0},
+            thickness=0.5),
+          Polygon(
+            points={{38,-20},{38,20},{78,0},{38,-20}},
+            lineColor={191,0,0},
+            fillColor={191,0,0},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-150,150},{150,110}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-104,-76},{100,-100}},
+            lineColor={0,0,0},
+            textString="%T K")}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end PureSubstance;
+
+   model ExternalMolality "Constant source of substance molality"
+    extends Internal.PartialSubstanceInSolution;
+    extends Internal.PartialSolutionSensor;
+
+     parameter Modelica.Units.SI.Molality Molality = 1e-8
+    "Fixed molality of the substance if useMolalityInput=false"
+      annotation (HideResult=true, Dialog(enable=not useMolalityInput));
+
+      parameter Boolean useMolalityInput = false
+    "Is amount of substance an input?"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+    Modelica.Blocks.Interfaces.RealInput molalityInput(start=Molality,final unit="mol/kg")=n/KG
+      if useMolalityInput
+      annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
+
+    Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
+
+   equation
+     if not useMolalityInput then
+       n=Molality*solution.m;
+     end if;
+
+    x = n/solution.n;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={0,0,0},
+            pattern=LinePattern.None,
+            fillColor={107,45,134},
+            fillPattern=FillPattern.Backward),
+          Line(
+            points={{-62,0},{56,0}},
+            color={191,0,0},
+            thickness=0.5),
+          Polygon(
+            points={{38,-20},{38,20},{78,0},{38,-20}},
+            lineColor={191,0,0},
+            fillColor={191,0,0},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-150,150},{150,110}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-104,-76},{100,-100}},
+            lineColor={0,0,0},
+            textString="%T K"),
+          Text(
+            extent={{94,-4},{-94,-78}},
+            lineColor={0,0,0},
+            textString="molality")}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+   end ExternalMolality;
+
+  model ExternalConcentration "Constant source of molar concentration"
+     extends Internal.PartialSubstanceInSolution;
+     extends Internal.PartialSolutionSensor;
+
+     parameter Modelica.Units.SI.Concentration MolarConcentration = 1e-8
+    "Fixed molarity of the substance if useMolarityInput=false"
+      annotation (HideResult=true, Dialog(enable=not useMolarityInput));
+
+    parameter Modelica.Units.SI.AmountOfSubstance AmountOfSolutionIn1L=55.508
+      "Amount of all particles in the solution one liter of solvent";
+
+      parameter Boolean useMolarityInput = false
+    "Is amount of substance an input?"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+    Modelica.Blocks.Interfaces.RealInput molarConcentrationInput(start=MolarConcentration,final unit="mol/m3", displayUnit="mol/l")=n/L
+      if useMolarityInput
+      annotation (HideResult=true, Placement(transformation(extent={{-120,-20},{-80,20}})));
+
+    Modelica.Units.SI.AmountOfSubstance n "Current amount of the substance";
+
+  equation
+     if not useMolarityInput then
+       n=MolarConcentration*solution.V;
+     end if;
+
+    x = n/solution.n;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={0,0,0},
+            pattern=LinePattern.None,
+            fillColor={107,45,134},
+            fillPattern=FillPattern.Backward),
+          Text(
+            extent={{94,92},{-94,18}},
+            lineColor={0,0,0},
+            textString="molarity"),
+          Line(
+            points={{-62,0},{56,0}},
+            color={191,0,0},
+            thickness=0.5),
+          Polygon(
+            points={{38,-20},{38,20},{78,0},{38,-20}},
+            lineColor={191,0,0},
+            fillColor={191,0,0},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-150,150},{150,110}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-104,-76},{100,-100}},
+            lineColor={0,0,0},
+            textString="%T K")}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ExternalConcentration;
+
+  model ExternalMoleFraction "Constant source of substance mole fraction"
+       extends Internal.PartialSubstanceInSolution;
+       extends Internal.PartialSolutionSensor;
+
+    parameter Modelica.Units.SI.MoleFraction MoleFraction=1e-8
+      "Fixed mole fraction of the substance if useMoleFractionInput=false"
+      annotation (HideResult=true, Dialog(enable=not useMoleFractionInput));
+
+      parameter Boolean useMoleFractionInput = false
+    "Is mole fraction of the substance an input?"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+    Modelica.Blocks.Interfaces.RealInput moleFractionInput(
+      final unit="mol/mol",
+      start=MoleFraction)=x
+      if useMoleFractionInput annotation (HideResult=true, Placement(transformation(
+            extent={{-120,-20},{-80,20}})));
+
+  equation
+     if not useMoleFractionInput then
+       x=MoleFraction;
+     end if;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={0,0,0},
+            pattern=LinePattern.None,
+            fillColor={107,45,134},
+            fillPattern=FillPattern.Backward),
+          Line(
+            points={{-62,0},{56,0}},
+            color={191,0,0},
+            thickness=0.5),
+          Polygon(
+            points={{38,-20},{38,20},{78,0},{38,-20}},
+            lineColor={191,0,0},
+            fillColor={191,0,0},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-150,150},{150,110}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-104,-76},{100,-100}},
+            lineColor={0,0,0},
+            textString="%T K"),
+          Text(
+            extent={{94,-4},{-94,-78}},
+            lineColor={0,0,0},
+            textString="n")}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ExternalMoleFraction;
+
+  model ExternalChemicalPotentialSource "Constant source of electro-chemical potential"
 
     parameter Boolean potentialFromInput = false "Use input connector for electro-chemical potential?";
     parameter Boolean enthalpyFromInput = false "Use input connector for molar enthalpy";
@@ -254,9 +622,9 @@ extends Modelica.Icons.SourcesPackage;
     <p>Source of a Chemical substance stream. The state can be given as fix values or as a real signal. </p>
 <p>Before its inertance the source has an inertial potential of 0 by definition.</p>
 </html>"));
-  end Source;
+  end ExternalChemicalPotentialSource;
 
-  model Sink "Boundary model of sink"
+  model ExternalChemicalPotentialSink "Boundary model of sink"
 
     parameter Boolean potentialFromInput = false "If true electro-chemical potential comes from real input";
     parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not pressureFromInput));
@@ -329,7 +697,117 @@ extends Modelica.Icons.SourcesPackage;
 <p>Sink for a thermofluid stream. The pressure can be set or given by a real signal via input connector.</p>
 <p>The inertial pressure after the sinks inertance is by definition the difference between the input pressure and the set pressure. The sink therefore acts by definition as the origin of the energy to accelerate the stream. </p>
 </html>"));
-  end Sink;
+  end ExternalChemicalPotentialSink;
+
+  model SubstanceInflow "Molar pump of substance to system"
+    extends Interfaces.ConditionalSubstanceFlow;
+
+    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
+
+  Interfaces.Outlet outlet "Outflow"
+    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
+  protected
+    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
+
+  initial equation
+    u = u_0;
+
+  equation
+    outlet.n_flow = q;
+
+    TC * der(u) = outlet.r;
+    outlet.u = u;
+    outlet.h = h;
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}), graphics={
+          Rectangle(
+            extent={{-100,-42},{100,40}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-48,20},{50,0},{-48,-21},{-48,20}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-220,-80},{220,-60}},
+            textString="%name",
+            lineColor={128,0,255})}),      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end SubstanceInflow;
+
+  model SubstanceInflowT
+    "Molar pump of substance at defined temperature to system"
+    extends Interfaces.ConditionalSubstanceFlow;
+
+    parameter Modelica.Units.SI.Temperature T=273.15+37;
+    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
+
+  Interfaces.Outlet outlet "Outflow"
+    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
+   outer Modelica.Fluid.System system "System wide properties";
+
+   replaceable package stateOfMatter =
+      Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+   parameter stateOfMatter.SubstanceData substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+  protected
+    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
+
+  initial equation
+    u = u_0;
+
+  equation
+    outlet.n_flow = q;
+
+    TC * der(u) = outlet.r;
+    outlet.u = u;
+    outlet.h = stateOfMatter.molarEnthalpy(substanceData,T);
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}), graphics={
+          Rectangle(
+            extent={{-100,-42},{100,40}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-48,20},{50,0},{-48,-21},{-48,20}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-220,-80},{220,-60}},
+            textString="%name",
+            lineColor={128,0,255})}),      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end SubstanceInflowT;
 
   model TerminalSource "Source that imposes n_flow = 0"
 
@@ -337,8 +815,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial potential";
 
-    Chemical.Interfaces.Outlet outlet
-      annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
@@ -386,10 +863,40 @@ extends Modelica.Icons.SourcesPackage;
 </html>"));
   end TerminalSource;
 
+  model SubstanceOutflow "Molar pump of substance out of system"
+    extends Interfaces.ConditionalSubstanceFlow;
+
+  Interfaces.Inlet inlet "Inflow"
+    annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+
+  equation
+    inlet.n_flow = q;
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}), graphics={
+          Rectangle(
+            extent={{-100,-42},{100,40}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-48,20},{50,0},{-48,-21},{-48,20}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-220,-80},{220,-60}},
+            textString="%name",
+            lineColor={128,0,255})}),      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end SubstanceOutflow;
+
   model TerminalSink "Sink that imposes m_flow=0"
 
-    Chemical.Interfaces.Inlet inlet
-      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
   equation
     inlet.n_flow = 0;
@@ -434,20 +941,16 @@ extends Modelica.Icons.SourcesPackage;
       extends Modelica.Icons.Example;
 
       inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{58,-74},{78,-54}})));
-      Source source(
+      ExternalChemicalPotentialSource source(
         u0_par=-200000, L=0,
         outlet(n_flow(start=0, fixed=true)))
         annotation (Placement(transformation(extent={{-32,10},{-12,30}})));
-      Sink sink(u0_par=-100000)
-        annotation (Placement(transformation(extent={{14,10},{34,30}})));
-      Source source1(
+      ExternalChemicalPotentialSink sink(u0_par=-100000) annotation (Placement(transformation(extent={{14,10},{34,30}})));
+      ExternalChemicalPotentialSource source1(
         u0_par=-200000,
         outlet(n_flow(start=0, fixed=true)))
         annotation (Placement(transformation(extent={{-32,-30},{-12,-10}})));
-      Sink sink1(
-        L=0,
-        u0_par=-100000)
-        annotation (Placement(transformation(extent={{14,-30},{34,-10}})));
+      ExternalChemicalPotentialSink sink1(L=0, u0_par=-100000) annotation (Placement(transformation(extent={{14,-30},{34,-10}})));
     equation
       connect(sink.inlet, source.outlet) annotation (Line(
           points={{14,20},{-12,20}},
@@ -660,60 +1163,272 @@ Test package for the Boundaries package of ThermofluidStream.
 
     end PartialSubstanceInSolution;
 
+    partial model PartialSolutionSensor "Base class for sensor based on substance and solution properties"
+
+      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+    equation
+      //solution is not changed by the sensor components
+      solution.dH = 0;
+      solution.i = 0;
+      solution.dV = 0;
+      solution.Gj = 0;
+      solution.nj = 0;
+      solution.mj = 0;
+      solution.Qj = 0;
+      solution.Ij = 0;
+      solution.Vj = 0;
+
+    end PartialSolutionSensor;
+
+    partial model ConditionalSolutionFlow "Input of solution molar flow vs. parametric solution molar flow"
+      extends PartialSolutionSensor;
+
+      parameter Boolean useSolutionFlowInput = false
+      "=true, if solution flow is provided via input"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
+              Dialog(group="Conditional inputs", __Dymola_compact=true));
+
+    parameter Modelica.Units.SI.VolumeFlowRate SolutionFlow=0
+      "Volume flow rate of the solution if useSolutionFlowInput=false"
+      annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
+
+
+      Modelica.Blocks.Interfaces.RealInput solutionFlow(start=SolutionFlow, final unit="m3/s")=
+         q*OneLiter/AmountOfSolutionIn1L if useSolutionFlowInput
+         annotation ( HideResult=true, Placement(transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,40}), iconTransformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,40})));
+
+    Modelica.Units.SI.MolarFlowRate q "Current molar solution flow";
+
+
+    equation
+      if not useSolutionFlowInput then
+        q*solution.V/solution.n = SolutionFlow;
+      end if;
+
+    end ConditionalSolutionFlow;
   annotation (Documentation(info="<html>
 <p>This package contains all internal functions, partials, and other (e.g. experimental) models for the Boundaries package.</p>
 </html>"));
   end Internal;
 
-  model ElectronTransfer "Electron transfer from the solution to electric circuit"
-    extends Icons.ElectronTransfer;
-    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible,
-      final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
-      MolarWeight=5.4857990946e-7,
-      z=-1,
-      DfH=0,
-      DfG=0,
-      Cp=0,
-      density=1e20));
+  model Clearance "Physiological Clearance"
+   extends Internal.ConditionalSolutionFlow(  final SolutionFlow=Clearance/K);
+   extends Internal.PartialSubstanceInSolution(final useInlet=true, final useOutlet=false);
 
-    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
-        Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
-            extent={{-10,88},{10,108}})));
+  parameter Modelica.Units.SI.VolumeFlowRate Clearance=0
+    "Physiological clearance of the substance if useSolutionFlowInput=false"
+    annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
+
+    parameter Real K(unit="1")=1
+    "Coefficient such that Clearance = K*solutionFlow";
+
+  Modelica.Units.SI.MolarFlowRate molarClearance
+    "Current molar clearance";
 
   equation
+    molarClearance = q*K;
 
-    //electric
-    pin.v = electricPotential;
-    pin.i + z*Modelica.Constants.F*n_flow + solution.i = 0;
+    inlet.n_flow = molarClearance * x;
 
-    //pure substance
-    x = 1;
+    assert(molarClearance>=-Modelica.Constants.eps, "Clearance can not be negative!");
 
-    //solution changes
-    solution.dH = 0;
-    solution.dV = 0;
-
-    //extensive properties of the solution
-    solution.nj=0;
-    solution.mj=0;
-    solution.Vj=0;
-    solution.Gj=0;
-    solution.Qj=0;
-    solution.Ij=0;
-
-    annotation ( Icon(coordinateSystem(
-            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-          graphics={
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+                          graphics={
+          Rectangle(
+            extent={{-100,-100},{100,50}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{80,25},{-80,0},{80,-25},{80,25}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
           Text(
-            extent={{-146,-44},{154,-84}},
+            extent={{-150,-90},{150,-50}},
             textString="%name",
-            lineColor={128,0,255})}),
+            lineColor={128,0,255}),
+          Text(
+            extent={{-100,-30},{100,-50}},
+            lineColor={0,0,0},
+            textString="K=%K")}),        Documentation(revisions="<html>
+<p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end Clearance;
+
+  model Degradation "Degradation of the substance"
+    extends Internal.PartialSubstanceInSolution(final useInlet=true, final useOutlet=false);
+    extends Internal.PartialSolutionSensor;
+
+  parameter Modelica.Units.SI.Time HalfTime
+    "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
+
+  equation
+    inlet.n_flow = (Modelica.Math.log(2)/HalfTime)*x*amountOfSolution;
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+                          graphics={
+          Rectangle(
+            extent={{-100,-100},{100,58}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{64,26},{-78,0},{64,-26},{64,26}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-148,-82},{152,-42}},
+            textString="%name",
+            lineColor={128,0,255}),
+          Text(
+            extent={{-100,54},{100,28}},
+            lineColor={0,0,0},
+            textString="t1/2 = %HalfTime s"),
+          Polygon(
+            points={{54,24},{54,-24},{44,-22},{44,22},{54,24}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{30,20},{30,-20},{20,-18},{20,18},{30,20}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{8,16},{8,-16},{-2,-14},{-2,14},{8,16}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-12,12},{-12,-12},{-22,-10},{-22,10},{-12,12}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-34,8},{-34,-8},{-44,-6},{-44,6},{-34,8}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-56,4},{-56,-4},{-66,-2},{-66,2},{-56,4}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid)}),
       Documentation(revisions="<html>
+<table>
+<tr>
+<td>Author:</td>
+<td>Marek Matejak</td>
+</tr>
+<tr>
+<td>Copyright:</td>
+<td>In public domains</td>
+</tr>
+<tr>
+<td>By:</td>
+<td>Charles University, Prague</td>
+</tr>
+<tr>
+<td>Date of:</td>
+<td>2009-2020</td>
+</tr>
+</table>
+</html>"));
+  end Degradation;
+
+  model Buffer
+  "Source of substance bounded to constant amount of buffer to reach linear dependence between concentration and electrochemical potential"
+    extends Icons.Buffer;
+    extends Internal.PartialSubstanceInSolution(
+                   a(start = a_start));
+
+  parameter Modelica.Units.SI.MoleFraction a_start=1e-7
+    "Initial value of mole fraction of the buffered substance";
+
+  parameter Modelica.Units.SI.AmountOfSubstance BufferValue=0.001
+    "Fixed buffer value (slope between amount of buffered substance and -log10(activity)) if useBufferValueInput=false"
+    annotation (HideResult=true, Dialog(enable=not useBufferValueInput));
+
+       parameter Boolean useBufferValueInput = false
+    "Is buffer value of the substance an input?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+        extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
+
+        Real bufferValue(final unit="1");
+
+      Modelica.Blocks.Interfaces.RealInput bufferValueInput(
+        final unit="mol/mol",
+        start=BufferValue)=bufferValue
+        if useBufferValueInput annotation (HideResult=true, Placement(transformation(
+              extent={{-120,-20},{-80,20}})));
+
+        Real xref;
+  Modelica.Units.SI.AmountOfSubstance nFreeBuffer(start=-log10(a_start)
+        *BufferValue) "amount of base molecules without H+";
+  Modelica.Units.SI.MoleFraction xFreeBuffer;
+
+  protected
+  Modelica.Units.SI.MolarEnthalpy streamEnthalpy;
+
+      constant Real InvLog_10=1/log(10);
+  initial equation
+      xFreeBuffer = -log10(a_start)*(bufferValue/solution.n);
+
+  equation
+      if not useBufferValueInput then
+        bufferValue = BufferValue;
+      end if;
+
+      der(nFreeBuffer) = -n_flow;
+      // <- This is mathematically the same as two following lines. However, the differential solvers can handle the log10n much better. :-)
+      //der(log10nFreeBuffer)=(InvLog_10)*(port_a.q/nFreeBuffer);
+      //nFreeBuffer = 10^log10nFreeBuffer;
+
+      xFreeBuffer = nFreeBuffer/solution.n;
+     // port_a.q = (solution.n*KC)*(xFreeBuffer - xref);
+      n_flow = KC*(Modelica.Constants.R*solution.T*log(xFreeBuffer) - Modelica.Constants.R*solution.T*log(xref)); //alternative kinetics
+      xref = -log10(a)*(bufferValue/solution.n);
+
+    //solution flows
+    streamEnthalpy = actualStream(molarEnthalpy);
+
+    solution.dH =streamEnthalpy*n_flow - der(molarEnthalpy)*nFreeBuffer;
+    solution.i = Modelica.Constants.F * z * n_flow - Modelica.Constants.F*der(z)*nFreeBuffer;
+    solution.dV = molarVolume * n_flow - der(molarVolume)*nFreeBuffer;
+
+    //extensive properties
+    solution.nj=0;
+    solution.mj=-nFreeBuffer*stateOfMatter.molarMassOfBaseMolecule(substanceData);
+    solution.Vj=-nFreeBuffer*molarVolume;
+    solution.Gj=-nFreeBuffer*u_out;
+    solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
+    solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Text(
+              extent={{-82,62},{92,24}},
+              textString="%name",
+              lineColor={128,0,255})}),
+        Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-  end ElectronTransfer;
+  end Buffer;
   annotation (Documentation(revisions="<html>
 <p><img src=\"modelica:/ThermofluidStream/Resources/dlr_logo.png\"/>(c) 2020-2021, DLR, Institute of System Dynamics and Control</p>
 
