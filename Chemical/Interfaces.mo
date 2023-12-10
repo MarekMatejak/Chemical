@@ -668,6 +668,8 @@ package Interfaces "Chemical interfaces"
       input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
       input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance";
+      input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfSubstance(unit="mol/kg")
         "Amount of substance particles per its mass";
     algorithm
@@ -684,7 +686,7 @@ package Interfaces "Chemical interfaces"
       input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
       input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
-      input Modelica.Units.SI.Mass massH2O=1 "Mass of H2O";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
         "Amount of substance free base molecule per substance mass";
@@ -1015,10 +1017,14 @@ end solution_temperature_;
         "Electric potential of the substance";
       input Modelica.Units.SI.MoleFraction I=0
         "Ionic strengh (mole fraction based)";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance";
+      input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfSubstance(unit="mol/kg") "Amount of substance particles per its mass";
     protected
       Modelica.Units.SI.MolarEnergy SelfClustering_dG;
       Real SelfClustering_K;
+      Real amountOfBaseMolecules,amountOfFreeMolecule,amountOfParticles;
+      Real x;
     algorithm
       if not selfClustering(substanceData) then
         specificAmountOfSubstance := 1/substanceData.MolarWeight;
@@ -1028,7 +1034,18 @@ end solution_temperature_;
 
         SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
 
-        specificAmountOfSubstance := 1/((SelfClustering_K + 1)*substanceData.MolarWeight);
+        amountOfBaseMolecules:=mass/substanceData.MolarWeight;
+        x:=((2*SelfClustering_K+nSolution/amountOfBaseMolecules) -
+         sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+
+         (nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfFreeMolecule := x*nSolution;
+
+        amountOfParticles := amountOfFreeMolecule/(1 - SelfClustering_K*x);
+
+        specificAmountOfSubstance := amountOfParticles/mass;
+
+        //specificAmountOfSubstance := 1/((SelfClustering_K + 1)*substanceData.MolarWeight);
       end if;
     end specificAmountOfParticles;
 
@@ -1041,7 +1058,7 @@ end solution_temperature_;
       input Modelica.Units.SI.ElectricPotential v=0
         "Electric potential of the substance";
       input Modelica.Units.SI.MoleFraction I=0 "Ionic strengh (mole fraction based)";
-      input Modelica.Units.SI.Mass massH2O=1 "Mass of H2O in solution";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance in solution";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
         "Amount of substance free base molecule per substance mass";
@@ -1057,12 +1074,12 @@ end solution_temperature_;
 
         SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*T));
 
-        amountOfBaseMolecules:=massH2O/substanceData.MolarWeight;
+        amountOfBaseMolecules:=mass/substanceData.MolarWeight;
         x:=((2*SelfClustering_K+nSolution/amountOfBaseMolecules) -
          sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+
          (nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
 
-        specificAmountOfFreeBaseMolecule := (x*nSolution)/massH2O;
+        specificAmountOfFreeBaseMolecule := (x*nSolution)/mass;
 
       end if;
       annotation (Inline=true, smoothOrder=2);
