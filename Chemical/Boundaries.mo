@@ -1076,8 +1076,8 @@ Test package for the Boundaries package of ThermofluidStream.
       Real r_out,n_flow_out,u_out,h_out;
 
     equation
-      assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
-      assert(-n_flow_out > n_flow_assert, "Positive massflow at Volume outlet", dropOfCommons.assertionLevel);
+      //assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
+      //assert(-n_flow_out > n_flow_assert, "Positive massflow at Volume outlet", dropOfCommons.assertionLevel);
       assert(x > 0, "Molar fraction must be positive");
 
      n_flow = n_flow_in + n_flow_out;

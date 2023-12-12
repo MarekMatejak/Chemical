@@ -5,7 +5,6 @@ package Sensors "Chemical sensors"
   model MolarFlowSensor "Measure of molar flow"
 
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.OnePort;
 
     Modelica.Blocks.Interfaces.RealOutput molarFlowRate(final unit="mol/s") annotation (
         Placement(transformation(
@@ -16,11 +15,15 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-100})));
 
+    Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+    Interfaces.Outlet outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
   equation
-    molarFlowRate = port_a.q;
+    molarFlowRate = inlet.n_flow;
 
-    port_a.u = port_b.u;
-
+    connect(inlet, outlet) annotation (Line(
+        points={{-98,0},{102,0}},
+        color={158,66,200},
+        thickness=0.5));
    annotation (
       Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -47,7 +50,7 @@ package Sensors "Chemical sensors"
 
   model MoleFractionSensor "Measure of mole fraction"
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.PartialSubstanceSensor;
+    extends Internal.PartialSubstanceSensor;
 
     Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
     "Mole fraction of the substance"
@@ -57,11 +60,10 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-60}), iconTransformation(
           extent={{-20,-20},{20,20}},
-          origin={-100,0},
-        rotation=180)));
+          origin={100,0},
+        rotation=0)));
 
   equation
-    port_a.q = 0;
 
     moleFraction = x;
 
@@ -667,4 +669,417 @@ package Sensors "Chemical sensors"
 </table>
 </html>"));
   end ActivityCoefficient;
+
+  package Internal
+    partial model PartialSubstance
+
+     outer Modelica.Fluid.System system "System wide properties";
+
+      Interfaces.Inlet inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+     parameter stateOfMatter.SubstanceData substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
+
+    Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
+
+    Modelica.Units.SI.ActivityOfSolute a
+      "Activity of the substance (mole-fraction based)";
+
+    protected
+    Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+    Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
+
+    Modelica.Units.SI.Temperature temperature
+      "Temperature of the solution";
+
+    Modelica.Units.SI.Pressure pressure "Pressure of the solution";
+
+    Modelica.Units.SI.ElectricPotential electricPotential
+      "Electric potential of the solution";
+
+    Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength
+      "Ionic strength of the solution";
+
+    //Modelica.Units.SI.MolarMass molarMass "Molar mass of the substance";
+
+    Modelica.Units.SI.MolarEnthalpy molarEnthalpy
+      "Molar enthalpy of the substance";
+
+    Modelica.Units.SI.MolarEntropy molarEntropyPure
+      "Molar entropy of the pure substance";
+
+    Modelica.Units.SI.ChemicalPotential u0
+      "Chemical potential of the pure substance";
+
+    Modelica.Units.SI.ChemicalPotential uPure
+      "Electro-Chemical potential of the pure substance";
+
+    Modelica.Units.SI.MolarVolume molarVolume
+      "Molar volume of the substance";
+
+    Modelica.Units.SI.MolarVolume molarVolumePure
+      "Molar volume of the pure substance";
+
+    Modelica.Units.SI.MolarVolume molarVolumeExcess
+      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+
+      //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
+      //    "Molar heat capacity of the substance at constant pressure";
+
+    equation
+     //aliases
+     gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+    // molarMass = stateOfMatter.molarMass(substanceData);
+
+     molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     u0 = stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength);
+     uPure = stateOfMatter.electroChemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength);
+     molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+
+     //activity of the substance
+     a = gamma*x;
+
+     //electro-chemical potential of the substance in the solution
+     inlet.u = stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength)
+       + Modelica.Constants.R*temperature*log(a)
+       + z*Modelica.Constants.F*electricPotential;
+
+     inlet.h = molarEnthalpy;
+
+     annotation (
+       Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end PartialSubstance;
+
+    partial model PartialSubstanceInSolution "Substance properties for components, where the substance is connected with the solution"
+
+      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+      extends PartialSubstance;
+
+    protected
+    Modelica.Units.SI.AmountOfSubstance amountOfSolution
+      "Amount of all solution particles";
+
+    equation
+
+      //aliases
+      temperature = solution.T;
+      pressure = solution.p;
+      electricPotential = solution.v;
+      amountOfSolution = solution.n;
+      moleFractionBasedIonicStrength = solution.I;
+
+    end PartialSubstanceInSolution;
+
+    model PartialSubstanceSensor "Base class for sensor based on substance and solution properties"
+      extends PartialSubstanceInSolution;
+
+    equation
+      //solution is not changed by the sensor components
+      solution.dH = 0;
+      solution.i = 0;
+      solution.dV = 0;
+      solution.Gj = 0;
+      solution.nj = 0;
+      solution.mj = 0;
+      solution.Qj = 0;
+      solution.Ij = 0;
+      solution.Vj = 0;
+
+    end PartialSubstanceSensor;
+
+    package Types
+      type Quantities = enumeration(
+          c_molpm3 "Concentration (mmol/L)",
+          X_kgpkg "Mass fraction (kg/kg)",
+          b_molpkg "Molality (mol/kg)",
+          x_molpmol "Mole fraction (mol/mol)",
+          p_Pa "Partial pressure (Pa)",
+          p_mmHg "Partial pressure (mmHg)",
+          p_bar "Partial pressure (bar)",
+          u_Jpmol "Steadystate electro-chemical potential (J/mol)",
+          u_kJpmol "Steadystate electro-chemical potential (kJ/mol)",
+          r_Jpmol "Inertial electro-chemical potential (J/mol)",
+          r_kJpmol "Inertial electro-chemical potential (kJ/mol)",
+          u_total_Jpmol "Total electro-chemical potential (J/mol)",
+          u_total_kJpmol "Total electro-chemical potential (kJ/mol)",
+          h_Jpmol "Specific enthalpy (J/mol)",
+          s_JpmolK "Specific enthropy (J/(mol.K))");
+      type InitializationModelSensor = enumeration(
+        steadyState
+          "Steady state initialization (derivatives of states are zero)",
+        state
+          "Initialization with initial output state") "Initialization modes for sensor lowpass";
+    end Types;
+
+    function getQuantity "Computes selected quantity from state"
+      extends Modelica.Icons.Function;
+
+      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choicesAllMatching=true,
+          Documentation(info="<html>
+      <p>Medium Model for the function. Make sure it implements the needed functions.</p>
+        </html>"));
+
+      input Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential";
+      input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
+      input Modelica.Units.SI.Pressure r "Inertial electro-chemical potential";
+      input Types.Quantities quantity "What to measure?";
+      input stateOfMatter.SubstanceData substanceData "Data record of substance";
+      input Modelica.Units.SI.Temperature temperature=298.15 "Temperature";
+      input Modelica.Units.SI.Pressure pressure=100000 "Pressure";
+      input Modelica.Units.SI.ElectricPotential electricPotential=0
+       "Electric potential of the substance";
+      input Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength=0
+       "Ionic strengh (mole fraction based)";
+      input Modelica.Units.SI.Mass solutionMass;
+      input Modelica.Units.SI.AmountOfSubstance solutionAmount;
+      input Modelica.Units.SI.Volume solutionVolume;
+
+      output Real value;
+
+      /*
+    c_molpm3 "Concentration (mmol/L)",
+    X_kgpkg "Mass fraction (kg/kg)",
+    b_molpkg "Molality (mol/kg)",
+    x_molpmol "Mole fraction (mol/mol)",
+    p_Pa "Partial pressure (Pa)",
+    p_mmHg "Partial pressure (mmHg)",
+    p_bar "Partial pressure (bar)",
+    u_Jpmol "Steadystate electro-chemical potential (J/mol)",
+    u_kJpmol "Steadystate electro-chemical potential (kJ/mol)",
+    r_Jpmol "Inertial electro-chemical potential (J/mol)",
+    r_kJpmol "Inertial electro-chemical potential (kJ/mol)",
+    u_total_Jpmol "Total electro-chemical potential (J/mol)",
+    u_total_kJpmol "Total electro-chemical potential (kJ/mol)",
+    h_Jpmol "Specific enthalpy (J/mol)",
+    s_JpmolK "Specific enthropy (J/(mol.K))"
+    */
+
+    protected
+      Modelica.Units.SI.ChargeNumberOfIon z;
+      Modelica.Units.SI.ChemicalPotential u0;
+      Modelica.Units.SI.MoleFraction a,x;
+      Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+    algorithm
+      z :=  stateOfMatter.chargeNumberOfIon( substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength);
+      gamma := stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+
+
+      u0 := stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength)
+       + z*Modelica.Constants.F*electricPotential;
+
+      a := exp((u - u0)/(Modelica.Constants.R*temperature));
+      x := a/gamma;
+
+      if quantity == Types.Quantities.c_molpm3 then
+        value := (x * solutionAmount)/solutionVolume;
+      elseif quantity == Types.Quantities.X_kgpkg then
+        value := ((x * solutionAmount)/solutionMass)/stateOfMatter.specificAmountOfParticles(substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength);
+      elseif quantity == Types.Quantities.b_molpkg then
+        value := (x * solutionAmount)/solutionMass;
+      elseif quantity == Types.Quantities.x_molpmol then
+        value := x;
+      elseif quantity == Types.Quantities.p_Pa then
+        value := x*pressure;
+      elseif quantity == Types.Quantities.p_mmHg then
+        value := x*pressure * (760/101325);
+      elseif quantity == Types.Quantities.p_bar then
+        value := Modelica.Units.Conversions.to_bar(x*pressure);
+      elseif quantity == Types.Quantities.u_Jpmol then
+        value := u;
+      elseif quantity == Types.Quantities.u_kJpmol then
+        value := u/1000;
+      elseif quantity == Types.Quantities.h_Jpmol then
+        value := h;
+      elseif quantity == Types.Quantities.s_JpmolK then
+        value := (h-u)/temperature;
+      else
+        value :=0;
+      end if;
+
+      annotation (Documentation(info="<html>
+<p>Helper function to get a quantity from an Thermofluid state.</p>
+</html>"));
+    end getQuantity;
+
+    function getUnit "Returns unit of input quantity"
+      extends Modelica.Icons.Function;
+
+      input Types.Quantities quantity;
+      output String unit;
+
+    algorithm
+
+      if quantity == Types.Quantities.c_molpm3 then
+        unit := "mol/m3";
+      elseif quantity == Types.Quantities.X_kgpkg then
+        unit := "kg/kg";
+      elseif quantity == Types.Quantities.b_molpkg then
+        unit := "mol/kg";
+      elseif quantity == Types.Quantities.x_molpmol then
+        unit := "mol/mol";
+      elseif quantity == Types.Quantities.p_Pa then
+        unit := "Pa";
+      elseif quantity == Types.Quantities.p_mmHg then
+        unit := "mmHg";
+      elseif quantity == Types.Quantities.p_bar then
+        unit := "bar";
+      elseif quantity == Types.Quantities.u_Jpmol then
+        unit := "J/mol";
+      elseif quantity == Types.Quantities.u_kJpmol then
+        unit := "kJ/mol";
+      elseif quantity == Types.Quantities.h_Jpmol then
+        unit :="J/mol";
+      elseif quantity == Types.Quantities.s_JpmolK then
+        unit := "J/(mol.K)";
+      else
+        unit :="";
+      end if;
+
+      annotation (Documentation(info="<html>
+<p>Helper function to get the unit for a quantity.</p>
+</html>"));
+    end getUnit;
+  end Internal;
+
+  model SingleSensorSelect "Sensor with selectable measured quantity"
+    import Chemical.Sensors.Internal.Types.Quantities;
+    import InitMode = Chemical.Sensors.Internal.Types.InitializationModelSensor;
+    extends Internal.PartialSubstanceSensor;
+
+    parameter Integer digits(min=0) = 1 "Number of displayed digits";
+    parameter Quantities quantity "Quantity the sensor measures";
+    parameter Boolean outputValue = false "Enable sensor-value output"
+      annotation(Dialog(group="Output Value"));
+    parameter Boolean filter_output = false "Filter sensor-value to break algebraic loops"
+      annotation(Dialog(group="Output Value", enable=outputValue));
+    parameter InitMode init=InitMode.steadyState "Initialization mode for sensor lowpass"
+      annotation(Dialog(tab="Initialization", enable=filter_output));
+    parameter Real value_0(unit=Internal.getUnit(quantity)) = 0 "Initial output state of sensor"
+      annotation(Dialog(tab="Initialization", enable=filter_output and init == InitMode.state));
+    parameter Modelica.Units.SI.Time TC=0.1 "PT1 time constant" annotation (Dialog(tab="Advanced", enable=outputValue and filter_output));
+
+    Modelica.Blocks.Interfaces.RealOutput value_out(unit=Internal.getUnit(quantity)) = value if outputValue "Measured value [variable]"
+      annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+
+    output Real value(unit=Internal.getUnit(quantity)) "Computed value of the selected quantity";
+
+  protected
+    outer DropOfCommons dropOfCommons;
+
+    Real direct_value(unit=Internal.getUnit(quantity));
+
+    function getQuantity = Internal.getQuantity (redeclare package stateOfMatter = stateOfMatter)
+                                                                                 "Quantity compute function"
+      annotation (Documentation(info="<html>
+      <p>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/p_total and v respectively.</p>
+      </html>"));
+
+  initial equation
+    if filter_output and init==InitMode.steadyState then
+      value= direct_value;
+    elseif filter_output then
+      value = value_0;
+    end if;
+
+  equation
+
+    direct_value = getQuantity(inlet.u, inlet.h, inlet.r, quantity, substanceData, temperature, pressure, electricPotential, moleFractionBasedIonicStrength,
+     solution.m, solution.n, solution.V);
+
+
+    if filter_output then
+      der(value) * TC = direct_value-value;
+    else
+      value = direct_value;
+    end if;
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+          Rectangle(
+            extent={{-54,24},{66,-36}},
+            lineColor={0,0,0},
+            fillColor={215,215,215},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
+          Line(
+            points={{-100,0},{0,0}},
+            color={28,108,200},
+            thickness=0.5),
+          Rectangle(
+            extent={{-60,30},{60,-30}},
+            lineColor={0,0,0},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-60,30},{60,-30}},
+            textColor={28,108,200},
+            textString=DynamicSelect("value", String(
+                value,
+                format="1."+String(digits)+"f"))),
+          Text(
+            extent={{0,25},{60,75}},
+            textColor={175,175,175},
+            textString="%quantity")}),
+      Diagram(coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<p>Sensor for measuring a selectable quantity.</p>
+<p>This sensor can be connected to a fluid stream without a junction.</p>
+</html>"));
+  end SingleSensorSelect;
 end Sensors;

@@ -744,7 +744,7 @@ package Processes
            * ones(NumberOfSubunits));
 
     h_out = outlet.h;
-    subunits.h = (outlet.h/NumberOfSubunits)*ones(NumberOfSubunits);
+    (subunits.h*ones(NumberOfSubunits)) = (outlet.h);
 
     //properties from subunits
     subunitSolution.dH + solution.dH = 0;
