@@ -2612,7 +2612,8 @@ extends Modelica.Icons.ExamplesPackage;
     model AlbuminTitration "Figge-Fencl model (22. Dec. 2007)"
       extends Modelica.Icons.Example;
 
-      Chemical.Solution solution(redeclare package stateOfMatter = Interfaces.Incompressible)
+      Chemical.Solution solution(redeclare package stateOfMatter =
+            Interfaces.Incompressible)
         annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
 
       constant Integer n=218 "Number of weak acid group in albumin molecule";
@@ -3430,7 +3431,7 @@ extends Modelica.Icons.ExamplesPackage;
             rotation=180,
             origin={66,-8})));
       Topology.SplitterN uO2(N=8) annotation (Placement(transformation(extent={{38,34},{58,54}})));
-      inner DropOfCommons dropOfCommons(L=1e-8) annotation (Placement(transformation(extent={{58,70},{84,94}})));
+      inner DropOfCommons dropOfCommons(L=1e-5) annotation (Placement(transformation(extent={{58,70},{84,94}})));
     equation
       sO2 = (sum(OxyRHm.x) + sum(OxyTHm.x)) /
       (sum(DeoxyRHm.x) + sum(DeoxyTHm.x) + sum(OxyRHm.x) + sum(OxyTHm.x));
@@ -3697,12 +3698,12 @@ extends Modelica.Icons.ExamplesPackage;
       connect(OxyHm.port_a, o.substrates[1])
         annotation (Line(points={{-68,24},{-60,24},{-60,24}}, color={158,66,200}));
       connect(o.products[1], DeoxyHm.port_a)
-        annotation (Line(points={{-40,26},{-28,26},{-28,22}},
+        annotation (Line(points={{-40,23},{-28,23},{-28,22}},
                                                      color={158,66,200}));
 
       for i in 1:4 loop
         connect(h[i].products[2], H) annotation (Line(
-            points={{56,24},{60,24},{60,-2}},
+            points={{56,21},{60,21},{60,-2}},
             color={158,66,200}));
         connect(speciation.subunitSolution, HmA[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{94,-44},{94,12},{88,12},{88,14}},
@@ -3714,8 +3715,9 @@ extends Modelica.Icons.ExamplesPackage;
           points={{72,24},{72,-52},{-11,-52},{-11,-51.8}},
           color={158,66,200}));
 
-        connect(o[i].products[2], O2) annotation (Line(points={{-40,22},{-16,22},{-16,
-                42},{-18,42}}, color={158,66,200}));
+        connect(o[i].products[2], O2) annotation (Line(points={{-40,25},{-16,25},
+                {-16,42},{-18,42}},
+                               color={158,66,200}));
         connect(speciation.subunitSolution, DeoxyHm[i].solution) annotation (Line(
               points={{-4,-56},{-4,-44},{94,-44},{94,12},{-12,12}},
                                                               color={127,127,0}));
@@ -3728,7 +3730,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200}));
 
         connect(z[i].products[2], H) annotation (Line(
-            points={{-34,-34},{-22,-34},{-22,-2},{60,-2}},
+            points={{-34,-31},{-22,-31},{-22,-2},{60,-2}},
             color={158,66,200}));
         connect(speciation.subunitSolution, HmNH2[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{8,-44}},
@@ -3741,10 +3743,10 @@ extends Modelica.Icons.ExamplesPackage;
           color={127,127,0}));
 
         connect(c[i].products[2], H) annotation (Line(
-            points={{40,-34},{46,-34},{46,-2},{60,-2}},
+            points={{40,-31},{46,-31},{46,-2},{60,-2}},
             color={158,66,200}));
         connect(CO2, c[i].substrates[2]) annotation (Line(
-            points={{2,-16},{16,-16},{16,-34},{20,-34}},
+            points={{2,-16},{16,-16},{16,-31},{20,-31}},
             color={158,66,200}));
         connect(HmNHCOO[i].solution, speciation.subunitSolution) annotation (Line(
           points={{66,-44},{-4,-44},{-4,-56}},
@@ -3762,11 +3764,11 @@ extends Modelica.Icons.ExamplesPackage;
           points={{30,22},{36,22}},
           color={158,66,200}));
       connect(h.products[1],HmA. port_a) annotation (Line(
-          points={{56,20},{64,24},{72,24}},
+          points={{56,23},{64,24},{72,24}},
           color={158,66,200}));
 
       connect(z.products[1], HmNH2.port_a) annotation (Line(
-          points={{-34,-30},{-22,-30},{-22,-34},{-8,-34}},
+          points={{-34,-33},{-22,-33},{-22,-34},{-8,-34}},
           color={107,45,134}));
 
       connect(HmNH3.port_a, z.substrates[1]) annotation (Line(
@@ -3774,11 +3776,11 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200}));
 
       connect(HmNH2.port_a, c.substrates[1]) annotation (Line(
-          points={{-8,-34},{6,-34},{6,-30},{20,-30}},
+          points={{-8,-34},{6,-34},{6,-33},{20,-33}},
           color={158,66,200}));
 
       connect(HmNHCOO.port_a, c.products[1]) annotation (Line(
-          points={{50,-34},{46,-34},{46,-30},{40,-30}},
+          points={{50,-34},{46,-34},{46,-33},{40,-33}},
           color={158,66,200}));
 
       connect(solution, solution) annotation (Line(
@@ -4201,12 +4203,12 @@ extends Modelica.Icons.ExamplesPackage;
       connect(OxyHm.port_a, o.substrates[1])
         annotation (Line(points={{-68,24},{-60,24}},          color={158,66,200}));
       connect(o.products[1], DeoxyHm.port_a)
-        annotation (Line(points={{-40,26},{-34,26},{-34,22},{-28,22}},
+        annotation (Line(points={{-40,23},{-34,23},{-34,22},{-28,22}},
                                                      color={158,66,200}));
 
       for i in 1:4 loop
         connect(h[i].products[2], H) annotation (Line(
-            points={{56,24},{60,24},{60,-2}},
+            points={{56,21},{60,21},{60,-2}},
             color={158,66,200}));
         connect(speciation.subunitSolution, HmA[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{94,-44},{94,12},{88,12},{88,14}},
@@ -4218,8 +4220,9 @@ extends Modelica.Icons.ExamplesPackage;
           points={{72,24},{72,-52},{-11,-52},{-11,-51.8}},
           color={158,66,200}));
 
-        connect(o[i].products[2], O2) annotation (Line(points={{-40,22},{-16,22},{-16,
-                42},{-18,42}}, color={158,66,200}));
+        connect(o[i].products[2], O2) annotation (Line(points={{-40,25},{-16,25},
+                {-16,42},{-18,42}},
+                               color={158,66,200}));
         connect(speciation.subunitSolution, DeoxyHm[i].solution) annotation (Line(
               points={{-4,-56},{-4,-44},{94,-44},{94,12},{-12,12}},
                                                               color={127,127,0}));
@@ -4232,7 +4235,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200}));
 
         connect(z[i].products[2], H) annotation (Line(
-            points={{-34,-34},{-22,-34},{-22,-2},{60,-2}},
+            points={{-34,-31},{-22,-31},{-22,-2},{60,-2}},
             color={158,66,200}));
         connect(speciation.subunitSolution, HmNH2[i].solution) annotation (Line(
           points={{-4,-56},{-4,-44},{8,-44}},
@@ -4245,10 +4248,10 @@ extends Modelica.Icons.ExamplesPackage;
           color={127,127,0}));
 
         connect(c[i].products[2], H) annotation (Line(
-            points={{40,-34},{46,-34},{46,-2},{60,-2}},
+            points={{40,-31},{46,-31},{46,-2},{60,-2}},
             color={158,66,200}));
         connect(CO2, c[i].substrates[2]) annotation (Line(
-            points={{2,-16},{16,-16},{16,-34},{20,-34}},
+            points={{2,-16},{16,-16},{16,-31},{20,-31}},
             color={158,66,200}));
         connect(HmNHCOO[i].solution, speciation.subunitSolution) annotation (Line(
           points={{66,-44},{-4,-44},{-4,-56}},
@@ -4259,7 +4262,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={127,127,0},
           smooth=Smooth.None));
         connect(o1[i].products[2], CO) annotation (Line(
-          points={{26,52},{14,52},{14,72},{-2,72}},
+          points={{26,55},{14,55},{14,72},{-2,72}},
           color={158,66,200},
           smooth=Smooth.None));
 
@@ -4275,11 +4278,11 @@ extends Modelica.Icons.ExamplesPackage;
           points={{30,22},{36,22}},
           color={158,66,200}));
       connect(h.products[1],HmA. port_a) annotation (Line(
-          points={{56,20},{64,24},{72,24}},
+          points={{56,23},{64,24},{72,24}},
           color={158,66,200}));
 
       connect(z.products[1], HmNH2.port_a) annotation (Line(
-          points={{-34,-30},{-22,-30},{-22,-34},{-8,-34}},
+          points={{-34,-33},{-22,-33},{-22,-34},{-8,-34}},
           color={107,45,134}));
 
       connect(HmNH3.port_a, z.substrates[1]) annotation (Line(
@@ -4287,11 +4290,11 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200}));
 
       connect(HmNH2.port_a, c.substrates[1]) annotation (Line(
-          points={{-8,-34},{6,-34},{6,-30},{20,-30}},
+          points={{-8,-34},{6,-34},{6,-33},{20,-33}},
           color={158,66,200}));
 
       connect(HmNHCOO.port_a, c.products[1]) annotation (Line(
-          points={{50,-34},{46,-34},{46,-30},{40,-30}},
+          points={{50,-34},{46,-34},{46,-33},{40,-33}},
           color={158,66,200}));
 
       connect(solution, solution) annotation (Line(
@@ -4307,7 +4310,7 @@ extends Modelica.Icons.ExamplesPackage;
           smooth=Smooth.None));
 
       connect(DeoxyHm.port_a, o1.products[1]) annotation (Line(
-          points={{-28,22},{-2,22},{-2,56},{26,56}},
+          points={{-28,22},{-2,22},{-2,53},{26,53}},
           color={158,66,200},
           smooth=Smooth.None));
       annotation (
@@ -5792,9 +5795,11 @@ extends Modelica.Icons.ExamplesPackage;
       constant Real R = Modelica.Constants.R "Gas constant";
 
     Chemical.Sensors.DissociationCoefficient dissociationCoefficient(nS=1, nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-    Chemical.Sources.PureSubstance A(redeclare package stateOfMatter = Chemical.Interfaces.Incompressible, substanceData(DfG=0))
+    Chemical.Sources.PureSubstance A(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,                                                            substanceData(DfG=0))
         annotation (Placement(transformation(extent={{-56,-10},{-36,10}})));
-    Chemical.Sources.PureSubstance B(redeclare package stateOfMatter = Chemical.Interfaces.Incompressible, substanceData(DfG=-R*T_25degC*log(K)))
+    Chemical.Sources.PureSubstance B(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,                                                            substanceData(DfG=-R*T_25degC*log(K)))
         annotation (Placement(transformation(extent={{60,-10},{40,10}})));
       inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
         annotation (Placement(transformation(extent={{-58,62},{-38,82}})));
@@ -6080,7 +6085,8 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Solution anode(ElectricGround=false) annotation (Placement(transformation(extent={{60,-40},{96,70}})));
 
       Chemical.Sources.PureSubstance H2O(substanceData=Chemical.Substances.Water_liquid()) annotation (Placement(transformation(extent={{-8,-36},{-28,-16}})));
-      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter = Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
+      Chemical.Sources.PureSubstance O2(redeclare package stateOfMatter =
+            Interfaces.IdealGas,                                                               substanceData=Chemical.Substances.Oxygen_gas())
         annotation (Placement(transformation(extent={{-80,12},{-60,32}})));
       Chemical.Sources.ExternalIdealGasSubstance H2(
         substanceData=Chemical.Substances.Hydrogen_gas(),
@@ -6185,7 +6191,8 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Placement(transformation(extent={{-36,38},{-16,58}})));
   Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
     annotation (Placement(transformation(extent={{-66,38},{-46,58}})));
-    Chemical.Solution air(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas) annotation (Placement(transformation(extent={{-40,-16},{50,26}})));
+    Chemical.Solution air(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas)                                                   annotation (Placement(transformation(extent={{-40,-16},{50,26}})));
     Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
       annotation (Placement(transformation(extent={{18,38},{-2,58}})));
     Modelica.Electrical.Analog.Basic.Ground ground
