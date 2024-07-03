@@ -398,7 +398,9 @@ package Processes
     Sensors.MoleFractionSensor moleFractionSensor1(
        redeclare package stateOfMatter = stateOfMatter,
        substanceData=substanceData)
-      annotation (Placement(transformation(extent={{-56,-10},{-76,10}})));
+      annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={-56,12})));
     SubstancePump substancePump(useSubstanceFlowInput=true) annotation (Placement(transformation(extent={{-20,-72},{0,-52}})));
     Modelica.Blocks.Math.Product product
       annotation (Placement(transformation(extent={{-10,-10},{10,10}},
@@ -419,22 +421,23 @@ package Processes
     product.u1=q;
 
 
-    connect(inlet, moleFractionSensor1.port_a) annotation (Line(points={{-100,0},{-76,0}}, color={158,66,200}));
-    connect(moleFractionSensor1.solution, solution) annotation (Line(
-        points={{-60,-10},{-60,-100}},
-        color={0,128,255}));
     connect(product.u2, moleFractionSensor1.moleFraction) annotation (Line(
-        points={{-12,-12},{-12,0},{-56,0}},
+        points={{-12,-12},{-12,12},{-46,12}},
         color={0,0,127}));
-    connect(inlet, substancePump.inlet) annotation (Line(
-        points={{-100,0},{-82,0},{-82,-62},{-20,-62}},
-        color={158,66,200},
-        thickness=0.5));
     connect(substancePump.outlet, port_a) annotation (Line(
-        points={{0,-62},{86,-62},{86,0},{100,0}},
+        points={{0,-62},{84,-62},{84,0},{100,0}},
         color={158,66,200},
         thickness=0.5));
     connect(product.y, substancePump.substanceFlow) annotation (Line(points={{-6,-35},{-6,-58}}, color={0,0,127}));
+    connect(moleFractionSensor1.solution, solution) annotation (Line(points={{-62,22},{-62,24},{-114,24},{-114,-86},{-60,-86},{-60,-100}}, color={127,127,0}));
+    connect(inlet, moleFractionSensor1.inlet) annotation (Line(
+        points={{-100,0},{-72,0},{-72,12},{-66,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(inlet, substancePump.inlet) annotation (Line(
+        points={{-100,0},{-70,0},{-70,-62},{-20,-62}},
+        color={158,66,200},
+        thickness=0.5));
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
                           graphics={
@@ -855,4 +858,5 @@ package Processes
             lineColor={128,0,255},
             textString="%name")}));
   end SpeciationOut;
+
 end Processes;

@@ -1183,7 +1183,9 @@ Test package for the Boundaries package of ThermofluidStream.
     end PartialSolutionSensor;
 
     partial model ConditionalSolutionFlow "Input of solution molar flow vs. parametric solution molar flow"
-      extends PartialSolutionSensor;
+
+      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
       parameter Boolean useSolutionFlowInput = false
       "=true, if solution flow is provided via input"
@@ -1219,132 +1221,222 @@ Test package for the Boundaries package of ThermofluidStream.
 </html>"));
   end Internal;
 
-  model Clearance "Physiological Clearance"
-   extends Internal.ConditionalSolutionFlow(  final SolutionFlow=Clearance/K);
-   extends Internal.PartialSubstanceInSolution(final useInlet=true, final useOutlet=false);
+  model Clearance "Flow of whole solution"
+    extends Boundaries.Internal.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
 
-  parameter Modelica.Units.SI.VolumeFlowRate Clearance=0
+    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+       annotation (choicesAllMatching = true);
+
+    parameter stateOfMatter.SubstanceData substanceData
+    "Definition of the substance"
+       annotation (choicesAllMatching = true);
+
+    parameter Modelica.Units.SI.VolumeFlowRate Clearance=0
     "Physiological clearance of the substance if useSolutionFlowInput=false"
     annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
 
     parameter Real K(unit="1")=1
     "Coefficient such that Clearance = K*solutionFlow";
 
-  Modelica.Units.SI.MolarFlowRate molarClearance
+    Modelica.Units.SI.MolarFlowRate molarClearance
     "Current molar clearance";
 
-  equation
-    molarClearance = q*K;
+  Interfaces.Inlet           inlet  annotation (Placement(transformation(
+          extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
+            {-90,10}})));
+    Sensors.MoleFractionSensor moleFractionSensor1(
+       redeclare package stateOfMatter = stateOfMatter,
+       substanceData=substanceData)
+      annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={-56,12})));
+    Modelica.Blocks.Math.Product product
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=270,
+          origin={-6,-24})));
+    Interfaces.SolutionPort solution
+      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
 
-    inlet.n_flow = molarClearance * x;
+   parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    SubstanceOutflow substanceOutflow(useSubstanceFlowInput=true) annotation (Placement(transformation(extent={{-20,-66},{0,-46}})));
+  equation
 
     assert(molarClearance>=-Modelica.Constants.eps, "Clearance can not be negative!");
 
+    molarClearance = q*K;
+    product.u1=K*q;
+
+    connect(product.u2, moleFractionSensor1.moleFraction) annotation (Line(
+        points={{-12,-12},{-12,12},{-46,12}},
+        color={0,0,127}));
+    connect(moleFractionSensor1.solution, solution) annotation (Line(points={{-62,22},{-62,24},{-114,24},{-114,-86},{-60,-86},{-60,-100}}, color={127,127,0}));
+    connect(inlet, moleFractionSensor1.inlet) annotation (Line(
+        points={{-100,0},{-72,0},{-72,12},{-66,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(product.y, substanceOutflow.substanceFlow) annotation (Line(points={{-6,-35},{-6,-52}}, color={0,0,127}));
+    connect(inlet, substanceOutflow.inlet) annotation (Line(
+        points={{-100,0},{-70,0},{-70,-56},{-20,-56}},
+        color={158,66,200},
+        thickness=0.5));
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
                           graphics={
           Rectangle(
-            extent={{-100,-100},{100,50}},
+            extent={{-100,-50},{100,50}},
             lineColor={0,0,127},
             fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
+            fillPattern=FillPattern.Solid,
+            rotation=360),
           Polygon(
-            points={{80,25},{-80,0},{80,-25},{80,25}},
+            points={{-80,25},{80,0},{-80,-25},{-80,25}},
             lineColor={0,0,127},
             fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
+            fillPattern=FillPattern.Solid,
+            rotation=360),
           Text(
-            extent={{-150,-90},{150,-50}},
+            extent={{-150,-20},{150,20}},
             textString="%name",
-            lineColor={128,0,255}),
-          Text(
-            extent={{-100,-30},{100,-50}},
-            lineColor={0,0,0},
-            textString="K=%K")}),        Documentation(revisions="<html>
-<p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+            lineColor={128,0,255},
+            origin={2,-74},
+            rotation=180)}),
+      Documentation(revisions="<html>
+<p><i>2009-2018 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<h4><font color=\"#008000\">Bidirectional mass flow by concentration</font></h4>
+<p>Possible field values: </p>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0.1\"><tr>
+<td></td>
+<td><h4>forward flow</h4></td>
+<td><h4>backward flow</h4></td>
+</tr>
+<tr>
+<td><h4>solutionFlow</h4></td>
+<td><p align=\"center\">&gt;=0</p></td>
+<td><p align=\"center\">&lt;=0</p></td>
+</tr>
+<tr>
+<td><h4>q_in.q</h4></td>
+<td><p align=\"center\">=solutionFlow*q_in.conc</p></td>
+<td><p align=\"center\">=-q_out.q</p></td>
+</tr>
+<tr>
+<td><h4>q_out.q</h4></td>
+<td><p align=\"center\">=-q_in.q</p></td>
+<td><p align=\"center\">=solutionFlow*q_out.conc</p></td>
+</tr>
+</table>
+<br/>
 </html>"));
   end Clearance;
 
-  model Degradation "Degradation of the substance"
-    extends Internal.PartialSubstanceInSolution(final useInlet=true, final useOutlet=false);
-    extends Internal.PartialSolutionSensor;
+  model Degradation "Flow of whole solution"
 
-  parameter Modelica.Units.SI.Time HalfTime
+    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+       annotation (choicesAllMatching = true);
+
+    parameter stateOfMatter.SubstanceData substanceData
+    "Definition of the substance"
+       annotation (choicesAllMatching = true);
+
+    parameter Modelica.Units.SI.Time HalfTime
     "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
-  equation
-    inlet.n_flow = (Modelica.Math.log(2)/HalfTime)*x*amountOfSolution;
+  Interfaces.Inlet           inlet  annotation (Placement(transformation(
+          extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
+            {-90,10}})));
+    Sensors.MoleFractionSensor moleFractionSensor1(
+       redeclare package stateOfMatter = stateOfMatter,
+       substanceData=substanceData)
+      annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={-56,12})));
+    Modelica.Blocks.Math.Product product
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=270,
+          origin={-6,-24})));
+    Interfaces.SolutionPort solution
+      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
 
+   parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    SubstanceOutflow substanceOutflow(useSubstanceFlowInput=true) annotation (Placement(transformation(extent={{-20,-66},{0,-46}})));
+  equation
+
+    product.u1=(Modelica.Math.log(2)/HalfTime)*solution.n;
+
+    connect(product.u2, moleFractionSensor1.moleFraction) annotation (Line(
+        points={{-12,-12},{-12,12},{-46,12}},
+        color={0,0,127}));
+    connect(moleFractionSensor1.solution, solution) annotation (Line(points={{-62,22},{-62,24},{-114,24},{-114,-86},{-60,-86},{-60,-100}}, color={127,127,0}));
+    connect(inlet, moleFractionSensor1.inlet) annotation (Line(
+        points={{-100,0},{-72,0},{-72,12},{-66,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(product.y, substanceOutflow.substanceFlow) annotation (Line(points={{-6,-35},{-6,-52}}, color={0,0,127}));
+    connect(inlet, substanceOutflow.inlet) annotation (Line(
+        points={{-100,0},{-70,0},{-70,-56},{-20,-56}},
+        color={158,66,200},
+        thickness=0.5));
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
                           graphics={
           Rectangle(
-            extent={{-100,-100},{100,58}},
+            extent={{-100,-50},{100,50}},
             lineColor={0,0,127},
             fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
+            fillPattern=FillPattern.Solid,
+            rotation=360),
           Polygon(
-            points={{64,26},{-78,0},{64,-26},{64,26}},
+            points={{-80,25},{80,0},{-80,-25},{-80,25}},
             lineColor={0,0,127},
             fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
+            fillPattern=FillPattern.Solid,
+            rotation=360),
           Text(
-            extent={{-148,-82},{152,-42}},
+            extent={{-150,-20},{150,20}},
             textString="%name",
-            lineColor={128,0,255}),
-          Text(
-            extent={{-100,54},{100,28}},
-            lineColor={0,0,0},
-            textString="t1/2 = %HalfTime s"),
-          Polygon(
-            points={{54,24},{54,-24},{44,-22},{44,22},{54,24}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{30,20},{30,-20},{20,-18},{20,18},{30,20}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{8,16},{8,-16},{-2,-14},{-2,14},{8,16}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{-12,12},{-12,-12},{-22,-10},{-22,10},{-12,12}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{-34,8},{-34,-8},{-44,-6},{-44,6},{-34,8}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{-56,4},{-56,-4},{-66,-2},{-66,2},{-56,4}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid)}),
+            lineColor={128,0,255},
+            origin={2,-74},
+            rotation=180)}),
       Documentation(revisions="<html>
-<table>
-<tr>
-<td>Author:</td>
-<td>Marek Matejak</td>
+<p><i>2009-2018 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<h4><font color=\"#008000\">Bidirectional mass flow by concentration</font></h4>
+<p>Possible field values: </p>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0.1\"><tr>
+<td></td>
+<td><h4>forward flow</h4></td>
+<td><h4>backward flow</h4></td>
 </tr>
 <tr>
-<td>Copyright:</td>
-<td>In public domains</td>
+<td><h4>solutionFlow</h4></td>
+<td><p align=\"center\">&gt;=0</p></td>
+<td><p align=\"center\">&lt;=0</p></td>
 </tr>
 <tr>
-<td>By:</td>
-<td>Charles University, Prague</td>
+<td><h4>q_in.q</h4></td>
+<td><p align=\"center\">=solutionFlow*q_in.conc</p></td>
+<td><p align=\"center\">=-q_out.q</p></td>
 </tr>
 <tr>
-<td>Date of:</td>
-<td>2009-2020</td>
+<td><h4>q_out.q</h4></td>
+<td><p align=\"center\">=-q_in.q</p></td>
+<td><p align=\"center\">=solutionFlow*q_out.conc</p></td>
 </tr>
 </table>
+<br/>
 </html>"));
   end Degradation;
 
