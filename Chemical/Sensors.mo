@@ -98,14 +98,13 @@ package Sensors "Chemical sensors"
           origin={-100,0},
         rotation=180)));
 
-  Interfaces.SubstancePort_b port_a
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Inlet port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
   equation
 
     port_a.u = u;
 
-    port_a.q = 0;
-    port_a.h_outflow = 0;
+    port_a.n_flow = 0;
+
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -125,7 +124,7 @@ package Sensors "Chemical sensors"
 
   model MolalitySensor "Measure of molality of the substance"
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.PartialSubstanceSensor;
+    extends Internal.PartialSubstanceSensor;
 
   parameter Modelica.Units.SI.AmountOfSubstance
     AmountOfSolutionPer1kgOfSolvent=1
@@ -139,13 +138,12 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-60}), iconTransformation(
           extent={{-20,-20},{20,20}},
-          origin={-100,0},
-        rotation=180)));
+          origin={100,0},
+        rotation=0)));
 
   protected
   constant Modelica.Units.SI.Mass KG=1;
   equation
-    port_a.q = 0;
 
     x=molality*KG / AmountOfSolutionPer1kgOfSolvent;
 
@@ -167,7 +165,7 @@ package Sensors "Chemical sensors"
 
   model MolarConcentrationSensor "Measure of molarity of the substance"
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.PartialSubstanceSensor;
+    extends Internal.PartialSubstanceSensor;
 
   parameter Modelica.Units.SI.AmountOfSubstance
     AmountOfSolutionInOneLiter=1
@@ -181,13 +179,12 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-60}), iconTransformation(
           extent={{-20,-20},{20,20}},
-          origin={-100,0},
-        rotation=180)));
+          origin={100,0},
+        rotation=0)));
 
   protected
   constant Modelica.Units.SI.Volume L=0.001;
   equation
-    port_a.q = 0;
 
     x=molarConcentration*L / AmountOfSolutionInOneLiter;
 
@@ -209,7 +206,7 @@ package Sensors "Chemical sensors"
 
   model MassFractionSensor "Measure of mass fraction of the substance"
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.PartialSubstanceSensor;
+    extends Internal.PartialSubstanceSensor;
 
   parameter Modelica.Units.SI.AmountOfSubstance
     AmountOfSolutionInOneKilogram=1
@@ -223,11 +220,10 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-60}), iconTransformation(
           extent={{-20,-20},{20,20}},
-          origin={-100,0},
-        rotation=180)));
+          origin={100,0},
+        rotation=0)));
 
   equation
-    port_a.q = 0;
 
     x=(massFraction*stateOfMatter.specificAmountOfParticles(substanceData)) / AmountOfSolutionInOneKilogram;
 
@@ -250,7 +246,7 @@ package Sensors "Chemical sensors"
   model PartialPressureSensor
   "Measure of partial pressure of the substance in gaseous solution"
     extends Modelica.Icons.RoundSensor;
-    extends Interfaces.PartialSubstanceSensor;
+    extends Internal.PartialSubstanceSensor;
 
      Modelica.Blocks.Interfaces.RealOutput partialPressure(final unit="Pa")
     "Partial pressure of the substance in gaseous solution"
@@ -260,11 +256,10 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-60}), iconTransformation(
           extent={{-20,-20},{20,20}},
-          origin={-100,0},
-        rotation=180)));
+          origin={100,0},
+        rotation=0)));
 
   equation
-    port_a.q = 0;
 
     partialPressure = x*solution.p;
 
@@ -340,11 +335,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-  Interfaces.SubstancePort_b products[nP] "Products"
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet                   products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-  Interfaces.SubstancePort_b substrates[nS] "Substrates"
-    annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
@@ -374,11 +367,11 @@ package Sensors "Chemical sensors"
       _n = n;
     end if;
 
-    substrates.q = zeros(nS);
-    substrates.h_outflow = zeros(nS);
+    substrates.n_flow = zeros(nS);
 
-    products.q = zeros(nP);
-    products.h_outflow = zeros(nP);
+
+    products.n_flow = zeros(nP);
+    products.h = zeros(nP);
 
     DrG = ((p * products.u) - (s * substrates.u));
 
@@ -530,11 +523,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-  Interfaces.SubstancePort_b products[nP] "Products"
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet                   products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-  Interfaces.SubstancePort_b substrates[nS] "Substrates"
-    annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
 
@@ -570,11 +561,10 @@ package Sensors "Chemical sensors"
       _n = n;
     end if;
 
-    substrates.q = zeros(nS);
-    substrates.h_outflow = zeros(nS);
+    substrates.n_flow = zeros(nS);
 
-    products.q = zeros(nP);
-    products.h_outflow = zeros(nP);
+    products.n_flow = zeros(nP);
+    products.h = zeros(nP);
 
     DrG = ((p * products.u) - (s * substrates.u)) + (if (nP>0) then p[1] else 1)*Modelica.Constants.R*T*log(activityCoeficient);
 

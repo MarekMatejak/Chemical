@@ -1495,9 +1495,9 @@ Test package for the Boundaries package of ThermofluidStream.
       xref = -log10(a)*(bufferValue/solution.n);
 
     //solution flows
-    streamEnthalpy = actualStream(molarEnthalpy);
+    streamEnthalpy = molarEnthalpy;
 
-    solution.dH =streamEnthalpy*n_flow - der(molarEnthalpy)*nFreeBuffer;
+    solution.dH =h_in*n_flow_in + h_out*n_flow_out - der(molarEnthalpy)*nFreeBuffer;
     solution.i = Modelica.Constants.F * z * n_flow - Modelica.Constants.F*der(z)*nFreeBuffer;
     solution.dV = molarVolume * n_flow - der(molarVolume)*nFreeBuffer;
 

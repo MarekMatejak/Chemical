@@ -1,4 +1,4 @@
-﻿within Chemical;
+within Chemical;
 model DropOfCommons "Model for global parameters"
 
   parameter Chemical.Utilities.Units.Inertance L=1e-8 "Inertance of the molar flow through electro-chemical process" annotation (Dialog(tab="Advanced"));
