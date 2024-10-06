@@ -987,7 +987,6 @@ Test package for the Boundaries package of ThermofluidStream.
      parameter Real L=dropOfCommons.L;
 
       parameter Boolean useInlet = false "If true inlet is added";
-      parameter Boolean useOutlet = true "If true outlet is added";
 
       Interfaces.Inlet inlet(
         r=r_in,
@@ -996,7 +995,7 @@ Test package for the Boundaries package of ThermofluidStream.
         h=h_in) if useInlet "The substance entering"
         annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-      Chemical.Interfaces.Outlet outlet(r=r_out,n_flow=n_flow_out,u=u_out,h=h_out) if useOutlet "The substance exiting"
+      Chemical.Interfaces.Outlet outlet(r=r_out,n_flow=n_flow_out,u=u_out,h=h_out) "The substance exiting"
                                                         annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
@@ -1130,9 +1129,7 @@ Test package for the Boundaries package of ThermofluidStream.
        h_in = 0;
        u_in = u_out;
      end if;
-     if not useOutlet then
-       n_flow_out = 0;
-     end if;
+
 
      annotation (
        Documentation(revisions="<html>
