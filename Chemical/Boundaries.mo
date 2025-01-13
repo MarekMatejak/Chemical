@@ -991,11 +991,12 @@ Test package for the Boundaries package of ThermofluidStream.
       Interfaces.Inlet inlet(
         r=r_in,
         n_flow=n_flow_in,
-        u=u_in,
-        h=h_in) if useInlet "The substance entering"
+        h=h_in,
+        uRT=uRT_in) if useInlet "The substance entering"
         annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+      //  u=u_in,
 
-      Chemical.Interfaces.Outlet outlet(r=r_out,n_flow=n_flow_out,u=u_out,h=h_out) "The substance exiting"
+      Chemical.Interfaces.OutletSubstance outlet(r=r_out,n_flow=n_flow_out,uRT=uRT_out,h=h_out) "The substance exiting"
                                                         annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
@@ -1071,8 +1072,8 @@ Test package for the Boundaries package of ThermofluidStream.
       //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
       //    "Molar heat capacity of the substance at constant pressure";
 
-      Real r_in,n_flow_in,u_in,h_in;
-      Real r_out,n_flow_out,u_out,h_out;
+      Real r_in,n_flow_in,h_in,uRT_in; //u_in,
+      Real r_out,n_flow_out,h_out,uRT_out,u_out;
 
     equation
       //assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
@@ -1115,20 +1116,30 @@ Test package for the Boundaries package of ThermofluidStream.
        pressure,
        electricPotential,
        moleFractionBasedIonicStrength)
-       + Modelica.Constants.R*temperature*log(a)
+       + (Modelica.Constants.R*temperature)*log(a)
        + z*Modelica.Constants.F*electricPotential;
+     uRT_out = u_out/(Modelica.Constants.R*temperature);
 
      h_out = molarEnthalpy;
      der(n_flow_out)*L = r_out;
      der(n_flow_in)*L = r_in - r;
 
-     u_out = u_in + r;
+     uRT_out = uRT_in + r;
 
      if not useInlet then
        n_flow_in = 0;
        h_in = 0;
-       u_in = u_out;
+    //   u_in = u_out;
+       uRT_in = outlet.uRT;
      end if;
+
+     outlet.u0RT=(stateOfMatter.chemicalPotentialPure(
+       substanceData,
+       temperature,
+       pressure,
+       electricPotential,
+       moleFractionBasedIonicStrength)
+       + z*Modelica.Constants.F*electricPotential)/(Modelica.Constants.R*temperature);
 
 
      annotation (
