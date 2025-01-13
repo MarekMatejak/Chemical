@@ -2953,7 +2953,6 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Boundaries.Substance oxygen_unbound(
         useInlet=true,
-        useOutlet=false,
         substanceData(DfG=GO2aq),
         use_mass_start=false,
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-90,-56},{-70,-36}})));
@@ -3014,7 +3013,6 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Boundaries.Substance R0(
         useInlet=true,
-        useOutlet=false,
         substanceData(DfG=GR0),
         use_mass_start=false,
         amountOfSubstance_start=THb*1e-7) annotation (Placement(transformation(extent={{-26,82},{-46,102}})));
@@ -3434,7 +3432,6 @@ extends Modelica.Icons.ExamplesPackage;
        // AmountOfSubstance_start=totalAmountOfHemoglobin)
       Chemical.Boundaries.Substance OxyRHm[4](
         each useInlet=true,
-        each useOutlet=false,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KRx) + DfG_tR/4),
         each use_mass_start=false,
@@ -3456,7 +3453,6 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Boundaries.Substance OxyTHm[4](
         each useInlet=true,
-        each useOutlet=false,
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
         each substanceData(DfG=DfG_O2 + RT*log(KTx) + DfG_tT/4),
         each use_mass_start=false,
@@ -3477,7 +3473,6 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Boundaries.Substance oxygen_unbound(
         useInlet=true,
-        useOutlet=true,
         substanceData(DfG=DfG_O2),
         use_mass_start=false,
         amountOfSubstance_start=2e-9) annotation (Placement(transformation(extent={{2,34},{22,54}})));
