@@ -1,8 +1,9 @@
 within Chemical;
 package Utilities
   package Units
-    type Inertance =  Real (quantity = "ChemicalInertance",unit = "J.s2.mol-2", start=1e-5, nominal=1e-5, min=0) "Inertance of electro-chemical process";
-    type MolarFlowAcceleration =Real(quantity="MolarFlowAcceleration", unit="mol/s2") "Acceleration Unit for a MolarFlow"
+    type Inertance =  Real (quantity = "URTInertance",unit = "s2/mol", start=1e-5, nominal=1e-5, min=0) "Inertance of electro-chemical process";
+    type URT =  Real (quantity = "URT",unit = "1", nominal=1)  "Electro-chemical potential divided by gas constant and temperature";
+    type MolarFlowAcceleration = Real(quantity="MolarFlowAcceleration", unit="mol/s2") "Acceleration Unit for a MolarFlow"
       annotation (Documentation(info="<html>
     <p>Acceleration Unit for a MolarFlow</p>
     </html>"));

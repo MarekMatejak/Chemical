@@ -1697,7 +1697,7 @@ end solution_temperature_;
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
 
-  input Real uRT "u/(R*T)";
+  input Chemical.Utilities.Units.URT uRT "u/(R*T)";
     // u .. electro-chemical potential of the substance in solution
     // R .. gas constant
     // T .. temperature
@@ -1763,7 +1763,7 @@ end solution_temperature_;
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
 
-  output Real uRT "u/(R*T)";
+  output Chemical.Utilities.Units.URT uRT "u/(R*T)";
     // u .. electro-chemical potential of the substance in solution
     // R .. gas constant
     // T .. temperature
@@ -1835,7 +1835,7 @@ end solution_temperature_;
     parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
       annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
 
-    parameter Real L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
     InletProcess inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
     Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
@@ -1847,12 +1847,12 @@ end solution_temperature_;
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Real uRT_in(unit="1")=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
-    Real u0RT_in(unit="1")=inlet.u0RT "Electro-chemical potential of pure substance entering divided by (R*T)";
+    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
+    Chemical.Utilities.Units.URT u0RT_in(unit="1")=inlet.u0RT "Electro-chemical potential of pure substance entering divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
 
     //outlet state quantities
-    Real uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
+    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
   initial equation
@@ -1893,7 +1893,7 @@ end solution_temperature_;
     parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
       annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
 
-    parameter Real L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
     InletProcess inlet annotation (Placement(transformation(extent={{-20,-20},{20,20}},
           rotation=270,
@@ -1910,12 +1910,12 @@ end solution_temperature_;
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Real uRT_in(unit="1")=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
-    Real u0RT_in(unit="1")=inlet.u0RT "Electro-chemical potential of pure substance entering divided by (R*T)";
+    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
+    Chemical.Utilities.Units.URT u0RT_in(unit="1")=inlet.u0RT "Electro-chemical potential of pure substance entering divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
 
     //outlet state quantities
-    Real uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
+    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
   initial equation
@@ -1950,7 +1950,7 @@ end solution_temperature_;
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
 
-  input Real uRT "u/(R*T)";
+  input Chemical.Utilities.Units.URT uRT "u/(R*T)";
     // u .. electro-chemical potential of the substance in solution
     // R .. gas constant
     // T .. temperature
@@ -1958,7 +1958,7 @@ end solution_temperature_;
   input Modelica.Units.SI.MolarEnthalpy h
     "Enthalphy of the substance";
 
-  input Real u0RT "u0/(R*T)";
+  input Chemical.Utilities.Units.URT u0RT "u0/(R*T)";
     // u0 .. electro-chemical potential of the pure substance
     // R .. gas constant
     // T .. temperature
@@ -2019,7 +2019,7 @@ end solution_temperature_;
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
 
-  output Real uRT "u/(R*T)";
+  output Chemical.Utilities.Units.URT uRT "u/(R*T)";
     // u .. electro-chemical potential of the substance in solution
     // R .. gas constant
     // T .. temperature
@@ -2029,7 +2029,7 @@ end solution_temperature_;
     "Enthalphy of the substance";
 
 
-  output Real u0RT "u0/(R*T)";
+  output Chemical.Utilities.Units.URT u0RT "u0/(R*T)";
     // u0 .. electro-chemical potential of the pure substance
     // R .. gas constant
     // T .. temperature

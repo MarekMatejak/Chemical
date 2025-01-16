@@ -167,12 +167,12 @@ package Sensors "Chemical sensors"
 </html>"));
   end SubstanceMoleFractionSensor;
 
-  model ElectroChemicalPotentialSensor
-  "Measure of electro-chemical potential"
+  model URTSensor
+    "Measure of electro-chemical potential divided by gas constant and temperature"
     extends Modelica.Icons.RoundSensor;
 
-    Modelica.Blocks.Interfaces.RealOutput u(final unit="J/mol")
-    "Electro-chemical potential of the substance"
+    Modelica.Blocks.Interfaces.RealOutput uRT(final unit="J/mol")
+    "Electro-chemical potential of the substance divided by gas constant and temperature"
      annotation (
         Placement(transformation(
           extent={{-20,-20},{20,20}},
@@ -185,10 +185,9 @@ package Sensors "Chemical sensors"
     Interfaces.Inlet port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
   equation
 
-    port_a.u = u;
+    port_a.uRT = uRT;
 
     port_a.n_flow = 0;
-
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -204,7 +203,7 @@ package Sensors "Chemical sensors"
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
-  end ElectroChemicalPotentialSensor;
+  end URTSensor;
 
   model MolalitySensor "Measure of molality of the substance"
     extends Modelica.Icons.RoundSensor;
@@ -369,21 +368,7 @@ package Sensors "Chemical sensors"
 
     outer Modelica.Fluid.System system "System wide properties";
 
-    parameter Boolean useTemperatureInput = false
-    "=true, if temperature is from input instead of parameter"
-    annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-    parameter Modelica.Units.SI.Temperature T=system.T_ambient
-    "Temperature if not useTemperatureInput" annotation (HideResult=
-        true, Dialog(enable=not useTemperatureInput));
-
-    Modelica.Blocks.Interfaces.RealInput temperature(start=
-          T, final unit="K")=_temperature if useTemperatureInput
-    "Temperature"
-      annotation (HideResult=true,Placement(transformation(extent={{-120,58},
-              {-80,98}}), iconTransformation(extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={-60,40})));
 
     parameter Boolean useTotalAmountOfSubstancesInput = false
     "=true, if total amount of substances in solution is from input instead of parameter"
@@ -423,7 +408,7 @@ package Sensors "Chemical sensors"
 
     Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-  Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
+    Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
 
     Modelica.Blocks.Interfaces.RealOutput DissociationCoefficient_MoleFractionBased
     "Dissociation constant (if all substances has activity=1)"   annotation (Placement(transformation(
@@ -441,12 +426,9 @@ package Sensors "Chemical sensors"
     "= -log10('mole-fraction based dissociation coefficient')";
 
   protected
-  Modelica.Units.SI.Temperature _temperature;
   Modelica.Units.SI.AmountOfSubstance _n;
   equation
-    if not useTemperatureInput then
-      _temperature = T;
-    end if;
+
     if not useTotalAmountOfSubstancesInput then
       _n = n;
     end if;
@@ -457,9 +439,9 @@ package Sensors "Chemical sensors"
     products.n_flow = zeros(nP);
     products.h = zeros(nP);
 
-    DrG = ((p * products.u) - (s * substrates.u));
+    GRT = ((p * products.uRT) - (s * substrates.uRT));
 
-    DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+    DissociationCoefficient_MoleFractionBased = exp(-GRT);
 
     pK=-log10(DissociationCoefficient_MoleFractionBased);
 
@@ -557,22 +539,6 @@ package Sensors "Chemical sensors"
 
     outer Modelica.Fluid.System system "System wide properties";
 
-    parameter Boolean useTemperatureInput = false
-    "=true, if temperature is from input instead of parameter"
-    annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
-
-  parameter Modelica.Units.SI.Temperature T=system.T_ambient
-    "Temperature if not useTemperatureInput" annotation (HideResult=
-        true, Dialog(enable=not useTemperatureInput));
-
-    Modelica.Blocks.Interfaces.RealInput temperature(start=
-          T, final unit="K")=_temperature if useTemperatureInput
-    "Temperature"
-      annotation (HideResult=true,Placement(transformation(extent={{-120,58},
-              {-80,98}}), iconTransformation(extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={-60,40})));
-
     parameter Boolean useTotalAmountOfSubstancesInput = false
     "=true, if total amount of substances in solution is from input instead of parameter"
     annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
@@ -611,7 +577,8 @@ package Sensors "Chemical sensors"
 
     Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
-  Modelica.Units.SI.MolarEnergy DrG "Free Gibbs energy of reaction";
+  Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
+
 
     Modelica.Blocks.Interfaces.RealOutput activityCoeficient
     "Activity coeficient of one product"   annotation (Placement(transformation(
@@ -635,12 +602,8 @@ package Sensors "Chemical sensors"
     "= -log10('mole-fraction based dissociation coefficient')";
 
   protected
-  Modelica.Units.SI.Temperature _temperature;
   Modelica.Units.SI.AmountOfSubstance _n;
   equation
-    if not useTemperatureInput then
-      _temperature = T;
-    end if;
     if not useTotalAmountOfSubstancesInput then
       _n = n;
     end if;
@@ -650,9 +613,9 @@ package Sensors "Chemical sensors"
     products.n_flow = zeros(nP);
     products.h = zeros(nP);
 
-    DrG = ((p * products.u) - (s * substrates.u)) + (if (nP>0) then p[1] else 1)*Modelica.Constants.R*T*log(activityCoeficient);
+    GRT = ((p * products.uRT) - (s * substrates.uRT)) + (if (nP>0) then p[1] else 1)*log(activityCoeficient);
 
-    DissociationCoefficient_MoleFractionBased = exp(-DrG/(Modelica.Constants.R*T));
+    DissociationCoefficient_MoleFractionBased = exp(-GRT);
 
     pK=-log10(DissociationCoefficient_MoleFractionBased);
 
@@ -751,7 +714,8 @@ package Sensors "Chemical sensors"
 
       Interfaces.Inlet inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
+     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+        Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choices(
           choice(redeclare package stateOfMatter =
@@ -844,14 +808,14 @@ package Sensors "Chemical sensors"
      a = gamma*x;
 
      //electro-chemical potential of the substance in the solution
-     inlet.u = stateOfMatter.chemicalPotentialPure(
+     inlet.uRT = stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
        pressure,
        electricPotential,
-       moleFractionBasedIonicStrength)
-       + Modelica.Constants.R*temperature*log(a)
-       + z*Modelica.Constants.F*electricPotential;
+       moleFractionBasedIonicStrength)/(Modelica.Constants.R*temperature)
+       + log(a)
+       + z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
 
      inlet.h = molarEnthalpy;
 
@@ -941,56 +905,39 @@ package Sensors "Chemical sensors"
         output Real value;
 
       algorithm
-        if quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_K
-             then
+        if quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_K then
           value := Medium.temperature(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_C
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_C then
           value :=Modelica.Units.Conversions.to_degC(Medium.temperature(state));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_Pa
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_Pa then
           value := Medium.pressure(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_bar
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_bar then
           value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_Pa
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_Pa then
           value := r;
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_bar
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_bar then
           value :=Modelica.Units.Conversions.to_bar(r);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_Pa
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_Pa then
           value := Medium.pressure(state)+r;
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_bar
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_bar then
           value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state) + r);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.h_Jpkg
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.h_Jpkg then
           value := Medium.specificEnthalpy(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.s_JpkgK
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.s_JpkgK then
           value := Medium.specificEntropy(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.rho_kgpm3
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.rho_kgpm3 then
           value := Medium.density(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.v_m3pkg
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.v_m3pkg then
           value := 1/(max(rho_min, Medium.density(state)));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.a_mps
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.a_mps then
           value := Medium.velocityOfSound(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cv_JpkgK
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cv_JpkgK then
           value := Medium.specificHeatCapacityCv(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cp_JpkgK
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cp_JpkgK then
           value := Medium.specificHeatCapacityCp(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.kappa_1
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.kappa_1 then
           value := Medium.isentropicExponent(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.MM_kgpmol
-             then
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.MM_kgpmol then
           value := Medium.molarMass(state);
         else
           value :=0;
@@ -1005,7 +952,8 @@ package Sensors "Chemical sensors"
     function getQuantity "Computes selected quantity from state"
       extends Modelica.Icons.Function;
 
-      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby Interfaces.StateOfMatter
+      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+        Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
         annotation (choicesAllMatching=true,
           Documentation(info="<html>
@@ -1176,7 +1124,8 @@ package Sensors "Chemical sensors"
 
     Real direct_value(unit=Internal.getUnit(quantity));
 
-    function getQuantity = Internal.getQuantity (redeclare package stateOfMatter =
+    function getQuantity = Internal.getQuantity (redeclare package
+          stateOfMatter =
             stateOfMatter)                                                       "Quantity compute function"
       annotation (Documentation(info="<html>
       <p>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/p_total and v respectively.</p>

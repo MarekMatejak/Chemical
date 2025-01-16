@@ -1,0 +1,104 @@
+// Convert from Chemical 1.0.* to Chemical 1.4.*
+
+// clear
+convertClear();
+
+convertClass("Chemical.Components.FluidAdapter_C","Chemical.Components.FluidAdapter");
+convertClass("Chemical.Examples.Substances","Chemical.Substances");
+convertClass("Chemical.Examples.Media","Chemical.Media");
+convertElement("Chemical.Components.FluidAdapter_C","temperature_start","");
+
+convertClass("Chemical.Interfaces.ChemicalPort","Chemical.Interfaces.SubstancePort")
+convertClass("Chemical.Interfaces.SubstanceDefinitionPort","Chemical.Interfaces.SubstancePort_a")
+convertClass("Chemical.Interfaces.SubstanceUsePort","Chemical.Interfaces.SubstancePort_b")
+
+convertClass("Chemical.Interfaces.PartialSubstanceModel","Chemical.Interfaces.StateOfMatter")
+convertClass("Chemical.Interfaces.SimpleSubstanceModel","Chemical.Interfaces.Incompressible")
+
+convertClass("Chemical.Interfaces.PartialSubstanceModel.u0","Chemical.Interfaces.StateOfMatter.chemicalPotentialPure")
+convertElement("Chemical.Interfaces.PartialSubstanceModel.u0", "u0" , "chemicalPotentialPure");
+convertClass("Chemical.Interfaces.PartialSubstanceModel.uPure","Chemical.Interfaces.StateOfMatter.electroChemicalPotentialPure")
+convertElement("Chemical.Interfaces.PartialSubstanceModel.uPure", "uPure" , "electroChemicalPotentialPure");
+convertElement("Chemical.Interfaces.PartialSubstanceModel.activityCoefficient", "gamma" , "activityCoefficient");
+
+convertElement("Chemical.Interfaces.SimpleSubstanceModel.SubstanceData","DfG_25degC","DfG_25degC_1bar");
+convertElement("Chemical.Interfaces.SimpleSubstanceModel.SubstanceData","DfH","DfH_25degC");
+
+convertElement("Chemical.Interfaces.PartialSubstance","amountOfSolution","");
+convertElement("Chemical.Interfaces.PartialSolution","Cp","");
+convertModifiers("Chemical.Interfaces.PartialSolution",{"Cp_start"},fill("",0), true);
+convertModifiers("Chemical.Interfaces.PartialSolution",{"AmountOfSolution_start"},fill("",0), true);
+convertModifiers("Chemical.Interfaces.PartialSolution",{"volume_start"},fill("",0), true);
+convertModifiers("Chemical.Interfaces.PartialSolution",{"temperature_start"},fill("",0), true);
+convertModifiers("Chemical.Interfaces.PartialSolution",{"electricCharge_start"},fill("",0), true);
+convertModifiers("Chemical.Interfaces.PartialSolution",{"ionicStrength_start"},fill("",0), true);
+
+convertElement("Chemical.Interfaces.PartialSubstanceInSolution","amountOfSolution","solution.n");
+
+convertClass("Chemical.Interfaces.PartialSubstanceNoStorage","Chemical.Interfaces.PartialSubstanceSensor")
+
+convertModifiers("Chemical.Sources.PureSubstance",{"AmountOfSolution"}, fill("",0), true);
+
+convertClass("Chemical.Sources.AirSubstance","Chemical.Sources.ExternalIdealGasSubstance")
+convertClass("Chemical.Sources.AmbientMolality","Chemical.Sources.ExternalMolality")
+convertElement("Chemical.Sources.AmbientMolality","AmountOfSolution","AmountOfSolutionPer1KgSolvent");
+convertClass("Chemical.Sources.AmbientConcentration","Chemical.Sources.ExternalConcentration")
+convertElement("Chemical.Sources.AmbientConcentration","AmountOfSolution","AmountOfSolutionIn1L");
+convertClass("Chemical.Sources.AmbientMoleFraction","Chemical.Sources.ExternalMoleFraction")
+convertModifiers("Chemical.Sources.AmbientMoleFraction",{"AmountOfSolution"},fill("",0), true);
+
+convertElement("Chemical.Sources.Buffer","xBuffered_start","a_start");
+convertModifiers("Chemical.Sources.Buffer",{"AmountOfSolution"}, fill("",0), true);
+convertModifiers("Chemical.Sources.Buffer",{"Tau"}, fill("",0), true);
+convertModifiers("Chemical.Sources.Buffer",{"Temperature"}, fill("",0), true);
+convertModifiers("Chemical.Sources.Buffer",{"MoleFractionBasedIonicStrength"}, fill("",0), true);
+convertModifiers("Chemical.Sources.Buffer",{"ElectricPotential"}, fill("",0), true);
+//new Buffer must be connected to the chemical solution
+
+
+convertClass("Chemical.Sources.PureElectricParticle","Chemical.Components.ElectronTransfer")
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+convertElement("Chemical.Sources.Buffer","xBuffered_start","a_start");
+convertClass("Chemical.Components.SimpleThermalSolution","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.SimpleThermalSolution", fill("",0) , {"useThermalPort=true"}, true);
+convertElement("Chemical.Components.Solution3","ConstantPressure","BasePressure");
+convertClass("Chemical.Components.IdealGasSolution","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.IdealGasSolution", fill("",0) , {"useThermalPort=true","useMechanicPorts=true"}, true);
+convertClass("Chemical.Components.Solution3","Chemical.Components.Solution")
+convertModifiers("Chemical.Components.Solution3", fill("",0) , {"useThermalPort=true","useMechanicPorts=true","useElectricPort=true"}, true);
+convertElement("Chemical.Components.Solution3","AmbientPressure","BasePressure");
+
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+convertClass("Chemical.Components.SimpleSolution","Chemical.Components.Solution")
+
+convertModifiers("Chemical.Components.Speciation",{"AmountOfSubstance_start"},fill("",0), true);
+
+convertModifiers("Physiolibrary.Molar.FlowConcentrationMeasure", fill("",0) , {"useSolutionFlowInput=true","useAdditionalSoluteFlowInput=true"}, true);
+
+
+convertModifiers("Chemical.Components.Substance",{"amountOfSubstance_start"},{"use_mass_start=false", "amountOfSunstance_start=%amountOfSubstance_start%"}, true);
+convertModifiers("Chemical.Components.Substance",{"substanceData"},{"substanceData=%substanceData%()"}, true);
+
+
+convertClass("Chemical.Components.Solution","Chemical.Solution");
+convertClass("Chemical.Components","Chemical.Obsolete.Components");
+convertClass("Chemical.Sources","Chemical.Obsolete.Sources");
+convertClass("Chemical.Sensors","Chemical.Obsolete.Sensors");
+convertClass("Chemical.Interfaces.SubstancePort","Chemical.Obsolete.Interfaces.SubstancePort");
+convertClass("Chemical.Interfaces.SubstancePort_a","Chemical.Obsolete.Interfaces.SubstancePort_a");
+convertClass("Chemical.Interfaces.SubstancePort_b","Chemical.Obsolete.Interfaces.SubstancePort_b");
+convertClass("Chemical.Interfaces.OnePort","Chemical.Obsolete.Interfaces.OnePort");
+convertClass("Chemical.Interfaces.SubstancePorts_a","Chemical.Obsolete.Interfaces.SubstancePorts_a");
+convertClass("Chemical.Interfaces.SubstancePorts_b","Chemical.Obsolete.Interfaces.SubstancePorts_b");
+convertClass("Chemical.Interfaces.PartialSubstance","Chemical.Obsolete.Interfaces.PartialSubstance");
+convertClass("Chemical.Interfaces.PartialSubstanceInSolution","Chemical.Obsolete.Interfaces.PartialSubstanceInSolution");
+convertClass("Chemical.Interfaces.PartialSubstanceInSolutionWithAdditionalPorts","Chemical.Obsolete.Interfaces.PartialSubstanceInSolutionWithAdditionalPorts");
+convertClass("Chemical.Interfaces.PartialSubstanceSensor","Chemical.Obsolete.Interfaces.PartialSubstanceSensor");
+convertClass("Chemical.Interfaces.SubstanceMassPort","Chemical.Obsolete.Interfaces.SubstanceMassPort");
+convertClass("Chemical.Interfaces.SubstanceMassPort_a","Chemical.Obsolete.Interfaces.SubstanceMassPort_a");
+convertClass("Chemical.Interfaces.SubstanceMassPort_b","Chemical.Obsolete.Interfaces.SubstanceMassPort_b");
+convertClass("Chemical.Interfaces.SubstanceMolarityPort","Chemical.Obsolete.Interfaces.SubstanceMolarityPort");
+convertClass("Chemical.Interfaces.SubstanceMolarityPort_a","Chemical.Obsolete.Interfaces.SubstanceMolarityPort_a");
+convertClass("Chemical.Interfaces.SubstanceMolarityPort_b","Chemical.Obsolete.Interfaces.SubstanceMolarityPort_b");
+convertClass("Chemical.Interfaces.ConditionalKinetics","Chemical.Obsolete.Interfaces.ConditionalKinetics");
+convertClass("Chemical.Examples","Chemical.Obsolete.Examples");

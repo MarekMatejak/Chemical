@@ -5,23 +5,27 @@ package Chemical "Chemical pathways"
 
   annotation (
 preferredView="info",
-version="1.4.1",
-versionDate="2023-11-23",
-dateModified = "2023-11-23 21:10:41Z",
+version="2.0.0",
+versionDate="2025-01-16",
+dateModified = "2025-01-16 14:49:41Z",
 conversion(
-  from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.1"),
-  from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.1"),
-  from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_1.4.mos",
-        to="1.4.1"),
-  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos",
-        to="1.4.1"),
-  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
-        to="1.4.1")),
-      uses( Modelica(version="4.0.0"), ThermofluidStream(version="1.2.0")),
+  from(version="1.4.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.4_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.4.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.4_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.3.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.3.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.2.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.3_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_2.0.mos",
+        to="2.0.0"),
+  from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_2.0.mos",
+        to="2.0.0")),
+      uses( Modelica(version="4.0.0")),
   Documentation(revisions="<html>
-<p>Copyright (c) 2023, Marek Matej&aacute;k, Ph.D. </p>
+<p>Copyright (c) 2025, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: </p>
 <ol>

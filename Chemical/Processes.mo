@@ -382,7 +382,8 @@ package Processes
   model Stream "Flow of whole solution"
     extends Boundaries.Internal.ConditionalSolutionFlow;
 
-    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
+    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
+      Interfaces.StateOfMatter
     "Substance model to translate data into substance properties"
        annotation (choicesAllMatching = true);
 
@@ -534,7 +535,7 @@ package Processes
   protected
     outer DropOfCommons dropOfCommons;
     Modelica.Units.SI.MolarEnthalpy h_out;
-    Real uRT_out;
+    Chemical.Utilities.Units.URT uRT_out;
   equation
 
     inlet.r + inlet.uRT = uRT_out;
@@ -680,7 +681,8 @@ package Processes
   model SpeciationOut "Quaternary macromolecule form defined by all its subunits"
     extends Icons.Speciation;
 
-    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
+    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
+      Interfaces.StateOfMatter
     "Substance model to translate data into substance properties"
        annotation (choicesAllMatching = true);
 
@@ -722,7 +724,7 @@ package Processes
   protected
     outer DropOfCommons dropOfCommons;
     Modelica.Units.SI.MolarEnthalpy h_out;
-    Real uRT_out;
+    Chemical.Utilities.Units.URT uRT_out;
   equation
 
     outlet.uRT = uRT_out;
@@ -857,5 +859,4 @@ package Processes
             lineColor={128,0,255},
             textString="%name")}));
   end SpeciationOut;
-
 end Processes;

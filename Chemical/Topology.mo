@@ -645,7 +645,7 @@ package Topology
 
     for i in 1:N loop
       der(outlets[i].n_flow) * L = outlets[i].r - r_mix;
-      outlets[i].u = inlet.u;
+      outlets[i].uRT = inlet.uRT;
       outlets[i].h = inlet.h;
     end for;
 
@@ -695,14 +695,14 @@ package Topology
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Modelica.Units.SI.ChemicalPotential u[N]=inlets.u "(steady molar-flow) electro-chemical potential at inlets";
+    Chemical.Utilities.Units.URT uRT[N]=inlets.uRT "(steady molar-flow) electro-chemical potential divided by R*T at inlets";
     Modelica.Units.SI.MolarEnthalpy h[N]=inlets.h "molar enthapy at inlets";
 
-    Modelica.Units.SI.ChemicalPotential u_mix "(steady mass-flow) electro-chemical potential at the outlet";
-    Modelica.Units.SI.ChemicalPotential r_mix "inertial electro-chemical potential at outlet";
+    Chemical.Utilities.Units.URT uRT_mix "(steady mass-flow) electro-chemical potential divided by R*T at the outlet";
+    Chemical.Utilities.Units.URT r_mix "inertial electro-chemical potential divided by R*T at outlet";
     Modelica.Units.SI.MolarEnthalpy h_mix "molar enthalpy at outlet";
 
-    Modelica.Units.SI.ChemicalPotential r_in[N];
+    Chemical.Utilities.Units.URT r_in[N];
 
   equation
     sum(inlets.n_flow) + outlet.n_flow = 0;
@@ -710,15 +710,15 @@ package Topology
     for i in 1:N loop
       der(inlets[i].n_flow) * L = inlets[i].r - r_in[i];
 
-      u[i] + r_in[i] = u_mix + r_mix;
+      uRT[i] + r_in[i] = uRT_mix + r_mix;
       w[i] = (abs(inlets[i].n_flow)+n_flow_eps) / (sum(abs(inlets.n_flow))+N*n_flow_eps);
     end for;
     der(outlet.n_flow) * L =  outlet.r - r_mix;
 
-    u_mix = sum(w.*u);
+    uRT_mix = sum(w.*uRT);
     h_mix = sum(w.*h);
 
-    outlet.u = u_mix;
+    outlet.uRT = uRT_mix;
     outlet.h = h_mix;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
