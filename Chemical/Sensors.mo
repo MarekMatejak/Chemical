@@ -48,6 +48,52 @@ package Sensors "Chemical sensors"
             textString="dn")}));
   end MolarFlowSensor;
 
+  model SubstanceMolarFlowSensor "Measure of molar flow with u0RT"
+
+    extends Modelica.Icons.RoundSensor;
+
+    Modelica.Blocks.Interfaces.RealOutput molarFlowRate(final unit="mol/s") annotation (
+        Placement(transformation(
+          extent={{-20,-20},{20,20}},
+          rotation=270,
+          origin={0,-60}), iconTransformation(
+          extent={{-20,-20},{20,20}},
+          rotation=270,
+          origin={0,-100})));
+
+    Interfaces.InletProcess inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+    Interfaces.OutletSubstance outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
+  equation
+    molarFlowRate = inlet.n_flow;
+
+    connect(inlet, outlet) annotation (Line(
+        points={{-98,0},{102,0}},
+        color={158,66,200},
+        thickness=0.5));
+   annotation (
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),      Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
+              100,100}}), graphics={
+          Line(
+            points={{70,-10},{90,-10}},
+            color={127,0,127}),
+          Line(
+            points={{70,10},{90,10}},
+            color={127,0,127}),
+          Line(
+            points={{-90,10},{-70,10}},
+            color={127,0,127}),
+          Line(
+            points={{-90,-10},{-70,-10}},
+            color={127,0,127}),
+          Text(
+            extent={{-31,-5},{28,-64}},
+            lineColor={0,0,0},
+            textString="dn")}));
+  end SubstanceMolarFlowSensor;
+
   model MoleFractionSensor "Measure of mole fraction"
     extends Modelica.Icons.RoundSensor;
     extends Internal.PartialSubstanceSensor;
@@ -82,6 +128,44 @@ package Sensors "Chemical sensors"
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
   end MoleFractionSensor;
+
+  model SubstanceMoleFractionSensor "Measure of mole fraction"
+    extends Modelica.Icons.RoundSensor;
+
+   Interfaces.InletProcess inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
+    "Mole fraction of the substance"
+     annotation (
+        Placement(transformation(
+          extent={{-20,-20},{20,20}},
+          rotation=270,
+          origin={0,-60}), iconTransformation(
+          extent={{-20,-20},{20,20}},
+          origin={100,0},
+        rotation=0)));
+
+  equation
+
+    inlet.n_flow = 0;
+
+    moleFraction = exp(inlet.uRT - inlet.u0RT);
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Text(
+            extent={{-31,-3},{28,-62}},
+            lineColor={0,0,0},
+            textString="x"),
+          Line(
+            points={{70,0},{80,0}},
+            color={127,0,127})}),
+      Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end SubstanceMoleFractionSensor;
 
   model ElectroChemicalPotentialSensor
   "Measure of electro-chemical potential"
@@ -839,6 +923,83 @@ package Sensors "Chemical sensors"
           "Steady state initialization (derivatives of states are zero)",
         state
           "Initialization with initial output state") "Initialization modes for sensor lowpass";
+      function getQuantity "Computes selected quantity from state"
+        extends Modelica.Icons.Function;
+
+        replaceable package Medium =
+            ThermofluidStream.Media.myMedia.Interfaces.PartialMedium
+          "Medium model"
+          annotation (choicesAllMatching=true,
+            Documentation(info="<html>
+      <p>Medium Model for the function. Make sure it implements the needed functions.</p>
+        </html>"));
+
+        input Medium.ThermodynamicState state;
+        input Modelica.Units.SI.Pressure r;
+        input ThermofluidStream.Sensors.Internal.Types.Quantities quantity;
+        input Modelica.Units.SI.Density rho_min;
+        output Real value;
+
+      algorithm
+        if quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_K
+             then
+          value := Medium.temperature(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_C
+             then
+          value :=Modelica.Units.Conversions.to_degC(Medium.temperature(state));
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_Pa
+             then
+          value := Medium.pressure(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_bar
+             then
+          value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state));
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_Pa
+             then
+          value := r;
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_bar
+             then
+          value :=Modelica.Units.Conversions.to_bar(r);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_Pa
+             then
+          value := Medium.pressure(state)+r;
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_bar
+             then
+          value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state) + r);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.h_Jpkg
+             then
+          value := Medium.specificEnthalpy(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.s_JpkgK
+             then
+          value := Medium.specificEntropy(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.rho_kgpm3
+             then
+          value := Medium.density(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.v_m3pkg
+             then
+          value := 1/(max(rho_min, Medium.density(state)));
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.a_mps
+             then
+          value := Medium.velocityOfSound(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cv_JpkgK
+             then
+          value := Medium.specificHeatCapacityCv(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cp_JpkgK
+             then
+          value := Medium.specificHeatCapacityCp(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.kappa_1
+             then
+          value := Medium.isentropicExponent(state);
+        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.MM_kgpmol
+             then
+          value := Medium.molarMass(state);
+        else
+          value :=0;
+        end if;
+
+        annotation (Documentation(info="<html>
+<p>Helper function to get a quantity from an Thermofluid state.</p>
+</html>"));
+      end getQuantity;
     end Types;
 
     function getQuantity "Computes selected quantity from state"
@@ -1015,8 +1176,8 @@ package Sensors "Chemical sensors"
 
     Real direct_value(unit=Internal.getUnit(quantity));
 
-    function getQuantity = Internal.getQuantity (redeclare package stateOfMatter = stateOfMatter)
-                                                                                 "Quantity compute function"
+    function getQuantity = Internal.getQuantity (redeclare package stateOfMatter =
+            stateOfMatter)                                                       "Quantity compute function"
       annotation (Documentation(info="<html>
       <p>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/p_total and v respectively.</p>
       </html>"));

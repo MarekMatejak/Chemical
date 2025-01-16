@@ -18,8 +18,10 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
-    Processes.Reaction2         reaction2_1(
-      kf=7311,                           nP=1, nS=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
+    Processes.Reaction reaction2_1(
+      kf=7311,
+      nP=1,
+      nS=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Boundaries.Substance B(
       useInlet=true,
       substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
@@ -66,8 +68,10 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
-    Processes.Reaction2         reaction2_1(
-      kf=150000,                         nS=2, nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
+    Processes.Reaction reaction2_1(
+      kf=150000,
+      nS=2,
+      nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
     Chemical.Boundaries.Substance C(
@@ -187,8 +191,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
     Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
-    Processes.Reaction2         reaction2_2(
-                                         nP=1, nS=1) annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
+    Processes.Reaction reaction2_2(nP=1, nS=1)
+      annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
     Chemical.Boundaries.Substance B(
       useInlet=true,
       substanceData(DfH=ReactionEnthalpy),
@@ -199,8 +203,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,0},{98,94}})));
     Chemical.Boundaries.Substance A1(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
-    Processes.Reaction2         reaction2_1(
-                                          nP=1, nS=1) annotation (Placement(transformation(extent={{-8,40},{12,60}})));
+    Processes.Reaction reaction2_1(nP=1, nS=1)
+      annotation (Placement(transformation(extent={{-8,40},{12,60}})));
     Chemical.Boundaries.Substance B1(
       useInlet=true,
       substanceData(DfH=ReactionEnthalpy),

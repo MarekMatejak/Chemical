@@ -355,8 +355,9 @@ package Obsolete
     model ElectronTransfer
     "Electron transfer from the solution to electric circuit"
       extends Icons.ElectronTransfer;
-      extends .Chemical.Obsolete.Interfaces.PartialSubstanceInSolution
-                                                   (redeclare package stateOfMatter = Chemical.Interfaces.Incompressible, final substanceData=
+      extends .Chemical.Obsolete.Interfaces.PartialSubstanceInSolution(
+                                                    redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible,                                                                           final substanceData=
             Chemical.Interfaces.Incompressible.SubstanceData(
                 MolarWeight=5.4857990946e-7,
                 z=-1,
@@ -901,8 +902,8 @@ package Obsolete
 
     model ExternalIdealGasSubstance
     "Ideal gas substance with defined partial pressure"
-      extends Obsolete.Interfaces.PartialSubstance
-                                         (redeclare package stateOfMatter =
+      extends Obsolete.Interfaces.PartialSubstance(
+                                          redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGas);
 
       parameter Boolean usePartialPressureInput = false
@@ -1486,8 +1487,7 @@ package Obsolete
     model Buffer
     "Source of substance bounded to constant amount of buffer to reach linear dependence between concentration and electrochemical potential"
       extends Icons.Buffer;
-           extends Obsolete.Interfaces.PartialSubstanceInSolution
-                                                        (
+           extends Obsolete.Interfaces.PartialSubstanceInSolution(
                      a(start = a_start));
 
     parameter Modelica.Units.SI.MoleFraction a_start=1e-7
@@ -1501,8 +1501,8 @@ package Obsolete
       "Is buffer value of the substance an input?"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-          extends Chemical.Interfaces.ConditionalKinetics
-                                                (KC=1/(Modelica.Constants.R*298.15));
+          extends Chemical.Interfaces.ConditionalKinetics(
+                                                 KC=1/(Modelica.Constants.R*298.15));
 
           Real bufferValue(final unit="1");
 
@@ -2641,8 +2641,8 @@ package Obsolete
 
       Real direct_value(unit=Internal.getUnit(quantity));
 
-      function getQuantity = Internal.getQuantity (redeclare package stateOfMatter = stateOfMatter)
-                                                                                   "Quantity compute function"
+      function getQuantity = Internal.getQuantity (redeclare package stateOfMatter =
+              stateOfMatter)                                                       "Quantity compute function"
         annotation (Documentation(info="<html>
       <p>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/p_total and v respectively.</p>
       </html>"));
@@ -3778,7 +3778,8 @@ package Obsolete
       inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
         annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
       Obsolete.Components.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-92,16},{-72,36}})));
-      Chemical.Sensors.PartialPressureSensor pH2O(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas, substanceData=Chemical.Substances.Water_gas())
+      Chemical.Sensors.PartialPressureSensor pH2O(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas,                                                                         substanceData=Chemical.Substances.Water_gas())
         annotation (Placement(transformation(extent={{-26,76},{-6,96}})));
     equation
 
@@ -6981,9 +6982,11 @@ package Obsolete
         constant Real R = Modelica.Constants.R "Gas constant";
 
       Chemical.Sensors.DissociationCoefficient dissociationCoefficient(nS=1, nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-        Chemical.Obsolete.Sources.PureSubstance A(redeclare package stateOfMatter = Chemical.Interfaces.Incompressible, substanceData(DfG=0))
+        Chemical.Obsolete.Sources.PureSubstance A(redeclare package stateOfMatter =
+              Chemical.Interfaces.Incompressible,                                                                       substanceData(DfG=0))
           annotation (Placement(transformation(extent={{-56,-10},{-36,10}})));
-        Chemical.Obsolete.Sources.PureSubstance B(redeclare package stateOfMatter = Chemical.Interfaces.Incompressible, substanceData(DfG=-R*T_25degC*log(K)))
+        Chemical.Obsolete.Sources.PureSubstance B(redeclare package stateOfMatter =
+              Chemical.Interfaces.Incompressible,                                                                       substanceData(DfG=-R*T_25degC*log(K)))
           annotation (Placement(transformation(extent={{60,-10},{40,10}})));
         inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
           annotation (Placement(transformation(extent={{-58,62},{-38,82}})));
@@ -7272,7 +7275,8 @@ package Obsolete
 
         Chemical.Obsolete.Sources.PureSubstance H2O(substanceData=Chemical.Substances.Water_liquid())
           annotation (Placement(transformation(extent={{-8,-36},{-28,-16}})));
-        Chemical.Obsolete.Sources.PureSubstance O2(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas, substanceData=Chemical.Substances.Oxygen_gas())
+        Chemical.Obsolete.Sources.PureSubstance O2(redeclare package stateOfMatter =
+              Chemical.Interfaces.IdealGas,                                                                        substanceData=Chemical.Substances.Oxygen_gas())
           annotation (Placement(transformation(extent={{-80,12},{-60,32}})));
         Chemical.Obsolete.Sources.ExternalIdealGasSubstance H2(
           substanceData=Chemical.Substances.Hydrogen_gas(),

@@ -19,7 +19,7 @@ conversion(
         to="1.4.1"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
         to="1.4.1")),
-      uses( Modelica(version="4.0.0"), ThermofluidStream(version="1.1.0")),
+      uses( Modelica(version="4.0.0"), ThermofluidStream(version="1.2.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2023, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
