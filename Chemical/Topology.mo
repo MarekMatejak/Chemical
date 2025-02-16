@@ -30,11 +30,11 @@ package Topology
         points={{-28,0},{-100,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets[2], outletA) annotation (Line(
+    connect(splitterN.outlet[2], outletA) annotation (Line(
         points={{-8,0.5},{0,0.5},{0,100}},
         color={158,66,200},
         thickness=0.5));
-    connect(outletB, splitterN.outlets[1]) annotation (Line(
+    connect(outletB, splitterN.outlet[1]) annotation (Line(
         points={{0,-100},{0,-0.5},{-8,-0.5}},
         color={158,66,200},
         thickness=0.5));
@@ -72,12 +72,15 @@ package Topology
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outletA annotation (Placement(transformation(
+    Interfaces.Inlet          inletProcess
+                                    annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Interfaces.Outlet          outletSubstance
+                                       annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Chemical.Interfaces.Outlet outletB annotation (Placement(transformation(
+    Interfaces.Outlet          outletSubstance1
+                                       annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={100,0})));
@@ -89,15 +92,15 @@ package Topology
 
   equation
 
-    connect(splitterN.inlet, inlet) annotation (Line(
+    connect(splitterN.inlet, inletProcess) annotation (Line(
         points={{-40,0},{-100,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets[1], outletB) annotation (Line(
+    connect(splitterN.outlet[1], outletSubstance1) annotation (Line(
         points={{-20,-0.5},{-20,0},{100,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(outletA, splitterN.outlets[2]) annotation (Line(
+    connect(outletSubstance, splitterN.outlet[2]) annotation (Line(
         points={{0,100},{0,0.5},{-20,0.5}},
         color={158,66,200},
         thickness=0.5));
@@ -304,15 +307,16 @@ package Topology
         points={{-32,0},{-100,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets[3], outletA) annotation (Line(
+    connect(splitterN.outlet[3], outletA) annotation (Line(
         points={{-12,0.666667},{0,0.666667},{0,100}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets[2], outletC) annotation (Line(
+    connect(splitterN.outlet[2], outletC) annotation (Line(
         points={{-12,0},{100,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets[1], outletB) annotation (Line(
+    connect(splitterN.outlet[1], outletB)
+      annotation (Line(
         points={{-12,-0.666667},{0,-0.666667},{0,-100},{3.55271e-15,-100}},
         color={158,66,200},
         thickness=0.5));
@@ -630,9 +634,8 @@ package Topology
     parameter Integer N(min=1) = 1 "Number of outputs";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet "inlet"
-      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outlets[N] "vector of N outlets"
+    Interfaces.Inlet inlet "inlet" annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Interfaces.Outlet outlet[N] "vector of N outlets"
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
@@ -641,15 +644,15 @@ package Topology
     Modelica.Units.SI.ChemicalPotential r_mix;
 
   equation
-    -der(inlet.n_flow) * L = inlet.r - r_mix;
+    -der(inlet.n_flow)*L = inlet.r - r_mix;
 
     for i in 1:N loop
-      der(outlets[i].n_flow) * L = outlets[i].r - r_mix;
-      outlets[i].uRT = inlet.uRT;
-      outlets[i].h = inlet.h;
+      der(outlet[i].n_flow)*L = outlet[i].r - r_mix;
+      outlet[i].uRT = inlet.uRT;
+      outlet[i].h = inlet.h;
     end for;
 
-    sum(outlets.n_flow) + inlet.n_flow = 0;
+    sum(outlet.n_flow) + inlet.n_flow = 0;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Line(
@@ -798,7 +801,7 @@ package Topology
         points={{-4,0},{8,0}},
         color={158,66,200},
         thickness=0.5));
-    connect(splitterN.outlets, outlets) annotation (Line(
+    connect(splitterN.outlet, outlets) annotation (Line(
         points={{28,0},{100,0}},
         color={158,66,200},
         thickness=0.5));

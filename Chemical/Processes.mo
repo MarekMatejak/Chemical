@@ -748,9 +748,11 @@ package Processes
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-  Interfaces.Outlet outlet annotation (Placement(transformation(
+  Interfaces.OutletSubstance
+                    outletSubstance
+                           annotation (Placement(transformation(
           extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
-  Interfaces.Inlet subunits[NumberOfSubunits]
+  Interfaces.InletProcess subunits[NumberOfSubunits]
     "Subunits of macromolecule" annotation (Placement(transformation(extent={
             {-56,-14},{-36,66}}), iconTransformation(
         extent={{10,-40},{-10,40}},
@@ -769,17 +771,17 @@ package Processes
     Chemical.Utilities.Units.URT uRT_out;
   equation
 
-    outlet.uRT = uRT_out;
+    outletSubstance.uRT = uRT_out;
 
     if NumberOfSubunits>0 then
-      (ones(NumberOfSubunits) * subunits.r) = (outlet.r)  -  der(outlet.n_flow)*L;
+      (ones(NumberOfSubunits) * subunits.r) =(outletSubstance.r) - der(outletSubstance.n_flow)*L;
     end if;
 
     //amount of macromolecule (all forms in conformation)
     nm*NumberOfSubunits + subunitSolution.nj = 0;
 
     //change of macromolecule = change of its subunits
-    subunits.n_flow = -outlet.n_flow * ones(NumberOfSubunits);
+    subunits.n_flow =-outletSubstance.n_flow*ones(NumberOfSubunits);
 
     //mole fraction of all forms in conformation
     xm = nm/solution.n;
@@ -789,8 +791,11 @@ package Processes
           sum(subunits.uRT - log(xm)
            * ones(NumberOfSubunits));
 
-    h_out = outlet.h;
-    (subunits.h*ones(NumberOfSubunits)) = (outlet.h);
+    outletSubstance.u0RT =sum(subunits.uRT - log(xm)
+           * ones(NumberOfSubunits));
+
+    h_out =outletSubstance.h;
+    (subunits.h*ones(NumberOfSubunits)) =(outletSubstance.h);
 
     //properties from subunits
     subunitSolution.dH + solution.dH = 0;
@@ -901,4 +906,92 @@ package Processes
             lineColor={128,0,255},
             textString="%name")}));
   end SpeciationOut;
+
+  model GasSolubilitySubstance "Henry's law of gas solubility in liquid."
+
+    extends Icons.GasSolubility;
+
+    extends Interfaces.SISOSubstanceFlowVertical;
+    extends Interfaces.ConditionalKinetics;
+
+   // Real du,kC,RT=Modelica.Constants.R*(273.15+25);
+  equation
+    //the main equation
+
+    n_flow = kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+
+    //du = (outlet.uRT*RT - inlet.uRT*RT);
+    //n_flow = - kC * du;
+
+    annotation (Documentation(revisions="<html>
+<p><i>2009-2015 </i></p>
+<p><i>by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p>Gaseuous substance dissolition in liquid (Henry&apos;s law, Raoult&apos;s law, Nernst dissolution in one). </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K<sub>H</sub> =x<sub>L</sub> / x<sub>g</sub>&nbsp;</p></td>
+<td><p>Henry&apos;s coefficient, Raoult&apos;s coefficient</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>sol</sub>G = &Delta;<sub>f</sub>G<sub>L </sub>- &Delta;<sub>f</sub>G<sub>g </sub>= &Delta;<sub>sol</sub>H - T&middot;&Delta;<sub>sol</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K<sub>H</sub>&middot; (f<sub>L</sub> / f<sub>g</sub>)) </p></td>
+<td><p>molar Gibb&apos;s energy of the dissolition</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>sol</sub>H = &Delta;<sub>f</sub>H<sub>L </sub>- &Delta;<sub>f</sub>H<sub>g</sub></p></td>
+<td><p>molar enthalpy of the dissolition</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>sol</sub>S = &Delta;<sub>f</sub>S<sub>L</sub> - &Delta;<sub>f</sub>S<sub>g</sub> = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>sol</sub>&omega;) </p></td>
+<td><p>molar entropy of the dissolition</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>x<sub>L</sub></p></td>
+<td><p>mole fraction of the substance in the liquid</p></td>
+</tr>
+<tr>
+<td><p>x<sub>g</sub></p></td>
+<td><p>mole fraction of the substance in the gas</p></td>
+</tr>
+<tr>
+<td><p>f<sub>L</sub></p></td>
+<td><p>activity coefficient of the substance in the liquid</p></td>
+</tr>
+<tr>
+<td><p>f<sub>g</sub></p></td>
+<td><p>activity coefficient of the substance in the gas</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>L</sub></p></td>
+<td><p>molar enthalpy of formation of the substance in the liquid</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>g</sub></p></td>
+<td><p>molar enthalpy of formation of the substance in the gas</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>L</sub></p></td>
+<td><p>molar entropy of formation of the substance in the liquid</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>g</sub></p></td>
+<td><p>molar entropy of formation of the substance in the gas</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>sol</sub>G</p></td>
+<td><p>molar Gibbs energy of dissolvation of the substance in the liquid</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>sol</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by dissolution</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+  end GasSolubilitySubstance;
 end Processes;
