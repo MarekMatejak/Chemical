@@ -902,7 +902,7 @@ extends Modelica.Icons.SourcesPackage;
   model SubstanceOutflow "Molar pump of substance out of system"
     extends Interfaces.ConditionalSubstanceFlow;
 
-  Interfaces.Inlet inlet "Inflow"
+  Interfaces.InletProcess inlet "Inflow"
     annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   equation
@@ -1288,7 +1288,7 @@ Test package for the Boundaries package of ThermofluidStream.
     Modelica.Units.SI.MolarFlowRate molarClearance
     "Current molar clearance";
 
-  Interfaces.Inlet           inlet  annotation (Placement(transformation(
+    Interfaces.InletProcess           inlet  annotation (Placement(transformation(
           extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
             {-90,10}})));
     Sensors.MoleFractionSensor moleFractionSensor1(
@@ -1396,7 +1396,7 @@ Test package for the Boundaries package of ThermofluidStream.
     parameter Modelica.Units.SI.Time HalfTime
     "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
-  Interfaces.Inlet           inlet  annotation (Placement(transformation(
+  Interfaces.InletProcess           inlet  annotation (Placement(transformation(
           extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
             {-90,10}})));
     Sensors.MoleFractionSensor moleFractionSensor1(
@@ -1492,6 +1492,8 @@ Test package for the Boundaries package of ThermofluidStream.
     extends Icons.Buffer;
     extends Internal.PartialSubstanceInSolution(
                    a(start = a_start));
+    extends  Chemical.Obsolete.Interfaces.ConditionalKinetics(KC=1);
+
 
   parameter Modelica.Units.SI.MoleFraction a_start=1e-7
     "Initial value of mole fraction of the buffered substance";
@@ -1504,7 +1506,7 @@ Test package for the Boundaries package of ThermofluidStream.
     "Is buffer value of the substance an input?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-        extends Interfaces.ConditionalKinetics(KC=1/(Modelica.Constants.R*298.15));
+
 
         Real bufferValue(final unit="1");
 
@@ -1538,8 +1540,12 @@ Test package for the Boundaries package of ThermofluidStream.
 
       xFreeBuffer = nFreeBuffer/solution.n;
      // port_a.q = (solution.n*KC)*(xFreeBuffer - xref);
-      n_flow = KC*(Modelica.Constants.R*solution.T*log(xFreeBuffer) - Modelica.Constants.R*solution.T*log(xref)); //alternative kinetics
+      n_flow = KC*(log(xFreeBuffer) - log(xref)); //alternative kinetics
       xref = -log10(a)*(bufferValue/solution.n);
+
+    //der(n_flow)*L = r_in - r;
+    //uRT = uRT_in + r;
+
 
     //solution flows
     streamEnthalpy = molarEnthalpy;

@@ -712,7 +712,7 @@ package Sensors "Chemical sensors"
 
      outer Modelica.Fluid.System system "System wide properties";
 
-      Interfaces.Inlet inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+      Interfaces.InletProcess inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
         Interfaces.StateOfMatter
@@ -887,66 +887,6 @@ package Sensors "Chemical sensors"
           "Steady state initialization (derivatives of states are zero)",
         state
           "Initialization with initial output state") "Initialization modes for sensor lowpass";
-      function getQuantity "Computes selected quantity from state"
-        extends Modelica.Icons.Function;
-
-        replaceable package Medium =
-            ThermofluidStream.Media.myMedia.Interfaces.PartialMedium
-          "Medium model"
-          annotation (choicesAllMatching=true,
-            Documentation(info="<html>
-      <p>Medium Model for the function. Make sure it implements the needed functions.</p>
-        </html>"));
-
-        input Medium.ThermodynamicState state;
-        input Modelica.Units.SI.Pressure r;
-        input ThermofluidStream.Sensors.Internal.Types.Quantities quantity;
-        input Modelica.Units.SI.Density rho_min;
-        output Real value;
-
-      algorithm
-        if quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_K then
-          value := Medium.temperature(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.T_C then
-          value :=Modelica.Units.Conversions.to_degC(Medium.temperature(state));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_Pa then
-          value := Medium.pressure(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_bar then
-          value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_Pa then
-          value := r;
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.r_bar then
-          value :=Modelica.Units.Conversions.to_bar(r);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_Pa then
-          value := Medium.pressure(state)+r;
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.p_total_bar then
-          value :=Modelica.Units.Conversions.to_bar(Medium.pressure(state) + r);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.h_Jpkg then
-          value := Medium.specificEnthalpy(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.s_JpkgK then
-          value := Medium.specificEntropy(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.rho_kgpm3 then
-          value := Medium.density(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.v_m3pkg then
-          value := 1/(max(rho_min, Medium.density(state)));
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.a_mps then
-          value := Medium.velocityOfSound(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cv_JpkgK then
-          value := Medium.specificHeatCapacityCv(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.cp_JpkgK then
-          value := Medium.specificHeatCapacityCp(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.kappa_1 then
-          value := Medium.isentropicExponent(state);
-        elseif quantity == ThermofluidStream.Sensors.Internal.Types.Quantities.MM_kgpmol then
-          value := Medium.molarMass(state);
-        else
-          value :=0;
-        end if;
-
-        annotation (Documentation(info="<html>
-<p>Helper function to get a quantity from an Thermofluid state.</p>
-</html>"));
-      end getQuantity;
     end Types;
 
     function getQuantity "Computes selected quantity from state"
@@ -960,9 +900,9 @@ package Sensors "Chemical sensors"
       <p>Medium Model for the function. Make sure it implements the needed functions.</p>
         </html>"));
 
-      input Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential";
+      input Chemical.Utilities.Units.URT uRT "Electro-chemical potential divided by gas constant and temperature";
       input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
-      input Modelica.Units.SI.Pressure r "Inertial electro-chemical potential";
+      input Chemical.Utilities.Units.URT r "Inertial electro-chemical potential divided by gas constant and temperature";
       input Types.Quantities quantity "What to measure?";
       input stateOfMatter.SubstanceData substanceData "Data record of substance";
       input Modelica.Units.SI.Temperature temperature=298.15 "Temperature";
@@ -997,7 +937,7 @@ package Sensors "Chemical sensors"
 
     protected
       Modelica.Units.SI.ChargeNumberOfIon z;
-      Modelica.Units.SI.ChemicalPotential u0;
+      Chemical.Utilities.Units.URT uRT_Pure;
       Modelica.Units.SI.MoleFraction a,x;
       Modelica.Units.SI.ActivityCoefficient gamma
       "Activity coefficient of the substance";
@@ -1011,15 +951,15 @@ package Sensors "Chemical sensors"
       gamma := stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
 
 
-      u0 := stateOfMatter.chemicalPotentialPure(
+      uRT_Pure := (stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
        pressure,
        electricPotential,
        moleFractionBasedIonicStrength)
-       + z*Modelica.Constants.F*electricPotential;
+       + z*Modelica.Constants.F*electricPotential)/(Modelica.Constants.R*temperature);
 
-      a := exp((u - u0)/(Modelica.Constants.R*temperature));
+      a := exp(uRT - uRT_Pure);
       x := a/gamma;
 
       if quantity == Types.Quantities.c_molpm3 then
@@ -1041,13 +981,13 @@ package Sensors "Chemical sensors"
       elseif quantity == Types.Quantities.p_bar then
         value := Modelica.Units.Conversions.to_bar(x*pressure);
       elseif quantity == Types.Quantities.u_Jpmol then
-        value := u;
+        value := uRT*(Modelica.Constants.R*temperature);
       elseif quantity == Types.Quantities.u_kJpmol then
-        value := u/1000;
+        value := uRT^(Modelica.Constants.R*temperature)/1000;
       elseif quantity == Types.Quantities.h_Jpmol then
         value := h;
       elseif quantity == Types.Quantities.s_JpmolK then
-        value := (h-u)/temperature;
+        value := (h-uRT*(Modelica.Constants.R*temperature))/temperature;
       else
         value :=0;
       end if;
@@ -1124,8 +1064,7 @@ package Sensors "Chemical sensors"
 
     Real direct_value(unit=Internal.getUnit(quantity));
 
-    function getQuantity = Internal.getQuantity (redeclare package
-          stateOfMatter =
+    function getQuantity = Internal.getQuantity (redeclare package stateOfMatter =
             stateOfMatter)                                                       "Quantity compute function"
       annotation (Documentation(info="<html>
       <p>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/p_total and v respectively.</p>
@@ -1140,7 +1079,7 @@ package Sensors "Chemical sensors"
 
   equation
 
-    direct_value = getQuantity(inlet.u, inlet.h, inlet.r, quantity, substanceData, temperature, pressure, electricPotential, moleFractionBasedIonicStrength,
+    direct_value = getQuantity(inlet.uRT, inlet.h, inlet.r, quantity, substanceData, temperature, pressure, electricPotential, moleFractionBasedIonicStrength,
      solution.m, solution.n, solution.V);
 
 

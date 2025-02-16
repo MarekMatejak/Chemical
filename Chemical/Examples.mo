@@ -19,7 +19,7 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
     Processes.Reaction reaction2_1(
-      kf=7311,
+      k_forward=7311,
       nP=1,
       nS=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Boundaries.Substance B(
@@ -69,7 +69,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.1)
       annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Processes.Reaction reaction2_1(
-      kf=150000,
+      k_forward=150000,
       nS=2,
       nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1)
@@ -191,7 +191,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
     Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
-    Processes.Reaction reaction2_2(nP=1, nS=1)
+    Processes.Reaction reaction2_2(
+      k_forward=12000,             nP=1, nS=1)
       annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
     Chemical.Boundaries.Substance B(
       useInlet=true,
@@ -203,7 +204,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-100,0},{98,94}})));
     Chemical.Boundaries.Substance A1(use_mass_start=false, amountOfSubstance_start=0.9)
       annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
-    Processes.Reaction reaction2_1(nP=1, nS=1)
+    Processes.Reaction reaction2_1(
+      k_forward=13000,             nP=1, nS=1)
       annotation (Placement(transformation(extent={{-8,40},{12,60}})));
     Chemical.Boundaries.Substance B1(
       useInlet=true,
@@ -313,12 +315,12 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       substanceData=Chemical.Substances.Hydrogen_gas(),
       use_mass_start=false,
-      amountOfSubstance_start=0.026) annotation (Placement(transformation(extent={{-98,-26},{-78,-6}})));
+      amountOfSubstance_start=26)    annotation (Placement(transformation(extent={{-98,-26},{-78,-6}})));
     Chemical.Boundaries.Substance O2_gas(
       substanceData=Chemical.Substances.Oxygen_gas(),
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       use_mass_start=false,
-      amountOfSubstance_start=0.013) annotation (Placement(transformation(extent={{-98,10},{-78,30}})));
+      amountOfSubstance_start=13)    annotation (Placement(transformation(extent={{-98,10},{-78,30}})));
     Chemical.Boundaries.Substance H2O_gas(
       useInlet=true,
       substanceData=Chemical.Substances.Water_gas(),
@@ -326,11 +328,11 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-34,-8},{-14,12}})));
     Chemical.Processes.Reaction reaction(
-      s={2,1},
+      k_forward=1e5,
+      s={1,2},
       p={2},
-      kE=4e-05,
       nS=2,
-      nP=1) annotation (Placement(transformation(extent={{-68,-10},{-48,10}})));
+      nP=1) annotation (Placement(transformation(extent={{-68,-8},{-48,12}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
         Placement(transformation(
           extent={{-10,-10},{10,10}},
@@ -375,19 +377,19 @@ extends Modelica.Icons.ExamplesPackage;
       color={0,127,0}));
     connect(O2_gas.outlet, reaction.substrates[1])
       annotation (Line(
-        points={{-78,20},{-74,20},{-74,-0.25},{-68,-0.25}},
+        points={{-78,20},{-74,20},{-74,1.75},{-68,1.75}},
         color={158,66,200},
         thickness=0.5));
     connect(H2_gas.outlet, reaction.substrates[2])
       annotation (Line(
-        points={{-78,-16},{-74,-16},{-74,0.25},{-68,0.25}},
+        points={{-78,-16},{-74,-16},{-74,2.25},{-68,2.25}},
         color={158,66,200},
         thickness=0.5));
     connect(reaction.products[1], H2O_gas.inlet) annotation (Line(
-        points={{-48,0},{-42,0},{-42,2},{-34,2}},
+        points={{-48,2},{-34,2}},
         color={158,66,200},
         thickness=0.5));
-    annotation ( experiment(StopTime=1.75e-05, __Dymola_Algorithm="Dassl"),
+    annotation ( experiment(StopTime=0.05, __Dymola_Algorithm="Dassl"),
                                          Documentation(info="<html>
 <p>The gaseous reaction of hydrogen combustion: </p>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -443,7 +445,11 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-48,-62},{-28,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
       annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
-    Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-92,16},{-72,36}})));
+    Processes.GasSolubility gasSolubility(k_forward=10000)
+                                          annotation (Placement(transformation(extent={{-90,14},
+              {-70,34}})));
+    inner DropOfCommons dropOfCommons(L=1)
+      annotation (Placement(transformation(extent={{-92,70},{-72,90}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
@@ -469,11 +475,11 @@ extends Modelica.Icons.ExamplesPackage;
                                                            color={127,127,0}));
     connect(gasSolubility.outlet, liquidWater.inlet)
       annotation (Line(
-        points={{-82,16},{-82,-52},{-48,-52},{-48,-52}},
+        points={{-80,14},{-80,-52},{-48,-52}},
         color={158,66,200},
         thickness=0.5));
     connect(H2O_gaseuous.outlet, gasSolubility.inlet) annotation (Line(
-        points={{8,60},{-82,60},{-82,36}},
+        points={{8,60},{-80,60},{-80,34}},
         color={158,66,200},
         thickness=0.5));
     annotation (

@@ -1822,7 +1822,7 @@ end solution_temperature_;
 </html>"));
   end Outlet;
 
-  partial model SISOFlow "Base Model with basic flow eqautions for SISO"
+  partial model SISOProcess "Base Model with basic flow eqautions for SISO"
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
@@ -1868,6 +1868,123 @@ end solution_temperature_;
     inlet.n_flow + outlet.n_flow = 0;
     outlet.r = inlet.r - der(inlet.n_flow) * L;
 
+    outlet.uRT = uRT_out;
+    outlet.h = h_out;
+
+    h_out = h_in;
+
+    annotation (Documentation(info="<html>
+<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
+<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
+</html>"));
+  end SISOProcess;
+
+  partial model SISOSubstanceFlow
+    "Base Model with basic flow eqautions for SISO"
+    import Chemical;
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
+      annotation(Dialog(tab="Advanced"));
+    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow"));
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
+    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
+
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+
+    InletProcess inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.OutletSubstance outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+
+    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
+        "Molar flow through component";
+
+    // inlet state quantities
+  protected
+    outer Chemical.DropOfCommons dropOfCommons;
+
+    Chemical.Utilities.Units.URT uRT_in=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
+    Chemical.Utilities.Units.URT u0RT_in=inlet.u0RT "Electro-chemical potential of pure substance entering divided by (R*T)";
+    Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
+
+    //outlet state quantities
+    Chemical.Utilities.Units.URT uRT_out "Electro-chemical potential of substance exiting divided by (R*T)";
+    Chemical.Utilities.Units.URT u0RT_out "Electro-chemical potential of pure substance exiting divided by (R*T)";
+    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
+
+  initial equation
+    if initN_flow == InitializationMethods.state then
+      n_flow = n_flow_0;
+    elseif initN_flow == InitializationMethods.derivative then
+      der(n_flow) = n_acceleration_0;
+    elseif initN_flow == InitializationMethods.steadyState then
+      der(n_flow) = 0;
+    end if;
+  equation
+
+    inlet.n_flow + outlet.n_flow = 0;
+    outlet.r = inlet.r - der(inlet.n_flow) * L;
+
+    outlet.uRT = uRT_out;
+    outlet.u0RT = u0RT_out;
+    outlet.h = h_out;
+
+    h_out = h_in;
+    u0RT_out = u0RT_in;
+
+    annotation (Documentation(info="<html>
+<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
+<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
+</html>"));
+  end SISOSubstanceFlow;
+
+  partial model SISOFlow
+    "Base Model with basic flow eqautions for SISO"
+    import Chemical;
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
+      annotation(Dialog(tab="Advanced"));
+    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow"));
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
+    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
+
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+
+    Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+
+    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
+        "Molar flow through component";
+
+    // inlet state quantities
+  protected
+    outer Chemical.DropOfCommons dropOfCommons;
+
+    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.uRT "Electro-chemical potential of substance entering divided by (R*T)";
+    Modelica.Units.SI.MolarEnthalpy h_in=inlet.h "Enthalpy of substance enetering";
+
+    //outlet state quantities
+    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
+    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
+
+  initial equation
+    if initN_flow == InitializationMethods.state then
+      n_flow = n_flow_0;
+    elseif initN_flow == InitializationMethods.derivative then
+      der(n_flow) = n_acceleration_0;
+    elseif initN_flow == InitializationMethods.steadyState then
+      der(n_flow) = 0;
+    end if;
+  equation
+
+    inlet.n_flow + outlet.n_flow = 0;
+    outlet.r = inlet.r - der(inlet.n_flow) * L;
 
     outlet.uRT = uRT_out;
     outlet.h = h_out;

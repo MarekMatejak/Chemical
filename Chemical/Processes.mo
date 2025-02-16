@@ -2,7 +2,7 @@ within Chemical;
 package Processes
 
   model Reaction "Chemical Reaction"
-    extends Interfaces.ConditionalKinetics;
+    extends Interfaces.ConditionalKinetics(k_forward=1);
     import Chemical.Utilities.Types.InitializationMethods;
 
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
@@ -52,11 +52,12 @@ package Processes
           origin={100,0})));
 
     Modelica.Units.SI.MolarEnthalpy h_mix;
-
+    Real duRT, du;//, _kf;
   protected
     outer DropOfCommons dropOfCommons;
     //Modelica.Units.SI.ChemicalPotential du;
 
+    Real  kC=1,kE=0;
   initial equation
     if initN_flow == InitializationMethods.state then
       rr = n_flow_0;
@@ -68,6 +69,9 @@ package Processes
 
   equation
     //the main equation
+     duRT = ((p * products.uRT) - (s * substrates.uRT));
+     du = duRT * Modelica.Constants.R * 298.15;
+   //  rr = - kC * du; // * exp(-kE*abs(du));
   //  du = ((p * products.u) - (s * substrates.u));
   //  rr = - kC * du * exp(-kE*abs(du));
 
@@ -192,7 +196,7 @@ package Processes
   end Reaction;
 
   model Process "Electro-chemical process"
-    extends Interfaces.SISOFlow;
+    extends Interfaces.SISOProcess;
     extends Interfaces.ConditionalKinetics;
 
   equation
@@ -210,7 +214,7 @@ package Processes
 
   model Diffusion "Solute diffusion"
     extends Icons.Diffusion;
-    extends Interfaces.SISOFlow;
+    extends Interfaces.SISOProcess;
     extends Interfaces.ConditionalKinetics;
 
 
@@ -317,7 +321,7 @@ package Processes
 
   model Membrane "Passive transport of the substance through semipermeable membrane"
     extends Icons.Membrane;
-     extends Interfaces.SISOFlow;
+     extends Interfaces.SISOProcess;
     extends Interfaces.ConditionalKinetics;
 
 
@@ -346,8 +350,41 @@ package Processes
           rotation=90)}));
   end Membrane;
 
+  model Pump "Prescribed sunstance molar flow"
+    extends Interfaces.SISOProcess;
+    extends Interfaces.ConditionalSubstanceFlow;
+
+  equation
+    n_flow = q;
+
+   annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}), graphics={
+          Rectangle(
+            extent={{-100,-50},{100,50}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid,
+            rotation=360),
+          Polygon(
+            points={{-80,25},{80,0},{-80,-25},{-80,25}},
+            lineColor={0,0,127},
+            fillColor={0,0,127},
+            fillPattern=FillPattern.Solid,
+            rotation=360),
+          Text(
+            extent={{-150,-20},{150,20}},
+            lineColor={128,0,255},
+            origin={-10,-76},
+            rotation=360,
+            textString="%name")}),        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end Pump;
+
   model SubstancePump "Prescribed sunstance molar flow"
-    extends Interfaces.SISOFlow;
+    extends Interfaces.SISOSubstanceFlow;
     extends Interfaces.ConditionalSubstanceFlow;
 
   equation
@@ -391,7 +428,7 @@ package Processes
     "Definition of the substance"
        annotation (choicesAllMatching = true);
 
-  Interfaces.Inlet           inlet  annotation (Placement(transformation(
+  Interfaces.InletProcess           inlet  annotation (Placement(transformation(
           extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
             {-90,10}})));
     Sensors.MoleFractionSensor moleFractionSensor1(
@@ -400,7 +437,8 @@ package Processes
       annotation (Placement(transformation(extent={{10,-10},{-10,10}},
           rotation=180,
           origin={-56,12})));
-    SubstancePump substancePump(useSubstanceFlowInput=true) annotation (Placement(transformation(extent={{-20,-72},{0,-52}})));
+    Pump substancePump(useSubstanceFlowInput=true)
+      annotation (Placement(transformation(extent={{-20,-72},{0,-52}})));
     Modelica.Blocks.Math.Product product
       annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=270,
