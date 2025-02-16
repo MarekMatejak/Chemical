@@ -202,7 +202,7 @@ package Processes
   equation
     //the main equation
 
-    n_flow = - kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+    n_flow = kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
 
      annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -221,7 +221,7 @@ package Processes
   equation
     //the main equation
 
-    n_flow = - kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+    n_flow = kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
 
 
      annotation (                 Documentation(revisions="<html>
@@ -239,10 +239,14 @@ package Processes
     extends Interfaces.ConditionalKinetics;
 
 
+   // Real du,kC,RT=Modelica.Constants.R*(273.15+25);
   equation
     //the main equation
 
-    n_flow = - kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+    n_flow = kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+
+    //du = (outlet.uRT*RT - inlet.uRT*RT);
+    //n_flow = - kC * du;
 
 
 
@@ -328,7 +332,7 @@ package Processes
   equation
     //the main equation
 
-    n_flow = - kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
+    n_flow = kf * exp(-u0RT_in) * ( exp(uRT_in) -  exp(uRT_out));
 
 
 

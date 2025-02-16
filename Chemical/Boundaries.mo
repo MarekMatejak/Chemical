@@ -1167,7 +1167,7 @@ Test package for the Boundaries package of ThermofluidStream.
        n_flow_in = 0;
        h_in = 0;
     //   u_in = u_out;
-       uRT_in = outlet.uRT;
+       uRT_in = uRT_out;
      end if;
 
      outlet.u0RT=(stateOfMatter.chemicalPotentialPure(

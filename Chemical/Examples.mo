@@ -422,9 +422,10 @@ extends Modelica.Icons.ExamplesPackage;
                                   /*volume_start(
         displayUnit="l") = 0.001, */
     Boundaries.Substance H2O_gaseuous(
+      useInlet=true,
       redeclare package stateOfMatter = Interfaces.IdealGas,
       substanceData=Chemical.Substances.Water_gas(),
-      mass_start=0.000106537) annotation (Placement(transformation(extent={{28,50},{8,70}})));
+      mass_start=0.000106537) annotation (Placement(transformation(extent={{8,50},{28,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                          fixedTemperature
                 annotation (Placement(transformation(
@@ -438,22 +439,24 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=1) annotation (Placement(transformation(extent={{2,28},{22,48}})));
   Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(
-      G=1e6) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+      G=1e6) annotation (Placement(transformation(extent={{44,-12},{64,8}})));
     Boundaries.Substance liquidWater(
-      useInlet=true,
       substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{-48,-62},{-28,-42}})));
+      annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
-      annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
-    Processes.GasSolubility gasSolubility(k_forward=10000)
-                                          annotation (Placement(transformation(extent={{-90,14},
-              {-70,34}})));
-    inner DropOfCommons dropOfCommons(L=1)
+      annotation (Placement(transformation(extent={{72,-74},{92,-54}})));
+    Processes.GasSolubility gasSolubility(k_forward=1000)
+                                          annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=180,
+          origin={-80,24})));
+    inner DropOfCommons dropOfCommons
       annotation (Placement(transformation(extent={{-92,70},{-72,90}})));
+  Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor1(G=1e6)
+             annotation (Placement(transformation(extent={{44,-40},{64,-20}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
-        points={{27.6,6.9},{24,6.9},{24,50}},
+        points={{27.6,6.9},{12,6.9},{12,50}},
         color={127,127,0}));
   connect(fixedTemperature.T, clock.y) annotation (Line(
       points={{96,8},{98,8},{98,46},{83,46}},
@@ -463,25 +466,23 @@ extends Modelica.Icons.ExamplesPackage;
       points={{27.6,6.9},{6,6.9},{6,28}},
       color={127,127,0}));
   connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
-      points={{74,8},{72,8},{72,2},{68,2}},
+      points={{74,8},{72,8},{72,-2},{64,-2}},
       color={191,0,0}));
   connect(gas.heatPort, thermalConductor.port_a) annotation (Line(
-      points={{-27.6,5.1},{-28,5.1},{-28,2},{48,2}},
+      points={{-27.6,5.1},{-28,5.1},{-28,-2},{44,-2}},
       color={191,0,0}));
-  connect(liquid.heatPort, thermalConductor.port_a) annotation (Line(
-      points={{-79.6,-98.9},{-80,-98.9},{-80,-102},{-8,-102},{-8,2},{48,2}},
-      color={191,0,0}));
-    connect(liquid.solution, liquidWater.solution) annotation (Line(points={{-24.4,-97.1},{-24.4,-96.55},{-44,-96.55},{-44,-62}},
+    connect(liquid.solution, liquidWater.solution) annotation (Line(points={{-24.4,-97.1},{-24.4,-96.55},{-32,-96.55},{-32,-62}},
                                                            color={127,127,0}));
-    connect(gasSolubility.outlet, liquidWater.inlet)
-      annotation (Line(
-        points={{-80,14},{-80,-52},{-48,-52}},
+    connect(liquidWater.outlet, gasSolubility.inlet) annotation (Line(
+        points={{-48,-52},{-80,-52},{-80,14}},
         color={158,66,200},
         thickness=0.5));
-    connect(H2O_gaseuous.outlet, gasSolubility.inlet) annotation (Line(
-        points={{8,60},{-80,60},{-80,34}},
+    connect(gasSolubility.outlet, H2O_gaseuous.inlet) annotation (Line(
+        points={{-80,34},{-80,60},{8,60}},
         color={158,66,200},
         thickness=0.5));
+    connect(thermalConductor1.port_b, fixedTemperature.port) annotation (Line(points={{64,-30},{68,-30},{68,-2},{72,-2},{72,8},{74,8}}, color={191,0,0}));
+    connect(thermalConductor1.port_a, liquid.heatPort) annotation (Line(points={{44,-30},{0,-30},{0,-102},{-79.6,-102},{-79.6,-98.9}}, color={191,0,0}));
     annotation (
       experiment(
         StopTime=100,
@@ -514,7 +515,7 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
       substanceData=Chemical.Substances.Water_gas(),
       use_mass_start=false,
-      amountOfSubstance_start=0.001) annotation (Placement(transformation(extent={{24,56},{4,76}})));
+      amountOfSubstance_start=0.001) annotation (Placement(transformation(extent={{0,56},{-20,76}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                          fixedTemperature
                 annotation (Placement(transformation(
@@ -530,19 +531,26 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Solution solid(
       temperature_start=T_start,
       BasePressure=600,
-      useThermalPort=true) annotation (Placement(transformation(extent={{8,-98},{100,-8}})));
+      useThermalPort=true) annotation (Placement(transformation(extent={{-50,-100},{42,-10}})));
     Chemical.Boundaries.Substance H2O_solid(
       useInlet=true,
       substanceData=Chemical.Substances.Water_IceIh(),
       use_mass_start=false,
-      amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{50,-62},{70,-42}})));
-    Chemical.Processes.GasSolubility gasSolubility1(KC=10) annotation (Placement(transformation(extent={{-76,18},{-56,38}})));
+      amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{-10,-52},{10,-32}})));
+    Chemical.Processes.GasSolubility gasSolubility1(k_forward=1)
+                                                           annotation (Placement(transformation(extent={{-10,10},{10,-10}},
+          rotation=180,
+          origin={-68,26})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=1e6)
       annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+    inner DropOfCommons dropOfCommons
+      annotation (Placement(transformation(extent={{-88,74},{-68,94}})));
+    Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor1(G=1e6)
+      annotation (Placement(transformation(extent={{50,-32},{70,-12}})));
   equation
 
     connect(gas.solution, H2O_gaseuous.solution) annotation (Line(
-        points={{27.6,6.9},{20,6.9},{20,56}},
+        points={{27.6,6.9},{27.6,0},{-50,0},{-50,56},{-4,56}},
         color={127,127,0}));
   connect(fixedTemperature.T, clock.y) annotation (Line(
       points={{96,8},{98,8},{98,46},{83,46}},
@@ -552,7 +560,7 @@ extends Modelica.Icons.ExamplesPackage;
       points={{27.6,6.9},{24,6.9},{24,6},{20,6},{20,36},{0,36}},
       color={127,127,0}));
     connect(solid.solution, H2O_solid.solution) annotation (Line(
-        points={{81.6,-97.1},{60,-97.1},{60,-62},{54,-62}},
+        points={{23.6,-99.1},{23.6,-104},{-50,-104},{-50,-52},{-6,-52}},
         color={127,127,0}));
     connect(fixedTemperature.port, thermalConductor.port_b) annotation (Line(
         points={{74,8},{72,8},{72,2},{68,2}},
@@ -560,17 +568,17 @@ extends Modelica.Icons.ExamplesPackage;
     connect(gas.heatPort, thermalConductor.port_a) annotation (Line(
         points={{-27.6,5.1},{-28,5.1},{-28,2},{48,2}},
         color={191,0,0}));
-    connect(solid.heatPort, thermalConductor.port_a) annotation (Line(
-        points={{26.4,-98.9},{-2,-98.9},{-2,2},{48,2}},
-        color={191,0,0}));
     connect(H2O_gaseuous.outlet, gasSolubility1.inlet) annotation (Line(
-        points={{4,66},{-66,66},{-66,38}},
+        points={{-20,66},{-68,66},{-68,36}},
         color={158,66,200},
         thickness=0.5));
-    connect(gasSolubility1.outlet, H2O_solid.inlet) annotation (Line(
-        points={{-66,18},{-66,-52},{50,-52}},
+    connect(gasSolubility1.outlet, H2O_solid.inlet)
+      annotation (Line(
+        points={{-68,16},{-68,-4},{-10,-4},{-10,-42}},
         color={158,66,200},
         thickness=0.5));
+    connect(thermalConductor1.port_a, solid.heatPort) annotation (Line(points={{50,-22},{44,-22},{44,-90},{-31.6,-90},{-31.6,-100.9}}, color={191,0,0}));
+    connect(thermalConductor1.port_b, fixedTemperature.port) annotation (Line(points={{70,-22},{72,-22},{72,8},{74,8}}, color={191,0,0}));
     annotation (
       experiment(StopTime=49.7, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
@@ -589,7 +597,8 @@ extends Modelica.Icons.ExamplesPackage;
                                         //(amountOfSolution_start=52.3)
     Chemical.Solution water_solution_37degC(temperature_start=310.15) annotation (Placement(transformation(extent={{-52,-80},{42,12}})));
                                      //(amountOfSolution_start=39.7)
-    Chemical.Processes.GasSolubility CO2_dissolutionP annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
+    Chemical.Processes.GasSolubility CO2_dissolutionP(k_forward=1)
+                                                      annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Boundaries.Substance CO2_25(
       useInlet=true,
@@ -597,7 +606,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-26},{-150,-6}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionP annotation (Placement(transformation(extent={{-100,42},{-80,62}})));
+    Chemical.Processes.GasSolubility O2_dissolutionP(k_forward=1)
+                                                     annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
 
     Chemical.Boundaries.ExternalIdealGasSubstance O2_g_25(
       substanceData=Chemical.Substances.Oxygen_gas(),
@@ -608,7 +618,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_aqueous(),
       use_mass_start=false) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
 
-    Chemical.Processes.GasSolubility CO2_dissolutionE annotation (Placement(transformation(extent={{-26,42},{-6,62}})));
+    Chemical.Processes.GasSolubility CO2_dissolutionE(k_forward=1)
+                                                      annotation (Placement(transformation(extent={{-26,40},{-6,60}})));
 
     Chemical.Boundaries.ExternalIdealGasSubstance CO2_g_25(
       substanceData=Chemical.Substances.CarbonDioxide_gas(),
@@ -620,7 +631,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionE_NIST annotation (Placement(transformation(extent={{18,42},{38,62}})));
+    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(k_forward=1)
+                                                          annotation (Placement(transformation(extent={{18,42},{38,62}})));
     Chemical.Boundaries.Substance O2_37(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
@@ -638,14 +650,16 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_gas(),
       PartialPressure(displayUnit="mmHg") = 12665.626804425) annotation (Placement(transformation(extent={{-6,68},{14,88}})));
     Solution water_solution_37degC1(temperature_start=273.15) annotation (Placement(transformation(extent={{66,-80},{160,12}})));
-    Processes.GasSolubility CO2_dissolutionE1 annotation (Placement(transformation(extent={{92,42},{112,62}})));
+    Processes.GasSolubility CO2_dissolutionE1(k_forward=1)
+                                              annotation (Placement(transformation(extent={{92,44},{112,64}})));
     Boundaries.Substance CO2_0(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
 
-    Processes.GasSolubility O2_dissolutionE_NIST1 annotation (Placement(transformation(extent={{136,42},{156,62}})));
+    Processes.GasSolubility O2_dissolutionE_NIST1(k_forward=1)
+                                                  annotation (Placement(transformation(extent={{136,42},{156,62}})));
     Boundaries.Substance O2_0(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
@@ -663,6 +677,8 @@ extends Modelica.Icons.ExamplesPackage;
     inner Modelica.Fluid.System system(p_ambient=100000)
       annotation (Placement(transformation(extent={{-70,-98},{-50,-78}})));
     Real kH_CO2_25, kH_O2_25;
+    inner DropOfCommons dropOfCommons
+      annotation (Placement(transformation(extent={{38,76},{58,96}})));
   equation
 
     kH_CO2_25 = CO2_25.c / CO2_g_25.x;
@@ -695,12 +711,12 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(O2_dissolutionP.outlet, O2_25.inlet) annotation (Line(
-        points={{-90,42},{-90,-16},{-94,-16}},
+        points={{-90,40},{-90,-16},{-94,-16}},
         color={158,66,200},
         thickness=0.5));
     connect(CO2_dissolutionE.outlet, CO2_37.inlet)
       annotation (Line(
-        points={{-16,42},{-18,42},{-18,-24},{-22,-24}},
+        points={{-16,40},{-16,-24},{-22,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(O2_dissolutionE_NIST.outlet, O2_37.inlet) annotation (Line(
@@ -709,7 +725,7 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(CO2_dissolutionE1.outlet, CO2_0.inlet)
       annotation (Line(
-        points={{102,42},{104,42},{104,-24},{96,-24}},
+        points={{102,44},{104,44},{104,-24},{96,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(O2_dissolutionE_NIST1.outlet, O2_0.inlet)
@@ -722,11 +738,11 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(O2_g_25.outlet, O2_dissolutionP.inlet) annotation (Line(
-        points={{-94,84},{-90,84},{-90,62}},
+        points={{-94,84},{-90,84},{-90,60}},
         color={158,66,200},
         thickness=0.5));
     connect(CO2_g_37.outlet, CO2_dissolutionE.inlet) annotation (Line(
-        points={{-24,78},{-16,78},{-16,62}},
+        points={{-24,78},{-16,78},{-16,60}},
         color={158,66,200},
         thickness=0.5));
     connect(O2_g_37.outlet, O2_dissolutionE_NIST.inlet) annotation (Line(
@@ -734,7 +750,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(CO2_g_0.outlet, CO2_dissolutionE1.inlet) annotation (Line(
-        points={{94,78},{102,78},{102,62}},
+        points={{94,78},{102,78},{102,64}},
         color={158,66,200},
         thickness=0.5));
     connect(O2_g_0.outlet, O2_dissolutionE_NIST1.inlet) annotation (Line(
