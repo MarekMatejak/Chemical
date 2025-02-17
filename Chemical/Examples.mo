@@ -3846,7 +3846,6 @@ extends Modelica.Icons.ExamplesPackage;
       PartialPressure=100000)
                             annotation (Placement(transformation(extent={{44,32},{24,52}})));
     Chemical.Boundaries.Substance H(
-      useInlet=true,
       substanceData=Chemical.Substances.Proton_aqueous(),
       use_mass_start=false,
       amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-6,-22},{14,-2}})));
@@ -3854,41 +3853,43 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-6,64},{14,84}})));
     Chemical.Processes.Reaction electrodeReaction(
       s={2,2},
-      nS=2,
-      nP=1) annotation (Placement(transformation(
+      nP=1,
+      nS=2) annotation (Placement(transformation(
           extent={{-10,10},{10,-10}},
           rotation=90,
           origin={52,6})));
     Chemical.Processes.Reaction electrodeReaction1(
-      s={4},
-      p={2,8,8},
-      nP=3,
-      nS=1) annotation (Placement(transformation(
-          extent={{-10,10},{10,-10}},
+      s={2,8,8},
+      p={4},
+      nP=1,
+      nS=3) annotation (Placement(transformation(
+          extent={{10,10},{-10,-10}},
           rotation=90,
           origin={-40,0})));
 
-    Chemical.Boundaries.ElectronTransfer electrone(useInlet=true)
-                                                   annotation (Placement(transformation(extent={{-58,32},{-78,52}})));
+    Boundaries.ElectronTransfer          electrone annotation (Placement(transformation(extent={{-78,32},{-58,52}})));
                                //(substanceData=Chemical.Examples.Substances.Electrone_solid())
     Chemical.Boundaries.ElectronTransfer electrone1 annotation (Placement(transformation(extent={{88,-26},{68,-6}})));
                                 //(substanceData=Chemical.Examples.Substances.Electrone_solid())
   Modelica.Electrical.Analog.Basic.Ground ground
     annotation (Placement(transformation(extent={{62,54},{82,74}})));
-    Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{14,-54},{-6,-34}})));
+    Boundaries.Substance H2O(
+      useInlet=true,         substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      annotation (Placement(transformation(extent={{-6,-54},{14,-34}})));
     Boundaries.ExternalIdealGasSubstance O2_(
-      useInlet=true,
-      substanceData=Chemical.Substances.Oxygen_gas(),
-      PartialPressure=100000)
-                            annotation (Placement(transformation(extent={{-26,34},{-6,54}})));
+      substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
+                            annotation (Placement(transformation(extent={{-4,36},{-24,56}})));
     Solution gases(BasePressure(displayUnit="kPa") = 100000) annotation (Placement(transformation(extent={{-42,22},{60,58}})));
+    TopologySubstance.SplitterT1 splitterT1 annotation (Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={20,6})));
   equation
     connect(H.solution, solution1.solution) annotation (Line(points={{-2,-22},{
             -2,-30},{24.4,-30},{24.4,-59.34}},
                                        color={127,127,0}));
   connect(electrone.solution, cathode.solution) annotation (Line(
-      points={{-62,32},{-62,-18},{-64,-18},{-64,-42.84},{-54.4,-42.84}},
+      points={{-74,32},{-74,-18},{-64,-18},{-64,-42.84},{-54.4,-42.84}},
       color={127,127,0}));
   connect(electrone1.solution, anode.solution) annotation (Line(
       points={{84,-26},{84,-49},{89.2,-49}},
@@ -3902,44 +3903,47 @@ extends Modelica.Icons.ExamplesPackage;
     connect(electrone1.pin, ground.p) annotation (Line(
         points={{78,-6.2},{92,-6.2},{92,74},{72,74}},
         color={0,0,255}));
-    connect(H2O.solution, solution1.solution) annotation (Line(points={{10,-54},{10,-59.34},{24.4,-59.34}},
+    connect(H2O.solution, solution1.solution) annotation (Line(points={{-2,-54},{-2,-59.34},{24.4,-59.34}},
                                         color={127,127,0}));
-    connect(electrodeReaction1.products[1], O2_.inlet)
-      annotation (Line(
-        points={{-40.3333,10},{-40.3333,44},{-26,44}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(electrodeReaction1.products[2], H.inlet)
-      annotation (Line(
-        points={{-40,10},{-40,14},{-6,14},{-6,-12}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(electrodeReaction1.products[3], electrone.inlet)
-      annotation (Line(
-        points={{-39.6667,10},{-39.6667,42},{-58,42}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(H.outlet, electrodeReaction.substrates[1])
-      annotation (Line(
-        points={{14,-12},{51.75,-12},{51.75,-4}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(electrone1.outlet, electrodeReaction.substrates[2])
-      annotation (Line(
-        points={{68,-16},{52,-16},{52,-4},{52.25,-4}},
-        color={158,66,200},
-        thickness=0.5));
     connect(electrodeReaction.products[1], H2.inlet) annotation (Line(
         points={{52,16},{52,42},{44,42}},
         color={158,66,200},
         thickness=0.5));
-    connect(H2O.outlet, electrodeReaction1.substrates[1])
-      annotation (Line(
-        points={{-6,-44},{-40,-44},{-40,-10}},
+    connect(gases.solution, H2.solution) annotation (Line(points={{39.6,22.36},{40,22.36},{40,32}}, color={127,127,0}));
+    connect(O2_.solution, gases.solution) annotation (Line(points={{-8,36},{-8,18},{39.6,18},{39.6,22.36}}, color={127,127,0}));
+    connect(electrodeReaction1.products[1], H2O.inlet) annotation (Line(
+        points={{-40,-10},{-40,-44},{-6,-44}},
         color={158,66,200},
         thickness=0.5));
-    connect(gases.solution, H2.solution) annotation (Line(points={{39.6,22.36},{40,22.36},{40,32}}, color={127,127,0}));
-    connect(O2_.solution, gases.solution) annotation (Line(points={{-22,34},{-22,18},{39.6,18},{39.6,22.36}}, color={127,127,0}));
+    connect(O2_.outlet, electrodeReaction1.substrates[1])
+      annotation (Line(
+        points={{-24,46},{-40.3333,46},{-40.3333,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone.outlet, electrodeReaction1.substrates[2])
+      annotation (Line(
+        points={{-58,42},{-46,42},{-46,14},{-40,14},{-40,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(splitterT1.outletA, electrodeReaction1.substrates[3])
+      annotation (Line(
+        points={{10,6},{-16,6},{-16,14},{-39.6667,14},{-39.6667,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(splitterT1.outletB, electrodeReaction.substrates[1])
+      annotation (Line(
+        points={{30,6},{38,6},{38,-16},{51.75,-16},{51.75,-4}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone1.outlet, electrodeReaction.substrates[2])
+      annotation (Line(
+        points={{68,-16},{52.25,-16},{52.25,-4}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H.outlet, splitterT1.inlet) annotation (Line(
+        points={{14,-12},{20,-12},{20,-4}},
+        color={158,66,200},
+        thickness=0.5));
     annotation (
     experiment(StopTime=1),      Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
