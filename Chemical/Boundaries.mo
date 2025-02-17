@@ -276,6 +276,104 @@ extends Modelica.Icons.SourcesPackage;
 </html>"));
   end ElectronTransfer;
 
+  model ElectronTransferFlow "Electron transfer as non-fixed-flow boundary"
+    extends Icons.ElectronTransfer;
+
+    Chemical.Interfaces.Inlet inlet
+        "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+
+    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+        Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
+            extent={{-10,88},{10,108}})));
+
+    Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+   parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
+
+   parameter Interfaces.Incompressible.SubstanceData substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+      MolarWeight=5.4857990946e-7,
+      z=-1,
+      DfH=0,
+      DfG=0,
+      Cp=0,
+      density=1e20) "Definition of the substance";
+
+
+
+    Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
+
+    Modelica.Units.SI.ElectricPotential electricPotential "Electric potential of the solution";
+
+    Modelica.Units.SI.Temperature temperature "Temperature of the solution";
+
+    parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
+
+  protected
+    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+  protected
+    outer Chemical.DropOfCommons dropOfCommons;
+
+
+  initial equation
+    uRT = uRT_0;
+  equation
+
+    //Behaiour of open-flow boundary
+    inlet.n_flow=n_flow;
+    der(inlet.n_flow)*L = inlet.r - (uRT - inlet.uRT);
+
+
+    //electric
+    pin.v = electricPotential;
+    pin.i + substanceData.z*Modelica.Constants.F*n_flow + solution.i = 0;
+
+    /*
+  These equations :
+  
+  u = Interfaces.Incompressible.chemicalPotentialPure(
+    substanceData,
+    temperature,
+    pressure,
+    electricPotential,
+    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + substanceData.z*Modelica.Constants.F*electricPotential;
+  uRT = u/(Modelica.Constants.R*temperature);
+  
+  ... are simplified as:
+  */
+    uRT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
+
+    //solution changes
+    solution.dH = 0;
+    solution.dV = 0;
+
+    //extensive properties of the solution
+    solution.nj=0;
+    solution.mj=0;
+    solution.Vj=0;
+    solution.Gj=0;
+    solution.Qj=0;
+    solution.Ij=0;
+
+    temperature = solution.T;
+  //  pressure = solution.p;
+    electricPotential = solution.v;
+  //  moleFractionBasedIonicStrength = solution.I;
+
+    annotation ( Icon(coordinateSystem(
+            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+          graphics={
+          Text(
+            extent={{-146,-44},{154,-84}},
+            textString="%name",
+            lineColor={128,0,255})}),
+      Documentation(revisions="<html>
+<p><i>2009-2025</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end ElectronTransferFlow;
+
   model ExternalIdealGasSubstance "Ideal gas substance with defined partial pressure"
     extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter
         = Interfaces.IdealGas);

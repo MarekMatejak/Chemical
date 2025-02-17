@@ -3753,13 +3753,12 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Processes.Reaction reaction(
       s={2,4},
       p={2,1,4},
-      nS=2,
-      nP=3)      annotation (Placement(transformation(
+      nP=3,
+      nS=2)      annotation (Placement(transformation(
           extent={{11,11},{-11,-11}},
           rotation=180,
           origin={-23,-31})));
-    Chemical.Boundaries.ElectronTransfer electrone(useInlet=true)
-                                                   annotation (Placement(transformation(extent={{64,-38},{84,-18}})));
+    Boundaries.ElectronTransferFlow      electrone annotation (Placement(transformation(extent={{64,-38},{84,-18}})));
     Chemical.Boundaries.ElectronTransfer electrone1 annotation (Placement(transformation(extent={{-84,-34},{-64,-14}})));
   Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
     annotation (Placement(transformation(extent={{-36,38},{-16,58}})));
@@ -3769,10 +3768,9 @@ extends Modelica.Icons.ExamplesPackage;
           Chemical.Interfaces.IdealGas)                                                   annotation (Placement(transformation(extent={{-40,-16},{50,26}})));
     Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
       annotation (Placement(transformation(extent={{18,38},{-2,58}})));
-    Modelica.Electrical.Analog.Basic.Ground ground
-      annotation (Placement(transformation(extent={{38,26},{58,46}})));
     Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{6,-72},{-14,-52}})));
+    Modelica.Electrical.Analog.Basic.Ground ground annotation (Placement(transformation(extent={{36,26},{56,46}})));
   equation
   connect(electrone1.pin,voltageSensor. p) annotation (Line(
       points={{-74,-14.2},{-92,-14.2},{-92,48},{-74,48},{-74,80},{-42,80}},
@@ -3800,20 +3798,8 @@ extends Modelica.Icons.ExamplesPackage;
             60,48},{60,80},{-22,80}}, color={0,0,255}));
     connect(resistor.n, constantVoltage.n)
       annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
-    connect(constantVoltage.p, ground.p)
-      annotation (Line(points={{18,48},{48,48},{48,46}}, color={0,0,255}));
     connect(liquidWater.solution, water.solution) annotation (Line(points={{2,-72},{2,-79.66},{8.8,-79.66}},
                                              color={127,127,0}));
-    connect(electrone1.outlet, reaction.substrates[1])
-      annotation (Line(
-        points={{-64,-24},{-40,-24},{-40,-31.275},{-34,-31.275}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(liquidWater.outlet, reaction.substrates[2])
-      annotation (Line(
-        points={{-14,-62},{-44,-62},{-44,-30.725},{-34,-30.725}},
-        color={158,66,200},
-        thickness=0.5));
     connect(reaction.products[1], H2_gas.inlet)
       annotation (Line(
         points={{-12,-31.3667},{-12,-32},{16,-32},{16,4}},
@@ -3826,7 +3812,18 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(electrone.inlet, reaction.products[3])
       annotation (Line(
-        points={{64,-28},{34,-28},{34,-30.6333},{-12,-30.6333}},
+        points={{64,-28},{36,-28},{36,-30.6333},{-12,-30.6333}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(ground.p, constantVoltage.p) annotation (Line(points={{46,46},{46,48},{18,48}}, color={0,0,255}));
+    connect(liquidWater.outlet, reaction.substrates[1])
+      annotation (Line(
+        points={{-14,-62},{-46,-62},{-46,-31.275},{-34,-31.275}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone1.outlet, reaction.substrates[2])
+      annotation (Line(
+        points={{-64,-24},{-48,-24},{-48,-30.725},{-34,-30.725}},
         color={158,66,200},
         thickness=0.5));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
