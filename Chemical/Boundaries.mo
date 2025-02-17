@@ -317,7 +317,7 @@ extends Modelica.Icons.SourcesPackage;
 
 
   initial equation
-    uRT = uRT_0;
+  //  uRT = uRT_0;
   equation
 
     //Behaiour of open-flow boundary
