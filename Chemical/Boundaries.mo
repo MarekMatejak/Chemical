@@ -181,28 +181,70 @@ extends Modelica.Icons.SourcesPackage;
 
   model ElectronTransfer "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
-    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter
-        = Chemical.Interfaces.Incompressible,
-      final substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
-      MolarWeight=5.4857990946e-7,
-      z=-1,
-      DfH=0,
-      DfG=0,
-      Cp=0,
-      density=1e20));
+
+    Chemical.Interfaces.OutletSubstance outlet(
+      r=r_out,
+      n_flow=n_flow,
+      uRT=uRT,
+      u0RT=uRT,
+      h=h) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
             extent={{-10,88},{10,108}})));
 
+    Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+   parameter Interfaces.Incompressible.SubstanceData substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+      MolarWeight=5.4857990946e-7,
+      z=-1,
+      DfH=0,
+      DfG=0,
+      Cp=0,
+      density=1e20) "Definition of the substance";
+
+    Real r_out, h;
+
+    Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
+
+    Modelica.Units.SI.ElectricPotential electricPotential "Electric potential of the solution";
+
+    Modelica.Units.SI.Temperature temperature "Temperature of the solution";
+
+    parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
+
+    protected
+    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+
+  initial equation
+    uRT = uRT_0;
   equation
 
     //electric
     pin.v = electricPotential;
-    pin.i + z*Modelica.Constants.F*n_flow + solution.i = 0;
+    pin.i + substanceData.z*Modelica.Constants.F*n_flow + solution.i = 0;
 
-    //pure substance
-    x = 1;
+    /*
+  These equations :
+  
+  u = Interfaces.Incompressible.chemicalPotentialPure(
+    substanceData,
+    temperature,
+    pressure,
+    electricPotential,
+    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + substanceData.z*Modelica.Constants.F*electricPotential;
+  uRT = u/(Modelica.Constants.R*temperature);
+  h = Interfaces.Incompressible.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+  
+  ... are simplified as:
+  */
+    uRT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
+    h = substanceData.z*Modelica.Constants.F*electricPotential;
+
+    // Bounsaries.Source - uRT adaptation
+    der(uRT)*TC = r_out;
 
     //solution changes
     solution.dH = 0;
@@ -216,6 +258,11 @@ extends Modelica.Icons.SourcesPackage;
     solution.Qj=0;
     solution.Ij=0;
 
+    temperature = solution.T;
+  //  pressure = solution.p;
+    electricPotential = solution.v;
+  //  moleFractionBasedIonicStrength = solution.I;
+
     annotation ( Icon(coordinateSystem(
             preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
           graphics={
@@ -224,7 +271,7 @@ extends Modelica.Icons.SourcesPackage;
             textString="%name",
             lineColor={128,0,255})}),
       Documentation(revisions="<html>
-<p><i>2009-2015</i></p>
+<p><i>2009-2025</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
   end ElectronTransfer;
