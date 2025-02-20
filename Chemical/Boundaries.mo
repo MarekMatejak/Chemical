@@ -1303,8 +1303,8 @@ Test package for the Boundaries package of ThermofluidStream.
      uRT_out = u_out/(Modelica.Constants.R*temperature);
 
      h_out = molarEnthalpy;
-     der(n_flow_out)*L = r_out;
-     der(n_flow_in)*L = r_in - r;
+     -der(n_flow_out)*L = r_out;
+     -der(n_flow_in)*L = r_in - r;
 
      uRT_out = uRT_in + r;
 

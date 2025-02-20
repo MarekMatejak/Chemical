@@ -1691,8 +1691,8 @@ end solution_temperature_;
 
   connector Inlet "Electro-chemical potential and molar change of the substance in the solution"
 
-  Modelica.Units.SI.ChemicalPotential r
-    "Inertial Electro-chemical potential";
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
 
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
@@ -1757,8 +1757,8 @@ end solution_temperature_;
 
   connector Outlet "Electro-chemical potential and molar change of the substance in the solution"
 
-  Modelica.Units.SI.ChemicalPotential r
-    "Inertial Electro-chemical potential";
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
 
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
@@ -2123,8 +2123,8 @@ end solution_temperature_;
 
   connector InletProcess "Inlet with formation energy of the substance"
 
-  Modelica.Units.SI.ChemicalPotential r
-    "Inertial Electro-chemical potential";
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
 
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
@@ -2192,8 +2192,8 @@ end solution_temperature_;
   connector OutletSubstance
     "Outlet with formation energy of the substance"
 
-  Modelica.Units.SI.ChemicalPotential r
-    "Inertial Electro-chemical potential";
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
 
   flow Modelica.Units.SI.MolarFlowRate n_flow
     "Molar change of the substance";
