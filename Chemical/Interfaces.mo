@@ -1682,6 +1682,7 @@ end solution_temperature_;
 
     Real kf(final unit="mol/s") "Current forward rate coefficient";
 
+    parameter Real  kC=1,kE=0;
   equation
     if not useForwardRateInput then
       kf = k_forward;
@@ -1855,6 +1856,7 @@ end solution_temperature_;
     Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
+    Real duRT,du;
   initial equation
     if initN_flow == InitializationMethods.state then
       n_flow = n_flow_0;
@@ -1870,6 +1872,9 @@ end solution_temperature_;
 
     outlet.uRT = uRT_out;
     outlet.h = h_out;
+
+    duRT = inlet.uRT - outlet.uRT;
+    du = duRT * Modelica.Constants.R * 298.15;
 
     h_out = h_in;
 
@@ -2035,6 +2040,8 @@ end solution_temperature_;
     Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
+    Real duRT,du;
+
   initial equation
     if initN_flow == InitializationMethods.state then
       n_flow = n_flow_0;
@@ -2050,6 +2057,9 @@ end solution_temperature_;
 
     outlet.uRT = uRT_out;
     outlet.h = h_out;
+
+    duRT = inlet.uRT - outlet.uRT;
+    du = duRT * Modelica.Constants.R * 298.15;
 
     h_out = h_in;
 
@@ -2096,6 +2106,7 @@ end solution_temperature_;
     Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
+    Real duRT,du;
   initial equation
     if initN_flow == InitializationMethods.state then
       n_flow = n_flow_0;
@@ -2112,6 +2123,9 @@ end solution_temperature_;
     outlet.uRT = uRT_out;
     outlet.h = h_out;
     outlet.u0RT = inlet.u0RT;
+
+    duRT = inlet.uRT - outlet.uRT;
+    du = duRT * Modelica.Constants.R * 298.15;
 
     h_out = h_in;
 

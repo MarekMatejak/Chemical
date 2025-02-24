@@ -128,6 +128,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Processes.Reaction reaction2_1(
       k_forward=150000,
+      TC=1e-11,
       nS=2,
       nP=2) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1)
@@ -417,7 +418,7 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Mechanics.Translational.Components.Fixed fixed1
       annotation (Placement(transformation(extent={{-68,-66},{-48,-46}})));
 
-    inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,62},{72,82}})));
+    inner DropOfCommons dropOfCommons(L=1)    annotation (Placement(transformation(extent={{54,60},{74,80}})));
   equation
   connect(H2_gas.solution, idealGas.solution) annotation (Line(
       points={{-94,-26},{-28,-26},{-28,-49}},
@@ -834,7 +835,7 @@ extends Modelica.Icons.ExamplesPackage;
     connect(CO2_g_0.solution, water_solution_37degC1.solution) annotation (Line(points={{78,68},{70,68},{70,-79.08},{141.2,-79.08}}, color={127,127,0}));
     connect(O2_g_0.solution, water_solution_37degC1.solution) annotation (Line(points={{116,68},{70,68},{70,-79.08},{141.2,-79.08}}, color={127,127,0}));
     annotation (
-      experiment(StopTime=1e-005),
+      experiment(StopTime=1),
       Documentation(info="<html>
 <p>Demonstration of CO2 and O2 dissolution in pure water as described by NIST Henry&apos;s law data at 25degC.</p>
 <p>Recalculation from Henry&apos;s law constants ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility ):</p>
@@ -1105,7 +1106,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Boundaries.Substance S(use_mass_start=false, amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
-    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
+    parameter Modelica.Units.SI.AmountOfSubstance tE=1
       "Total amount of enzyme";
        parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
       "Forward rate of second reaction";
@@ -1122,22 +1123,25 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
     Chemical.Boundaries.Substance E(
       useInlet=true,                use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{10,36},{-10,56}})));
+      annotation (Placement(transformation(extent={{10,40},{-10,60}})));
     Chemical.Processes.Reaction chemicalReaction(
+      kC=Vmax/(2*Modelica.Constants.R*298.15*log(2)),
       nP=1, nS=2)
-            annotation (Placement(transformation(extent={{-40,-8},{-20,12}})));
+            annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
 
     Chemical.Processes.Reaction chemicalReaction1(
+      kC=Vmax/(2*Modelica.Constants.R*298.15*(50 - log(2))),
       nS=1,
-      nP=2) annotation (Placement(transformation(extent={{24,-10},{44,10}})));
+      nP=2) annotation (Placement(transformation(extent={{26,-10},{46,10}})));
 
     Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-    inner DropOfCommons dropOfCommons(L=1) annotation (Placement(transformation(extent={{66,68},{86,88}})));
+    inner DropOfCommons dropOfCommons(L=1e-5)
+                                           annotation (Placement(transformation(extent={{66,68},{86,88}})));
   equation
     //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
     connect(E.solution, solution.solution) annotation (Line(
-        points={{6,36},{-8,36},{-8,-98},{60,-98}},
+        points={{6,40},{-8,40},{-8,-98},{60,-98}},
         color={127,127,0}));
     connect(ES.solution, solution.solution)
       annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
@@ -1151,30 +1155,31 @@ extends Modelica.Icons.ExamplesPackage;
     connect(liquidWater.solution, solution.solution) annotation (Line(points={{
             46,-80},{46,-98},{60,-98}}, color={127,127,0}));
     connect(chemicalReaction.products[1], ES.inlet) annotation (Line(
-        points={{-20,2},{-18,2},{-18,0},{-12,0}},
+        points={{-22,0},{-12,0}},
         color={158,66,200},
         thickness=0.5));
     connect(ES.outlet, chemicalReaction1.substrates[1]) annotation (Line(
-        points={{8,0},{24,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[1], E.inlet)
-      annotation (Line(
-        points={{44,-0.25},{52,-0.25},{52,46},{10,46}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[2], P.inlet) annotation (Line(
-        points={{44,0.25},{72,0.25},{72,-2}},
+        points={{8,0},{26,0}},
         color={158,66,200},
         thickness=0.5));
     connect(E.outlet, chemicalReaction.substrates[1])
       annotation (Line(
-        points={{-10,46},{-48,46},{-48,1.75},{-40,1.75}},
+        points={{-10,50},{-48,50},{-48,-0.25},{-42,-0.25}},
         color={158,66,200},
         thickness=0.5));
     connect(S.outlet, chemicalReaction.substrates[2])
       annotation (Line(
-        points={{-72,-4},{-62,-4},{-62,2},{-50,2},{-50,2.25},{-40,2.25}},
+        points={{-72,-4},{-62,-4},{-62,2},{-50,2},{-50,0.25},{-42,0.25}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(chemicalReaction1.products[1], P.inlet)
+      annotation (Line(
+        points={{46,-0.25},{62,-0.25},{62,-4},{72,-4},{72,-2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(chemicalReaction1.products[2], E.inlet)
+      annotation (Line(
+        points={{46,0.25},{60,0.25},{60,50},{10,50}},
         color={158,66,200},
         thickness=0.5));
         annotation ( Documentation(revisions="<html>
@@ -1226,6 +1231,137 @@ extends Modelica.Icons.ExamplesPackage;
       experiment(StopTime=76000, __Dymola_Algorithm="Dassl"),
       __Dymola_experimentSetupOutput);
   end EnzymeKinetics;
+
+  model EnzymeKineticsWithoutES "Basic enzyme kinetics"
+    extends Modelica.Icons.Example;
+
+    Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
+    Chemical.Boundaries.Substance P(
+      useInlet=true,
+      substanceData(DfG=-Modelica.Constants.R*298.15*50),
+      use_mass_start=false,
+      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
+
+    Chemical.Boundaries.Substance S(use_mass_start=false, amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance tE=1
+      "Total amount of enzyme";
+       parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
+      "Forward rate of second reaction";
+    constant Modelica.Units.SI.Concentration Km=0.1
+      "Michaelis constant = substrate concentration at rate of half Vmax";
+
+    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
+      "Maximal molar flow";
+
+    Chemical.Processes.Reaction chemicalReaction1(
+      k_forward=0.0051,
+      kC=Vmax/(2*Modelica.Constants.R*298.15*(50 - log(2))),
+      nP=2,
+      nS=1) annotation (Placement(transformation(extent={{30,-10},{50,10}})));
+
+    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
+    inner DropOfCommons dropOfCommons(L=1e-5)
+                                           annotation (Placement(transformation(extent={{66,70},{86,90}})));
+    Processes.Pathway pathway(
+      k_forward=0.00024,
+      kC=Vmax/(2*Modelica.Constants.R*298.15*log(2)),
+      K=2/Km,
+      nS=2,
+      nP=1) annotation (Placement(transformation(extent={{-48,-14},{-28,6}})));
+    Boundaries.Substance          E(
+      useInlet=true,
+      use_mass_start=false,
+      amountOfSubstance_start=tE/2)
+      annotation (Placement(transformation(extent={{6,16},{-14,36}})));
+  equation
+    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+
+    connect(S.solution, solution.solution) annotation (Line(
+        points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
+        color={127,127,0}));
+    connect(P.solution, solution.solution) annotation (Line(
+        points={{76,-12},{76,-98},{60,-98}},
+        color={127,127,0}));
+    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
+            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
+    connect(chemicalReaction1.products[1], P.inlet)
+      annotation (Line(
+        points={{50,-0.25},{62,-0.25},{62,-4},{72,-4},{72,-2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(E.outlet, pathway.substrates[1])
+      annotation (Line(
+        points={{-14,26},{-14,24},{-64,24},{-64,-4.25},{-48,-4.25}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(S.outlet, pathway.substrates[2]) annotation (Line(
+        points={{-72,-4},{-72,-3.75},{-48,-3.75}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(pathway.products[1], chemicalReaction1.substrates[1])
+      annotation (Line(
+        points={{-28,-4},{0,-4},{0,0},{30,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(chemicalReaction1.products[2], E.inlet)
+      annotation (Line(
+        points={{50,0.25},{54,0.25},{54,30},{6,30},{6,26}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(E.solution, solution.solution) annotation (Line(points={{2,16},{10,16},{10,-102},{60,-102},{60,-98}}, color={127,127,0}));
+        annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
+<p>S = Km .. the amount of substrate is Km</p>
+<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
+<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
+<p>x(Km) = Km/MM</p>
+<p>x(tE) = tE/MM</p>
+<p>xS = S/MM = Km/MM</p>
+<p><br>The new kinetics of the system defined as:</p>
+<p>uS&deg; = DfG(S) = 0</p>
+<p>uE&deg; = DfG(E) = 0</p>
+<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
+<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>uP&deg; = DfG(P) </p>
+<p><br>r = Vmax/2</p>
+<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
+<p>because xES=xE this time</p>
+<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
+<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
+<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
+<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
+<p><br>where</p>
+<p>AmountOfSolution = MM = 55.508 (for water)</p>
+<p>Tau = 1 s (just to be physical unit correct)</p>
+<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
+<h4>The maximum of the new enzyme kinetics</h4>
+<p>The enzymatic rate must have a maximum near of Vmax. </p>
+<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The proof:</p>
+<p>We want to sutisfied the following inequality:</p>
+<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
+<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
+<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
+<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
+</html>"),
+      experiment(StopTime=200000, __Dymola_Algorithm="Dassl"),
+      __Dymola_experimentSetupOutput);
+  end EnzymeKineticsWithoutES;
 
   model ElectrochemicalCell
     "The electrochemical cell: Pt(s) | H2(g) | H+(aq), Cl-(aq) | AgCl(s) | Ag(s)"
@@ -1434,7 +1570,8 @@ extends Modelica.Icons.ExamplesPackage;
     Real density, molality, totalmolality, voltage;
     inner Modelica.Fluid.System system(T_ambient=299.15)
       annotation (Placement(transformation(extent={{62,64},{82,84}})));
-    inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{70,-80},{90,-60}})));
+    inner DropOfCommons dropOfCommons(L=1e-5)
+                                           annotation (Placement(transformation(extent={{70,-80},{90,-60}})));
     TopologySubstance.SplitterT1 splitterT1 annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=90,
@@ -1690,6 +1827,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Processes.Reaction HendersonHasselbalch(
         k_forward=1e-4*KC,
+        kC=1e-4*KC,
         nS=2,
         nP=2)                   "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-48,-6},{-28,14}})));
       Chemical.Boundaries.ExternalIdealGasSubstance CO2_gas(
@@ -1728,6 +1866,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Processes.Reaction waterDissociation(
         k_forward=KC,
+        kC=KC,
         nP=2,
         nS=1)                   "water dissociation" annotation (Placement(transformation(extent={{-44,-68},{-24,-48}})));
       Chemical.Topology.JunctionT1 junctionT1
@@ -1840,12 +1979,14 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Boundaries.Substance H3PO4(
         substanceData=Chemical.Substances.PhosphoricAcid_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{-90,-58},{-70,-38}})));
+        amountOfSubstance_start=0.00025)
+                                       annotation (Placement(transformation(extent={{-90,-58},{-70,-38}})));
       Chemical.Boundaries.Substance H2PO4(
         useInlet=true,
         substanceData=Chemical.Substances.DihydrogenPhosphate_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=0.0005) annotation (Placement(transformation(extent={{-40,-58},{-20,-38}})));
+        amountOfSubstance_start=0.00025)
+                                        annotation (Placement(transformation(extent={{-40,-58},{-20,-38}})));
       Chemical.Boundaries.Substance HPO4(
         useInlet=true,
         substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
@@ -1858,12 +1999,15 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{72,-58},{92,-38}})));
 
       Chemical.Processes.Reaction chemicalReaction(
+        kC=KC,
         nS=1,
-        nP=2) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-66,-58},{-46,-38}})));
+        nP=2) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-68,-58},{-48,-38}})));
       Chemical.Processes.Reaction chemicalReaction1(
+        kC=KC,
         nS=1,
         nP=2) "10^(-6.66 + 3)" annotation (Placement(transformation(extent={{-14,-58},{6,-38}})));
       Chemical.Processes.Reaction chemicalReaction2(
+        kC=KC,
         nS=1,
         nP=2) "10^(-11.78 + 3)" annotation (Placement(transformation(extent={{44,-58},{64,-38}})));
 
@@ -1876,6 +2020,7 @@ extends Modelica.Icons.ExamplesPackage;
         use_mass_start=false,
         amountOfSubstance_start=10^(-14 + 7.4)) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,32})));
       Chemical.Processes.Reaction reaction(
+        kC=KC,
         nS=2,
         nP=1) annotation (Placement(transformation(extent={{46,4},{66,24}})));
       Chemical.Topology.JunctionN junctionN(N=3) annotation (Placement(transformation(extent={{-26,-20},{-6,0}})));
@@ -1911,17 +2056,17 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
       connect(H3PO4.outlet, chemicalReaction.substrates[1]) annotation (Line(
-          points={{-70,-48},{-66,-48}},
+          points={{-70,-48},{-68,-48}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction.products[1], H2PO4.inlet)
         annotation (Line(
-          points={{-46,-48.25},{-44,-48.25},{-44,-48},{-40,-48}},
+          points={{-48,-48.25},{-44,-48.25},{-44,-48},{-40,-48}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction.products[2], junctionN.inlets[1])
         annotation (Line(
-          points={{-46,-47.75},{-44,-47.75},{-44,-10.6667},{-26,-10.6667}},
+          points={{-48,-47.75},{-44,-47.75},{-44,-10.6667},{-26,-10.6667}},
           color={158,66,200},
           thickness=0.5));
       connect(H2PO4.outlet, chemicalReaction1.substrates[1]) annotation (Line(
@@ -4046,7 +4191,7 @@ extends Modelica.Icons.ExamplesPackage;
         redeclare package stateOfMatter = Interfaces.Incompressible,
         substanceData=Chemical.Substances.Hydrogen_aqueous(),
         mass_start=0.001) annotation (Placement(transformation(extent={{-74,66},{-54,86}})));
-      inner DropOfCommons dropOfCommons(L=1e12) annotation (Placement(transformation(extent={{-64,-56},{-44,-36}})));
+      inner DropOfCommons dropOfCommons         annotation (Placement(transformation(extent={{-64,-56},{-44,-36}})));
     equation
       connect(H2O.solution, solution.solution) annotation (Line(points={{40,36},
               {40,22},{60,22},{60,-98}}, color={127,127,0}));
@@ -4840,356 +4985,4 @@ extends Modelica.Icons.ExamplesPackage;
     end MethanElectrosynthesis2;
   end ClimateChange;
 
-  model EnzymeKinetics_ "Basic enzyme kinetics"
-    extends Modelica.Icons.Example;
-
-    Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Boundaries.Substance P(
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
-
-    Chemical.Boundaries.Substance S(use_mass_start=false, amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-90,-18},{-70,2}})));
-
-    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
-      "Total amount of enzyme";
-       parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
-      "Forward rate of second reaction";
-    constant Modelica.Units.SI.Concentration Km=0.1
-      "Michaelis constant = substrate concentration at rate of half Vmax";
-
-    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
-      "Maximal molar flow";
-
-    Chemical.Boundaries.Substance ES(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Chemical.Boundaries.Substance E(use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{10,36},{-10,56}})));
-
-    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-    Processes.Reaction reaction(
-      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
-      n_flow_0=0,
-      nP=1,
-      nS=2) annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
-    inner DropOfCommons dropOfCommons(L=1) annotation (Placement(transformation(extent={{38,60},{58,80}})));
-  equation
-    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
-    connect(E.solution, solution.solution) annotation (Line(
-        points={{6,36},{-8,36},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
-
-    connect(S.solution, solution.solution) annotation (Line(
-        points={{-86,-18},{-86,-56},{-8,-56},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(P.solution, solution.solution) annotation (Line(
-        points={{76,-12},{76,-98},{60,-98}},
-        color={127,127,0}));
-    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
-    connect(reaction.products[1], ES.inlet) annotation (Line(
-        points={{-30,0},{-12,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(S.outlet, reaction.substrates[1])
-      annotation (Line(
-        points={{-70,-8},{-60,-8},{-60,-0.25},{-50,-0.25}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(E.outlet, reaction.substrates[2])
-      annotation (Line(
-        points={{-10,46},{-64,46},{-64,0.25},{-50,0.25}},
-        color={158,66,200},
-        thickness=0.5));
-        annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
-<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
-<p>S = Km .. the amount of substrate is Km</p>
-<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
-<p>x(Km) = Km/MM</p>
-<p>x(tE) = tE/MM</p>
-<p>xS = S/MM = Km/MM</p>
-<p><br>The new kinetics of the system defined as:</p>
-<p>uS&deg; = DfG(S) = 0</p>
-<p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
-<p>uP&deg; = DfG(P) </p>
-<p><br>r = Vmax/2</p>
-<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
-<p>because xES=xE this time</p>
-<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
-<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
-<p><br>where</p>
-<p>AmountOfSolution = MM = 55.508 (for water)</p>
-<p>Tau = 1 s (just to be physical unit correct)</p>
-<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
-<h4>The maximum of the new enzyme kinetics</h4>
-<p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
-<p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-</html>"),
-      experiment(StopTime=76000, __Dymola_Algorithm="Dassl"),
-      __Dymola_experimentSetupOutput);
-  end EnzymeKinetics_;
-
-  model EnzymeKinetics_2 "Basic enzyme kinetics"
-    extends Modelica.Icons.Example;
-
-    Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Boundaries.Substance P(
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
-
-    Chemical.Boundaries.Substance S(use_mass_start=false, amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-90,-18},{-70,2}})));
-
-    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
-      "Total amount of enzyme";
-       parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
-      "Forward rate of second reaction";
-    constant Modelica.Units.SI.Concentration Km=0.1
-      "Michaelis constant = substrate concentration at rate of half Vmax";
-
-    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
-      "Maximal molar flow";
-
-    Chemical.Boundaries.Substance ES(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Chemical.Boundaries.Substance E(use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{10,36},{-10,56}})));
-
-    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-    Processes.Reaction reaction(
-      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
-      n_flow_0=0,
-      nP=1,
-      nS=2) annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
-    inner DropOfCommons dropOfCommons(L=1) annotation (Placement(transformation(extent={{38,60},{58,80}})));
-  equation
-    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
-    connect(E.solution, solution.solution) annotation (Line(
-        points={{6,36},{-8,36},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
-
-    connect(S.solution, solution.solution) annotation (Line(
-        points={{-86,-18},{-86,-56},{-8,-56},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(P.solution, solution.solution) annotation (Line(
-        points={{76,-12},{76,-98},{60,-98}},
-        color={127,127,0}));
-    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
-    connect(reaction.products[1], ES.inlet) annotation (Line(
-        points={{-30,0},{-12,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(S.outlet, reaction.substrates[1])
-      annotation (Line(
-        points={{-70,-8},{-60,-8},{-60,-0.25},{-50,-0.25}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(E.outlet, reaction.substrates[2])
-      annotation (Line(
-        points={{-10,46},{-64,46},{-64,0.25},{-50,0.25}},
-        color={158,66,200},
-        thickness=0.5));
-        annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
-<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
-<p>S = Km .. the amount of substrate is Km</p>
-<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
-<p>x(Km) = Km/MM</p>
-<p>x(tE) = tE/MM</p>
-<p>xS = S/MM = Km/MM</p>
-<p><br>The new kinetics of the system defined as:</p>
-<p>uS&deg; = DfG(S) = 0</p>
-<p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
-<p>uP&deg; = DfG(P) </p>
-<p><br>r = Vmax/2</p>
-<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
-<p>because xES=xE this time</p>
-<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
-<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
-<p><br>where</p>
-<p>AmountOfSolution = MM = 55.508 (for water)</p>
-<p>Tau = 1 s (just to be physical unit correct)</p>
-<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
-<h4>The maximum of the new enzyme kinetics</h4>
-<p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
-<p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-</html>"),
-      experiment(StopTime=76000, __Dymola_Algorithm="Dassl"),
-      __Dymola_experimentSetupOutput);
-  end EnzymeKinetics_2;
-
-  model EnzymeKinetics__ "Basic enzyme kinetics"
-    extends Modelica.Icons.Example;
-
-    Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Boundaries.Substance P(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
-
-    parameter Modelica.Units.SI.AmountOfSubstance tE=1e-6
-      "Total amount of enzyme";
-       parameter Real k_cat(unit="1/s", displayUnit="1/min")= 1
-      "Forward rate of second reaction";
-    constant Modelica.Units.SI.Concentration Km=0.1
-      "Michaelis constant = substrate concentration at rate of half Vmax";
-
-    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
-      "Maximal molar flow";
-
-    Chemical.Boundaries.Substance ES(
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Chemical.Boundaries.Substance E(
-      useInlet=true,                use_mass_start=false, amountOfSubstance_start=tE/2)
-      annotation (Placement(transformation(extent={{10,36},{-10,56}})));
-
-    Chemical.Processes.Reaction chemicalReaction1(
-      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
-      n_flow_0=0,
-      nS=1,
-      nP=2) annotation (Placement(transformation(extent={{24,-10},{44,10}})));
-
-    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-    inner DropOfCommons dropOfCommons(L=1) annotation (Placement(transformation(extent={{66,68},{86,88}})));
-  equation
-    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
-    connect(E.solution, solution.solution) annotation (Line(
-        points={{6,36},{-8,36},{-8,-98},{60,-98}},
-        color={127,127,0}));
-    connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
-
-    connect(P.solution, solution.solution) annotation (Line(
-        points={{76,-12},{76,-98},{60,-98}},
-        color={127,127,0}));
-    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
-    connect(ES.outlet, chemicalReaction1.substrates[1]) annotation (Line(
-        points={{8,0},{24,0}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[1], E.inlet)
-      annotation (Line(
-        points={{44,-0.25},{52,-0.25},{52,46},{10,46}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction1.products[2], P.inlet) annotation (Line(
-        points={{44,0.25},{72,0.25},{72,-2}},
-        color={158,66,200},
-        thickness=0.5));
-        annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
-<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
-<p>S = Km .. the amount of substrate is Km</p>
-<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
-<p>x(Km) = Km/MM</p>
-<p>x(tE) = tE/MM</p>
-<p>xS = S/MM = Km/MM</p>
-<p><br>The new kinetics of the system defined as:</p>
-<p>uS&deg; = DfG(S) = 0</p>
-<p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
-<p>uP&deg; = DfG(P) </p>
-<p><br>r = Vmax/2</p>
-<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
-<p>because xES=xE this time</p>
-<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
-<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
-<p><br>where</p>
-<p>AmountOfSolution = MM = 55.508 (for water)</p>
-<p>Tau = 1 s (just to be physical unit correct)</p>
-<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
-<h4>The maximum of the new enzyme kinetics</h4>
-<p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
-<p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-</html>"),
-      experiment(StopTime=76000, __Dymola_Algorithm="Dassl"),
-      __Dymola_experimentSetupOutput);
-  end EnzymeKinetics__;
 end Examples;

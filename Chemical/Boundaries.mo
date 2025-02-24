@@ -182,6 +182,8 @@ extends Modelica.Icons.SourcesPackage;
   model ElectronTransfer "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
 
+    outer DropOfCommons dropOfCommons;
+
     Chemical.Interfaces.OutletSubstance outlet(
       r=r_out,
       n_flow=n_flow,
@@ -212,7 +214,7 @@ extends Modelica.Icons.SourcesPackage;
 
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
-    parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
 
     protected
@@ -307,7 +309,7 @@ extends Modelica.Icons.SourcesPackage;
 
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
-    parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
 
   protected
@@ -322,7 +324,7 @@ extends Modelica.Icons.SourcesPackage;
 
     //Behaiour of open-flow boundary
     inlet.n_flow=n_flow;
-    der(inlet.n_flow)*L = inlet.r - (uRT - inlet.uRT);
+    -der(inlet.n_flow)*L = inlet.r - (uRT - inlet.uRT);
 
 
     //electric
@@ -743,7 +745,7 @@ extends Modelica.Icons.SourcesPackage;
      end if;
 
 
-    L*der(outlet.n_flow) = outlet.r - 0;
+    -L*der(outlet.n_flow) = outlet.r - 0;
     outlet.uRT = u0/(Modelica.Constants.R*T0);
     outlet.h = h0;
 
@@ -837,7 +839,7 @@ extends Modelica.Icons.SourcesPackage;
       T0 = T0_par;
     end if;
 
-    der(inlet.n_flow)*L = inlet.r - r;
+    -der(inlet.n_flow)*L = inlet.r - r;
     r + uRT = u0/(Modelica.Constants.R*T0);
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
@@ -882,7 +884,9 @@ extends Modelica.Icons.SourcesPackage;
   model SubstanceInflow "Molar pump of substance to system"
     extends Interfaces.ConditionalSubstanceFlow;
 
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    outer DropOfCommons dropOfCommons;
+
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
@@ -929,13 +933,14 @@ extends Modelica.Icons.SourcesPackage;
     extends Interfaces.ConditionalSubstanceFlow;
 
     parameter Modelica.Units.SI.Temperature T=273.15+37;
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
   Interfaces.Outlet outlet "Outflow"
     annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
    outer Modelica.Fluid.System system "System wide properties";
+   outer DropOfCommons dropOfCommons;
 
    replaceable package stateOfMatter =
       Chemical.Interfaces.Incompressible constrainedby
@@ -992,12 +997,12 @@ extends Modelica.Icons.SourcesPackage;
 
   model TerminalSource "Source that imposes n_flow = 0"
 
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
 
     Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-
+    outer DropOfCommons dropOfCommons;
   protected
     Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
 
@@ -1303,8 +1308,8 @@ Test package for the Boundaries package of ThermofluidStream.
      uRT_out = u_out/(Modelica.Constants.R*temperature);
 
      h_out = molarEnthalpy;
-     -der(n_flow_out)*L = r_out;
-     -der(n_flow_in)*L = r_in - r;
+     der(n_flow_out)*L = r_out;
+     der(n_flow_in)*L = r_in - r;
 
      uRT_out = uRT_in + r;
 
