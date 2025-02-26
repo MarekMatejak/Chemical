@@ -127,6 +127,7 @@ extends Modelica.Icons.SourcesPackage;
     //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
     // However, the numerical solvers can handle it in form of log(n) much better. :-)
     der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
     amountOfBaseMolecules = exp(logn);
 
     x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
@@ -1169,16 +1170,21 @@ Test package for the Boundaries package of ThermofluidStream.
 
       parameter Boolean useInlet = false "If true inlet is added";
 
-      Interfaces.Inlet inlet(
+      Interfaces.InletSubstance inlet(
         r=r_in,
         n_flow=n_flow_in,
         h=h_in,
+        u0RT=u0RT,
         uRT=uRT_in) if useInlet "The substance entering"
         annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
       //  u=u_in,
 
-      Chemical.Interfaces.OutletSubstance outlet(r=r_out,n_flow=n_flow_out,uRT=uRT_out,h=h_out) "The substance exiting"
-                                                        annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      Chemical.Interfaces.OutletSubstance outlet(
+        r=r_out,
+        n_flow=n_flow_out,
+        uRT=uRT_out,
+        u0RT=u0RT,
+        h=h_out) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
         Interfaces.StateOfMatter
@@ -1254,8 +1260,11 @@ Test package for the Boundaries package of ThermofluidStream.
       //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
       //    "Molar heat capacity of the substance at constant pressure";
 
-      Real r_in,n_flow_in,h_in,uRT_in; //u_in,
+      Real r_in,n_flow_in,h_in,uRT_in,u0RT; //u_in,
       Real r_out,n_flow_out,h_out,uRT_out,u_out;
+
+     // Real ln_n_flow_in(start=1e-5),ln_n_flow_out(start=1e-5), der_ln_n_flow_in_L, der_ln_n_flow_in_L2;
+     //Real ln_n_flow_in,ln_n_flow_out,der_ln_n_flow_in_L2;  //, der_ln_n_flow_in_L, der_ln_n_flow_in_L2;
 
     equation
       //assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
@@ -1303,19 +1312,29 @@ Test package for the Boundaries package of ThermofluidStream.
      uRT_out = u_out/(Modelica.Constants.R*temperature);
 
      h_out = molarEnthalpy;
-     -der(n_flow_out)*L = r_out;
-     -der(n_flow_in)*L = r_in - r;
+     der(n_flow_out)*L = r_out;
+     der(n_flow_in)*L = r_in - r;
 
+     //der(n_flow_out)*L = ( 1  -  exp(-r_out));
+     //der(n_flow_in)*L = ( 1  -  exp(-(r_in - r)));
+     //der(n_flow_in)*L = n_flow_in*(1+exp(uRT_out-r_in));
+     //log(1-(der(n_flow_in)/n_flow_in)*L)  = uRT_out-r_in;
+
+     /*abs(n_flow_in) + 1e-20 = exp(ln_n_flow_in);
+ abs(n_flow_out) + 1e-20 = exp(ln_n_flow_out);
+
+ //der_ln_n_flow_in_L = -der(ln_n_flow_in)*L;
+ der_ln_n_flow_in_L2 = (1-exp((-r_in + r)));
+*/
      uRT_out = uRT_in + r;
 
      if not useInlet then
        n_flow_in = 0;
        h_in = 0;
-    //   u_in = u_out;
        uRT_in = uRT_out;
      end if;
 
-     outlet.u0RT=(stateOfMatter.chemicalPotentialPure(
+     u0RT=(stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
        pressure,

@@ -2260,4 +2260,141 @@ end solution_temperature_;
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
   end OutletSubstance;
+
+  connector InletSubstance "Inlet with formation energy of the substance"
+
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
+
+  flow Modelica.Units.SI.MolarFlowRate n_flow
+    "Molar change of the substance";
+
+  input Chemical.Utilities.Units.URT uRT "u/(R*T)";
+    // u .. electro-chemical potential of the substance in solution
+    // R .. gas constant
+    // T .. temperature
+
+  input Modelica.Units.SI.MolarEnthalpy h
+    "Enthalphy of the substance";
+
+  output Chemical.Utilities.Units.URT u0RT "u0/(R*T)";
+    // u0 .. electro-chemical potential of the pure substance
+    // R .. gas constant
+    // T .. temperature
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid,
+            lineThickness=0.5,
+            lineColor={158,66,200})}),
+      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{52,0},{-48,50},{-28,0},{-48,-50},{52,0}},
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid,
+            lineThickness=0.5,
+            lineColor={158,66,200})}),
+      Documentation(revisions="<html>
+<p><i>2023</i></p>
+<p>Marek Matejak </p>
+</html>",   info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>r = der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. electro-chemical inertia</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end InletSubstance;
+
+  connector OutletProcess "Outlet with formation energy of the substance"
+
+  Chemical.Utilities.Units.URT r
+    "Inertial Electro-chemical potential divided by R*T";
+
+  flow Modelica.Units.SI.MolarFlowRate n_flow
+    "Molar change of the substance";
+
+  output Chemical.Utilities.Units.URT uRT "u/(R*T)";
+    // u .. electro-chemical potential of the substance in solution
+    // R .. gas constant
+    // T .. temperature
+
+  output Modelica.Units.SI.MolarEnthalpy h
+    "Enthalphy of the substance";
+
+  input Chemical.Utilities.Units.URT u0RT "u0/(R*T)";
+    // u0 .. electro-chemical potential of the pure substance
+    // R .. gas constant
+    // T .. temperature
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{100,0},{-100,100},{-40,0},{-100,-100},{100,0}},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid,
+            lineColor={158,66,200},
+            lineThickness=0.5)}),
+      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{50,0},{-50,50},{-30,0},{-50,-50},{50,0}},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid,
+            lineColor={158,66,200},
+            lineThickness=0.5)}),
+       Documentation(revisions="<html>
+<p><i>2023</i></p>
+<p>Marek Matejak </p>
+</html>",   info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>r = der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. inertial electro-chemical potential</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end OutletProcess;
 end Interfaces;

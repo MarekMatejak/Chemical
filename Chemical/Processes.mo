@@ -43,7 +43,7 @@ package Processes
           rotation=180,
           origin={-100,0})));
 
-    Interfaces.Outlet products[nP] annotation (Placement(transformation(
+    Interfaces.OutletProcess products[nP] annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={100,0}), iconTransformation(
@@ -52,7 +52,9 @@ package Processes
           origin={100,0})));
 
     Modelica.Units.SI.MolarEnthalpy h_mix;
-    Real duRT, du;//, _kf;
+    Real duRT, du, dr, rr_,rr_exact2,rr_exact3,rr_exact4, rr_coef, S,P,K,kb,rr1,rr3,rr4;//, _kf;
+    Real ln_rr;//, inertia1, inertia2;
+   // Real korekce,rr2;
   protected
     outer DropOfCommons dropOfCommons;
     //Modelica.Units.SI.ChemicalPotential du;
@@ -69,14 +71,48 @@ package Processes
 
   equation
     //the main equation
-     duRT = ((p * products.uRT) - (s * substrates.uRT));
+     duRT = ((s * substrates.uRT)- (p * products.uRT));
      du = duRT * Modelica.Constants.R * 298.15;
    //  rr = - kC * du; // * exp(-kE*abs(du));
   //  du = ((p * products.u) - (s * substrates.u));
   //  rr = - kC * du * exp(-kE*abs(du));
 
-    rr = kf * exp(-(s * substrates.u0RT)) *
-    ( exp(s * substrates.uRT)  -  exp(p * products.uRT));
+    S = exp(s * (substrates.uRT - substrates.u0RT));
+    P = exp(p * (products.uRT - products.u0RT));
+    K = exp(- ((s * substrates.u0RT) - (p * products.u0RT)));
+    K = kb/kf;
+
+
+    //exact:
+    rr = kf * exp(s * (substrates.uRT - substrates.u0RT)) * ( 1  -  exp(-duRT));
+    //the same as:
+    rr_exact2 = (kf*S - kb*P);
+    //the same as:
+    rr_exact3 = kf * exp(- (s * substrates.u0RT)) * (exp(s*substrates.uRT)-exp(p*products.uRT));
+    rr_exact4 = kf * exp(p*products.uRT - (s * substrates.u0RT)) * (exp(s*substrates.uRT-p*products.uRT) - 1);
+
+
+
+
+    //approximation 1:
+    rr_ = kf * exp(s * (substrates.uRT - substrates.u0RT)) * duRT;
+    //almost the same as:
+    rr1 = (kf*S - kb*P)*duRT;
+
+    rr3 = - kf * exp(p*products.uRT - (s * substrates.u0RT)) * duRT;
+    rr4 = kf * exp((s*substrates.uRT + p*products.uRT)/2 - (s * substrates.u0RT)) * duRT;
+
+    //approximation 2:
+    //rr2 = kf * ((S-K*P)/(-log(K*S/P))) * duRT;
+    //korekce=((S-K*P)/(log(K*S/P)));
+
+
+
+
+    rr_coef = (rr + 1e-15) /( rr_ + 1e-15);
+
+    //(([S]-K∙[P]))/(ln⁡(K∙[S]⁄[P] ) )
+
 
     //reaction molar rates
     rr*s = substrates.n_flow;
@@ -91,8 +127,20 @@ package Processes
       h_mix = 0;
     end if;
 
+    dr = (s * substrates.r) - (p * products.r);
+
+    abs(rr) + 1e-20 = exp(ln_rr);
+
     if nP>0 then
+      //work with approximation1:
       (p * products.r) = (s * substrates.r)  -  der(rr)*L;
+      //inertia1 = (s * substrates.r) - (p * products.r);
+
+      //der(ln_rr)*L = 1+exp(duRT-dr);
+      //der(rr)*L = 1-exp(-dr);
+      //der(rr)*L = kf * exp(s * (substrates.uRT - substrates.u0RT)) * ( 1  -  exp(-dr));
+      //inertia2 = kf * exp(s * (substrates.uRT - substrates.u0RT)) * ( 1  -  exp(-dr));
+
       for i in 2:nP loop
         //first product is based on inertial potential,
         //other products are provided as source
@@ -194,6 +242,239 @@ package Processes
 </table>
 </html>"));
   end Reaction;
+
+  model ForwardReaction "Chemical Reaction"
+    extends Interfaces.ConditionalKinetics(k_forward=1);
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
+      annotation(Dialog(tab="Advanced"));
+    parameter InitializationMethods initN_flow =Chemical.Utilities.Types.InitializationMethods.none  "Initialization method for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow"));
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
+    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
+      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
+
+    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
+      annotation(Dialog(tab="Advanced"));
+
+    parameter Integer nS=0 "Number of substrate types"
+      annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
+
+    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
+      "Stoichiometric reaction coefficient for substrates"
+      annotation (HideResult=true);
+
+    parameter Integer nP=0 "Number of product types"
+      annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
+
+    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
+      "Stoichiometric reaction coefficients for products"
+      annotation (HideResult=true);
+
+    Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
+
+    Interfaces.InletProcess substrates[nS] annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={-100,0}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={-100,0})));
+
+    Interfaces.OutletProcess products[nP] annotation (Placement(transformation(
+          extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={100,0}), iconTransformation(
+          extent={{10,-10},{-10,10}},
+          rotation=180,
+          origin={100,0})));
+
+    Modelica.Units.SI.MolarEnthalpy h_mix;
+    Real duRT, du, dr, rr_,rr_exact2,rr_exact3,rr_exact4, rr_coef, S,P,K,kb,rr1,rr3,rr4;//, _kf;
+   // Real ln_rr;//, inertia1, inertia2;
+   // Real korekce,rr2;
+  protected
+    outer DropOfCommons dropOfCommons;
+    //Modelica.Units.SI.ChemicalPotential du;
+
+    Real  kC=1,kE=0;
+  initial equation
+    if initN_flow == InitializationMethods.state then
+      rr = n_flow_0;
+    elseif initN_flow == InitializationMethods.derivative then
+      der(rr) = n_acceleration_0;
+    elseif initN_flow == InitializationMethods.steadyState then
+      der(rr) = 0;
+    end if;
+
+  equation
+    //the main equation
+     duRT = ((s * substrates.uRT)- (p * products.uRT));
+     du = duRT * Modelica.Constants.R * 298.15;
+   //  rr = - kC * du; // * exp(-kE*abs(du));
+  //  du = ((p * products.u) - (s * substrates.u));
+  //  rr = - kC * du * exp(-kE*abs(du));
+
+    S = exp(s * (substrates.uRT - substrates.u0RT));
+    P = exp(p * (products.uRT - products.u0RT));
+    K = exp(- ((s * substrates.u0RT) - (p * products.u0RT)));
+    K = kb/kf;
+
+    //exact:
+    rr = kf * exp(s * (substrates.uRT - substrates.u0RT));
+    //the same as:
+    rr_exact2 = (kf*S - kb*P);
+    //the same as:
+    rr_exact3 = kf * exp(- (s * substrates.u0RT)) * (exp(s*substrates.uRT)-exp(p*products.uRT));
+    rr_exact4 = kf * exp(p*products.uRT - (s * substrates.u0RT)) * (exp(s*substrates.uRT-p*products.uRT) - 1);
+
+    //approximation 1:
+    rr_ = kf * exp(s * (substrates.uRT - substrates.u0RT)) * duRT;
+    //almost the same as:
+    rr1 = (kf*S - kb*P)*duRT;
+
+    rr3 = - kf * exp(p*products.uRT - (s * substrates.u0RT)) * duRT;
+    rr4 = kf * exp((s*substrates.uRT + p*products.uRT)/2 - (s * substrates.u0RT)) * duRT;
+
+    //approximation 2:
+    //rr2 = kf * ((S-K*P)/(-log(K*S/P))) * duRT;
+    //korekce=((S-K*P)/(log(K*S/P)));
+
+    rr_coef = (rr + 1e-15) /( rr_ + 1e-15);
+
+    //(([S]-K∙[P]))/(ln⁡(K∙[S]⁄[P] ) )
+
+    //reaction molar rates
+    rr*s = substrates.n_flow;
+    rr*p = -products.n_flow;
+
+    products.h = h_mix*ones(nP);
+
+    if
+      (rr>0) then
+      h_mix*(products.n_flow*ones(nP)) + substrates.n_flow*substrates.h = 0;
+    else
+      h_mix = 0;
+    end if;
+
+    dr = (s * substrates.r) - (p * products.r);
+
+    //abs(rr) + 1e-20 = exp(ln_rr);
+
+    if nP>0 then
+      //work with approximation1:
+      //(p * products.r) = (s * substrates.r)  -  der(rr)*L;
+      //inertia1 = (s * substrates.r) - (p * products.r);
+
+      //der(ln_rr)*L = 1+exp(duRT-dr);
+      //der(rr)*L = 1-exp(-dr);
+      //der(rr)*L = kf * exp(s * (substrates.uRT - substrates.u0RT)) * ( 1  -  exp(-dr));
+      //inertia2 = kf * exp(s * (substrates.uRT - substrates.u0RT)) * ( 1  -  exp(-dr));
+
+      for i in 1:nP loop
+        //first product is based on inertial potential,
+        //other products are provided as source
+        der(products[i].uRT).*TC = products[i].r;
+      end for;
+    end if;
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Rectangle(
+            extent={{-100,-30},{100,30}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name"),
+          Polygon(
+            points={{-60,2},{-60,0},{54,0},{54,0},{18,10},{18,2},{-60,2}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-60,-2},{-60,0},{54,0},{54,0},{18,-10},{18,-2},{-60,-2}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+  end ForwardReaction;
 
   model Process "Electro-chemical process"
     extends Interfaces.SISOProcess;
