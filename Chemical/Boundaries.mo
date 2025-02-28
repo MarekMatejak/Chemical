@@ -280,8 +280,7 @@ extends Modelica.Icons.SourcesPackage;
   model ElectronTransferFlow "Electron transfer as non-fixed-flow boundary"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.Inlet inlet
-        "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Chemical.Interfaces.InletSubstance inlet "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -325,6 +324,7 @@ extends Modelica.Icons.SourcesPackage;
     inlet.n_flow=n_flow;
     der(inlet.n_flow)*L = inlet.r - (uRT - inlet.uRT);
 
+    inlet.u0RT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
 
     //electric
     pin.v = electricPotential;
@@ -717,7 +717,7 @@ extends Modelica.Icons.SourcesPackage;
       "Temperature input connector [K]" annotation (Placement(transformation(
             extent={{-40,-40},{0,0}}), iconTransformation(extent={{-40,-80},{0,-40}})));
 
-    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
   protected
     outer Chemical.DropOfCommons dropOfCommons;
@@ -791,11 +791,12 @@ extends Modelica.Icons.SourcesPackage;
     parameter Boolean potentialFromInput = false "If true electro-chemical potential comes from real input";
     parameter Boolean temperatureFromInput = false "Use input connector for temperature";
 
-    parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not pressureFromInput));
-    parameter Modelica.Units.SI.Temperature T0_par=293.15 "Temperature set value" annotation (Dialog(enable=not temperatureFromInput));
+    parameter Modelica.Units.SI.ChemicalPotential x_par=1 "Mole fraction setpoint of Sink";
+    parameter Modelica.Units.SI.ChemicalPotential u_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not potentialFromInput));
+    parameter Modelica.Units.SI.Temperature T_par=293.15 "Temperature set value" annotation (Dialog(enable=not temperatureFromInput));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Blocks.Interfaces.RealInput u0_var(unit="J/mol")
       if potentialFromInput "Potential setpoint [J/mol]"
@@ -830,16 +831,18 @@ extends Modelica.Icons.SourcesPackage;
 
     connect(u0_var, u0);
     if not potentialFromInput then
-      u0 = u0_par;
+      u0 = u_par;
     end if;
 
     connect(T0_var, T0);
     if not temperatureFromInput then
-      T0 = T0_par;
+      T0 = T_par;
     end if;
 
     der(inlet.n_flow)*L = inlet.r - r;
     r + uRT = u0/(Modelica.Constants.R*T0);
+
+    inlet.u0RT = uRT - log(x_par)/(Modelica.Constants.R*T0);
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -887,8 +890,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
-  Interfaces.Outlet outlet "Outflow"
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.OutletProcess outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
   protected
     Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
@@ -933,8 +935,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
-  Interfaces.Outlet outlet "Outflow"
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.OutletProcess outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
    outer Modelica.Fluid.System system "System wide properties";
 
@@ -997,7 +998,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
 
-    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
     Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
@@ -1078,7 +1079,8 @@ extends Modelica.Icons.SourcesPackage;
 
   model TerminalSink "Sink that imposes m_flow=0"
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.InletProcess inlet
+      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
   equation
     inlet.n_flow = 0;

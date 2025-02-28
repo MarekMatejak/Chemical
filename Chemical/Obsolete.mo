@@ -1639,8 +1639,8 @@ package Obsolete
             rotation=270,
             origin={0,-100})));
 
-      Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
-      Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
+      Chemical.Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+      Chemical.Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
     equation
       molarFlowRate = inlet.n_flow;
 

@@ -728,8 +728,7 @@ package Processes
       annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=270,
           origin={-6,-24})));
-  Interfaces.Outlet          port_a
-    annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.OutletProcess port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
     Interfaces.SolutionPort solution
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}})));
 
@@ -840,14 +839,12 @@ package Processes
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-  Interfaces.Inlet inlet annotation (Placement(transformation(
-          extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
-  Interfaces.Outlet subunits[NumberOfSubunits]
-    "Subunits of macromolecule" annotation (Placement(transformation(extent={
-            {-56,-14},{-36,66}}), iconTransformation(
-        extent={{-10,-40},{10,40}},
-        rotation=90,
-        origin={-30,102})));
+    Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
+    Interfaces.OutletProcess subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
+          iconTransformation(
+          extent={{-10,-40},{10,40}},
+          rotation=90,
+          origin={-30,102})));
 
     parameter Boolean EnthalpyNotUsed=false annotation (
       Evaluate=true,
@@ -889,6 +886,8 @@ package Processes
 
     h_out = inlet.h;
     subunits.h = (inlet.h/NumberOfSubunits)*ones(NumberOfSubunits);
+
+    inlet.u0RT = sum(subunits.uRT - (log(xm)/(Modelica.Constants.R*solution.T)) * ones(NumberOfSubunits));
 
 
     //properties from subunits

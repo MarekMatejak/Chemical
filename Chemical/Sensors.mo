@@ -15,8 +15,8 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-100})));
 
-    Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
-    Interfaces.Outlet outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
+    Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+    Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
   equation
     molarFlowRate = inlet.n_flow;
 
@@ -182,7 +182,7 @@ package Sensors "Chemical sensors"
           origin={-100,0},
         rotation=180)));
 
-    Interfaces.Inlet port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.InletSubstance port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
   equation
 
     port_a.uRT = uRT;
@@ -404,9 +404,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-    Interfaces.Outlet                   products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.OutletProcess products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-    Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.InletSubstance substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
     Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
 
@@ -573,9 +573,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-    Interfaces.Outlet                   products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.OutletProcess products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-    Interfaces.Inlet                    substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.InletSubstance substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
 
