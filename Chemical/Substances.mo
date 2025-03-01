@@ -6406,8 +6406,6 @@ package Substances "Definitions of substances"
       SelfClustering_dH=-81.6348,
       SelfClustering_dS=32.845554);
 
-      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
-                                    //-77.95928,
 
   /*  SelfClustering_dH = -81.6348,
     SelfClustering_dS = 32.8344,
@@ -6420,6 +6418,7 @@ package Substances "Definitions of substances"
 <p><span style=\"font-family: Courier New;\">Even the tabulated formation Gibbs energy is DfG=-237190 there is another values because of water self-clustering. </span></p>
 <p><br><span style=\"font-family: Courier New;\">New reported values for free water molecule in solution is calculated from water dissociation reaction.</span></p>
 <p><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+<p>http://www.vias.org/genchem/standard_enthalpies_table.html</p>
 </html>"));
   end Water_liquid;
 
