@@ -28,6 +28,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
 
+    inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
   equation
     connect(A.solution, solution.solution) annotation (Line(
         points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
@@ -2096,7 +2097,7 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-86,-18})));
-      Chemical.Processes.GasSolubilitySubstance gasSolubilitySubstance annotation (Placement(transformation(extent={{-96,60},{-76,80}})));
+      Chemical.Processes.GasSolubilityProvideOut gasSolubilitySubstance annotation (Placement(transformation(extent={{-96,60},{-76,80}})));
     equation
       pH_p = -log10(H.a);
       pH_e = -log10(H_E.a);

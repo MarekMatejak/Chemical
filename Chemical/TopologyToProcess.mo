@@ -6,16 +6,15 @@ package TopologyToProcess
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletSubstance inlet annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={-100,0})));
-    Chemical.Interfaces.OutletProcess outletA annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Chemical.Interfaces.OutletProcess outletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,-100})));
@@ -73,12 +72,12 @@ package TopologyToProcess
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Interfaces.InletSubstance inletProcess annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Interfaces.OutletProcess outletSubstance annotation (Placement(transformation(
+    Interfaces.InletProvider inletProcess annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Interfaces.Outlet outletSubstance annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Interfaces.OutletProcess outletSubstance1 annotation (Placement(transformation(
+    Interfaces.Outlet outletSubstance1 annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={100,0})));
@@ -138,18 +137,15 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.OutletProcess outlet
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={-100,0})));
-    Chemical.Interfaces.InletSubstance inletA
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,100})));
-    Chemical.Interfaces.InletSubstance inletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,-100})));
@@ -213,18 +209,15 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.OutletProcess outlet
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={-100,0})));
-    Chemical.Interfaces.InletSubstance inletA
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,100})));
-    Chemical.Interfaces.InletSubstance inletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={100,0})));
@@ -285,17 +278,17 @@ package TopologyToProcess
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.OutletProcess outletA annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Outlet outletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Chemical.Interfaces.OutletProcess outletB
+    Chemical.Interfaces.Outlet outletB
       annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=270,
           origin={3.55271e-15,-100})));
-    Chemical.Interfaces.OutletProcess outletC annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletC annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={100,0})));
@@ -368,23 +361,19 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.OutletProcess outleta
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outleta annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={-100,0})));
-    Chemical.Interfaces.OutletProcess outletb
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletb annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,-100})));
-    Chemical.Interfaces.InletSubstance inletA
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,100})));
-    Chemical.Interfaces.InletSubstance inletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={100,0})));
@@ -464,22 +453,19 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.OutletProcess outleta
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outleta annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={-100,0})));
-    Chemical.Interfaces.OutletProcess outletb annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletb annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={100,0})));
-    Chemical.Interfaces.InletSubstance inletA
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,100})));
-    Chemical.Interfaces.InletSubstance inletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,-100})));
@@ -558,23 +544,19 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.OutletProcess outlet
-      annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={-100,0})));
-    Chemical.Interfaces.InletSubstance inletA
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletA annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,100})));
-    Chemical.Interfaces.InletSubstance inletB
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletB annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=180,
           origin={100,0})));
-    Chemical.Interfaces.InletSubstance inletC
-      annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inletC annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,-100})));
@@ -649,8 +631,9 @@ package TopologyToProcess
     parameter Integer N(min=1) = 1 "Number of outputs";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Interfaces.InletSubstance inlet "inlet" annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-    Interfaces.OutletProcess outlet[N] "vector of N outlets"
+    Interfaces.InletProvider inlet "inlet"
+      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Interfaces.Outlet outlet[N] "vector of N outlets"
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
@@ -705,9 +688,9 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletSubstance inlets[N] "vector of N inlets"
+    Chemical.Interfaces.InletProvider inlets[N] "vector of N inlets"
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.OutletProcess outlet "outlet"
+    Chemical.Interfaces.Outlet outlet "outlet"
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
     // these are needed by DynamicJunctionN
@@ -778,14 +761,14 @@ package TopologyToProcess
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletSubstance inlets[N] "vector of N inlets" annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inlets[N] "vector of N inlets" annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={-100,0}), iconTransformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={-100,0})));
-    Chemical.Interfaces.OutletProcess outlets[M] "vector of N outlets" annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outlets[M] "vector of N outlets" annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={100,0}), iconTransformation(

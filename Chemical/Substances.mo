@@ -6215,9 +6215,11 @@ package Substances "Definitions of substances"
       z=0,
       DfH=0,
       DfG=0,
-      Cp=25.4,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
-        annotation (preferredView = "info");
+      Cp=25.4);
+        annotation (preferredView = "info", Documentation(info="<html>
+<p><span style=\"font-family: Courier New;\">http://www.vias.org/genchem/standard_enthalpies_table.html</span></p>
+<p><span style=\"font-family: Courier New;\">http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf</span></p>
+</html>"));
   end Silver_solid;
 
   record Silver_aqueous "Ag+(aq)"
@@ -6226,8 +6228,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=105900,
       DfG=77100,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Silver_aqueous;
 
   record SilverChloride_solid "AgCl(s)"
@@ -6237,8 +6238,7 @@ package Substances "Definitions of substances"
       DfH=-127030,
       DfG=-109720,
       Cp=50.8,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end SilverChloride_solid;
 
   record Calcium_aqueous "Ca++(aq)"
@@ -6247,8 +6247,7 @@ package Substances "Definitions of substances"
       z=2,
       DfH=-542960,
       DfG=-542960 - 298.15*(33.67),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Calcium_aqueous;
 
   record Chloride_aqueous "Cl-(aq)"
@@ -6257,8 +6256,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-167460,
       DfG=-131170,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Chloride_aqueous;
 
   record CarbonMonoxide_gas "CO(g)"
@@ -6267,9 +6265,7 @@ package Substances "Definitions of substances"
       DfH=-110500,
       DfG=-137300,
       Cp=29.13,
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.engineeringtoolbox.com/carbon-monoxide-d_975.html"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.engineeringtoolbox.com/carbon-monoxide-d_975.html</p></html>"));
   end CarbonMonoxide_gas;
 
   record CarbonMonoxide_aqueous "CO(aq*)"
@@ -6277,8 +6273,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.02801,
       DfH=-276900,
       DfG=-110200,
-      References={"Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10</p></html>"));
   end CarbonMonoxide_aqueous;
             //  DfG = -8.314*298.15*log(0.00099/55.508)  +  -137300
 
@@ -6288,8 +6283,7 @@ package Substances "Definitions of substances"
       DfH=-393500,
       DfG=-394400,
       Cp=37.1,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end CarbonDioxide_gas;
 
   record CarbonDioxide_aqueous "CO2(aq)"
@@ -6298,8 +6292,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.044,
       DfH=-412900,
       DfG=-386200,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end CarbonDioxide_aqueous;
 
   record Carbonate_aqueous "CO3--(aq)"
@@ -6308,8 +6301,7 @@ package Substances "Definitions of substances"
       z=-2,
       DfH=-676300,
       DfG=-676300 - 298.15*(-497.065),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Carbonate_aqueous;
 
   record Electrone_solid "e-(s)"
@@ -6319,8 +6311,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=0,
-      References={"http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials</p></html>"));
   end Electrone_solid;
 
   record Iron2_aqueous "Fe++(aq)"
@@ -6329,8 +6320,7 @@ package Substances "Definitions of substances"
       z=2,
       DfH=-87860,
       DfG=-87860 - 298.15*(-9.93),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Iron2_aqueous;
 
   record Iron3_aqueous "Fe+++(aq)"
@@ -6339,8 +6329,7 @@ package Substances "Definitions of substances"
       z=3,
       DfH=-47700,
       DfG=-47700 - 298.15*(-124.77),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Iron3_aqueous;
 
   record Glucose_solid "Glu(s)"
@@ -6348,8 +6337,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.1806,
       DfH=-1274500,
       DfG=-1274500 - 298.15*(-1220.66),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Glucose_solid;
 
   record Hydrogen_gas "H2(g)"
@@ -6359,8 +6347,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=28.8,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Hydrogen_gas;
 
   record CarbonicAcid_aqueous "H2CO3(aq)"
@@ -6368,8 +6355,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.062027,
       DfH=-699700,
       DfG=-699700 - 298.15*(-256.582),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end CarbonicAcid_aqueous;
 
   record Water_gas "H2O(g)"
@@ -6378,8 +6364,7 @@ package Substances "Definitions of substances"
       DfH=-241830,
       DfG=-228590,
       Cp=33.6,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Water_gas;
 
   record Water_liquid_without_selfClustering "H2O(l) without self-clustering"
@@ -6388,7 +6373,7 @@ package Substances "Definitions of substances"
       DfH=-285840,
       DfG=-237190,
       Cp=75.3,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
 
       annotation (preferredView = "info", Documentation(info="<html>
 <p><br><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
@@ -6406,7 +6391,7 @@ package Substances "Definitions of substances"
       SelfClustering=true,
       SelfClustering_dH=-81.6348,
       SelfClustering_dS=32.845554,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
                                     //-77.95928,
 
   /*  SelfClustering_dH = -81.6348,
@@ -6428,8 +6413,7 @@ package Substances "Definitions of substances"
       DfH=-292639,
       DfG=-236590,
       Cp=37.77,
-      References={"http://www1.lsbu.ac.uk/water/water_properties.html#pot"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www1.lsbu.ac.uk/water/water_properties.html#pot</p></html>"));
   end Water_IceIh;
 
   record DihydrogenPhosphate_aqueous "H2PO4-(aq)"
@@ -6438,8 +6422,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-1302480,
       DfG=-1302480 - 298.15*(-561.395),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end DihydrogenPhosphate_aqueous;
 
   record Hydronium_aqueous "H3O+(aq)"
@@ -6448,8 +6431,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=-285840,
       DfG=-285840 - 298.15*(-163.17),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Hydronium_aqueous;
 
   record PhosphoricAcid_aqueous "H3PO4(aq)"
@@ -6457,9 +6439,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.095,
       DfH=-1288000,
       DfG=-1288000 - 298.15*(-496.4),
-      References={
-          "https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures</p></html>"));
   end PhosphoricAcid_aqueous;
 
   record Proton_aqueous "H+(aq)"
@@ -6468,8 +6448,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=0,
       DfG=0,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Proton_aqueous;
                      // as hypothetical HA <-> H+ + A- simplification of H2O + HA <-> H3O+ + A-";
 
@@ -6479,8 +6458,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-691100,
       DfG=-691100 - 298.15*(-348.82),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Bicarbonate_aqueous;
 
   record Bicarbonate_blood "HCO3-(blood)"
@@ -6490,8 +6468,7 @@ package Substances "Definitions of substances"
       DfH=-691100,
       DfG=-691100 - 298.15*(-348.82),
       gamma=0.79,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Bicarbonate_blood;
 
   record HydrogenPhosphate_aqueous "HPO4--(aq)"
@@ -6500,8 +6477,7 @@ package Substances "Definitions of substances"
       z=-2,
       DfH=-1298700,
       DfG=-1298700 - 298.15*(-686.232),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end HydrogenPhosphate_aqueous;
 
   record HydrogenSulfate_aqueous "HSO4-(aq)"
@@ -6511,8 +6487,7 @@ package Substances "Definitions of substances"
       DfH=-885750,
       DfG=-752870,
       density=1800,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end HydrogenSulfate_aqueous;
 
   record Potassium_aqueous "K+(aq)"
@@ -6521,8 +6496,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=-251200,
       DfG=-251200 - 298.15*(103.97),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Potassium_aqueous;
 
   record Magnesium_aqueous "Mg++(aq)"
@@ -6531,9 +6505,7 @@ package Substances "Definitions of substances"
       z=2,
       DfH=-461960,
       DfG=-461960 - 298.15*(-19.99),
-      References={
-          "http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Magnesium_aqueous;
 
   record Sodium_aqueous "Na+(aq)"
@@ -6542,8 +6514,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=-239660,
       DfG=-239660 - 298.15*(74.49),
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Sodium_aqueous;
 
   record Amonium_aqueous "NH4+(aq)"
@@ -6552,8 +6523,7 @@ package Substances "Definitions of substances"
       z=1,
       DfH=-132800,
       DfG=-132800 - 298.15*(-178.77),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Amonium_aqueous;
 
   record Oxygen_gas "O2(g)"
@@ -6562,8 +6532,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=29.4,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Oxygen_gas;
 
   record Oxygen_gas_Shomate_298_6000 "O2(g) Shomate 298K–6000K"
@@ -6576,8 +6545,7 @@ package Substances "Definitions of substances"
       C=-1.186521,
       D=0.09578,
       E=-0.219663,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html</p></html>"));
   end Oxygen_gas_Shomate_298_6000;
 
   record Oxygen_gas_Shomate_200_5000 "O2(g) Shomate 200K–5000K"
@@ -6591,8 +6559,7 @@ package Substances "Definitions of substances"
       D=-0.16151,
       E=0.175056,
       X=44.837013,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, http://old.vscht.cz/fch/cz/pomucky/fchab/C.html</p></html>"));
   end Oxygen_gas_Shomate_200_5000;
             //A=8.99044,
 
@@ -6601,9 +6568,7 @@ package Substances "Definitions of substances"
       MolarWeight=0.032,
       DfH=-11700,
       DfG=16320,
-      References={
-          "http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false</p></html>"));
   end Oxygen_aqueous;
 
   record Hydroxide_aqueous "OH-(aq)"
@@ -6612,8 +6577,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-229940,
       DfG=-157300,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Hydroxide_aqueous;
 
   record Lead_solid "Pb(s)"
@@ -6623,8 +6587,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=26.4,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf</p></html>"));
   end Lead_solid;
 
   record LeadDioxide_solid "PbO2(s)"
@@ -6634,8 +6597,7 @@ package Substances "Definitions of substances"
       DfH=-276600,
       DfG=-219000,
       Cp=64.6,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf</p></html>"));
   end LeadDioxide_solid;
 
   record LeadSulfate_solid "PbSO4(s)"
@@ -6645,8 +6607,7 @@ package Substances "Definitions of substances"
       DfH=-918400,
       DfG=-811200,
       Cp=103.2,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf</p></html>"));
   end LeadSulfate_solid;
 
   record Phosphate_aqueous "PO4---(aq)"
@@ -6655,8 +6616,7 @@ package Substances "Definitions of substances"
       z=-3,
       DfH=-1284070,
       DfG=-1284070 - 298.15*(-866.946),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Phosphate_aqueous;
 
   record Sulphates_aqueous "SO4--(aq)"
@@ -6665,8 +6625,7 @@ package Substances "Definitions of substances"
       z=-2,
       DfH=-907500,
       DfG=-907500 - 298.15*(-555.123),
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end Sulphates_aqueous;
 
   record Ethanol_liquid "Ethanol C2H5OH(l)"
@@ -6677,8 +6636,7 @@ package Substances "Definitions of substances"
       DfG=-174180,
       Cp=112.4,
       density=789,
-      References={"http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)</p></html>"));
   end Ethanol_liquid;
     //Some organic molecules: https://www.e-education.psu.edu/drupal6/files/be497b/pdf/Bioenergetics_AppA.pdf
   //Other source: http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf
@@ -6689,8 +6647,7 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-333189,
       DfG=-197150,
-      References={"https://en.wikipedia.org/wiki/Urea"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>https://en.wikipedia.org/wiki/Urea</p></html>"));
   end Urea_aqueous;
 
   record Globulins_aqueous "Glb(aq)"
@@ -6699,8 +6656,7 @@ package Substances "Definitions of substances"
       z=-4,
       DfH=0,
       DfG=0,
-      References={"https://en.wikipedia.org/wiki/Human_serum_albumin"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>https://en.wikipedia.org/wiki/Human_serum_albumin</p></html>"));
   end Globulins_aqueous;
 
   record Albumin_aqueous "Alb(aq)"
@@ -6709,8 +6665,7 @@ package Substances "Definitions of substances"
       z=-11.4,
       DfH=0,
       DfG=0,
-      References={"https://en.wikipedia.org/wiki/Human_serum_albumin"});
-        annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>https://en.wikipedia.org/wiki/Human_serum_albumin</p></html>"));
   end Albumin_aqueous;
 
   record ADP3_aqueous "ADP3(aq)"
@@ -6719,8 +6674,7 @@ package Substances "Definitions of substances"
       z=-3,
       DfH=0,
       DfG=0,
-      References={"relative - designed only for ATP hydrolysis example"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>relative - designed only for ATP hydrolysis example</p></html>"));
   end ADP3_aqueous;
 
   record ATP4_aqueous "ATP^4-(aq)"
@@ -6729,9 +6683,8 @@ package Substances "Definitions of substances"
       z=-4,
       DfH=-1.0263e+6,
       DfG=-882161,
-      References={"relative - designed only for ATP hydrolysis example"});
+      annotation (preferredView = "info", Documentation(info="<html><p>relative - designed only for ATP hydrolysis example</p></html>"));
       // dle reakce: ATP + H2O <-> ADP + H2PO4-  (G=-30.5 kJ/mol. H=-20 kJ/mol)
-    annotation (preferredView = "info");
   end ATP4_aqueous;
 
   record ATP3_aqueous "ATP^3-(aq)"
@@ -6740,9 +6693,8 @@ package Substances "Definitions of substances"
       z=-4,
       DfH=-1.0263e+6,
       DfG=-919245,
-      References={"relative - designed only for ATP hydrolysis example"});
+      annotation (preferredView = "info", Documentation(info="<html><p>relative - designed only for ATP hydrolysis example</p></html>"));
       // dle reakce: ATP^4- + H+ <-> ATP^3-  (pKa=6.5, H=0 kJ/mol)
-    annotation (preferredView = "info");
   end ATP3_aqueous;
 
   model OxygenGasOnTemperature
@@ -6766,8 +6718,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=29.1,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Type=JANAFG&Plot=on"});
-      annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C7727379&Type=JANAFG&Plot=on</p></html>"));
   end Nitrogen_gas;
 
   record Methan_gas "CH4(g)"
@@ -6776,9 +6727,8 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-74848,
       DfG=-50794,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
 
-    annotation (preferredView = "info");
   end Methan_gas;
 
   record Methan_aqueous "CH4(aq)"
@@ -6787,9 +6737,8 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-88151,
       DfG=-34504,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C74828&Mask=10#Solubility"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C74828&Mask=10#Solubility</p></html>"));
 
-    annotation (preferredView = "info");
   end Methan_aqueous;
 
   record AceticAcid_gas "CH3COOH(g)"
@@ -6798,9 +6747,8 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-436071,
       DfG=-378978,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64197&Mask=10#Solubility"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64197&Mask=10#Solubility</p></html>"));
 
-    annotation (preferredView = "info");
   end AceticAcid_gas;
 
   record AceticAcid_aqueous "CH3COOH(aq)"
@@ -6809,9 +6757,8 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-488453,
       DfG=-399600,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
 
-    annotation (preferredView = "info");
   end AceticAcid_aqueous;
 
   record Acetate_aqueous "CH3COO-(aq)"
@@ -6820,8 +6767,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-488871,
       DfG=-372500,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
   end Acetate_aqueous;
 
   record Hydrogen_aqueous "H2(aq)"
@@ -6830,8 +6776,7 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-4157,
       DfG=17740,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&Mask=10#Solubility"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&Mask=10#Solubility</p></html>"));
   end Hydrogen_aqueous;
 
   record Ethanol_gas "C2H5OH(g)"
@@ -6840,9 +6785,8 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-235400,
       DfG=-168600,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html"});
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html</p></html>"));
 
-    annotation (preferredView = "info");
   end Ethanol_gas;
 
   record Ethanol_aqueous "C2H5OH(aq)"
@@ -6851,7 +6795,6 @@ package Substances "Definitions of substances"
       z=0,
       DfH=-290276,
       DfG=-181607,
-      References={"http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI&Mask=10#Solubility"});
-    annotation (preferredView = "info");
+      annotation (preferredView = "info", Documentation(info="<html><p>http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI&Mask=10#Solubility</p></html>"));
   end Ethanol_aqueous;
 end Substances;

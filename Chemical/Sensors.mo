@@ -15,8 +15,8 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-100})));
 
-    Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
-    Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
+    Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+    Interfaces.Outlet outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
   equation
     molarFlowRate = inlet.n_flow;
 
@@ -61,8 +61,8 @@ package Sensors "Chemical sensors"
           rotation=270,
           origin={0,-100})));
 
-    Interfaces.InletProcess inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
-    Interfaces.OutletSubstance outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
+    Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-108,-10},{-88,10}})));
+    Interfaces.OutletProvider outlet annotation (Placement(transformation(extent={{92,-10},{112,10}})));
   equation
     molarFlowRate = inlet.n_flow;
 
@@ -132,7 +132,8 @@ package Sensors "Chemical sensors"
   model SubstanceMoleFractionSensor "Measure of mole fraction"
     extends Modelica.Icons.RoundSensor;
 
-   Interfaces.InletProcess inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.Inlet inlet "The substance"
+      annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
     "Mole fraction of the substance"
@@ -182,7 +183,7 @@ package Sensors "Chemical sensors"
           origin={-100,0},
         rotation=180)));
 
-    Interfaces.InletSubstance port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.InletProvider port_a annotation (Placement(transformation(extent={{90,-10},{110,10}})));
   equation
 
     port_a.uRT = uRT;
@@ -404,9 +405,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-    Interfaces.OutletProcess products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-    Interfaces.InletSubstance substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.InletProvider substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
     Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
 
@@ -573,9 +574,9 @@ package Sensors "Chemical sensors"
     "Stoichiometric reaction coefficients for products"
     annotation (HideResult=true);
 
-    Interfaces.OutletProcess products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet products[nP] "Products" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-    Interfaces.InletSubstance substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.InletProvider substrates[nS] "Substrates" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   Chemical.Utilities.Units.URT GRT "Free Gibbs energy of reaction divided by gas constant and temperature";
 
@@ -712,7 +713,8 @@ package Sensors "Chemical sensors"
 
      outer Modelica.Fluid.System system "System wide properties";
 
-      Interfaces.InletProcess inlet "The substance" annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+      Interfaces.Inlet inlet "The substance"
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
         Interfaces.StateOfMatter

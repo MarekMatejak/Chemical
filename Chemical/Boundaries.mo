@@ -98,12 +98,12 @@ extends Modelica.Icons.SourcesPackage;
      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
      //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
       solution.dH =if (EnthalpyNotUsed) then 0 else der(molarEnthalpy)*
-        amountOfBaseMolecules + n_flow*molarEnthalpy - n_flow_out*h_out - n_flow_in*h_in + (
+        amountOfBaseMolecules + n_flow*molarEnthalpy - n_flow_out*state_out.h - n_flow_in*state_in.h + (
         if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
         substanceData)*der(amountOfBonds) else 0)
                       "heat transfer from other substances in solution [J/s]";
 
-      solution.Gj =amountOfBaseMolecules*u_out + amountOfBonds*SelfClustering_dG
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
                       "Gibbs energy of the substance";
 
     else
@@ -117,10 +117,10 @@ extends Modelica.Icons.SourcesPackage;
       solution.dH =
         if (EnthalpyNotUsed) then  0
         else    der(molarEnthalpy)*amountOfBaseMolecules + n_flow*molarEnthalpy
-                - n_flow_out*h_out - n_flow_in*h_in
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
                 "heat transfer from other substances in solution [J/s]";
 
-      solution.Gj = amountOfBaseMolecules*u_out "Gibbs energy of the substance [J]";
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
 
     end if;
 
@@ -183,7 +183,7 @@ extends Modelica.Icons.SourcesPackage;
   model ElectronTransfer "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.OutletSubstance outlet(
+    Chemical.Interfaces.OutletProvider outlet(
       r=r_out,
       n_flow=n_flow,
       uRT=uRT,
@@ -280,7 +280,7 @@ extends Modelica.Icons.SourcesPackage;
   model ElectronTransferFlow "Electron transfer as non-fixed-flow boundary"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.InletSubstance inlet "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Chemical.Interfaces.InletProvider inlet "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -717,7 +717,7 @@ extends Modelica.Icons.SourcesPackage;
       "Temperature input connector [K]" annotation (Placement(transformation(
             extent={{-40,-40},{0,0}}), iconTransformation(extent={{-40,-80},{0,-40}})));
 
-    Chemical.Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
   protected
     outer Chemical.DropOfCommons dropOfCommons;
@@ -796,7 +796,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.Temperature T_par=293.15 "Temperature set value" annotation (Dialog(enable=not temperatureFromInput));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletSubstance inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Blocks.Interfaces.RealInput u0_var(unit="J/mol")
       if potentialFromInput "Potential setpoint [J/mol]"
@@ -890,7 +890,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
-    Interfaces.OutletProcess outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
   protected
     Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
@@ -935,7 +935,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
 
-    Interfaces.OutletProcess outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Interfaces.Outlet outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
    outer Modelica.Fluid.System system "System wide properties";
 
@@ -998,7 +998,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
     parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
 
-    Chemical.Interfaces.OutletProcess outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
     Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
@@ -1049,8 +1049,7 @@ extends Modelica.Icons.SourcesPackage;
   model SubstanceOutflow "Molar pump of substance out of system"
     extends Interfaces.ConditionalSubstanceFlow;
 
-  Interfaces.InletProcess inlet "Inflow"
-    annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Interfaces.Inlet inlet "Inflow" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
   equation
     inlet.n_flow = q;
@@ -1079,8 +1078,7 @@ extends Modelica.Icons.SourcesPackage;
 
   model TerminalSink "Sink that imposes m_flow=0"
 
-    Chemical.Interfaces.InletProcess inlet
-      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
   equation
     inlet.n_flow = 0;
@@ -1165,6 +1163,7 @@ Test package for the Boundaries package of ThermofluidStream.
 
     partial model PartialSubstance
       import Chemical;
+      import Chemical;
 
      outer Modelica.Fluid.System system "System wide properties";
 
@@ -1172,21 +1171,27 @@ Test package for the Boundaries package of ThermofluidStream.
 
       parameter Boolean useInlet = false "If true inlet is added";
 
-      Interfaces.InletSubstance inlet(
+      Chemical.Interfaces.InletProvider inlet(
         r=r_in,
         n_flow=n_flow_in,
-        h=h_in,
-        u0RT=u0RT,
-        uRT=uRT_in) if useInlet "The substance entering"
+        state=state_in,
+        solution=solutionState,
+        definition=substanceData
+        /*h=h_in,
+    u0RT=u0RT,
+    uRT=uRT_in */) if useInlet "The substance entering"
         annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
       //  u=u_in,
 
-      Chemical.Interfaces.OutletSubstance outlet(
+      Chemical.Interfaces.OutletProvider outlet(
         r=r_out,
         n_flow=n_flow_out,
-        uRT=uRT_out,
-        u0RT=u0RT,
-        h=h_out) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+        state=state_out,
+        solution=solutionState,
+        definition=substanceData
+        /*uRT=uRT_out,
+    u0RT=u0RT,
+    h=h_out*/) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
         Interfaces.StateOfMatter
@@ -1201,7 +1206,7 @@ Test package for the Boundaries package of ThermofluidStream.
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-     parameter stateOfMatter.SubstanceData substanceData
+     parameter stateOfMatter.SubstanceDataParameters substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true);
 
@@ -1241,6 +1246,9 @@ Test package for the Boundaries package of ThermofluidStream.
     Modelica.Units.SI.MolarEnthalpy molarEnthalpy
       "Molar enthalpy of the substance";
 
+    Modelica.Units.SI.MolarEnthalpy molarEnthalpyPure
+      "Molar enthalpy of the pure substance";
+
     Modelica.Units.SI.MolarEntropy molarEntropyPure
       "Molar entropy of the pure substance";
 
@@ -1253,20 +1261,24 @@ Test package for the Boundaries package of ThermofluidStream.
     Modelica.Units.SI.MolarVolume molarVolume
       "Molar volume of the substance";
 
+    Modelica.Units.SI.MolarMass molarMass
+      "Molar mass of the substance";
+
     Modelica.Units.SI.MolarVolume molarVolumePure
       "Molar volume of the pure substance";
 
     Modelica.Units.SI.MolarVolume molarVolumeExcess
       "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
 
-      //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
-      //    "Molar heat capacity of the substance at constant pressure";
 
-      Real r_in,n_flow_in,h_in,uRT_in,u0RT; //u_in,
-      Real r_out,n_flow_out,h_out,uRT_out,u_out;
+     Real r_in,n_flow_in;
+     Real r_out,n_flow_out;
 
-     // Real ln_n_flow_in(start=1e-5),ln_n_flow_out(start=1e-5), der_ln_n_flow_in_L, der_ln_n_flow_in_L2;
-     //Real ln_n_flow_in,ln_n_flow_out,der_ln_n_flow_in_L2;  //, der_ln_n_flow_in_L, der_ln_n_flow_in_L2;
+      Chemical.Interfaces.SubstanceState state_in;
+      Chemical.Interfaces.SubstanceState state_out;
+
+      Chemical.Interfaces.SolutionState solutionState;
+
 
     equation
       //assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
@@ -1280,8 +1292,10 @@ Test package for the Boundaries package of ThermofluidStream.
      z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
     // molarMass = stateOfMatter.molarMass(substanceData);
 
+     molarMass = 1/stateOfMatter.specificAmountOfParticles(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
      molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
      molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
+     molarEnthalpyPure = uPure + temperature*molarEntropyPure;
      u0 = stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
@@ -1303,7 +1317,7 @@ Test package for the Boundaries package of ThermofluidStream.
      a = gamma*x;
 
      //electro-chemical potential of the substance in the solution
-     u_out = stateOfMatter.chemicalPotentialPure(
+     state_out.u = stateOfMatter.chemicalPotentialPure(
        substanceData,
        temperature,
        pressure,
@@ -1311,38 +1325,18 @@ Test package for the Boundaries package of ThermofluidStream.
        moleFractionBasedIonicStrength)
        + (Modelica.Constants.R*temperature)*log(a)
        + z*Modelica.Constants.F*electricPotential;
-     uRT_out = u_out/(Modelica.Constants.R*temperature);
 
-     h_out = molarEnthalpy;
+     state_out.h = molarEnthalpy;
+
      der(n_flow_out)*L = r_out;
      der(n_flow_in)*L = r_in - r;
 
-     //der(n_flow_out)*L = ( 1  -  exp(-r_out));
-     //der(n_flow_in)*L = ( 1  -  exp(-(r_in - r)));
-     //der(n_flow_in)*L = n_flow_in*(1+exp(uRT_out-r_in));
-     //log(1-(der(n_flow_in)/n_flow_in)*L)  = uRT_out-r_in;
-
-     /*abs(n_flow_in) + 1e-20 = exp(ln_n_flow_in);
- abs(n_flow_out) + 1e-20 = exp(ln_n_flow_out);
-
- //der_ln_n_flow_in_L = -der(ln_n_flow_in)*L;
- der_ln_n_flow_in_L2 = (1-exp((-r_in + r)));
-*/
-     uRT_out = uRT_in + r;
+     state_out.u = state_in.u + r;
 
      if not useInlet then
        n_flow_in = 0;
-       h_in = 0;
-       uRT_in = uRT_out;
+       state_in = state_out;
      end if;
-
-     u0RT=(stateOfMatter.chemicalPotentialPure(
-       substanceData,
-       temperature,
-       pressure,
-       electricPotential,
-       moleFractionBasedIonicStrength)
-       + z*Modelica.Constants.F*electricPotential)/(Modelica.Constants.R*temperature);
 
 
      annotation (
@@ -1364,6 +1358,17 @@ Test package for the Boundaries package of ThermofluidStream.
       "Amount of all solution particles";
 
     equation
+
+
+      solutionState.T=temperature "Temperature of the solution";
+      solutionState.p=pressure "Pressure of the solution";
+      solutionState.v=electricPotential "Electric potential in the solution";
+      solutionState.n=amountOfSolution "Amount of the solution";
+      solutionState.m=solution.m "Mass of the solution";
+      solutionState.V=solution.V "Volume of the solution";
+      solutionState.G=solution.G "Free Gibbs energy of the solution";
+      solutionState.Q=solution.Q "Electric charge of the solution";
+      solutionState.I=solution.I "Mole fraction based ionic strength of the solution";
 
       //aliases
       temperature = solution.T;
@@ -1395,8 +1400,7 @@ Test package for the Boundaries package of ThermofluidStream.
 
     partial model ConditionalSolutionFlow "Input of solution molar flow vs. parametric solution molar flow"
 
-      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
 
       parameter Boolean useSolutionFlowInput = false
       "=true, if solution flow is provided via input"
@@ -1418,12 +1422,12 @@ Test package for the Boundaries package of ThermofluidStream.
             rotation=270,
             origin={0,40})));
 
-    Modelica.Units.SI.MolarFlowRate q "Current molar solution flow";
+    Modelica.Units.SI.VolumeFlowRate volumeFlow "Current solution volume flow";
 
 
     equation
       if not useSolutionFlowInput then
-        q*solution.V/solution.n = SolutionFlow;
+        volumeFlow = SolutionFlow;
       end if;
 
     end ConditionalSolutionFlow;
@@ -1454,9 +1458,7 @@ Test package for the Boundaries package of ThermofluidStream.
     Modelica.Units.SI.MolarFlowRate molarClearance
     "Current molar clearance";
 
-    Interfaces.InletProcess           inlet  annotation (Placement(transformation(
-          extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
-            {-90,10}})));
+    Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
     Sensors.MoleFractionSensor moleFractionSensor1(
        redeclare package stateOfMatter = stateOfMatter,
        substanceData=substanceData)
@@ -1562,9 +1564,7 @@ Test package for the Boundaries package of ThermofluidStream.
     parameter Modelica.Units.SI.Time HalfTime
     "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
 
-  Interfaces.InletProcess           inlet  annotation (Placement(transformation(
-          extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
-            {-90,10}})));
+    Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
     Sensors.MoleFractionSensor moleFractionSensor1(
        redeclare package stateOfMatter = stateOfMatter,
        substanceData=substanceData)
