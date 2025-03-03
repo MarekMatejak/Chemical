@@ -186,9 +186,11 @@ extends Modelica.Icons.SourcesPackage;
     Chemical.Interfaces.OutletProvider outlet(
       r=r_out,
       n_flow=n_flow,
-      uRT=uRT,
-      u0RT=uRT,
-      h=h) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      state(
+      u      =u,
+      h      =h),
+      solution(T=solution.T,p=solution.p,v=solution.v,n=solution.n,m=solution.m,V=solution.V,Q=solution.Q,I=solution.I,G=solution.G),
+      definition=substanceData) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -197,7 +199,7 @@ extends Modelica.Icons.SourcesPackage;
     Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-   parameter Interfaces.Incompressible.SubstanceData substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+   parameter Interfaces.Incompressible.SubstanceDataParameters substanceData = Chemical.Interfaces.Incompressible.SubstanceDataParameters(
       MolarWeight=5.4857990946e-7,
       z=-1,
       DfH=0,
@@ -214,13 +216,16 @@ extends Modelica.Icons.SourcesPackage;
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
     parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
+
+
+    Modelica.Units.SI.ChemicalPotential u;
 
     protected
-    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+  //  Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
 
   initial equation
-    uRT = uRT_0;
+    u = u_0;
   equation
 
     //electric
@@ -241,11 +246,11 @@ extends Modelica.Icons.SourcesPackage;
   
   ... are simplified as:
   */
-    uRT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
+    u = substanceData.z*Modelica.Constants.F*electricPotential;
     h = substanceData.z*Modelica.Constants.F*electricPotential;
 
     // Bounsaries.Source - uRT adaptation
-    der(uRT)*TC = r_out;
+    der(u)*TC = r_out;
 
     //solution changes
     solution.dH = 0;
@@ -280,7 +285,10 @@ extends Modelica.Icons.SourcesPackage;
   model ElectronTransferFlow "Electron transfer as non-fixed-flow boundary"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.InletProvider inlet "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+    Chemical.Interfaces.InletProvider inlet(
+      n_flow=n_flow,
+      solution(T=solution.T,p=solution.p,v=solution.v,n=solution.n,m=solution.m,V=solution.V,Q=solution.Q,I=solution.I,G=solution.G),
+      definition=substanceData) "Chemical electron inlet" annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -291,7 +299,7 @@ extends Modelica.Icons.SourcesPackage;
 
    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
 
-   parameter Interfaces.Incompressible.SubstanceData substanceData = Chemical.Interfaces.Incompressible.SubstanceData(
+   parameter Interfaces.Incompressible.SubstanceData substanceData = Chemical.Interfaces.Incompressible.SubstanceDataParameters(
       MolarWeight=5.4857990946e-7,
       z=-1,
       DfH=0,
@@ -308,10 +316,11 @@ extends Modelica.Icons.SourcesPackage;
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
     parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial potential divided by gas constant and temperature";
 
-  protected
-    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+    Modelica.Units.SI.ChemicalPotential u;
+  //protected
+  //  Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
@@ -321,10 +330,9 @@ extends Modelica.Icons.SourcesPackage;
   equation
 
     //Behaiour of open-flow boundary
-    inlet.n_flow=n_flow;
-    der(inlet.n_flow)*L = inlet.r - (uRT - inlet.uRT);
+     der(inlet.n_flow)*L = inlet.r - (u - inlet.state.u);
 
-    inlet.u0RT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
+    //inlet.u0RT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
 
     //electric
     pin.v = electricPotential;
@@ -343,7 +351,7 @@ extends Modelica.Icons.SourcesPackage;
   
   ... are simplified as:
   */
-    uRT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
+    u = substanceData.z*Modelica.Constants.F*electricPotential;
 
     //solution changes
     solution.dH = 0;
@@ -745,8 +753,8 @@ extends Modelica.Icons.SourcesPackage;
 
 
     L*der(outlet.n_flow) = outlet.r - 0;
-    outlet.uRT = u0/(Modelica.Constants.R*T0);
-    outlet.h = h0;
+    outlet.state.u = u0;
+    outlet.state.h = h0;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -791,12 +799,12 @@ extends Modelica.Icons.SourcesPackage;
     parameter Boolean potentialFromInput = false "If true electro-chemical potential comes from real input";
     parameter Boolean temperatureFromInput = false "Use input connector for temperature";
 
-    parameter Modelica.Units.SI.ChemicalPotential x_par=1 "Mole fraction setpoint of Sink";
-    parameter Modelica.Units.SI.ChemicalPotential u_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not potentialFromInput));
-    parameter Modelica.Units.SI.Temperature T_par=293.15 "Temperature set value" annotation (Dialog(enable=not temperatureFromInput));
+    parameter Modelica.Units.SI.ChemicalPotential x0_par=1 "Mole fraction setpoint of Sink";
+    parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not potentialFromInput));
+    parameter Modelica.Units.SI.Temperature T0_par=293.15 "Temperature set value" annotation (Dialog(enable=not temperatureFromInput));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Blocks.Interfaces.RealInput u0_var(unit="J/mol")
       if potentialFromInput "Potential setpoint [J/mol]"
@@ -825,24 +833,24 @@ extends Modelica.Icons.SourcesPackage;
 
     Modelica.Units.SI.ChemicalPotential r;
 
-    Chemical.Utilities.Units.URT uRT=inlet.uRT;
+  //  Chemical.Utilities.Units.URT uRT=inlet.uRT;
 
   equation
 
     connect(u0_var, u0);
     if not potentialFromInput then
-      u0 = u_par;
+      u0 = u0_par;
     end if;
 
     connect(T0_var, T0);
     if not temperatureFromInput then
-      T0 = T_par;
+      T0 = T0_par;
     end if;
 
     der(inlet.n_flow)*L = inlet.r - r;
-    r + uRT = u0/(Modelica.Constants.R*T0);
+    r + inlet.state.u = u0;
 
-    inlet.u0RT = uRT - log(x_par)/(Modelica.Constants.R*T0);
+  //  inlet.state.u0RT = uRT - log(x_par)/(Modelica.Constants.R*T0);
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -888,22 +896,22 @@ extends Modelica.Icons.SourcesPackage;
 
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
-    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
 
     Interfaces.Outlet outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
   protected
-    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
 
   initial equation
-    uRT = uRT_0;
+    u = u_0;
 
   equation
     outlet.n_flow = q;
 
-    TC * der(uRT) = outlet.r;
-    outlet.uRT = uRT;
-    outlet.h = h;
+    TC * der(u) = outlet.r;
+    outlet.state.u = u;
+    outlet.state.h = h;
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -933,7 +941,7 @@ extends Modelica.Icons.SourcesPackage;
 
     parameter Modelica.Units.SI.Temperature T=273.15+37;
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial electro-chemical potential divided by gas constant and temperature";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
 
     Interfaces.Outlet outlet "Outflow" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
@@ -958,17 +966,17 @@ extends Modelica.Icons.SourcesPackage;
       annotation (choicesAllMatching = true);
 
   protected
-    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
 
   initial equation
-    uRT = uRT_0;
+    u = u_0;
 
   equation
     outlet.n_flow = q;
 
-    TC * der(uRT) = outlet.r;
-    outlet.uRT = uRT;
-    outlet.h = stateOfMatter.molarEnthalpy(substanceData,T);
+    TC * der(u) = outlet.r;
+    outlet.state.u = u;
+    outlet.state.h = stateOfMatter.molarEnthalpy(substanceData,T);
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -996,22 +1004,22 @@ extends Modelica.Icons.SourcesPackage;
 
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
-    parameter Chemical.Utilities.Units.URT uRT_0=0 "Initial potential divided by gas constant and temperature";
+    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
 
     Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
-    Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
 
   initial equation
-    uRT = uRT_0;
+    u = u_0;
 
   equation
     outlet.n_flow = 0;
 
-    TC * der(uRT) = outlet.r;
-    outlet.uRT = uRT;
-    outlet.h = h;
+    TC * der(u) = outlet.r;
+    outlet.state.u = u;
+    outlet.state.h = h;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -1163,35 +1171,6 @@ Test package for the Boundaries package of ThermofluidStream.
 
     partial model PartialSubstance
       import Chemical;
-      import Chemical;
-
-     outer Modelica.Fluid.System system "System wide properties";
-
-     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
-
-      parameter Boolean useInlet = false "If true inlet is added";
-
-      Chemical.Interfaces.InletProvider inlet(
-        r=r_in,
-        n_flow=n_flow_in,
-        state=state_in,
-        solution=solutionState,
-        definition=substanceData
-        /*h=h_in,
-    u0RT=u0RT,
-    uRT=uRT_in */) if useInlet "The substance entering"
-        annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
-      //  u=u_in,
-
-      Chemical.Interfaces.OutletProvider outlet(
-        r=r_out,
-        n_flow=n_flow_out,
-        state=state_out,
-        solution=solutionState,
-        definition=substanceData
-        /*uRT=uRT_out,
-    u0RT=u0RT,
-    h=h_out*/) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
      replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
         Interfaces.StateOfMatter
@@ -1205,6 +1184,37 @@ Test package for the Boundaries package of ThermofluidStream.
             Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+     outer Modelica.Fluid.System system "System wide properties";
+
+     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
+
+      parameter Boolean useInlet = false "If true inlet is added";
+
+      Chemical.Interfaces.InletProvider inlet(
+        redeclare package stateOfMatter=stateOfMatter,
+        r=r_in,
+        n_flow=n_flow_in,
+        state=state_in,
+        solution=solutionState,
+        definition=substanceData
+        /*h=h_in,
+    u0RT=u0RT,
+    uRT=uRT_in */) if useInlet "The substance entering"
+        annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+      //  u=u_in,
+
+      Chemical.Interfaces.OutletProvider outlet(
+        redeclare package stateOfMatter=stateOfMatter,
+        r=r_out,
+        n_flow=n_flow_out,
+        state=state_out,
+        solution=solutionState,
+        definition=substanceData
+        /*uRT=uRT_out,
+    u0RT=u0RT,
+    h=h_out*/) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
 
      parameter stateOfMatter.SubstanceDataParameters substanceData
      "Definition of the substance"

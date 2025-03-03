@@ -646,12 +646,16 @@ package TopologyToProcess
 
     for i in 1:N loop
       der(outlet[i].n_flow)*L = outlet[i].r - r_mix;
-      outlet[i].uRT = inlet.uRT;
-      outlet[i].h = inlet.h;
+      outlet[i].state.u = inlet.state.u;
+      outlet[i].state.h = inlet.state.h;
     end for;
 
-    inlet.u0RT=outlet[1].u0RT;
     //TODO: zkontrolovat jestli jsou všechny propojené výstupy stejná substance
+    inlet.definition=outlet[1].definition;
+
+    //TODO: zkontrolovat jestli jsou všechny propojené výstupy stejné roztoky
+    inlet.solution=outlet[1].solution;
+
 
     sum(outlet.n_flow) + inlet.n_flow = 0;
 
@@ -699,14 +703,14 @@ package TopologyToProcess
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Chemical.Utilities.Units.URT uRT[N]=inlets.uRT "(steady molar-flow) electro-chemical potential divided by R*T at inlets";
-    Modelica.Units.SI.MolarEnthalpy h[N]=inlets.h "molar enthapy at inlets";
+    Modelica.Units.SI.ChemicalPotential u[N]=inlets.state.u "(steady molar-flow) electro-chemical potential at inlets";
+    Modelica.Units.SI.MolarEnthalpy h[N]=inlets.state.h "molar enthapy at inlets";
 
-    Chemical.Utilities.Units.URT uRT_mix "(steady mass-flow) electro-chemical potential divided by R*T at the outlet";
-    Chemical.Utilities.Units.URT r_mix "inertial electro-chemical potential divided by R*T at outlet";
+    Modelica.Units.SI.ChemicalPotential u_mix "(steady mass-flow) electro-chemical potential at the outlet";
+    Modelica.Units.SI.ChemicalPotential r_mix "inertial electro-chemical potential at outlet";
     Modelica.Units.SI.MolarEnthalpy h_mix "molar enthalpy at outlet";
 
-    Chemical.Utilities.Units.URT r_in[N];
+    Modelica.Units.SI.ChemicalPotential r_in[N];
 
   equation
     sum(inlets.n_flow) + outlet.n_flow = 0;
@@ -714,18 +718,19 @@ package TopologyToProcess
     for i in 1:N loop
       der(inlets[i].n_flow) * L = inlets[i].r - r_in[i];
 
-      inlets[i].u0RT = outlet.u0RT;
+      inlets[i].definition = outlet.definition;
+      inlets[i].solution = outlet.solution;
 
-      uRT[i] + r_in[i] = uRT_mix + r_mix;
+      u[i] + r_in[i] = u_mix + r_mix;
       w[i] = (abs(inlets[i].n_flow)+n_flow_eps) / (sum(abs(inlets.n_flow))+N*n_flow_eps);
     end for;
     der(outlet.n_flow) * L =  outlet.r - r_mix;
 
-    uRT_mix = sum(w.*uRT);
+    u_mix = sum(w.*u);
     h_mix = sum(w.*h);
 
-    outlet.uRT = uRT_mix;
-    outlet.h = h_mix;
+    outlet.state.u = u_mix;
+    outlet.state.h = h_mix;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Line(

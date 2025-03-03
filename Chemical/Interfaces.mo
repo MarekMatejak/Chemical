@@ -11,7 +11,7 @@ package Interfaces "Chemical interfaces"
 
  end SubstanceState;
 
- replaceable record SolutionState "Set that defines a state of solution"
+ operator record SolutionState "Set that defines a state of solution"
   extends Modelica.Icons.Record;
 
    Modelica.Units.SI.Temperature T "Temperature of the solution";
@@ -24,6 +24,26 @@ package Interfaces "Chemical interfaces"
    Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
    Modelica.Units.SI.MoleFraction I "Mole fraction based ionic strength of the solution";
 
+   encapsulated operator 'constructor'
+     import Chemical.Interfaces.SolutionState;
+     import Chemical.Interfaces.SolutionPort;
+     function fromSolutionPort
+       input SolutionPort s;
+       output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
+     algorithm
+       annotation(Inline = true);
+     end fromSolutionPort;
+   end 'constructor';
+
+   encapsulated operator function '=='
+     import Chemical.Interfaces.SolutionState;
+     input SolutionState s1;
+     input SolutionState s2;
+     output Boolean result "= s1 == s2";
+   algorithm
+      result := s1.T == s2.T and s1.p == s2.p and s1.v == s2.v and s1.n == s2.n and s1.m == s2.m and s1.V == s2.V and s1.G == s2.G and s1.Q == s2.Q and s1.I == s2.I;
+      annotation(Inline = true);
+   end '==';
  end SolutionState;
 
   connector OutletProvider "Outlet providing substance and solution definition"
@@ -191,14 +211,14 @@ package Interfaces "Chemical interfaces"
             points={{100,0},{-100,100},{-40,0},{-100,-100},{100,0}},
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid,
-            lineColor={158,66,200},
+            lineColor={200,66,175},
             lineThickness=0.5)}),
       Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
             points={{50,0},{-50,50},{-30,0},{-50,-50},{50,0}},
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid,
-            lineColor={158,66,200},
+            lineColor={200,66,175},
             lineThickness=0.5)}),
       Documentation(revisions="<html>
 <p><i>2025</i></p>
@@ -258,17 +278,17 @@ package Interfaces "Chemical interfaces"
     annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
             points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
-            fillColor={194,138,221},
+            fillColor={221,138,207},
             fillPattern=FillPattern.Solid,
             lineThickness=0.5,
-            lineColor={158,66,200})}),
+            lineColor={200,66,175})}),
       Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
             points={{52,0},{-48,50},{-28,0},{-48,-50},{52,0}},
-            fillColor={194,138,221},
+            fillColor={83,129,255},
             fillPattern=FillPattern.Solid,
             lineThickness=0.5,
-            lineColor={158,66,200})}),
+            lineColor={28,108,200})}),
       Documentation(revisions="<html>
 <p><i>2023</i></p>
 <p>Marek Matejak </p>
@@ -312,12 +332,7 @@ package Interfaces "Chemical interfaces"
    replaceable record SubstanceData "Minimal set that defines a substance"
     extends Modelica.Icons.Record;
 
-    /*Modelica.Units.SI.ChemicalPotential uPure "Electro-chemical potential of the pure substance";
- Modelica.Units.SI.MolarEnthalpy hPure "Enthalpy of the pure substance";
- Modelica.Units.SI.ChargeNumberOfIon z "Charge number of the substance";
- Modelica.Units.SI.MolarMass MM "Molar mass of the substance";
- Modelica.Units.SI.MolarHeatCapacity Cp "Molar heat capacity of the substance at SATP conditions (25 degC, 1 bar)";
- */
+
    end SubstanceData;
 
 
@@ -1165,7 +1180,7 @@ end solution_temperature_;
   package IdealGas "Ideal gas with constant heat capacity"
      extends StateOfMatter;
 
-     redeclare record extends SubstanceData "Base substance data"
+     redeclare record extends SubstanceDataParameters "Base substance data"
 
       parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
          0.01801528 "Molar weight of the substance";
@@ -1173,12 +1188,10 @@ end solution_temperature_;
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-         DfG_25degC_1bar
+      parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")= 0
       "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-         DfH_25degC
+      parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")= 0
       "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -1186,22 +1199,44 @@ end solution_temperature_;
 
       parameter Modelica.Units.SI.MolarHeatCapacity Cp=75.32
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-     parameter String References[1]={""}
-       "References of these thermodynamical values";
 
-      parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
-         "kJ/mol") = 0 "Obsolete parameter use DfH instead"
-      annotation (Dialog(tab="Obsolete"));
-
-      parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
-          "kJ/mol") = 0 "Obsolete parameter use DfG instead"
-      annotation (Dialog(tab="Obsolete"));
-
-     parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
+      parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
       parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
       "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
       parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+      annotation ( preferredView = "info", Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+     end SubstanceDataParameters;
+
+     redeclare record extends SubstanceData "Base substance data"
+
+      Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+      Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+      "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+      Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+      "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+      Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+      Modelica.Units.SI.MolarHeatCapacity Cp
+      "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+
+      Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dH
+      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+
+      Modelica.Units.SI.MolarEntropy SelfClustering_dS
       "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
       annotation ( preferredView = "info", Documentation(revisions="<html>
@@ -1297,11 +1332,20 @@ end solution_temperature_;
   package IdealGasMSL "Ideal gas from Modelica Standard Library 3.2"
     extends StateOfMatter;
 
-    redeclare record SubstanceData
+    redeclare record SubstanceDataParameters
 
       parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
 
     parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+      "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+    end SubstanceDataParameters;
+
+    redeclare record SubstanceData
+
+      Modelica.Media.IdealGases.Common.DataRecord data "Definition of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
     end SubstanceData;
@@ -1417,7 +1461,12 @@ end solution_temperature_;
             //sum through moles, not masses
 
     algorithm
-        T := temperature(SubstanceData(data=solutionData,z=X*(substanceData.z./molarMassOfBaseMolecule(substanceData))),h,p,v,I);
+        T :=temperature(
+            SubstanceDataParameters(data=solutionData, z=X*(substanceData.z ./ molarMassOfBaseMolecule(substanceData))),
+            h,
+            p,
+            v,
+            I);
     end solution_temperature;
 
     redeclare function extends density
@@ -1435,8 +1484,8 @@ end solution_temperature_;
   package IdealGasShomate "Ideal gas based on Shomate equations"
      extends StateOfMatter;
 
-   redeclare record extends SubstanceData
-    "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
+   redeclare record extends SubstanceDataParameters
+     "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
     parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
          0.01801528 "Molar weight of the substance";
@@ -1444,31 +1493,19 @@ end solution_temperature_;
     parameter Modelica.Units.SI.ChargeNumberOfIon z=0
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-    parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-         DfG_25degC_1bar
+    parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=0
       "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
-    parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-         DfH_25degC
+    parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=0
       "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
     parameter Modelica.Units.SI.ActivityCoefficient gamma=1
       "Activity coefficient of the substance";
 
-    parameter Modelica.Units.SI.MolarHeatCapacity Cp=cp_25degC
+    parameter Modelica.Units.SI.MolarHeatCapacity Cp=33.6
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
-     parameter String References[1]={""}
-       "References of these thermodynamical values";
 
-    parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit=
-         "kJ/mol") = 0 "Obsolete parameter use DfH instead"
-      annotation (Dialog(tab="Obsolete"));
-
-    parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit=
-          "kJ/mol") = 0 "Obsolete parameter use DfG instead"
-      annotation (Dialog(tab="Obsolete"));
-
-     parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
+    parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
     parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
       "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
@@ -1483,9 +1520,48 @@ end solution_temperature_;
         parameter Real A_(unit="J.K.mol-1")=0 "Shomate parameter A'";
         parameter Real E_(unit="K")=1e-8 "Shomate parameter E'";
 
-        parameter Real cp_25degC(unit="J.K-1.mol-1") = 33.6
-         "Obsolete parameter use Cp instead"
-         annotation (Dialog(tab="Obsolete"));
+
+      annotation (preferredView = "info", Documentation(revisions="<html>
+<p><i>2016-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+   end SubstanceDataParameters;
+
+   redeclare record extends SubstanceData "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
+
+    Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
+
+    Modelica.Units.SI.ChargeNumberOfIon z
+      "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+
+    Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")
+      "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+    Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")
+      "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+
+    Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+    Modelica.Units.SI.MolarHeatCapacity Cp
+      "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+
+
+    Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dH
+      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+    Modelica.Units.SI.MolarEntropy SelfClustering_dS
+      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+
+     Real B(unit="J.mol-1") "Shomate parameter B";
+     Real C(unit="J.mol-1") "Shomate parameter C";
+     Real D(unit="J.K.mol-1") "Shomate parameter D";
+     Real E(unit="J.K2.mol-1") "Shomate parameter E";
+     Real X "Shomate parameter X";
+     Real A_(unit="J.K.mol-1") "Shomate parameter A'";
+     Real E_(unit="K") "Shomate parameter E'";
+
 
       annotation (preferredView = "info", Documentation(revisions="<html>
 <p><i>2016-2018</i></p>
@@ -1606,7 +1682,7 @@ end solution_temperature_;
     protected
         function f_nonlinear "Solve molarEnthalpy(data,T) for T with given molar enthalpy"
           extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
-          input SubstanceData data "Ideal gas data";
+        input SubstanceDataParameters data "Ideal gas data";
           input Modelica.Units.SI.SpecificEnthalpy h "Specific enthalpy";
         algorithm
           y := specificEnthalpy(data,u)
@@ -1626,20 +1702,20 @@ end solution_temperature_;
       //this is gas, so the self-clustering is not included:
       Modelica.Units.SI.MoleFraction x[size(X,1)]=(X./molarMassOfBaseMolecule(substanceData))/
         sum(X./molarMassOfBaseMolecule(substanceData)) "mole fractions of substances";
-      SubstanceData solutionData= SubstanceData(
-             MolarWeight = sum(x[i]*substanceData[i].MolarWeight for i in 1:size(X,1)),
-             z = sum(x[i]*substanceData[i].z for i in 1:size(X,1)),
-             DfG = sum(x[i]*substanceData[i].DfG for i in 1:size(X,1)),
-             DfH = sum(x[i]*substanceData[i].DfH for i in 1:size(X,1)),
-             gamma =  sum(x[i]*substanceData[i].gamma for i in 1:size(X,1)),
-             Cp =  sum(x[i]*substanceData[i].cp_25degC for i in 1:size(X,1)),
-             B =  sum(x[i]*substanceData[i].B for i in 1:size(X,1)),
-             C =  sum(x[i]*substanceData[i].C for i in 1:size(X,1)),
-             D =  sum(x[i]*substanceData[i].D for i in 1:size(X,1)),
-             E =  sum(x[i]*substanceData[i].E for i in 1:size(X,1)),
-             X =  sum(x[i]*substanceData[i].X for i in 1:size(X,1)),
-             A_ = sum(x[i]*substanceData[i].A_ for i in 1:size(X,1)),
-             E_ = sum(x[i]*substanceData[i].E_ for i in 1:size(X,1)));      //TODO: gamma,X,E_ are only estimations
+      SubstanceDataParameters solutionData=SubstanceDataParameters(
+          MolarWeight=sum(x[i]*substanceData[i].MolarWeight for i in 1:size(X, 1)),
+          z=sum(x[i]*substanceData[i].z for i in 1:size(X, 1)),
+          DfG=sum(x[i]*substanceData[i].DfG for i in 1:size(X, 1)),
+          DfH=sum(x[i]*substanceData[i].DfH for i in 1:size(X, 1)),
+          gamma=sum(x[i]*substanceData[i].gamma for i in 1:size(X, 1)),
+          Cp=sum(x[i]*substanceData[i].Cp for i in 1:size(X, 1)),
+          B=sum(x[i]*substanceData[i].B for i in 1:size(X, 1)),
+          C=sum(x[i]*substanceData[i].C for i in 1:size(X, 1)),
+          D=sum(x[i]*substanceData[i].D for i in 1:size(X, 1)),
+          E=sum(x[i]*substanceData[i].E for i in 1:size(X, 1)),
+          X=sum(x[i]*substanceData[i].X for i in 1:size(X, 1)),
+          A_=sum(x[i]*substanceData[i].A_ for i in 1:size(X, 1)),
+          E_=sum(x[i]*substanceData[i].E_ for i in 1:size(X, 1)));          //TODO: gamma,X,E_ are only estimations
     algorithm
       assert(abs(sum(X))<1e-5,"sum(X) must be 1");
       T := temperature(solutionData,h,p,v,I);
@@ -2045,8 +2121,8 @@ end solution_temperature_;
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
         "Molar flow through component";
@@ -2082,6 +2158,8 @@ end solution_temperature_;
       der(n_flow) = 0;
     end if;
   equation
+
+  //  assert(duRT>=0,"SISO suports only forward flow");
 
     duRT = uRT_in - uRT_out;
 
@@ -2165,8 +2243,8 @@ end solution_temperature_;
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.OutletProvider outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.OutletProvider outlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
         "Molar flow through component";
@@ -2201,6 +2279,8 @@ end solution_temperature_;
       der(n_flow) = 0;
     end if;
   equation
+
+    //assert(duRT>=0,"SISO suports only forward flow");
 
     duRT = uRT_in - uRT_out;
 
@@ -2287,8 +2367,8 @@ end solution_temperature_;
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.InletProvider inlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
         "Molar flow through component";
@@ -2323,6 +2403,7 @@ end solution_temperature_;
       der(n_flow) = 0;
     end if;
   equation
+   // assert(duRT>=0,"SISO suports only forward flow");
 
     duRT = uRT_in - uRT_out;
 
@@ -2385,17 +2466,30 @@ end solution_temperature_;
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
+    "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model of outlet"
+      annotation (choices(
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterOut =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
@@ -2410,11 +2504,11 @@ end solution_temperature_;
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=270,
           origin={0,100})));
-    Chemical.Interfaces.Outlet outlet annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter=stateOfMatterOut) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=270,
           origin={0,-100})));
@@ -2427,6 +2521,8 @@ end solution_temperature_;
     Modelica.Units.SI.Concentration c_in, c_out;
     Modelica.Units.SI.Molality b_in, b_out;
     Modelica.Units.SI.MassFraction X_in, X_out;
+
+    Modelica.Units.SI.ChemicalPotential du;
 
     // inlet state quantities
   protected
@@ -2455,6 +2551,9 @@ end solution_temperature_;
     end if;
   equation
 
+    //assert(duRT>=0,"SISO suports only forward flow");
+
+    du = inlet.state.u - outlet.state.u;
     duRT = uRT_in - uRT_out;
 
     c_in = x_in * inlet.solution.n/inlet.solution.V;
@@ -2466,26 +2565,26 @@ end solution_temperature_;
     x_in = exp(uRT_in-u0RT_in);
     x_out = exp(uRT_out-u0RT_out);
 
-    X_in = b_in / stateOfMatter.specificAmountOfParticles(
+    X_in = b_in / stateOfMatterIn.specificAmountOfParticles(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    X_out = b_out / stateOfMatter.specificAmountOfParticles(
+    X_out = b_out / stateOfMatterOut.specificAmountOfParticles(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
       outlet.solution.v,
       outlet.solution.I);
 
-    uPure_in = stateOfMatter.electroChemicalPotentialPure(
+    uPure_in = stateOfMatterIn.electroChemicalPotentialPure(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    uPure_out = stateOfMatter.electroChemicalPotentialPure(
+    uPure_out = stateOfMatterOut.electroChemicalPotentialPure(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
@@ -2513,18 +2612,32 @@ end solution_temperature_;
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
+    "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model of outlet"
+      annotation (choices(
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
 
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
       annotation(Dialog(tab="Advanced"));
@@ -2537,11 +2650,11 @@ end solution_temperature_;
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=270,
           origin={0,100})));
-    Chemical.Interfaces.OutletProvider outlet annotation (Placement(transformation(
+    Chemical.Interfaces.OutletProvider outlet(redeclare package stateOfMatter=stateOfMatterOut) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=270,
           origin={0,-100})));
@@ -2554,6 +2667,8 @@ end solution_temperature_;
     Modelica.Units.SI.Molality b_in, b_out;
     Modelica.Units.SI.MassFraction X_in, X_out;
 
+    Interfaces.SolutionState outletSolution;
+    stateOfMatterOut.SubstanceData outletSubstanceData;
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
@@ -2579,6 +2694,7 @@ end solution_temperature_;
       der(n_flow) = 0;
     end if;
   equation
+    //assert(duRT>=0,"SISO suports only forward flow");
 
     duRT = uRT_in - uRT_out;
 
@@ -2591,26 +2707,26 @@ end solution_temperature_;
     x_in = exp(uRT_in-u0RT_in);
     x_out = exp(uRT_out-u0RT_out);
 
-    X_in = b_in / stateOfMatter.specificAmountOfParticles(
+    X_in = b_in / stateOfMatterIn.specificAmountOfParticles(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    X_out = b_out / stateOfMatter.specificAmountOfParticles(
+    X_out = b_out / stateOfMatterOut.specificAmountOfParticles(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
       outlet.solution.v,
       outlet.solution.I);
 
-    uPure_in = stateOfMatter.electroChemicalPotentialPure(
+    uPure_in = stateOfMatterIn.electroChemicalPotentialPure(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    uPure_out = stateOfMatter.electroChemicalPotentialPure(
+    uPure_out = stateOfMatterOut.electroChemicalPotentialPure(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
@@ -2628,8 +2744,8 @@ end solution_temperature_;
 
     h_out = h_in;
 
-    outlet.definition = inlet.definition;
-    outlet.solution = inlet.solution;
+    outlet.definition = outletSubstanceData;
+    outlet.solution = outletSolution;
 
     annotation (Documentation(info="<html>
 <p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
@@ -2637,7 +2753,7 @@ end solution_temperature_;
 </html>"));
   end SISOProvideOutVertical;
 
-  model MIMO "Chemical Reaction"
+  partial model MIMO "Chemical Reaction"
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
@@ -2683,7 +2799,7 @@ end solution_temperature_;
 
     Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
 
-    Chemical.Interfaces.Inlet substrates[nS] annotation (Placement(transformation(
+    Chemical.Interfaces.Inlet substrates[nS](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={-100,0}), iconTransformation(
@@ -2691,7 +2807,7 @@ end solution_temperature_;
           rotation=180,
           origin={-100,0})));
 
-    Chemical.Interfaces.Outlet products[nP] annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet products[nP](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={100,0}), iconTransformation(
@@ -2709,7 +2825,7 @@ end solution_temperature_;
     outer DropOfCommons dropOfCommons;
     //Modelica.Units.SI.ChemicalPotential du;
 
-    Real  kC=1,kE=0;
+
   initial equation
     if initN_flow == InitializationMethods.state then
       rr = n_flow_0;
@@ -2721,6 +2837,7 @@ end solution_temperature_;
 
   equation
     //the main equation
+    //assert(duRT>=0,"MIMO suports only forward flow");
 
     duRT = ((s * (substrates.state.u ./ (Modelica.Constants.R*substrates.solution.T))) - (p * (products.state.u ./ (Modelica.Constants.R*products.solution.T))));
     du = (s * substrates.state.u) - (p * products.state.u);
