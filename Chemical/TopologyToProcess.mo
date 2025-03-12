@@ -4,21 +4,35 @@ package TopologyToProcess
 
   model SplitterT1 "Splits a flow into two subflows"
 
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.InletProvider inlet annotation (Placement(transformation(
+    Chemical.Interfaces.InletProvider inlet(redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={-100,0})));
-    Chemical.Interfaces.Outlet outletA annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletA(redeclare package stateOfMatter = stateOfMatter)
+                                       annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Chemical.Interfaces.Outlet outletB annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet outletB(redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,-100})));
-    SplitterN splitterN(final N=2, final L=L)
+    SplitterN splitterN(redeclare package stateOfMatter = stateOfMatter, final N=2, final L=L)
       annotation (Placement(transformation(extent={{-28,-10},{-8,10}})));
 
   protected
@@ -628,12 +642,26 @@ package TopologyToProcess
 
   model SplitterN "Splitter with one inlet and N outlets"
 
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+
     parameter Integer N(min=1) = 1 "Number of outputs";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Interfaces.InletProvider inlet "inlet"
+    Interfaces.InletProvider inlet(redeclare package stateOfMatter = stateOfMatter) "inlet"
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-    Interfaces.Outlet outlet[N] "vector of N outlets"
+    Interfaces.Outlet outlet[N](redeclare package stateOfMatter = stateOfMatter) "vector of N outlets"
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected

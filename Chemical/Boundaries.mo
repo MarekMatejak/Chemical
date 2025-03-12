@@ -1726,7 +1726,7 @@ Test package for the Boundaries package of ThermofluidStream.
     //solution flows
     streamEnthalpy = molarEnthalpy;
 
-    solution.dH =h_in*n_flow_in + h_out*n_flow_out - der(molarEnthalpy)*nFreeBuffer;
+    solution.dH =state_in.h*n_flow_in + state_out.h*n_flow_out - der(molarEnthalpy)*nFreeBuffer;
     solution.i = Modelica.Constants.F * z * n_flow - Modelica.Constants.F*der(z)*nFreeBuffer;
     solution.dV = molarVolume * n_flow - der(molarVolume)*nFreeBuffer;
 
@@ -1734,7 +1734,7 @@ Test package for the Boundaries package of ThermofluidStream.
     solution.nj=0;
     solution.mj=-nFreeBuffer*stateOfMatter.molarMassOfBaseMolecule(substanceData);
     solution.Vj=-nFreeBuffer*molarVolume;
-    solution.Gj=-nFreeBuffer*u_out;
+    solution.Gj=-nFreeBuffer*state_out.u;
     solution.Qj=-Modelica.Constants.F*nFreeBuffer*z;
     solution.Ij=-(1/2) * ( nFreeBuffer * z^2);
 

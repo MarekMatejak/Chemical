@@ -517,8 +517,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
       annotation (Placement(transformation(extent={{72,-74},{92,-54}})));
-    Processes.GasSolubility gasSolubility(redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1000)
-                                          annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+    Processes.GasVolatility gasVolatility(redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1000)
+                                          annotation (Placement(transformation(extent={{-10,10},{10,-10}},
           rotation=180,
           origin={-80,24})));
     inner DropOfCommons dropOfCommons(L=1e-5)
@@ -545,13 +545,13 @@ extends Modelica.Icons.ExamplesPackage;
       color={191,0,0}));
     connect(liquid.solution, liquidWater.solution) annotation (Line(points={{-24.4,-97.1},{-24.4,-96.55},{-32,-96.55},{-32,-62}},
                                                            color={127,127,0}));
-    connect(liquidWater.outlet, gasSolubility.inlet) annotation (Line(
+    connect(liquidWater.outlet,gasVolatility. inlet) annotation (Line(
         points={{-48,-52},{-80,-52},{-80,14}},
         color={158,66,200},
         thickness=0.5));
     connect(thermalConductor1.port_b, fixedTemperature.port) annotation (Line(points={{64,-30},{68,-30},{68,-2},{72,-2},{72,8},{74,8}}, color={191,0,0}));
     connect(thermalConductor1.port_a, liquid.heatPort) annotation (Line(points={{44,-30},{0,-30},{0,-102},{-79.6,-102},{-79.6,-98.9}}, color={191,0,0}));
-    connect(gasSolubility.outlet, H2O_gaseuous.inlet) annotation (Line(
+    connect(gasVolatility.outlet, H2O_gaseuous.inlet) annotation (Line(
         points={{-80,34},{-80,60},{8,60}},
         color={200,66,175},
         thickness=0.5));
@@ -609,9 +609,9 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Water_IceIh(),
       use_mass_start=false,
       amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{10,-52},{-10,-32}})));
-    Chemical.Processes.GasSolubility gasSolubility1(redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Processes.GasVolatility          gasVolatility( redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas",
                                                     k_forward=1)
-                                                           annotation (Placement(transformation(extent={{-10,10},{10,-10}},
+                                                           annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=0,
           origin={-68,26})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(G=1e6)
@@ -643,11 +643,11 @@ extends Modelica.Icons.ExamplesPackage;
         color={191,0,0}));
     connect(thermalConductor1.port_a, solid.heatPort) annotation (Line(points={{50,-22},{44,-22},{44,-90},{-31.6,-90},{-31.6,-100.9}}, color={191,0,0}));
     connect(thermalConductor1.port_b, fixedTemperature.port) annotation (Line(points={{70,-22},{72,-22},{72,8},{74,8}}, color={191,0,0}));
-    connect(H2O_solid.outlet, gasSolubility1.inlet) annotation (Line(
+    connect(H2O_solid.outlet, gasVolatility.inlet) annotation (Line(
         points={{-10,-42},{-68,-42},{-68,16}},
         color={158,66,200},
         thickness=0.5));
-    connect(gasSolubility1.outlet, H2O_gaseuous.inlet) annotation (Line(
+    connect(gasVolatility.outlet, H2O_gaseuous.inlet) annotation (Line(
         points={{-68,36},{-68,66},{-20,66}},
         color={200,66,175},
         thickness=0.5));
@@ -843,7 +843,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={200,66,175},
         thickness=0.5));
     annotation (
-      experiment(StopTime=1e-005),
+      experiment(StopTime=1, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
 <p>Demonstration of CO2 and O2 dissolution in pure water as described by NIST Henry&apos;s law data at 25degC.</p>
 <p>Recalculation from Henry&apos;s law constants ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility ):</p>
@@ -1967,10 +1967,10 @@ extends Modelica.Icons.ExamplesPackage;
       Modelica.Blocks.Sources.ContinuousClock clock(offset=5000)
         annotation (Placement(transformation(extent={{28,80},{8,100}})));
       Chemical.Boundaries.Substance others_P(
-        substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
-                References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
+        substanceData=Chemical.Interfaces.Incompressible.SubstanceDataParameters(
                 density=(1.024 - 0.933373)*1000/(1 - 0.936137),
                 MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024 - 0.0017)),
+                //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         use_mass_start=false,
         amountOfSubstance_start=0.1487) annotation (Placement(transformation(extent={{70,14},{90,34}})));
       Chemical.Boundaries.Buffer H(
@@ -2003,10 +2003,10 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=0.0499) annotation (Placement(transformation(extent={{52,-70},{72,-50}})));
 
       Chemical.Boundaries.Substance others_P1(
-        substanceData=Chemical.Interfaces.Incompressible.SubstanceData(
-            References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
+        substanceData=Chemical.Interfaces.Incompressible.SubstanceDataParameters(
             density=(1.024 - 0.933373)*1000/(1 - 0.936137),
             MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024 - 0.0017)),
+            //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         use_mass_start=false,
         amountOfSubstance_start=0.1444) annotation (Placement(transformation(extent={{74,-76},{94,-56}})));
       Chemical.Boundaries.Buffer H_E(
@@ -2048,7 +2048,7 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{10,-10},{-10,10}},
             rotation=270,
             origin={36,-16})));
-      Chemical.TopologyToSubstance.SplitterT1 splitterT1
+      Chemical.TopologyToSubstance.SplitterT1 splitterT1(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas")
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=-90,
@@ -2063,7 +2063,8 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-86,-18})));
-      Chemical.Processes.GasSolubilityProvideOut gasSolubilitySubstance annotation (Placement(transformation(extent={{-96,60},{-76,80}})));
+      Chemical.Processes.GasSolubilityProvideOut gasSolubilitySubstance(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+          outletSubstance=Chemical.Substances.CarbonDioxide_aqueous())  annotation (Placement(transformation(extent={{-96,60},{-76,80}})));
     equation
       pH_p = -log10(H.a);
       pH_e = -log10(H_E.a);
@@ -2175,6 +2176,7 @@ extends Modelica.Icons.ExamplesPackage;
           points={{-86,80},{-88,80},{-88,86}},
           color={158,66,200},
           thickness=0.5));
+      connect(gasSolubilitySubstance.solution, blood_plasma.solution) annotation (Line(points={{-92,60},{-104,60},{-104,4.52},{60,4.52}}, color={127,127,0}));
       annotation ( Documentation(info="<html>
 <p>The mature red blood cell (erythrocyte) is the simplest cell in the human body. Its primary function is the transportation of blood gases, such as oxygen O<sub>2</sub> (from the lungs to tissues) and carbon dioxide CO<sub>2</sub> (from tissues to the lungs). The chemical processes behind the gases&rsquo; transportation are complex because the capacity of water to transport their freely dissolved forms is very low. To transport sufficient amounts of O<sub>2</sub> and CO<sub>2</sub>, the gases must be chemically bound to hemoglobin such as described in (Matej&aacute;k, et al., 2015) and/or transported as different substances, which can be present in water in much higher concentrations than their freely dissolved forms allow. Therefore, to transport a sufficient amount of CO<sub>2</sub>, it must be changed to HCO<sub>3</sub><sup>-</sup> using the chemical reaction: </p>
 <table width=100%><tr>
@@ -2401,9 +2403,9 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData(
           z=-4,
           DfH=16700,
-          DfG=30500,
-          References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}),
-        use_mass_start=false,
+          DfG=30500
+          //References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}
+),      use_mass_start=false,
         amountOfSubstance_start=0.00128) annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
 
       Chemical.Boundaries.Substance HPO4_E(
@@ -3947,11 +3949,11 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Processes.Reaction reaction(
       s={2,4},
       p={2,1,4},
-      nP=3,
-      nS=2)      annotation (Placement(transformation(
+      nS=2,
+      nP=3)      annotation (Placement(transformation(
           extent={{11,11},{-11,-11}},
           rotation=180,
-          origin={-23,-31})));
+          origin={-31,-29})));
     Boundaries.ElectronTransferFlow      electrone annotation (Placement(transformation(extent={{64,-38},{84,-18}})));
     Chemical.Boundaries.ElectronTransfer electrone1 annotation (Placement(transformation(extent={{-84,-34},{-64,-14}})));
   Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
@@ -3965,6 +3967,19 @@ extends Modelica.Icons.ExamplesPackage;
     Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{0,-74},{-20,-54}})));
     Modelica.Electrical.Analog.Basic.Ground ground annotation (Placement(transformation(extent={{36,26},{56,46}})));
+    Boundaries.Substance O2_aq(
+      useInlet=true,
+      substanceData=Chemical.Substances.Oxygen_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001) annotation (Placement(transformation(extent={{4,-68},{24,-48}})));
+    Boundaries.Substance H2_aq(
+      useInlet=true,
+      substanceData=Chemical.Substances.Hydrogen_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start(displayUnit="mmol") = 1e-05) annotation (Placement(transformation(extent={{28,-74},{48,-54}})));
+    Processes.GasVolatility H2_volatility annotation (Placement(transformation(extent={{32,-38},{52,-18}})));
+    Processes.GasVolatility O2_volatility annotation (Placement(transformation(extent={{-38,-18},{-18,2}})));
+    Processes.GasSolubilityProvideOut gasSolubilityProvideOut annotation (Placement(transformation(extent={{-126,-10},{-106,10}})));
   equation
   connect(electrone1.pin,voltageSensor. p) annotation (Line(
       points={{-74,-14.2},{-92,-14.2},{-92,48},{-74,48},{-74,80},{-42,80}},
@@ -3994,31 +4009,49 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
     connect(liquidWater.solution, water.solution) annotation (Line(points={{-4,-74},{-4,-88},{36,-88},{36,-83.58}},
                                              color={127,127,0}));
-    connect(reaction.products[1], H2_gas.inlet)
-      annotation (Line(
-        points={{-12,-31.3667},{-12,-32},{16,-32},{16,4}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(reaction.products[2], O2_gas.inlet)
-      annotation (Line(
-        points={{-12,-31},{-10,-31},{-10,-12},{-16,-12},{-16,4},{-12,4}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(electrone.inlet, reaction.products[3])
-      annotation (Line(
-        points={{64,-28},{36,-28},{36,-30.6333},{-12,-30.6333}},
-        color={158,66,200},
-        thickness=0.5));
     connect(ground.p, constantVoltage.p) annotation (Line(points={{46,46},{46,48},{18,48}}, color={0,0,255}));
     connect(liquidWater.outlet, reaction.substrates[1])
       annotation (Line(
-        points={{-20,-64},{-46,-64},{-46,-31.275},{-34,-31.275}},
+        points={{-20,-64},{-46,-64},{-46,-29.275},{-42,-29.275}},
         color={158,66,200},
         thickness=0.5));
     connect(electrone1.outlet, reaction.substrates[2])
       annotation (Line(
-        points={{-64,-24},{-48,-24},{-48,-30.725},{-34,-30.725}},
+        points={{-64,-24},{-48,-24},{-48,-28.725},{-42,-28.725}},
         color={158,66,200},
+        thickness=0.5));
+    connect(O2_aq.solution, water.solution) annotation (Line(points={{8,-68},{8,-88},{36,-88},{36,-83.58}}, color={127,127,0}));
+    connect(H2_aq.solution, water.solution) annotation (Line(points={{32,-74},{32,-78},{36,-78},{36,-83.58}}, color={127,127,0}));
+    connect(reaction.products[1], H2_aq.inlet)
+      annotation (Line(
+        points={{-20,-29.3667},{-20,-30},{28,-30},{28,-64}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(reaction.products[2], O2_aq.inlet)
+      annotation (Line(
+        points={{-20,-29},{-18,-29},{-18,-30},{4,-30},{4,-58}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(reaction.products[3], electrone.inlet)
+      annotation (Line(
+        points={{-20,-28.6333},{-18,-28},{64,-28}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(H2_aq.outlet, H2_volatility.inlet) annotation (Line(
+        points={{48,-64},{52,-64},{52,-38},{42,-38}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H2_volatility.outlet, H2_gas.inlet) annotation (Line(
+        points={{42,-18},{30,-18},{30,4},{16,4}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(O2_aq.outlet, O2_volatility.inlet) annotation (Line(
+        points={{24,-58},{-4,-58},{-4,-18},{-28,-18}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2_volatility.outlet, O2_gas.inlet) annotation (Line(
+        points={{-28,2},{-20,2},{-20,4},{-12,4}},
+        color={200,66,175},
         thickness=0.5));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
 <p>The water ecectrolysis: </p>
@@ -4032,7 +4065,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Solution cathode(ElectricGround=false) annotation (Placement(transformation(extent={{-88,-44},{-46,72}})));
     Chemical.Solution anode(ElectricGround=false) annotation (Placement(transformation(extent={{62,-50},{96,50}})));
 
-    Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-30,-60},{38,6}})));
+    Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-30,-96},{56,-30}})));
 
     Chemical.Boundaries.ExternalIdealGasSubstance H2(
       useInlet=true,
@@ -4042,13 +4075,13 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Boundaries.Substance H(
       substanceData=Chemical.Substances.Proton_aqueous(),
       use_mass_start=false,
-      amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-6,-22},{14,-2}})));
+      amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-4,-58},{16,-38}})));
     Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
       annotation (Placement(transformation(extent={{-6,64},{14,84}})));
     Chemical.Processes.Reaction electrodeReaction(
       s={2,2},
-      nP=1,
-      nS=2) annotation (Placement(transformation(
+      nS=2,
+      nP=1) annotation (Placement(transformation(
           extent={{-10,10},{10,-10}},
           rotation=90,
           origin={52,6})));
@@ -4069,7 +4102,7 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Placement(transformation(extent={{62,54},{82,74}})));
     Boundaries.Substance H2O(
       useInlet=true,         substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{-6,-54},{14,-34}})));
+      annotation (Placement(transformation(extent={{-6,-82},{14,-62}})));
     Boundaries.ExternalIdealGasSubstance O2_(
       substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
                             annotation (Placement(transformation(extent={{-4,36},{-24,56}})));
@@ -4078,9 +4111,20 @@ extends Modelica.Icons.ExamplesPackage;
           extent={{-10,-10},{10,10}},
           rotation=90,
           origin={20,6})));
+    Boundaries.Substance O2_aq(
+      useInlet=true,
+      substanceData=Chemical.Substances.Oxygen_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001) annotation (Placement(transformation(extent={{-28,-62},{-8,-42}})));
+    Boundaries.Substance H2_aq(
+      useInlet=true,
+      substanceData=Chemical.Substances.Hydrogen_aqueous(),
+      use_mass_start=false,
+      amountOfSubstance_start(displayUnit="mmol") = 1e-05) annotation (Placement(transformation(extent={{24,-76},{44,-56}})));
+    Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-36,-22},{-16,-2}})));
+    Processes.GasVolatility gasVolatility annotation (Placement(transformation(extent={{38,-46},{58,-26}})));
   equation
-    connect(H.solution, solution1.solution) annotation (Line(points={{-2,-22},{
-            -2,-30},{24.4,-30},{24.4,-59.34}},
+    connect(H.solution, solution1.solution) annotation (Line(points={{0,-58},{0,-26},{-42,-26},{-42,-102},{-2,-102},{-2,-100},{38.8,-100},{38.8,-95.34}},
                                        color={127,127,0}));
   connect(electrone.solution, cathode.solution) annotation (Line(
       points={{-74,32},{-74,-18},{-64,-18},{-64,-42.84},{-54.4,-42.84}},
@@ -4097,31 +4141,12 @@ extends Modelica.Icons.ExamplesPackage;
     connect(electrone1.pin, ground.p) annotation (Line(
         points={{78,-6.2},{92,-6.2},{92,74},{72,74}},
         color={0,0,255}));
-    connect(H2O.solution, solution1.solution) annotation (Line(points={{-2,-54},{-2,-59.34},{24.4,-59.34}},
+    connect(H2O.solution, solution1.solution) annotation (Line(points={{-2,-82},{-2,-100},{38.8,-100},{38.8,-95.34}},
                                         color={127,127,0}));
-    connect(electrodeReaction.products[1], H2.inlet) annotation (Line(
-        points={{52,16},{52,42},{44,42}},
-        color={158,66,200},
-        thickness=0.5));
     connect(gases.solution, H2.solution) annotation (Line(points={{39.6,22.36},{40,22.36},{40,32}}, color={127,127,0}));
     connect(O2_.solution, gases.solution) annotation (Line(points={{-8,36},{-8,18},{39.6,18},{39.6,22.36}}, color={127,127,0}));
     connect(electrodeReaction1.products[1], H2O.inlet) annotation (Line(
-        points={{-40,-10},{-40,-44},{-6,-44}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(O2_.outlet, electrodeReaction1.substrates[1])
-      annotation (Line(
-        points={{-24,46},{-40.3333,46},{-40.3333,10}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(electrone.outlet, electrodeReaction1.substrates[2])
-      annotation (Line(
-        points={{-58,42},{-46,42},{-46,14},{-40,14},{-40,10}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(splitterT1.outletA, electrodeReaction1.substrates[3])
-      annotation (Line(
-        points={{10,6},{-16,6},{-16,14},{-39.6667,14},{-39.6667,10}},
+        points={{-40,-10},{-40,-72},{-6,-72}},
         color={158,66,200},
         thickness=0.5));
     connect(splitterT1.outletB, electrodeReaction.substrates[1])
@@ -4135,8 +4160,46 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     connect(H.outlet, splitterT1.inlet) annotation (Line(
-        points={{14,-12},{20,-12},{20,-4}},
+        points={{16,-48},{16,-12},{20,-12},{20,-4}},
         color={158,66,200},
+        thickness=0.5));
+    connect(O2_aq.solution, solution1.solution) annotation (Line(points={{-24,-62},{-24,-95.34},{38.8,-95.34}}, color={127,127,0}));
+    connect(H2_aq.solution, solution1.solution) annotation (Line(points={{28,-76},{28,-100},{38.8,-100},{38.8,-95.34}}, color={127,127,0}));
+    connect(O2_aq.outlet, electrodeReaction1.substrates[1])
+      annotation (Line(
+        points={{-8,-52},{-16,-52},{-16,16},{-40.3333,16},{-40.3333,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrone.outlet, electrodeReaction1.substrates[2])
+      annotation (Line(
+        points={{-58,42},{-40,42},{-40,14},{-40,14},{-40,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(splitterT1.outletA, electrodeReaction1.substrates[3])
+      annotation (Line(
+        points={{10,6},{-26,6},{-26,18},{-39.6667,18},{-39.6667,10}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubility.outlet, O2_aq.inlet) annotation (Line(
+        points={{-26,-22},{-26,-52},{-28,-52}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(gasSolubility.inlet, O2_.outlet) annotation (Line(
+        points={{-26,-2},{-26,46},{-24,46}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(electrodeReaction.products[1], H2_aq.inlet)
+      annotation (Line(
+        points={{52,16},{38,16},{38,-48},{20,-48},{20,-66},{24,-66}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(H2_aq.outlet, gasVolatility.inlet) annotation (Line(
+        points={{44,-66},{48,-66},{48,-46}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasVolatility.outlet, H2.inlet) annotation (Line(
+        points={{48,-26},{50,-26},{50,42},{44,42}},
+        color={200,66,175},
         thickness=0.5));
     annotation (
     experiment(StopTime=1),      Documentation(revisions="<html>

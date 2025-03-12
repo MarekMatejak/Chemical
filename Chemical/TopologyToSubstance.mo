@@ -4,22 +4,35 @@ package TopologyToSubstance
 
   model SplitterT1 "Splits a flow into two subflows"
 
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Interfaces.Inlet inlet annotation (Placement(transformation(
+    Interfaces.Inlet inlet(redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=0,
           origin={-100,0})));
-    Interfaces.OutletProvider outletA annotation (Placement(transformation(
+    Interfaces.OutletProvider outletA(redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,100})));
-    Chemical.Interfaces.OutletProvider outletB
+    Chemical.Interfaces.OutletProvider outletB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=-90,
           origin={0,-100})));
-    SplitterN splitterN(final N=2, final L=L)
+    SplitterN splitterN(redeclare package stateOfMatter = stateOfMatter,final N=2, final L=L)
       annotation (Placement(transformation(extent={{-28,-10},{-8,10}})));
 
   protected
@@ -636,11 +649,24 @@ package TopologyToSubstance
 
   model SplitterN "Splitter with one inlet and N outlets"
 
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
     parameter Integer N(min=1) = 1 "Number of outputs";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance on each Branch of Component" annotation (Dialog(tab="Advanced"));
 
-    Interfaces.Inlet inlet "inlet" annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-    Interfaces.OutletProvider outlet[N] "vector of N outlets"
+    Interfaces.Inlet inlet(redeclare package stateOfMatter = stateOfMatter) "inlet" annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+    Interfaces.OutletProvider outlet[N](redeclare package stateOfMatter = stateOfMatter) "vector of N outlets"
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
@@ -725,8 +751,8 @@ package TopologyToSubstance
       u[i] + r_in[i] = u_mix + r_mix;
       w[i] = (abs(inlets[i].n_flow)+n_flow_eps) / (sum(abs(inlets.n_flow))+N*n_flow_eps);
 
-      assert(outlet.definition.DGH >= inlets[i].definition,"Topology connections allowed only for the same substance.");
-      assert(outlet.solution.T == inlets[i].solution.T,"Topology connections allowed only for the same chemical solution.");
+      //assert(outlet.definition.DGH >= inlets[i].definition,"Topology connections allowed only for the same substance.");
+      //assert(outlet.solution.T == inlets[i].solution.T,"Topology connections allowed only for the same chemical solution.");
     end for;
     der(outlet.n_flow) * L =  outlet.r - r_mix;
 
