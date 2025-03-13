@@ -184,7 +184,7 @@ package Interfaces "Chemical interfaces"
 </html>"));
   end Inlet;
 
-  connector Outlet "Outlet"
+  connector OutletX "Outlet"
 
     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter
@@ -251,9 +251,9 @@ package Interfaces "Chemical interfaces"
 <p>DfS .. free entropy of formation of the substance </p>
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
-  end Outlet;
+  end OutletX;
 
-  connector InletProvider "Inlet providing substance and solution definition"
+  connector InletProviderX "Inlet providing substance and solution definition"
 
     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter
@@ -320,7 +320,7 @@ package Interfaces "Chemical interfaces"
 <p>DfS .. free entropy of formation of the substance </p>
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
-  end InletProvider;
+  end InletProviderX;
 
   partial package StateOfMatter "Abstract package for all state of matters"
 
@@ -2097,17 +2097,29 @@ end solution_temperature_;
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
+     replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model of outlet"
+      annotation (choices(
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterOut =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
@@ -2121,8 +2133,10 @@ end solution_temperature_;
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
+          stateOfMatterIn)                                                           annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.OutletProvider outlet(redeclare package stateOfMatter =
+          stateOfMatterOut)                                                                     annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
         "Molar flow through component";
@@ -2132,21 +2146,21 @@ end solution_temperature_;
     Modelica.Units.SI.Molality b_in, b_out;
     Modelica.Units.SI.MassFraction X_in, X_out;
 
-    // inlet state quantities
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
     Modelica.Units.SI.ChemicalPotential uPure_in;
-    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.state.u/(Modelica.Constants.R*inlet.solution.T) "Electro-chemical potential of substance entering divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_in(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
+    Modelica.Units.SI.ChemicalPotential u_in=inlet.state.u "Electro-chemical potential of substance entering";
+    Modelica.Units.SI.ChemicalPotential u0_in "Electro-chemical potential of pure substance entering";
     Modelica.Units.SI.MolarEnthalpy h_in=inlet.state.h "Enthalpy of substance enetering";
 
     //outlet state quantities
     Modelica.Units.SI.ChemicalPotential uPure_out;
-    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_out(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
+    Modelica.Units.SI.ChemicalPotential u_out "Electro-chemical potential of substance exiting";
+    Modelica.Units.SI.ChemicalPotential u0_out "Electro-chemical potential of pure substance exiting";
     Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
 
+    Modelica.Units.SI.ChemicalPotential du "Electro-chemical gradient";
     Chemical.Utilities.Units.URT duRT;
 
   initial equation
@@ -2159,9 +2173,10 @@ end solution_temperature_;
     end if;
   equation
 
-  //  assert(duRT>=0,"SISO suports only forward flow");
+    //assert(duRT>=0,"SISO suports only forward flow");
 
-    duRT = uRT_in - uRT_out;
+    duRT = u_in/(Modelica.Constants.R*inlet.solution.T) - u_out/(Modelica.Constants.R*outlet.solution.T);
+    du = u_in - u_out;
 
     c_in = x_in * inlet.solution.n/inlet.solution.V;
     c_out = x_out * outlet.solution.n/outlet.solution.V;
@@ -2169,45 +2184,46 @@ end solution_temperature_;
     b_in = x_in * inlet.solution.n/inlet.solution.m;
     b_out = x_out * outlet.solution.n/outlet.solution.m;
 
-    x_in = exp(uRT_in-u0RT_in);
-    x_out = exp(uRT_out-u0RT_out);
+    x_in = exp((u_in-u0_in)/(Modelica.Constants.R*inlet.solution.T));
+    x_out = exp((u_out-u0_out)/(Modelica.Constants.R*outlet.solution.T));
 
-    X_in = b_in / stateOfMatter.specificAmountOfParticles(
+    X_in = b_in / stateOfMatterIn.specificAmountOfParticles(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    X_out = b_out / stateOfMatter.specificAmountOfParticles(
+    X_out = b_out / stateOfMatterOut.specificAmountOfParticles(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
       outlet.solution.v,
       outlet.solution.I);
 
-    uPure_in = stateOfMatter.electroChemicalPotentialPure(
+    uPure_in = stateOfMatterIn.electroChemicalPotentialPure(
       inlet.definition,
       inlet.solution.T,
       inlet.solution.p,
       inlet.solution.v,
       inlet.solution.I);
-    uPure_out = stateOfMatter.electroChemicalPotentialPure(
+    uPure_out = stateOfMatterOut.electroChemicalPotentialPure(
       outlet.definition,
       outlet.solution.T,
       outlet.solution.p,
       outlet.solution.v,
       outlet.solution.I);
 
-    u0RT_in = uPure_in/(Modelica.Constants.R*inlet.solution.T);
-    u0RT_out = uPure_out/(Modelica.Constants.R*outlet.solution.T);
+    u0_in = uPure_in;
+    u0_out = uPure_out;
 
     inlet.n_flow + outlet.n_flow = 0;
     outlet.r = inlet.r - der(inlet.n_flow) * L;
 
-    outlet.state.u = uRT_out*Modelica.Constants.R*outlet.solution.T;
+    outlet.state.u = u_out;
     outlet.state.h = h_out;
 
     h_out = h_in;
+
 
     annotation (Documentation(info="<html>
 <p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
@@ -2215,564 +2231,238 @@ end solution_temperature_;
 </html>"));
   end SISO;
 
-  partial model SISOProvideOut "Base Model with basic flow eqautions for SISO providing substance and solution definition at outlet"
-    import Chemical;
-    import Chemical.Utilities.Types.InitializationMethods;
+  partial model PartialChangeSolution "Substance between different chemical solutions"
+    extends Chemical.Interfaces.SISO;
+    extends Interfaces.ConditionalKinetics(k_forward=1);
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
-    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow"));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
-    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
 
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
+              {112,-22}}),                                                                                iconTransformation(extent={{92,-42},
+              {112,-22}})));
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.OutletProvider outlet(redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
-
-    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
-        "Molar flow through component";
-
-    Modelica.Units.SI.MoleFraction x_in, x_out;
-    Modelica.Units.SI.Concentration c_in, c_out;
-    Modelica.Units.SI.Molality b_in, b_out;
-    Modelica.Units.SI.MassFraction X_in, X_out;
-
-  protected
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Modelica.Units.SI.ChemicalPotential uPure_in;
-    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.state.u/(Modelica.Constants.R*inlet.solution.T) "Electro-chemical potential of substance entering divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_in(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_in=inlet.state.h "Enthalpy of substance enetering";
-
-    //outlet state quantities
-    Modelica.Units.SI.ChemicalPotential uPure_out;
-    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_out(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
-
-    Chemical.Utilities.Units.URT duRT;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      n_flow = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(n_flow) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(n_flow) = 0;
-    end if;
   equation
-
-    //assert(duRT>=0,"SISO suports only forward flow");
-
-    duRT = uRT_in - uRT_out;
-
-    c_in = x_in * inlet.solution.n/inlet.solution.V;
-    c_out = x_out * outlet.solution.n/outlet.solution.V;
-
-    b_in = x_in * inlet.solution.n/inlet.solution.m;
-    b_out = x_out * outlet.solution.n/outlet.solution.m;
-
-    x_in = exp(uRT_in-u0RT_in);
-    x_out = exp(uRT_out-u0RT_out);
-
-    X_in = b_in / stateOfMatter.specificAmountOfParticles(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    X_out = b_out / stateOfMatter.specificAmountOfParticles(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    uPure_in = stateOfMatter.electroChemicalPotentialPure(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    uPure_out = stateOfMatter.electroChemicalPotentialPure(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    u0RT_in = uPure_in/(Modelica.Constants.R*inlet.solution.T);
-    u0RT_out = uPure_out/(Modelica.Constants.R*outlet.solution.T);
-
-    inlet.n_flow + outlet.n_flow = 0;
-    outlet.r = inlet.r - der(inlet.n_flow) * L;
-
-    outlet.state.u = uRT_out*Modelica.Constants.R*outlet.solution.T;
-    outlet.state.h = h_out;
-
-    h_out = h_in;
 
     outlet.definition = inlet.definition;
-    outlet.solution = inlet.solution;
 
-    annotation (Documentation(info="<html>
-<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
-<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
+    outlet.solution.T = solution.T;
+    outlet.solution.p = solution.p;
+    outlet.solution.v = solution.v;
+    outlet.solution.n = solution.n;
+    outlet.solution.m = solution.m;
+    outlet.solution.V = solution.V;
+    outlet.solution.G = solution.G;
+    outlet.solution.Q = solution.Q;
+    outlet.solution.I = solution.I;
+
+    solution.dH = 0;
+    solution.i = 0;
+    solution.Qj = 0;
+    solution.Ij = 0;
+    solution.nj = 0;
+    solution.mj = 0;
+    solution.Vj = 0;
+    solution.Gj = 0;
+    solution.dV = 0;
+
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name")}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
 </html>"));
-  end SISOProvideOut;
+  end PartialChangeSolution;
 
-  partial model SISOVertical "Base Model with basic flow eqautions for SISO"
-    import Chemical;
-    import Chemical.Utilities.Types.InitializationMethods;
-
-    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of inlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of outlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
-    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow"));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
-    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
+  partial model PartialChangeState
+    extends Chemical.Interfaces.SISO;
+    extends Interfaces.ConditionalKinetics(k_forward=1);
 
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(
-          extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={0,100})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter=stateOfMatterOut) annotation (Placement(transformation(
-          extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={0,-100})));
 
+    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
+              {112,-22}}),                                                                                iconTransformation(extent={{92,-42},
+              {112,-22}})));
 
-    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow "Molar flow through component";
+    parameter stateOfMatterOut.SubstanceDataParameters outputSubstanceData
+        annotation (choicesAllMatching = true);
 
-    Modelica.Units.SI.MoleFraction x_in, x_out;
-    Modelica.Units.SI.Concentration c_in, c_out;
-    Modelica.Units.SI.Molality b_in, b_out;
-    Modelica.Units.SI.MassFraction X_in, X_out;
-
-    Modelica.Units.SI.ChemicalPotential du;
-
-    // inlet state quantities
-  protected
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Modelica.Units.SI.ChemicalPotential uPure_in;
-    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.state.u/(Modelica.Constants.R*inlet.solution.T)
-      "Electro-chemical potential of substance entering divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_in(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_in=inlet.state.h "Enthalpy of substance enetering";
-
-    //outlet state quantities
-    Modelica.Units.SI.ChemicalPotential uPure_out;
-    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_out(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
-
-    Chemical.Utilities.Units.URT duRT;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      n_flow = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(n_flow) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(n_flow) = 0;
-    end if;
   equation
 
-    //assert(duRT>=0,"SISO suports only forward flow");
+    outlet.definition = outputSubstanceData;
 
-    du = inlet.state.u - outlet.state.u;
-    duRT = uRT_in - uRT_out;
+    outlet.solution.T = solution.T;
+    outlet.solution.p = solution.p;
+    outlet.solution.v = solution.v;
+    outlet.solution.n = solution.n;
+    outlet.solution.m = solution.m;
+    outlet.solution.V = solution.V;
+    outlet.solution.G = solution.G;
+    outlet.solution.Q = solution.Q;
+    outlet.solution.I = solution.I;
 
-    c_in = x_in * inlet.solution.n/inlet.solution.V;
-    c_out = x_out * outlet.solution.n/outlet.solution.V;
+    solution.dH = 0;
+    solution.i = 0;
+    solution.Qj = 0;
+    solution.Ij = 0;
+    solution.nj = 0;
+    solution.mj = 0;
+    solution.Vj = 0;
+    solution.Gj = 0;
+    solution.dV = 0;
 
-    b_in = x_in * inlet.solution.n/inlet.solution.m;
-    b_out = x_out * outlet.solution.n/outlet.solution.m;
 
-    x_in = exp(uRT_in-u0RT_in);
-    x_out = exp(uRT_out-u0RT_out);
-
-    X_in = b_in / stateOfMatterIn.specificAmountOfParticles(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    X_out = b_out / stateOfMatterOut.specificAmountOfParticles(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    uPure_in = stateOfMatterIn.electroChemicalPotentialPure(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    uPure_out = stateOfMatterOut.electroChemicalPotentialPure(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    u0RT_in = uPure_in/(Modelica.Constants.R*inlet.solution.T);
-    u0RT_out = uPure_out/(Modelica.Constants.R*outlet.solution.T);
-
-    inlet.n_flow + outlet.n_flow = 0;
-    outlet.r = inlet.r - der(inlet.n_flow) * L;
-
-    outlet.state.u = uRT_out*Modelica.Constants.R*outlet.solution.T;
-    outlet.state.h = h_out;
-
-    h_out = h_in;
-
-    annotation (Documentation(info="<html>
-<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
-<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name")}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
 </html>"));
-  end SISOVertical;
-
-  partial model SISOProvideOutVertical "Base Model with basic flow eqautions for SISO providing substance and solution definition at outlet"
-    import Chemical;
-    import Chemical.Utilities.Types.InitializationMethods;
-
-    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of inlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of outlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
-    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow"));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
-    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
-
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(
-          extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={0,100})));
-    Chemical.Interfaces.OutletProvider outlet(redeclare package stateOfMatter=stateOfMatterOut) annotation (Placement(transformation(
-          extent={{-20,-20},{20,20}},
-          rotation=270,
-          origin={0,-100})));
-
-    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
-        "Molar flow through component";
-
-    Modelica.Units.SI.MoleFraction x_in, x_out;
-    Modelica.Units.SI.Concentration c_in, c_out;
-    Modelica.Units.SI.Molality b_in, b_out;
-    Modelica.Units.SI.MassFraction X_in, X_out;
-
-    Interfaces.SolutionState outletSolution;
-    stateOfMatterOut.SubstanceData outletSubstanceData;
-  protected
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Modelica.Units.SI.ChemicalPotential uPure_in;
-    Chemical.Utilities.Units.URT uRT_in(unit="1")=inlet.state.u/(Modelica.Constants.R*inlet.solution.T) "Electro-chemical potential of substance entering divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_in(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_in=inlet.state.h "Enthalpy of substance enetering";
-
-    //outlet state quantities
-    Modelica.Units.SI.ChemicalPotential uPure_out;
-    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_out(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
-
-    Chemical.Utilities.Units.URT duRT;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      n_flow = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(n_flow) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(n_flow) = 0;
-    end if;
-  equation
-    //assert(duRT>=0,"SISO suports only forward flow");
-
-    duRT = uRT_in - uRT_out;
-
-    c_in = x_in * inlet.solution.n/inlet.solution.V;
-    c_out = x_out * outlet.solution.n/outlet.solution.V;
-
-    b_in = x_in * inlet.solution.n/inlet.solution.m;
-    b_out = x_out * outlet.solution.n/outlet.solution.m;
-
-    x_in = exp(uRT_in-u0RT_in);
-    x_out = exp(uRT_out-u0RT_out);
-
-    X_in = b_in / stateOfMatterIn.specificAmountOfParticles(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    X_out = b_out / stateOfMatterOut.specificAmountOfParticles(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    uPure_in = stateOfMatterIn.electroChemicalPotentialPure(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    uPure_out = stateOfMatterOut.electroChemicalPotentialPure(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    u0RT_in = uPure_in/(Modelica.Constants.R*inlet.solution.T);
-    u0RT_out = uPure_out/(Modelica.Constants.R*outlet.solution.T);
-
-    inlet.n_flow + outlet.n_flow = 0;
-    outlet.r = inlet.r - der(inlet.n_flow) * L;
-
-    outlet.state.u = uRT_out*Modelica.Constants.R*outlet.solution.T;
-    outlet.state.h = h_out;
-
-    h_out = h_in;
-
-    outlet.definition = outletSubstanceData;
-    outlet.solution = outletSolution;
-
-    annotation (Documentation(info="<html>
-<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
-<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
-</html>"));
-  end SISOProvideOutVertical;
-
-  partial model SISOVerticalB "Base Model with basic flow eqautions for SISO"
-    import Chemical;
-    import Chemical.Utilities.Types.InitializationMethods;
-
-    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of inlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of outlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
-    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow"));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
-    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the molar flow" annotation (Dialog(tab="Advanced"));
-
-    Chemical.Interfaces.Outlet outlet(
-                                    redeclare package stateOfMatter=stateOfMatterOut) annotation (Placement(transformation(
-          extent={{20,-20},{-20,20}},
-          rotation=270,
-          origin={0,100})));
-    Chemical.Interfaces.Inlet  inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(
-          extent={{20,-20},{-20,20}},
-          rotation=270,
-          origin={0,-100})));
-
-    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow "Molar flow through component";
-
-    Modelica.Units.SI.MoleFraction x_in, x_out;
-    Modelica.Units.SI.Concentration c_in, c_out;
-    Modelica.Units.SI.Molality b_in, b_out;
-    Modelica.Units.SI.MassFraction X_in, X_out;
-
-    Modelica.Units.SI.ChemicalPotential du;
-
-    // inlet state quantities
-  protected
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Modelica.Units.SI.ChemicalPotential uPure_in;
-    Chemical.Utilities.Units.URT uRT_in(unit="1") = inlet.state.u/(Modelica.Constants.R*inlet.solution.T)
-      "Electro-chemical potential of substance entering divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_in(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_in=inlet.state.h "Enthalpy of substance enetering";
-
-    //outlet state quantities
-    Modelica.Units.SI.ChemicalPotential uPure_out;
-    Chemical.Utilities.Units.URT uRT_out(unit="1") "Electro-chemical potential of substance exiting divided by (R*T)";
-    Chemical.Utilities.Units.URT u0RT_out(unit="1") "Electro-chemical potential of pure substance entering divided by (R*T)";
-    Modelica.Units.SI.MolarEnthalpy h_out "Enthalpy of substance exiting";
-
-    Chemical.Utilities.Units.URT duRT;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      n_flow = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(n_flow) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(n_flow) = 0;
-    end if;
-  equation
-
-    //assert(duRT>=0,"SISO suports only forward flow");
-
-    du =inlet.state.u - outlet.state.u;
-    duRT = uRT_in - uRT_out;
-
-    c_in =x_in*inlet.solution.n/inlet.solution.V;
-    c_out =x_out*outlet.solution.n/outlet.solution.V;
-
-    b_in =x_in*inlet.solution.n/inlet.solution.m;
-    b_out =x_out*outlet.solution.n/outlet.solution.m;
-
-    x_in = exp(uRT_in-u0RT_in);
-    x_out = exp(uRT_out-u0RT_out);
-
-    X_in =b_in/stateOfMatterIn.specificAmountOfParticles(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    X_out =b_out/stateOfMatterOut.specificAmountOfParticles(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    uPure_in =stateOfMatterIn.electroChemicalPotentialPure(
-      inlet.definition,
-      inlet.solution.T,
-      inlet.solution.p,
-      inlet.solution.v,
-      inlet.solution.I);
-    uPure_out =stateOfMatterOut.electroChemicalPotentialPure(
-      outlet.definition,
-      outlet.solution.T,
-      outlet.solution.p,
-      outlet.solution.v,
-      outlet.solution.I);
-
-    u0RT_in =uPure_in/(Modelica.Constants.R*inlet.solution.T);
-    u0RT_out =uPure_out/(Modelica.Constants.R*outlet.solution.T);
-
-    inlet.n_flow + outlet.n_flow = 0;
-    outlet.r = inlet.r - der(inlet.n_flow)*L;
-
-    outlet.state.u = uRT_out*Modelica.Constants.R*outlet.solution.T;
-    outlet.state.h = h_out;
-
-    h_out = h_in;
-
-    annotation (Documentation(info="<html>
-<p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
-<p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
-</html>"));
-  end SISOVerticalB;
+  end PartialChangeState;
 
   partial model MIMO "Chemical Reaction"
     import Chemical;
@@ -2820,7 +2510,8 @@ end solution_temperature_;
 
     Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
 
-    Chemical.Interfaces.Inlet substrates[nS](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
+    Chemical.Interfaces.Inlet substrates[nS](redeclare package stateOfMatter =
+          stateOfMatter)                                                                    annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={-100,0}), iconTransformation(
@@ -2828,7 +2519,9 @@ end solution_temperature_;
           rotation=180,
           origin={-100,0})));
 
-    Chemical.Interfaces.Outlet products[nP](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
+    Chemical.Interfaces.OutletProvider products[nP](redeclare package
+        stateOfMatter =
+          stateOfMatter)                                                                           annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={100,0}), iconTransformation(
@@ -2845,7 +2538,6 @@ end solution_temperature_;
   protected
     outer DropOfCommons dropOfCommons;
     //Modelica.Units.SI.ChemicalPotential du;
-
 
   initial equation
     if initN_flow == InitializationMethods.state then
@@ -2884,8 +2576,6 @@ end solution_temperature_;
     Sx = exp(s * ((substrates.state.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution.T)));
     Px = exp((p * ((products.state.u - uPure_products)./(Modelica.Constants.R*products.solution.T))));
     Kx = exp(- ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution.T)))));
-
-
 
     //reaction molar rates
     rr*s = substrates.n_flow;
@@ -2967,148 +2657,57 @@ end solution_temperature_;
 </html>"));
   end MIMO;
 
-  partial model MIMOProvideOut "Chemical Reaction"
-    import Chemical;
-    import Chemical.Utilities.Types.InitializationMethods;
+  partial model PartialReaction "Chemical Reaction"
+    extends Chemical.Interfaces.MIMO;
+    extends Interfaces.ConditionalKinetics(k_forward=1);
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
-    parameter InitializationMethods initN_flow =Chemical.Utilities.Types.InitializationMethods.none  "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow"));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
-    parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-      annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
-      annotation(Dialog(tab="Advanced"));
-
-    parameter Integer nS=0 "Number of substrate types"
-      annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
-    parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
-      "Stoichiometric reaction coefficient for substrates"
-      annotation (HideResult=true);
-
-    parameter Integer nP=0 "Number of product types"
-      annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
-    parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
-      "Stoichiometric reaction coefficients for products"
-      annotation (HideResult=true);
-
-    Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
-
-    Chemical.Interfaces.Inlet substrates[nS](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
-          extent={{10,-10},{-10,10}},
-          rotation=180,
-          origin={-100,0}), iconTransformation(
-          extent={{10,-10},{-10,10}},
-          rotation=180,
-          origin={-100,0})));
-
-    Chemical.Interfaces.OutletProvider products[nP](redeclare package stateOfMatter=stateOfMatter) annotation (Placement(transformation(
-          extent={{10,-10},{-10,10}},
-          rotation=180,
-          origin={100,0}), iconTransformation(
-          extent={{10,-10},{-10,10}},
-          rotation=180,
-          origin={100,0})));
-
-    Modelica.Units.SI.MolarEnthalpy h_mix;
-
-    Real duRT, du, dr, Sx,Px,Kx;
-
-    Modelica.Units.SI.ChemicalPotential uPure_substrates[nS];
-    Modelica.Units.SI.ChemicalPotential uPure_products[nP];
-  protected
-    outer DropOfCommons dropOfCommons;
-    //Modelica.Units.SI.ChemicalPotential du;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      rr = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(rr) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(rr) = 0;
-    end if;
+    parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
+     annotation (choicesAllMatching = true);
 
   equation
-    //the main equation
-    //assert(duRT>=0,"MIMO suports only forward flow");
 
-    duRT = ((s * (substrates.state.u ./ (Modelica.Constants.R*substrates.solution.T))) - (p * (products.state.u ./ (Modelica.Constants.R*products.solution.T))));
-    du = (s * substrates.state.u) - (p * products.state.u);
-
-    for i in 1:nS loop
-     uPure_substrates[i] = stateOfMatter.electroChemicalPotentialPure(
-      substrates[i].definition,
-      substrates[i].solution.T,
-      substrates[i].solution.p,
-      substrates[i].solution.v,
-      substrates[i].solution.I);
-    end for;
-
-    for i in 1:nP loop
-     uPure_products[i] = stateOfMatter.electroChemicalPotentialPure(
-     products[i].definition,
-     products[i].solution.T,
-     products[i].solution.p,
-     products[i].solution.v,
-     products[i].solution.I);
-    end for;
-
-    Sx = exp(s * ((substrates.state.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution.T)));
-    Px = exp((p * ((products.state.u - uPure_products)./(Modelica.Constants.R*products.solution.T))));
-    Kx = exp(- ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution.T)))));
-
-    //reaction molar rates
-    rr*s = substrates.n_flow;
-    rr*p = -products.n_flow;
-
-    products.state.h = h_mix*ones(nP);
-
-    if
-      (rr>0) then
-      h_mix*(products.n_flow*ones(nP)) + substrates.n_flow*substrates.state.h = 0;
-    else
-      h_mix = 0;
-    end if;
-
-    dr = (s * substrates.r) - (p * products.r);
-
-    if nP>0 then
-      (p * products.r) = (s * substrates.r)  -  der(rr)*L;
-
-      for i in 2:nP loop
-        //first product is based on inertial potential,
-        //other products are provided as source
-        der(products[i].state.u).*TC = products[i].r;
-      end for;
+    products.definition = productsSubstanceData;
+    if nS>0 then
+      products.solution = fill(substrates[1].solution,nP);
     end if;
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}})),
+            100,100}}),   graphics={
+          Rectangle(
+            extent={{-100,-30},{100,30}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name")}),
       Documentation(revisions="<html>
-<p><i>2013-2025 by </i>Marek Mateják </p>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
-<h4><span style=\"color: #008000\">Notations</span></h4>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
 <td><p>A<sub>i</sub></p></td>
 <td><p>i-th substance</p></td>
@@ -3155,5 +2754,5 @@ end solution_temperature_;
 </tr>
 </table>
 </html>"));
-  end MIMOProvideOut;
+  end PartialReaction;
 end Interfaces;

@@ -1,117 +1,8 @@
 within Chemical;
 package Processes
 
-  model FastReaction "Chemical Reaction"
-    import Chemical;
-    extends Interfaces.MIMO;
-
-    parameter Real kC = 1;
-
-  equation
-
-    rr = kC * du;
-
-
-
-    annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Rectangle(
-            extent={{-100,-30},{100,30}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name"),
-          Polygon(
-            points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid)}),
-      Documentation(revisions="<html>
-<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
-<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
-<td><p>dissociation constant</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
-<td><p>molar Gibb&apos;s energy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
-<td><p>molar enthalpy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
-<td><p>molar entropy of the reaction</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>A<sub>i</sub></p></td>
-<td><p>i-th substance</p></td>
-</tr>
-<tr>
-<td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>K</p></td>
-<td><p>dissociation constant (activity based)</p></td>
-</tr>
-<tr>
-<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
-<td><p>activity of the substance A</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub></p></td>
-<td><p>activity coefficient of the substance A</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i</sub></p></td>
-<td><p>mole fraction of the substance A</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
-<td><p>molar enthalpy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
-<td><p>molar Gibbs energy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
-<td><p>molar entropy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by reaction</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-  end FastReaction;
-
   model Reaction "Chemical Reaction"
-    import Chemical;
-    extends Interfaces.MIMO;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
+    extends Interfaces.PartialReaction;
 
     //Real rr_exact2,  kb;
   equation
@@ -219,9 +110,114 @@ package Processes
 </html>"));
   end Reaction;
 
+  model FastReaction "Chemical Reaction"
+    extends Interfaces.PartialReaction;
+
+    parameter Real kC = 1;
+
+  equation
+
+    rr = kC * du;
+
+
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Rectangle(
+            extent={{-100,-30},{100,30}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name"),
+          Polygon(
+            points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+  end FastReaction;
+
   model ForwardReaction "Chemical Reaction"
-    extends Interfaces.MIMO;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
+    extends Interfaces.PartialReaction;
 
   equation
 
@@ -341,8 +337,7 @@ package Processes
 
   model Diffusion "Solute diffusion"
     extends Icons.Diffusion;
-    extends Interfaces.SISO;
-    extends Interfaces.ConditionalKinetics;
+    extends Interfaces.PartialChangeSolution;
 
 
   equation
@@ -361,8 +356,8 @@ package Processes
 
     extends Icons.GasSolubility;
 
-    extends Interfaces.SISOVertical(redeclare package stateOfMatterIn=Chemical.Interfaces.IdealGas);
-    extends Interfaces.ConditionalKinetics;
+    extends Interfaces.PartialChangeState(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas);
 
 
   equation
@@ -443,113 +438,12 @@ package Processes
 </html>"));
   end GasSolubility;
 
-  model GasSolubilityProvideOut "Henry's law of gas solubility in liquid."
-
-    extends Icons.GasSolubility;
-
-    extends Interfaces.SISOProvideOutVertical;
-    extends Interfaces.ConditionalKinetics;
-
-    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-    parameter stateOfMatterOut.SubstanceDataParameters outletSubstance
-      annotation (choicesAllMatching = true);
-
-
-  equation
-
-    n_flow = kf * x_in * ( 1 -  exp(-duRT));
-
-    outletSubstanceData=outletSubstance;
-    outletSolution=Interfaces.SolutionState.'constructor'.fromSolutionPort(solution);
-
-    solution.dH = 0;
-    solution.i = 0;
-    solution.Qj = 0;
-    solution.Ij = 0;
-    solution.nj = 0;
-    solution.mj = 0;
-    solution.Vj = 0;
-    solution.Gj = 0;
-    solution.dV = 0;
-
-    annotation (Documentation(revisions="<html>
-<p><i>2009-2015 </i></p>
-<p><i>by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Gaseuous substance dissolition in liquid (Henry&apos;s law, Raoult&apos;s law, Nernst dissolution in one). </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K<sub>H</sub> =x<sub>L</sub> / x<sub>g</sub>&nbsp;</p></td>
-<td><p>Henry&apos;s coefficient, Raoult&apos;s coefficient</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>sol</sub>G = &Delta;<sub>f</sub>G<sub>L </sub>- &Delta;<sub>f</sub>G<sub>g </sub>= &Delta;<sub>sol</sub>H - T&middot;&Delta;<sub>sol</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K<sub>H</sub>&middot; (f<sub>L</sub> / f<sub>g</sub>)) </p></td>
-<td><p>molar Gibb&apos;s energy of the dissolition</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>sol</sub>H = &Delta;<sub>f</sub>H<sub>L </sub>- &Delta;<sub>f</sub>H<sub>g</sub></p></td>
-<td><p>molar enthalpy of the dissolition</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>sol</sub>S = &Delta;<sub>f</sub>S<sub>L</sub> - &Delta;<sub>f</sub>S<sub>g</sub> = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>sol</sub>&omega;) </p></td>
-<td><p>molar entropy of the dissolition</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>x<sub>L</sub></p></td>
-<td><p>mole fraction of the substance in the liquid</p></td>
-</tr>
-<tr>
-<td><p>x<sub>g</sub></p></td>
-<td><p>mole fraction of the substance in the gas</p></td>
-</tr>
-<tr>
-<td><p>f<sub>L</sub></p></td>
-<td><p>activity coefficient of the substance in the liquid</p></td>
-</tr>
-<tr>
-<td><p>f<sub>g</sub></p></td>
-<td><p>activity coefficient of the substance in the gas</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>L</sub></p></td>
-<td><p>molar enthalpy of formation of the substance in the liquid</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>g</sub></p></td>
-<td><p>molar enthalpy of formation of the substance in the gas</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>L</sub></p></td>
-<td><p>molar entropy of formation of the substance in the liquid</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>g</sub></p></td>
-<td><p>molar entropy of formation of the substance in the gas</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>sol</sub>G</p></td>
-<td><p>molar Gibbs energy of dissolvation of the substance in the liquid</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>sol</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by dissolution</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-  end GasSolubilityProvideOut;
-
   model FastGasSolubility "Henry's law of gas solubility in liquid."
 
     extends Icons.GasSolubility;
 
-    extends Interfaces.SISOVertical(redeclare package stateOfMatterIn=Chemical.Interfaces.IdealGas);
+    extends Interfaces.PartialChangeState(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas);
 
     parameter Real kC = 1;
 
@@ -633,8 +527,8 @@ package Processes
 
     extends Icons.GasSolubility;
 
-    extends Interfaces.SISOVerticalB(redeclare package stateOfMatterOut=Chemical.Interfaces.IdealGas);
-    extends Interfaces.ConditionalKinetics;
+    extends Interfaces.PartialChangeState(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas);
 
   equation
 
@@ -714,8 +608,7 @@ package Processes
 
   model Membrane "Passive transport of the substance through semipermeable membrane"
     extends Icons.Membrane;
-     extends Interfaces.SISO;
-    extends Interfaces.ConditionalKinetics;
+     extends Interfaces.PartialChangeSolution;
 
 
   equation
@@ -744,11 +637,12 @@ package Processes
   end Membrane;
 
   model Pump "Prescribed sunstance molar flow"
-    extends Interfaces.SISO;
+    extends Interfaces.PartialChangeSolution;
     extends Interfaces.ConditionalSubstanceFlow;
 
   equation
     n_flow = q;
+
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -776,41 +670,8 @@ package Processes
 </html>"));
   end Pump;
 
-  model SubstancePump "Prescribed sunstance molar flow"
-    extends Interfaces.SISOProvideOut;
-    extends Interfaces.ConditionalSubstanceFlow;
-
-  equation
-    n_flow = q;
-
-   annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-              100,100}}), graphics={
-          Rectangle(
-            extent={{-100,-50},{100,50}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid,
-            rotation=360),
-          Polygon(
-            points={{-80,25},{80,0},{-80,-25},{-80,25}},
-            lineColor={0,0,127},
-            fillColor={0,0,127},
-            fillPattern=FillPattern.Solid,
-            rotation=360),
-          Text(
-            extent={{-150,-20},{150,20}},
-            lineColor={128,0,255},
-            origin={-10,-76},
-            rotation=360,
-            textString="%name")}),        Documentation(revisions="<html>
-<p><i>2009-2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-  end SubstancePump;
-
   model Stream "Flow of whole solution"
-    extends Interfaces.SISO;
+    extends Interfaces.PartialChangeSolution;
     extends Boundaries.Internal.ConditionalSolutionFlow;
 
 
@@ -902,8 +763,9 @@ package Processes
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-    Interfaces.InletProvider inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
-    Interfaces.Outlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
+    Interfaces.Inlet         inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
+    Interfaces.OutletProvider
+                      subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
           iconTransformation(
           extent={{-10,-40},{10,40}},
           rotation=90,
@@ -1285,14 +1147,7 @@ package Processes
   end SpeciationOut;
 
   model ReactionProvideOut "Chemical Reaction"
-    import Chemical;
-    extends Interfaces.MIMOProvideOut;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
-
-    parameter stateOfMatter.SubstanceData productsSubstanceData[nP]
-     annotation (choicesAllMatching = true);
-
-    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+    extends Chemical.Interfaces.PartialReaction;
 
     //Real rr_exact2,  kb;
   equation
@@ -1304,21 +1159,6 @@ package Processes
   rr_exact2 = (kf*Sx - kb*Px);
   Kx = kb/kf;
   */
-
-
-    products.definition = productsSubstanceData;
-    products.solution = fill(Interfaces.SolutionState.'constructor'.fromSolutionPort(solution),nP);
-
-    solution.dH = 0;
-    solution.i = 0;
-    solution.Qj = 0;
-    solution.Ij = 0;
-    solution.nj = 0;
-    solution.mj = 0;
-    solution.Vj = 0;
-    solution.Gj = 0;
-    solution.dV = 0;
-
 
 
     annotation (
@@ -1415,4 +1255,138 @@ package Processes
 </table>
 </html>"));
   end ReactionProvideOut;
+
+  model ReactionBetweenSolutions "Chemical Reaction"
+    import Chemical;
+    extends Chemical.Interfaces.MIMO;
+    extends Interfaces.ConditionalKinetics(k_forward=1);
+
+    parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
+     annotation (choicesAllMatching = true);
+
+    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
+              {112,-22}}),                                                                                iconTransformation(extent={{92,-42},
+              {112,-22}})));
+
+    //Real rr_exact2,  kb;
+  equation
+
+    rr = kf * Sx * ( 1  -  exp(-duRT));
+
+    /*
+  //the same as:
+  rr_exact2 = (kf*Sx - kb*Px);
+  Kx = kb/kf;
+  */
+
+    products.definition = productsSubstanceData;
+    products.solution = fill(substrates[1].solution,nP);
+
+    products.definition = productsSubstanceData;
+    products.solution = fill(Interfaces.SolutionState.'constructor'.fromSolutionPort(solution),nP);
+
+    solution.dH = 0;
+    solution.i = 0;
+    solution.Qj = 0;
+    solution.Ij = 0;
+    solution.nj = 0;
+    solution.mj = 0;
+    solution.Vj = 0;
+    solution.Gj = 0;
+    solution.dV = 0;
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Rectangle(
+            extent={{-100,-30},{100,30}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name"),
+          Polygon(
+            points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+  end ReactionBetweenSolutions;
 end Processes;

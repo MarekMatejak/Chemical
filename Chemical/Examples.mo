@@ -517,7 +517,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
       annotation (Placement(transformation(extent={{72,-74},{92,-54}})));
-    Processes.GasVolatility gasVolatility(redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1000)
+    Processes.GasVolatility gasVolatility(redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas                                                                      "Ideal Gas", k_forward=1000)
                                           annotation (Placement(transformation(extent={{-10,10},{10,-10}},
           rotation=180,
           origin={-80,24})));
@@ -609,7 +610,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Water_IceIh(),
       use_mass_start=false,
       amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{10,-52},{-10,-32}})));
-    Processes.GasVolatility          gasVolatility( redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Processes.GasVolatility          gasVolatility( redeclare package stateOfMatterOut =
+          Chemical.Interfaces.IdealGas                                                                                "Ideal Gas",
                                                     k_forward=1)
                                                            annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=0,
@@ -669,7 +671,8 @@ extends Modelica.Icons.ExamplesPackage;
                                         //(amountOfSolution_start=52.3)
     Chemical.Solution water_solution_37degC(temperature_start=310.15) annotation (Placement(transformation(extent={{-52,-80},{42,12}})));
                                      //(amountOfSolution_start=39.7)
-    Chemical.Processes.GasSolubility CO2_dissolutionP(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Chemical.Processes.GasSolubility CO2_dissolutionP(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                                 "Ideal Gas",
                                                       k_forward=1)
                                                       annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
@@ -679,7 +682,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-26},{-150,-6}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionP(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Chemical.Processes.GasSolubility O2_dissolutionP(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                                "Ideal Gas",
                                                      k_forward=1)
                                                      annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
 
@@ -692,7 +696,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_aqueous(),
       use_mass_start=false) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
 
-    Chemical.Processes.GasSolubility CO2_dissolutionE(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Chemical.Processes.GasSolubility CO2_dissolutionE(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                                 "Ideal Gas",
                                                       k_forward=1)
                                                       annotation (Placement(transformation(extent={{-26,40},{-6,60}})));
 
@@ -706,7 +711,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                                     "Ideal Gas",
                                                           k_forward=1)
                                                           annotation (Placement(transformation(extent={{18,42},{38,62}})));
     Chemical.Boundaries.Substance O2_37(
@@ -726,7 +732,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_gas(),
       PartialPressure(displayUnit="mmHg") = 12665.626804425) annotation (Placement(transformation(extent={{-6,68},{14,88}})));
     Solution water_solution_37degC1(temperature_start=273.15) annotation (Placement(transformation(extent={{66,-80},{160,12}})));
-    Processes.GasSolubility CO2_dissolutionE1(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Processes.GasSolubility CO2_dissolutionE1(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                         "Ideal Gas",
                                               k_forward=1)
                                               annotation (Placement(transformation(extent={{92,44},{112,64}})));
     Boundaries.Substance CO2_0(
@@ -735,7 +742,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
 
-    Processes.GasSolubility O2_dissolutionE_NIST1(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+    Processes.GasSolubility O2_dissolutionE_NIST1(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas                                                                             "Ideal Gas",
                                                   k_forward=1)
                                                   annotation (Placement(transformation(extent={{136,42},{156,62}})));
     Boundaries.Substance O2_0(
@@ -1413,7 +1421,7 @@ extends Modelica.Icons.ExamplesPackage;
       nS=4)    annotation (Placement(transformation(
           extent={{-10,10},{10,-10}},
           rotation=90,
-          origin={-36,-14})));
+          origin={-34,-14})));
     Chemical.Processes.FastReaction
                                 electrodeReaction1(
       p={1,1,2},
@@ -1494,12 +1502,12 @@ extends Modelica.Icons.ExamplesPackage;
 
     connect(electrodeReaction.products[1], PbSO4.inlet)
       annotation (Line(
-        points={{-36.25,-4},{-36,-4},{-36,6},{-50,6}},
+        points={{-34.25,-4},{-36,-4},{-36,6},{-50,6}},
         color={200,66,175},
         thickness=0.5));
     connect(electrodeReaction.products[2], H2O.inlet)
       annotation (Line(
-        points={{-35.75,-4},{-35.75,4},{-22,4}},
+        points={{-33.75,-4},{-33.75,4},{-22,4}},
         color={200,66,175},
         thickness=0.5));
     connect(electrone1.solution, cathode.solution) annotation (Line(points={{-68,-38},{-92,-38},{-92,-72},{-52.8,-72},{-52.8,-76.92}}, color={127,127,0}));
@@ -1532,22 +1540,22 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(PbO2.outlet, electrodeReaction.substrates[1])
       annotation (Line(
-        points={{-50,-58},{-42,-58},{-42,-28},{-36.375,-28},{-36.375,-24}},
+        points={{-50,-58},{-42,-58},{-42,-28},{-34.375,-28},{-34.375,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(splitterT1.outletA, electrodeReaction.substrates[2])
       annotation (Line(
-        points={{-36,-48},{-36,-24},{-36.125,-24}},
+        points={{-36,-48},{-36,-24},{-34.125,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(electrone1.outlet, electrodeReaction.substrates[3])
       annotation (Line(
-        points={{-52,-28},{-35.875,-28},{-35.875,-24}},
+        points={{-52,-28},{-33.875,-28},{-33.875,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(H.outlet, electrodeReaction.substrates[4])
       annotation (Line(
-        points={{-20,-32},{-35.625,-32},{-35.625,-24}},
+        points={{-20,-32},{-33.625,-32},{-33.625,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(splitterT1.outletB, electrodeReaction1.substrates[2])
@@ -1718,7 +1726,9 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=2e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={10,-30})));
 
       Chemical.Processes.GasSolubilityProvideOut
-                                       gasSolubilityProvideOut(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", outletSubstance=
+                                       gasSolubilityProvideOut(redeclare
+          package                                                                stateOfMatterIn =
+            Chemical.Interfaces.IdealGas                                                                                        "Ideal Gas", outletSubstance=
             Chemical.Substances.CarbonDioxide_aqueous())    annotation (Placement(transformation(extent={{-68,34},{-48,54}})));
                                             /*(C=2400, kH_T0(
         displayUnit="(mmol/l)/kPa at 25degC") = 0.81805576878885)*/
@@ -1970,9 +1980,9 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.Interfaces.Incompressible.SubstanceDataParameters(
                 density=(1.024 - 0.933373)*1000/(1 - 0.936137),
                 MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024 - 0.0017)),
-                //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         use_mass_start=false,
         amountOfSubstance_start=0.1487) annotation (Placement(transformation(extent={{70,14},{90,34}})));
+                //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
       Chemical.Boundaries.Buffer H(
         useInlet=true,
         substanceData=Chemical.Substances.Proton_aqueous(),
@@ -2006,9 +2016,9 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.Interfaces.Incompressible.SubstanceDataParameters(
             density=(1.024 - 0.933373)*1000/(1 - 0.936137),
             MolarWeight=(1.024 - 0.933373)/(51.8*(1 - 0.994648) - 0.103 - 0.024 - 0.0017)),
-            //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         use_mass_start=false,
         amountOfSubstance_start=0.1444) annotation (Placement(transformation(extent={{74,-76},{94,-56}})));
+            //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
       Chemical.Boundaries.Buffer H_E(
         useInlet=true,
         substanceData=Chemical.Substances.Proton_aqueous(),
@@ -2048,7 +2058,8 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{10,-10},{-10,10}},
             rotation=270,
             origin={36,-16})));
-      Chemical.TopologyToSubstance.SplitterT1 splitterT1(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas")
+      Chemical.TopologyToSubstance.SplitterT1 splitterT1(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas                                                                                "Ideal Gas")
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=-90,
@@ -2063,7 +2074,9 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-86,-18})));
-      Chemical.Processes.GasSolubilityProvideOut gasSolubilitySubstance(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+      Chemical.Processes.GasSolubilityProvideOut gasSolubilitySubstance(redeclare
+          package                                                                         stateOfMatterIn =
+            Chemical.Interfaces.IdealGas                                                                                                 "Ideal Gas",
           outletSubstance=Chemical.Substances.CarbonDioxide_aqueous())  annotation (Placement(transformation(extent={{-96,60},{-76,80}})));
     equation
       pH_p = -log10(H.a);
@@ -2403,10 +2416,10 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData(
           z=-4,
           DfH=16700,
-          DfG=30500
-          //References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}
-),      use_mass_start=false,
+          DfG=30500),
+        use_mass_start=false,
         amountOfSubstance_start=0.00128) annotation (Placement(transformation(extent={{-146,-62},{-166,-42}})));
+          //References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}
 
       Chemical.Boundaries.Substance HPO4_E(
         substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
@@ -2442,9 +2455,9 @@ extends Modelica.Icons.ExamplesPackage;
         use_mass_start=false,
         amountOfSubstance_start=0.00223) annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
       Processes.Reaction HendersonHasselbalch(
-
         nS=2,
         nP=2)                   "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-24,-58},{-4,-78}})));
+
       Boundaries.Buffer Hemoglobin(
         useInlet=true,
         substanceData(z=1.045),
@@ -3096,87 +3109,86 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=THb*1e-7) annotation (Placement(transformation(extent={{-26,82},{-46,102}})));
 
       Chemical.Processes.Reaction quaternaryForm(
-
         nP=1,
         nS=1)  annotation (Placement(transformation(extent={{-10,-10},{10,10}},
             rotation=180,
             origin={20,92})));
-      Chemical.Processes.Reaction oxyR1(
 
+      Chemical.Processes.Reaction oxyR1(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
             origin={-54,66})));
-      Chemical.Processes.Reaction oxyT1(
 
+      Chemical.Processes.Reaction oxyT1(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={70,72})));
-      Chemical.Processes.Reaction oxyR2(
 
+      Chemical.Processes.Reaction oxyR2(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
             origin={-54,28})));
-      Chemical.Processes.Reaction oxyR3(
 
+      Chemical.Processes.Reaction oxyR3(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
             origin={-54,-26})));
-      Chemical.Processes.Reaction oxyR4(
 
+      Chemical.Processes.Reaction oxyR4(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
             origin={-52,-70})));
-      Chemical.Processes.Reaction oxyT2(
 
+      Chemical.Processes.Reaction oxyT2(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={72,34})));
-      Chemical.Processes.Reaction oxyT3(
 
+      Chemical.Processes.Reaction oxyT3(
         nS=1,
         nP=2)  annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={74,-28})));
-      Chemical.Processes.Reaction oxyT4(
 
+      Chemical.Processes.Reaction oxyT4(
         nP=2,
         nS=1)  annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={74,-64})));
-      Chemical.Processes.Reaction quaternaryForm1(
 
+      Chemical.Processes.Reaction quaternaryForm1(
         nS=1,
         nP=1)  annotation (Placement(transformation(extent={{-10,-10},{10,10}},
             rotation=180,
             origin={20,52})));
-      Chemical.Processes.Reaction quaternaryForm2(
 
+      Chemical.Processes.Reaction quaternaryForm2(
         nP=1,
         nS=1)  annotation (Placement(transformation(extent={{-10,-10},{10,10}},
             rotation=180,
             origin={20,16})));
-      Chemical.Processes.Reaction quaternaryForm3(
 
+      Chemical.Processes.Reaction quaternaryForm3(
         nP=1,
         nS=1)  annotation (Placement(transformation(extent={{-10,-10},{10,10}},
             rotation=180,
             origin={20,-46})));
-      Chemical.Processes.Reaction quaternaryForm4(
 
+      Chemical.Processes.Reaction quaternaryForm4(
         nP=1,
         nS=1)  annotation (Placement(transformation(extent={{-10,-10},{10,10}},
             rotation=180,
@@ -4573,7 +4585,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{20,84},{40,104}})));
       Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
         annotation (Placement(transformation(extent={{112,80},{132,100}})));
-      Solution gas(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas", BasePressure=100000)
+      Solution gas(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas                                          "Ideal Gas", BasePressure=100000)
         annotation (Placement(transformation(extent={{-24,26},{22,68}})));
       TopologyToSubstance.SplitterT2 splitterT2 annotation (Placement(transformation(extent={{-52,-16},{-32,4}})));
       TopologyToProcess.JunctionT1 junctionT1 annotation (Placement(transformation(extent={{72,-28},{92,-8}})));
@@ -5015,7 +5028,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{12,78},{32,98}})));
       Modelica.Electrical.Analog.Sensors.PowerSensor powerSensor
         annotation (Placement(transformation(extent={{76,78},{96,98}})));
-      Solution gases(redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas", BasePressure=100000)
+      Solution gases(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas                                            "Ideal Gas", BasePressure=100000)
         annotation (Placement(transformation(extent={{-36,22},{50,64}})));
     equation
       connect(H.solution, solution1.solution) annotation (Line(points={{-12,-28},{-12,-32},{24.4,-32},{24.4,-94.98}},
