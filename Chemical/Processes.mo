@@ -869,8 +869,7 @@ package Processes
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
     Interfaces.Inlet         inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
-    Interfaces.OutletProvider
-                      subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
+    Interfaces.Outlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
           iconTransformation(
           extent={{-10,-40},{10,40}},
           rotation=90,
@@ -1077,8 +1076,7 @@ package Processes
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-    Interfaces.OutletProvider outletSubstance
-      annotation (Placement(transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
+    Interfaces.Outlet outletSubstance annotation (Placement(transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
     Interfaces.Inlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
           iconTransformation(
           extent={{10,-40},{-10,40}},
