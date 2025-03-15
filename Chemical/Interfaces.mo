@@ -2099,7 +2099,7 @@ end solution_temperature_;
 
      replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
-      annotation (choices(
+      annotation (Dialog(tab="Advanced"), choices(
         choice(redeclare package stateOfMatterIn =
           Chemical.Interfaces.Incompressible  "Incompressible"),
         choice(redeclare package stateOfMatterIn =
@@ -2112,7 +2112,7 @@ end solution_temperature_;
     replaceable package stateOfMatterOut = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter
     "Substance model of outlet"
-      annotation (choices(
+      annotation (Dialog(tab="Advanced"), choices(
         choice(redeclare package stateOfMatterOut =
           Chemical.Interfaces.Incompressible  "Incompressible"),
         choice(redeclare package stateOfMatterOut =
@@ -2225,7 +2225,10 @@ end solution_temperature_;
     h_out = h_in;
 
 
-    annotation (Documentation(info="<html>
+    annotation (Documentation(revisions="<html>
+<p><i>2025</i></p>
+<p><i>by </i>Marek Matejak, Ph.D.</p>
+</html>",   info="<html>
 <p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
 <p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
 </html>"));
@@ -2233,7 +2236,6 @@ end solution_temperature_;
 
   partial model PartialChangeSolution "Substance between different chemical solutions"
     extends Chemical.Interfaces.SISO;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
 
 
 
@@ -2268,11 +2270,7 @@ end solution_temperature_;
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name")}),
+            100,100}})),
       Documentation(revisions="<html>
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
@@ -2348,8 +2346,6 @@ end solution_temperature_;
 
   partial model PartialChangeState
     extends Chemical.Interfaces.SISO;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
-
 
 
     Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
@@ -2386,11 +2382,7 @@ end solution_temperature_;
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name")}),
+            100,100}})),
       Documentation(revisions="<html>
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
@@ -2463,6 +2455,68 @@ end solution_temperature_;
 </table>
 </html>"));
   end PartialChangeState;
+
+  partial model PartialGasToLiquid "Gas to liquid change."
+
+
+    extends Interfaces.PartialChangeState(redeclare package stateOfMatterIn =
+          stateIn, final outputSubstanceData=substanceDataOut);
+
+    replaceable package stateIn = Interfaces.IdealGasMSL constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
+      annotation (choices(
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+
+     parameter stateOfMatterOut.SubstanceDataParameters substanceDataOut
+        annotation (choicesAllMatching = true);
+
+  equation
+
+
+
+    annotation (Documentation(revisions="<html>
+<p><i>2025</i></p>
+<p><i>by </i>Marek Matejak, Ph.D.</p>
+</html>",   info="<html>
+<p>Change substance state of matter from gaseous to liquid.</p>
+</html>"));
+  end PartialGasToLiquid;
+
+  partial model PartialLiquidToGas "Gas to liquid change."
+
+    extends Interfaces.PartialChangeState( redeclare package stateOfMatterOut =
+          stateOut, final outputSubstanceData=substanceDataOut);
+
+
+
+     replaceable package stateOut = Interfaces.IdealGasMSL constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
+      annotation (choices(
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    parameter stateOut.SubstanceDataParameters substanceDataOut
+        annotation (choicesAllMatching = true);
+
+  equation
+
+    annotation (Documentation(revisions="<html>
+<p><i>2025</i></p>
+<p><i>by </i>Marek Matejak, Ph.D.</p>
+</html>",   info="<html>
+<p>Change substance state of matter from gaseous to liquid.</p>
+</html>"));
+  end PartialLiquidToGas;
 
   partial model MIMO "Chemical Reaction"
     import Chemical;
@@ -2673,16 +2727,7 @@ end solution_temperature_;
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Rectangle(
-            extent={{-100,-30},{100,30}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name")}),
+            100,100}})),
       Documentation(revisions="<html>
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>

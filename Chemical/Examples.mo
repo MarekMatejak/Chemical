@@ -671,10 +671,8 @@ extends Modelica.Icons.ExamplesPackage;
                                         //(amountOfSolution_start=52.3)
     Chemical.Solution water_solution_37degC(temperature_start=310.15) annotation (Placement(transformation(extent={{-52,-80},{42,12}})));
                                      //(amountOfSolution_start=39.7)
-    Chemical.Processes.GasSolubility CO2_dissolutionP(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                                 "Ideal Gas",
-                                                      k_forward=1)
-                                                      annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
+    Chemical.Processes.GasSolubility CO2_dissolutionP(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Boundaries.Substance CO2_25(
       useInlet=true,
@@ -682,10 +680,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-26},{-150,-6}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionP(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                                "Ideal Gas",
-                                                     k_forward=1)
-                                                     annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
+    Chemical.Processes.GasSolubility O2_dissolutionP(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
 
     Chemical.Boundaries.ExternalIdealGasSubstance O2_g_25(
       substanceData=Chemical.Substances.Oxygen_gas(),
@@ -696,10 +692,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_aqueous(),
       use_mass_start=false) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
 
-    Chemical.Processes.GasSolubility CO2_dissolutionE(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                                 "Ideal Gas",
-                                                      k_forward=1)
-                                                      annotation (Placement(transformation(extent={{-26,40},{-6,60}})));
+    Chemical.Processes.GasSolubility CO2_dissolutionE(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{-26,40},{-6,60}})));
 
     Chemical.Boundaries.ExternalIdealGasSubstance CO2_g_25(
       substanceData=Chemical.Substances.CarbonDioxide_gas(),
@@ -711,10 +705,8 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
 
-    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                                     "Ideal Gas",
-                                                          k_forward=1)
-                                                          annotation (Placement(transformation(extent={{18,42},{38,62}})));
+    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{18,42},{38,62}})));
     Chemical.Boundaries.Substance O2_37(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
@@ -732,20 +724,16 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.Oxygen_gas(),
       PartialPressure(displayUnit="mmHg") = 12665.626804425) annotation (Placement(transformation(extent={{-6,68},{14,88}})));
     Solution water_solution_37degC1(temperature_start=273.15) annotation (Placement(transformation(extent={{66,-80},{160,12}})));
-    Processes.GasSolubility CO2_dissolutionE1(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                         "Ideal Gas",
-                                              k_forward=1)
-                                              annotation (Placement(transformation(extent={{92,44},{112,64}})));
+    Processes.GasSolubility CO2_dissolutionE1(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{92,44},{112,64}})));
     Boundaries.Substance CO2_0(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.001,
       substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
       use_mass_start=false) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
 
-    Processes.GasSolubility O2_dissolutionE_NIST1(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas                                                                             "Ideal Gas",
-                                                  k_forward=1)
-                                                  annotation (Placement(transformation(extent={{136,42},{156,62}})));
+    Processes.GasSolubility O2_dissolutionE_NIST1(redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
+      annotation (Placement(transformation(extent={{136,42},{156,62}})));
     Boundaries.Substance O2_0(
       useInlet=true,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
@@ -1960,9 +1948,8 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=180,
             origin={-20,90})));
-      Chemical.Processes.GasSolubility gasSolubility(
-        initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=0)                                         annotation (Placement(transformation(extent={{-78,58},{-58,78}})));
+      Chemical.Processes.GasSolubility gasSolubility(initN_flow=Chemical.Utilities.Types.InitializationMethods.state, n_flow_0=0)
+        annotation (Placement(transformation(extent={{-78,58},{-58,78}})));
 
       Chemical.Boundaries.Substance H2O(
         useInlet=false,  substanceData=Chemical.Substances.Water_liquid(), mass_start=51.6159/55.508)
@@ -3208,7 +3195,7 @@ extends Modelica.Icons.ExamplesPackage;
             rotation=270,
             origin={-82,42})));
 
-      Chemical.Processes.GasSolubility gasSolubility        annotation (Placement(transformation(extent={{-92,0},{-72,20}})));
+      Chemical.Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-92,0},{-72,20}})));
 
       Real sO2;
       Boundaries.Substance substance(substanceData=Substances.Water_liquid(),
@@ -3249,7 +3236,7 @@ extends Modelica.Icons.ExamplesPackage;
       connect(O2_in_air.solution, solution.solution) annotation (Line(points={{-92,48},{-96,48},{-96,-56},{-66,-56},{-66,-104},{-30,-104},{-30,-108},{68,-108},{68,-97.94}},
                                                                                                                                color={127,127,0}));
       connect(O2_in_air.outlet, gasSolubility.inlet) annotation (Line(
-          points={{-82,32},{-82,20}},
+          points={{-82,32},{-82,22},{-82,10},{-92,10}},
           color={158,66,200},
           thickness=0.5));
       connect(R0.solution, solution.solution)
@@ -3579,7 +3566,7 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={-36,80})));
-      Chemical.Processes.GasSolubility partialPressure1        annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
+      Chemical.Processes.GasSolubility partialPressure1 annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
 
       Real sO2 "Hemoglobin oxygen saturation";
       Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
@@ -3641,7 +3628,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
       connect(oxygen_in_air.outlet, partialPressure1.inlet) annotation (Line(
-          points={{-26,80},{-22,80},{-22,72},{-14,72}},
+          points={{-26,80},{-22,80},{-22,62},{-24,62}},
           color={158,66,200},
           thickness=0.5));
       connect(partialPressure1.outlet, oxygen_unbound.inlet)
@@ -3811,7 +3798,7 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={-36,80})));
-      Chemical.Processes.GasSolubility partialPressure1        annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
+      Chemical.Processes.GasSolubility partialPressure1 annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
 
       Real sO2 "Hemoglobin oxygen saturation";
       Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(),
