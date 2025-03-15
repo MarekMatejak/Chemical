@@ -13,20 +13,13 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Boundaries.SubstanceSource A(
-      substanceData(MolarWeight=1),
-      use_mass_start=false,
-      amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+    Chemical.Boundaries.SubstanceSource A(use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
     Processes.Reaction reaction2_1(
-      k_forward=7311,
+      productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
       nS=1,
       nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-    Chemical.Boundaries.SubstanceSource B(
-      useInlet=true,
-      substanceData(DfG=-R*T_25degC*log(K), MolarWeight=1),
-      use_mass_start=false,
-      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
+    Boundaries.SubstanceInPath B(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
 
     inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
   equation
@@ -41,7 +34,7 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(reaction2_1.products[1], B.inlet) annotation (Line(
         points={{10,2},{42,2}},
-        color={200,66,175},
+        color={158,66,200},
         thickness=0.5));
     annotation (Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -49,7 +42,7 @@ extends Modelica.Icons.ExamplesPackage;
 </html>", info="<html>
 <p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
 </html>"),
-      experiment(StopTime=0.001));
+      experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
   end SimpleReaction;
 
   model SimpleReaction2
@@ -67,17 +60,19 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-    Chemical.Boundaries.SubstanceSource A(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
+    Chemical.Boundaries.SubstanceSource A(
+      substanceDataParams(MolarWeight=1),
+      use_mass_start=false,
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Processes.Reaction reaction2_1(
-      k_forward=150000,
+      productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(MolarWeight=2, DfG=-R*T_25degC*log(Kx))},
       nS=2,
       nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
-    Chemical.Boundaries.SubstanceSource B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-    Chemical.Boundaries.SubstanceSource C(
-      useInlet=true,
-      substanceData(DfG=-R*T_25degC*log(Kx)),
+    Chemical.Boundaries.SubstanceSource B(
+      substanceDataParams(MolarWeight=1),
       use_mass_start=false,
-      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
+    Boundaries.SubstanceInPath C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
 
   equation
     connect(A.solution, solution.solution) annotation (Line(
@@ -98,7 +93,7 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(reaction2_1.products[1], C.inlet) annotation (Line(
         points={{24,2},{48,2}},
-        color={200,66,175},
+        color={158,66,200},
         thickness=0.5));
     annotation ( Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -106,7 +101,7 @@ extends Modelica.Icons.ExamplesPackage;
 </html>", info="<html>
 <p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
 </html>"),
-      experiment(StopTime=0.0001, __Dymola_Algorithm="Dassl"));
+      experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
   end SimpleReaction2;
 
   model SimpleReaction22 "The simple chemical reaction A+B<->C+D with equilibrium [C]*[D]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
@@ -125,21 +120,15 @@ extends Modelica.Icons.ExamplesPackage;
 
     Chemical.Boundaries.SubstanceSource A(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Processes.Reaction reaction2_1(
-      k_forward=150000,
+      productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx)),
+          Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx))},
       nS=2,
       nP=2) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
     Chemical.Boundaries.SubstanceSource B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-    Chemical.Boundaries.SubstanceSource C(
-      useInlet=true,
-      substanceData(DfG=-R*T_25degC*log(Kx)),
-      use_mass_start=false,
-      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+    Boundaries.SubstanceInPath C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
 
-    Boundaries.SubstanceSource D(
-      useInlet=true,
-      substanceData(DfG=-R*T_25degC*log(Kx)),
-      use_mass_start=false,
-      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
+    Boundaries.SubstanceInPath D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
+    inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,56},{72,76}})));
   equation
     connect(A.solution, solution.solution) annotation (Line(
         points={{-30,2},{-30,-90},{60,-90},{60,-98}},
@@ -160,11 +149,11 @@ extends Modelica.Icons.ExamplesPackage;
     connect(D.solution, solution.solution) annotation (Line(points={{48,-34},{60,-34},{60,-98}}, color={127,127,0}));
     connect(reaction2_1.products[1], C.inlet) annotation (Line(
         points={{24,1.75},{36,1.75},{36,2},{48,2}},
-        color={200,66,175},
+        color={158,66,200},
         thickness=0.5));
     connect(reaction2_1.products[2], D.inlet) annotation (Line(
-        points={{24,2.25},{36,2.25},{36,-24},{44,-24}},
-        color={200,66,175},
+        points={{24,2.25},{34,2.25},{34,-24},{44,-24}},
+        color={158,66,200},
         thickness=0.5));
     annotation ( Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -172,7 +161,7 @@ extends Modelica.Icons.ExamplesPackage;
 </html>", info="<html>
 <p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
 </html>"),
-      experiment(StopTime=0.0001, __Dymola_Algorithm="Dassl"));
+      experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
   end SimpleReaction22;
 
   model HeatingOfWater "Heating of 1 kg water"
@@ -1096,11 +1085,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Boundaries.SubstanceSource P(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*50),
-      use_mass_start=false,
-      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
+    Boundaries.SubstanceInPath P(amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
 
     Chemical.Boundaries.SubstanceSource S(use_mass_start=false, amountOfSubstance_start=100) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
@@ -1116,26 +1101,22 @@ extends Modelica.Icons.ExamplesPackage;
     parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
       "Maximal molar flow";
 
-    Chemical.Boundaries.SubstanceSource ES(
-      useInlet=true,
-      substanceData(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-12,-10},{8,10}})));
-    Chemical.Boundaries.SubstanceSource E(
-      useInlet=true,
-      use_mass_start=false,
-      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{10,36},{-10,56}})));
+    Boundaries.SubstanceInPath ES(amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
+    Boundaries.SubstanceInPath E(amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{10,36},{-10,56}})));
     Chemical.Processes.Reaction chemicalReaction(
       k_forward=1,
-            nS=2, nP=1)
-            annotation (Placement(transformation(extent={{-40,-8},{-20,12}})));
+      productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km))},
+            nS=2,
+      nP=1) annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
 
     Processes.ForwardReaction   chemicalReaction1(
       k_forward=k_cat,
+      productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
+          Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
       nS=1,
       nP=2) annotation (Placement(transformation(extent={{24,-12},{44,8}})));
 
-    Boundaries.SubstanceSource liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+    Boundaries.SubstanceSource liquidWater(substanceDataParams=Chemical.Substances.Water_liquid(), mass_start=1)
       annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
     inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
   equation
@@ -1144,7 +1125,7 @@ extends Modelica.Icons.ExamplesPackage;
         points={{6,36},{-8,36},{-8,-98},{60,-98}},
         color={127,127,0}));
     connect(ES.solution, solution.solution)
-      annotation (Line(points={{-8,-10},{-8,-98},{60,-98}},         color={127,127,0}));
+      annotation (Line(points={{-4,-10},{-4,-98},{60,-98}},         color={127,127,0}));
 
     connect(S.solution, solution.solution) annotation (Line(
         points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
@@ -1155,22 +1136,18 @@ extends Modelica.Icons.ExamplesPackage;
     connect(liquidWater.solution, solution.solution) annotation (Line(points={{
             46,-80},{46,-98},{60,-98}}, color={127,127,0}));
     connect(ES.outlet, chemicalReaction1.substrates[1]) annotation (Line(
-        points={{8,0},{16,0},{16,-2},{24,-2}},
+        points={{12,0},{16,0},{16,-2},{24,-2}},
         color={158,66,200},
         thickness=0.5));
     connect(E.outlet, chemicalReaction.substrates[1])
       annotation (Line(
-        points={{-10,46},{-48,46},{-48,1.75},{-40,1.75}},
+        points={{-10,46},{-48,46},{-48,-0.25},{-40,-0.25}},
         color={158,66,200},
         thickness=0.5));
     connect(S.outlet, chemicalReaction.substrates[2])
       annotation (Line(
-        points={{-72,-4},{-62,-4},{-62,2},{-50,2},{-50,2.25},{-40,2.25}},
+        points={{-72,-4},{-62,-4},{-62,2},{-50,2},{-50,0.25},{-40,0.25}},
         color={158,66,200},
-        thickness=0.5));
-    connect(chemicalReaction.products[1], ES.inlet) annotation (Line(
-        points={{-20,2},{-20,0},{-12,0}},
-        color={200,66,175},
         thickness=0.5));
     connect(chemicalReaction1.products[1], P.inlet)
       annotation (Line(
@@ -1181,6 +1158,10 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Line(
         points={{44,-1.75},{60,-1.75},{60,46},{10,46}},
         color={200,66,175},
+        thickness=0.5));
+    connect(chemicalReaction.products[1], ES.inlet) annotation (Line(
+        points={{-20,0},{-8,0}},
+        color={158,66,200},
         thickness=0.5));
         annotation ( Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -1228,7 +1209,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 </html>"),
-      experiment(StopTime=400, __Dymola_Algorithm="Dassl"),
+      experiment(StopTime=100000, __Dymola_Algorithm="Dassl"),
       __Dymola_experimentSetupOutput);
   end EnzymeKinetics;
 
