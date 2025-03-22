@@ -1974,7 +1974,7 @@ end solution_temperature_;
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
-     replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
+    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
       annotation (Dialog(tab="Advanced"), choices(
         choice(redeclare package stateOfMatterIn =
@@ -2115,9 +2115,7 @@ end solution_temperature_;
 
 
 
-    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
-              {112,-22}}),                                                                                iconTransformation(extent={{92,-42},
-              {112,-22}})));
+    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-52},{112,-32}}),   iconTransformation(extent={{92,-52},{112,-32}})));
 
   equation
 
@@ -2224,9 +2222,7 @@ end solution_temperature_;
     extends Chemical.Interfaces.SISO;
 
 
-    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-42},
-              {112,-22}}),                                                                                iconTransformation(extent={{92,-42},
-              {112,-22}})));
+    Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-52},{112,-32}}),   iconTransformation(extent={{92,-52},{112,-32}})));
 
     parameter stateOfMatterOut.SubstanceDataParameters outputSubstanceData
         annotation (choicesAllMatching = true);
@@ -2341,11 +2337,11 @@ end solution_temperature_;
     replaceable package stateIn = Interfaces.IdealGasMSL constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateIn =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateIn =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateIn =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
 
@@ -2374,14 +2370,14 @@ end solution_temperature_;
      replaceable package stateOut = Interfaces.IdealGasMSL constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOut =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOut =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOut =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    parameter stateOut.SubstanceDataParameters substanceDataOut
+    parameter stateOfMatterOut.SubstanceDataParameters substanceDataOut
         annotation (choicesAllMatching = true);
 
   equation
