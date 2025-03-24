@@ -190,6 +190,11 @@ extends Modelica.Icons.SourcesPackage;
     extends Icons.Substance;
     extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
 
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
     Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
       "Molar concentration of particles";
 
@@ -200,9 +205,13 @@ extends Modelica.Icons.SourcesPackage;
       "The substance entering"
       annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-  parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
     "Initial amount of substance base molecules"
-      annotation ( Dialog(group="Initialization"));
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
 
     Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
         molarMassOfBaseMolecule "Mass";
@@ -250,9 +259,15 @@ extends Modelica.Icons.SourcesPackage;
 
     Chemical.Interfaces.SubstanceState state_in;
 
+
   initial equation
-    r=0;
-    amountOfBaseMolecules = amountOfSubstance_start;
+    if initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
 
   equation
     substanceDataVar = inlet.definition;
@@ -409,7 +424,7 @@ extends Modelica.Icons.SourcesPackage;
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
-    parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.L "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
 
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
@@ -520,7 +535,8 @@ extends Modelica.Icons.SourcesPackage;
     outer Chemical.DropOfCommons dropOfCommons;
 
   initial equation
-  //  uRT = uRT_0;
+    //  uRT = uRT_0;
+    r=0;
   equation
   //  temperature = inlet.solution.T;
   //  electricPotential = inlet.solution.v;
@@ -1042,7 +1058,7 @@ extends Modelica.Icons.SourcesPackage;
 
     parameter Boolean potentialFromInput = false "If true electro-chemical potential comes from real input";
 
-    parameter Modelica.Units.SI.ChemicalPotential x0_par=1 "Mole fraction setpoint of Sink";
+
     parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "Electro-chemical potential setpoint of Sink" annotation (Dialog(enable=not potentialFromInput));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
@@ -1119,6 +1135,113 @@ extends Modelica.Icons.SourcesPackage;
 <p>The inertial pressure after the sinks inertance is by definition the difference between the input pressure and the set pressure. The sink therefore acts by definition as the origin of the energy to accelerate the stream. </p>
 </html>"));
   end ExternalChemicalPotentialSink;
+
+  model ExternalPartialPressureSink "Boundary model of sink"
+
+    parameter Boolean partialPressureFromInput = false "If true partial pressure comes from real input";
+
+    replaceable package stateOfMatter = Interfaces.IdealGas constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+       choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+     parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter Modelica.Units.SI.Pressure p=1 "Partial pressure of substance - setpoint of Sink";
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
+
+    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+
+    Modelica.Blocks.Interfaces.RealInput p_input(unit="Pa")=_p
+      if partialPressureFromInput "Partial pressure of substance"
+      annotation (Placement(
+          transformation(
+          extent={{-20,-20},{20,20}},
+          rotation=180,
+          origin={20,0}), iconTransformation(
+          extent={{-20,-20},{20,20}},
+          rotation=180,
+          origin={20,0})));
+
+  protected
+    outer Chemical.DropOfCommons dropOfCommons;
+
+    Modelica.Units.SI.Pressure _p;
+
+    Modelica.Units.SI.ChemicalPotential u,r,u_pure;
+
+  equation
+
+    if not partialPressureFromInput then
+      _p = p;
+    end if;
+
+    der(inlet.n_flow)*L = inlet.r - r;
+    r + inlet.state.u = u;
+
+    u = stateOfMatter.chemicalPotentialPure(
+     substanceData,
+     inlet.solution.T,
+     inlet.solution.p,
+     inlet.solution.v,
+     inlet.solution.I)
+     + (Modelica.Constants.R*inlet.solution.T)*log(_p/inlet.solution.p)
+     + inlet.definition.z*Modelica.Constants.F*inlet.solution.v;
+
+
+    u_pure=stateOfMatter.chemicalPotentialPure(
+     substanceData,
+     inlet.solution.T,
+     inlet.solution.p,
+     inlet.solution.v,
+     inlet.solution.I);
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+          Rectangle(
+            extent={{-56,76},{4,-84}},
+            lineColor={158,66,200},
+            lineThickness=0.5,
+            fillColor={215,215,215},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
+          Rectangle(
+            extent={{-60,80},{0,-80}},
+            lineColor={158,66,200},
+            lineThickness=0.5,
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid,
+            pattern=LinePattern.None),
+          Line(
+            points={{-100,0},{-60,0}},
+            color={158,66,200},
+            thickness=0.5),
+          Line(
+            points={{-60,80},{-60,-80}},
+            color={158,66,200},
+            thickness=0.5),
+          Line(
+            points={{-12,80},{-12,-80}},
+            color={255,255,255},
+            thickness=1),
+          Line(
+            points={{-28,80},{-28,-80}},
+            color={255,255,255},
+            thickness=0.5),
+          Line(points={{-44,80},{-44,-80}}, color={255,255,255})}), Diagram(
+          coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<p>Sink for a thermofluid stream. The pressure can be set or given by a real signal via input connector.</p>
+<p>The inertial pressure after the sinks inertance is by definition the difference between the input pressure and the set pressure. The sink therefore acts by definition as the origin of the energy to accelerate the stream. </p>
+</html>"));
+  end ExternalPartialPressureSink;
 
   model SubstanceInflow "Molar pump of substance to system"
     extends Interfaces.ConditionalSubstanceFlow;
