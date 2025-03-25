@@ -7562,7 +7562,8 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=0,
       DfG=0,
-      Cp=0);
+      Cp=0,
+      density=1e20);
 
       annotation (preferredView = "info", Documentation(info="<html><p>http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials</p></html>"));
   end Electrone_solid;

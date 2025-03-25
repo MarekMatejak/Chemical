@@ -66,7 +66,7 @@ extends Modelica.Icons.SourcesPackage;
     Modelica.Units.SI.AmountOfSubstance amountOfBonds
       "Amount of hydrogen bonds between molecules in compartment";
 
-    Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule))
+    Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
     "Natural logarithm of the amount of base molecules in solution";
 
     parameter Boolean EnthalpyNotUsed=false annotation (
@@ -246,7 +246,7 @@ extends Modelica.Icons.SourcesPackage;
     Modelica.Units.SI.AmountOfSubstance amountOfBonds
       "Amount of hydrogen bonds between molecules in compartment";
 
-    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start))
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
     "Natural logarithm of the amount of base molecules in solution";
 
     parameter Boolean EnthalpyNotUsed=false annotation (
@@ -407,13 +407,7 @@ extends Modelica.Icons.SourcesPackage;
     Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-   parameter Interfaces.Incompressible.SubstanceDataParameters substanceData = Chemical.Interfaces.Incompressible.SubstanceDataParameters(
-      MolarWeight=5.4857990946e-7,
-      z=-1,
-      DfH=0,
-      DfG=0,
-      Cp=0,
-      density=1e20) "Definition of the substance";
+    parameter Interfaces.Incompressible.SubstanceDataParameters substanceData = Chemical.Substances.Electrone_solid() "Definition of the substance";
 
     Real r_out, h;
 
@@ -431,7 +425,6 @@ extends Modelica.Icons.SourcesPackage;
 
   protected
     outer Chemical.DropOfCommons dropOfCommons;
-  //  Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
 
   initial equation
     u = u_0;
@@ -458,10 +451,8 @@ extends Modelica.Icons.SourcesPackage;
     u = substanceData.z*Modelica.Constants.F*electricPotential;
     h = substanceData.z*Modelica.Constants.F*electricPotential;
 
-    // Bounsaries.Source - uRT adaptation
+    // Bounsaries.Source - u adaptation
     der(u)*TC = r_out;
-
-  //  der(n_flow)*L = r_out;
 
     //solution changes
     solution.dH = 0;
@@ -476,9 +467,8 @@ extends Modelica.Icons.SourcesPackage;
     solution.Ij=0;
 
     temperature = solution.T;
-  //  pressure = solution.p;
     electricPotential = solution.v;
-  //  moleFractionBasedIonicStrength = solution.I;
+
 
     annotation ( Icon(coordinateSystem(
             preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -510,14 +500,7 @@ extends Modelica.Icons.SourcesPackage;
    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
 
     Interfaces.Incompressible.SubstanceData substanceData;
-    /*= Chemical.Interfaces.Incompressible.SubstanceDataParameters(
-    MolarWeight=5.4857990946e-7,
-    z=-1,
-    DfH=0,
-    DfG=0,
-    Cp=0,
-    density=1e20) "Definition of the substance";
-*/
+    // == Chemical.Substances.Electrone_solid() "Definition of the substance";
 
     Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
 
@@ -525,30 +508,22 @@ extends Modelica.Icons.SourcesPackage;
 
     Modelica.Units.SI.Temperature temperature "Temperature of the solution";
 
-  //  parameter Modelica.Units.SI.Time TC=1e-5 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-  //  parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial potential divided by gas constant and temperature";
 
     Modelica.Units.SI.ChemicalPotential u,r;
-  //protected
-  //  Chemical.Utilities.Units.URT uRT(stateSelect=StateSelect.prefer);
+
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
   initial equation
-    //  uRT = uRT_0;
     r=0;
   equation
-  //  temperature = inlet.solution.T;
-  //  electricPotential = inlet.solution.v;
+
     substanceData=inlet.definition;
-
-
 
 
      der(inlet.n_flow)*L = inlet.r - r;
      u = r + inlet.state.u;
 
-    //inlet.u0RT = substanceData.z*Modelica.Constants.F*electricPotential/(Modelica.Constants.R*temperature);
 
     //electric
     pin.v = electricPotential;
@@ -582,9 +557,8 @@ extends Modelica.Icons.SourcesPackage;
     solution.Ij=0;
 
     temperature = solution.T;
-  //  pressure = solution.p;
     electricPotential = solution.v;
-  //  moleFractionBasedIonicStrength = solution.I;
+
 
     annotation ( Icon(coordinateSystem(
             preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -1138,6 +1112,18 @@ extends Modelica.Icons.SourcesPackage;
 
   model ExternalPartialPressureSink "Boundary model of sink"
 
+    replaceable package stateOfMatterIn = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
+      annotation ( choices(
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterIn =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
     parameter Boolean partialPressureFromInput = false "If true partial pressure comes from real input";
 
     replaceable package stateOfMatter = Interfaces.IdealGas constrainedby
@@ -1158,7 +1144,7 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.Pressure p=1 "Partial pressure of substance - setpoint of Sink";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Blocks.Interfaces.RealInput p_input(unit="Pa")=_p
       if partialPressureFromInput "Partial pressure of substance"

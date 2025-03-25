@@ -1576,7 +1576,7 @@ extends Modelica.Icons.ExamplesPackage;
         color={158,66,200},
         thickness=0.5));
     annotation (
-    experiment(StopTime=156500, __Dymola_Algorithm="Lsodar"),
+    experiment(StopTime=47550, __Dymola_Algorithm="Lsodar"),
                                 Documentation(revisions=
                       "<html>
 <p><i>2015-2018</i></p>
@@ -1607,40 +1607,34 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-72,2},{76,96}})));
       Chemical.Solution solution1 annotation (Placement(transformation(extent={{-76,-98},{72,-4}})));
-      Chemical.Boundaries.Substance H3O(
-        useInlet=true,
-        substanceData=Chemical.Substances.Hydronium_aqueous(),
-        use_mass_start=false,
+      Chemical.Boundaries.Accumulation
+                                    H3O(
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={30,70})));
 
-      Chemical.Boundaries.Substance OH(
-        useInlet=true,
-        substanceData=Chemical.Substances.Hydroxide_aqueous(),
-        use_mass_start=false,
+      Chemical.Boundaries.Accumulation
+                                    OH(
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={30,26})));
 
       Chemical.Boundaries.Substance H2O(mass_start=1, substanceData=Chemical.Substances.Water_liquid())
         annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-30,46})));
       Chemical.Processes.Reaction waterDissociation(
         s={2},
+        productsSubstanceData={Chemical.Substances.Hydronium_aqueous(),Chemical.Substances.Hydroxide_aqueous()},
         nS=1,
         nP=2)  annotation (Placement(transformation(extent={{-12,36},{8,56}})));
             Real pH, pH3O;
-      Chemical.Boundaries.Substance H_(
-        useInlet=true,
-        substanceData=Chemical.Substances.Proton_aqueous(),
-        use_mass_start=false,
+      Chemical.Boundaries.Accumulation
+                                    H_(
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-30})));
 
-      Chemical.Boundaries.Substance OH_(
-        useInlet=true,
-        substanceData=Chemical.Substances.Hydroxide_aqueous(),
-        use_mass_start=false,
+      Chemical.Boundaries.Accumulation
+                                    OH_(
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-76})));
 
       Chemical.Boundaries.Substance H2O_(mass_start=1, substanceData=Chemical.Substances.Water_liquid())
         annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-32,-56})));
       Chemical.Processes.Reaction waterDissociation_(
+        productsSubstanceData={Chemical.Substances.Proton_aqueous(),Chemical.Substances.Hydroxide_aqueous()},
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
 
@@ -1712,15 +1706,15 @@ extends Modelica.Icons.ExamplesPackage;
         parameter Real KC=1e4;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,46}})));
-      Chemical.Boundaries.Substance HCO3(
-        useInlet=true,
-        amountOfSubstance_start(displayUnit="mmol") = 1e-08,
-        substanceData=Chemical.Substances.Bicarbonate_aqueous(),
-        use_mass_start=false) annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
+      Chemical.Boundaries.Accumulation
+                                    HCO3(
+        amountOfSubstance_start(displayUnit="mmol") = 1e-08)
+                              annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
 
       Chemical.Processes.FastReaction
                                   HendersonHasselbalch(
         TC=dropOfCommons.L,
+        productsSubstanceData={Chemical.Substances.Bicarbonate_aqueous(),Chemical.Substances.Proton_aqueous()},
         kC=1e-4,
         nS=2,
         nP=2)                   "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-46,-6},{-26,14}})));
@@ -1728,18 +1722,11 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=270,
-            origin={-60,86})));
-      Chemical.Boundaries.Substance H(
-        useInlet=true,
-        substanceData=Chemical.Substances.Proton_aqueous(),
-        use_mass_start=false,
+            origin={-76,82})));
+      Chemical.Boundaries.Accumulation
+                                    H(
         amountOfSubstance_start=2e-7) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={10,-30})));
 
-      Chemical.Processes.GasSolubilityProvideOut
-                                       gasSolubilityProvideOut(redeclare
-          package                                                                stateOfMatterIn =
-            Chemical.Interfaces.IdealGas                                                                                        "Ideal Gas", outletSubstance=
-            Chemical.Substances.CarbonDioxide_aqueous())    annotation (Placement(transformation(extent={{-68,34},{-48,54}})));
                                             /*(C=2400, kH_T0(
         displayUnit="(mmol/l)/kPa at 25degC") = 0.81805576878885)*/
       Real pH;
@@ -1750,6 +1737,8 @@ extends Modelica.Icons.ExamplesPackage;
         annotation (Placement(transformation(extent={{48,64},{68,84}})));
 
       inner Chemical.DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{66,12},{86,32}})));
+      Chemical.Processes.GasSolubility gasSolubility(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
+            Chemical.Substances.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-70,42},{-50,62}})));
     equation
       pH = -log10( H.a);
 
@@ -1759,12 +1748,8 @@ extends Modelica.Icons.ExamplesPackage;
                                                    color={127,127,0}));
       connect(H.solution, solution.solution) annotation (Line(points={{4,
               -40},{-12,-40},{-12,-98.54},{60,-98.54}}, color={127,127,0}));
-      connect(CO2_gas.outlet, gasSolubilityProvideOut.inlet)
-        annotation (Line(
-          points={{-60,76},{-60,54},{-58,54}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(CO2_gas.solution, solution.solution) annotation (Line(points={{-70,92},{-90,92},{-90,-98},{60,-98},{60,-98.54}}, color={127,127,0}));
+      connect(CO2_gas.solution, solution.solution) annotation (Line(points={{-86,88},{-106,88},{-106,-60},{-104,-60},{-104,-104},{60,-104},{60,-98.54}},
+                                                                                                                               color={127,127,0}));
       connect(HendersonHasselbalch.products[1], HCO3.inlet)
         annotation (Line(
           points={{-26,3.75},{-26,6},{-16,6}},
@@ -1780,13 +1765,18 @@ extends Modelica.Icons.ExamplesPackage;
           points={{-62,-50},{-54,-50},{-54,3.75},{-46,3.75}},
           color={158,66,200},
           thickness=0.5));
-      connect(gasSolubilityProvideOut.outlet, HendersonHasselbalch.substrates[2])
+      connect(CO2_gas.outlet, gasSolubility.inlet)
         annotation (Line(
-          points={{-58,34},{-58,4.25},{-46,4.25}},
+          points={{-76,72},{-76,60},{-78,60},{-78,52},{-70,52}},
           color={158,66,200},
           thickness=0.5));
-      connect(gasSolubilityProvideOut.solution, solution.solution)
-        annotation (Line(points={{-64,34},{-102,34},{-102,-100},{60,-100},{60,-98.54}}, color={127,127,0}));
+      connect(gasSolubility.outlet, HendersonHasselbalch.substrates[2])
+        annotation (Line(
+          points={{-50,52},{-46,52},{-46,4.25}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(gasSolubility.solution, solution.solution)
+        annotation (Line(points={{-49.8,47.8},{-49.8,40},{-48,40},{-48,-104},{60,-104},{60,-98.54}}, color={127,127,0}));
       annotation ( Documentation(info="<html>
 <p>CO2 solution in water without any other acid-base buffers.</p>
 <pre><b>plotExpression(apply(-log10(CarbonDioxideInWater.H3O.solute)),&nbsp;false,&nbsp;&quot;pH&quot;,&nbsp;1);</b></pre>
@@ -1811,134 +1801,106 @@ extends Modelica.Icons.ExamplesPackage;
     model Phosphate
       import Chemical;
         extends Modelica.Icons.Example;
-        parameter Real KC = 1e-3;
+        parameter Real KC=1e-5;
       Chemical.Solution solution annotation (Placement(transformation(extent={{-98,-100},{100,100}})));
 
-      Chemical.Boundaries.Substance H(
-        useInlet=true,
-        substanceData=Chemical.Substances.Proton_aqueous(),
-        use_mass_start=false,
+      Chemical.Boundaries.Accumulation
+                                    H(initAmount=Chemical.Utilities.Types.InitializationMethods.state,
         amountOfSubstance_start=10^(-7.4)) "hydrogen ions activity" annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={16,-10})));
 
       Chemical.Boundaries.Substance H3PO4(
         substanceData=Chemical.Substances.PhosphoricAcid_aqueous(),
         use_mass_start=false,
-        amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{-90,-58},{-70,-38}})));
-      Chemical.Boundaries.Substance H2PO4(
-        useInlet=true,
-        substanceData=Chemical.Substances.DihydrogenPhosphate_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start=0.0005) annotation (Placement(transformation(extent={{-40,-58},{-20,-38}})));
-      Chemical.Boundaries.Substance HPO4(
-        useInlet=true,
-        substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start=0.0006) annotation (Placement(transformation(extent={{16,-58},{36,-38}})));
-      Chemical.Boundaries.Substance PO4(
-        useInlet=true,
-        substanceData=Chemical.Substances.Phosphate_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{72,-58},{92,-38}})));
+        amountOfSubstance_start(displayUnit="mol") = 1e-4)
+                                       annotation (Placement(transformation(extent={{-92,-58},{-72,-38}})));
+      Chemical.Boundaries.Accumulation
+                                    H2PO4(initAmount=Chemical.Utilities.Types.InitializationMethods.state, amountOfSubstance_start=0.025)
+                                        annotation (Placement(transformation(extent={{-38,-56},{-18,-36}})));
+      Chemical.Boundaries.Accumulation
+                                    HPO4(initAmount=Chemical.Utilities.Types.InitializationMethods.state, amountOfSubstance_start=0.006)
+                                        annotation (Placement(transformation(extent={{16,-56},{36,-36}})));
+      Chemical.Boundaries.Accumulation
+                                    PO4(initAmount=Chemical.Utilities.Types.InitializationMethods.state, amountOfSubstance_start=1e-08)
+                                       annotation (Placement(transformation(extent={{78,-72},{98,-52}})));
 
-      Chemical.Processes.Reaction chemicalReaction(
-        nS=2,
-        nP=2) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-66,-58},{-46,-38}})));
-      Chemical.Processes.Reaction chemicalReaction1(
+      Chemical.Processes.FastReaction
+                                  chemicalReaction(
+        productsSubstanceData={Chemical.Substances.DihydrogenPhosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        kC=KC,
+        nP=2,
+        nS=1) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-64,-58},{-44,-38}})));
+      Chemical.Processes.FastReaction
+                                  chemicalReaction1(
+        productsSubstanceData={Chemical.Substances.HydrogenPhosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        kC=KC,
         nS=1,
         nP=2) "10^(-6.66 + 3)" annotation (Placement(transformation(extent={{-14,-58},{6,-38}})));
-      Chemical.Processes.Reaction chemicalReaction2(
+      Chemical.Processes.FastReaction
+                                  chemicalReaction2(
+        productsSubstanceData={Chemical.Substances.Phosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        kC=1e-8,
         nS=1,
         nP=2) "10^(-11.78 + 3)" annotation (Placement(transformation(extent={{44,-58},{64,-38}})));
 
-      Chemical.Boundaries.Substance H2O(
-        useInlet=true,
-        substanceData=Chemical.Substances.Water_liquid(),
-        mass_start=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={86,14})));
+      Chemical.Boundaries.Substance H2O(use_mass_start=true, amountOfSubstance_start=1/0.018015)
+                      annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={70,28})));
       Real pH "acidity";
-      Chemical.Boundaries.Substance OH(
-        substanceData=Chemical.Substances.Hydroxide_aqueous(),
-        use_mass_start=false,
-        amountOfSubstance_start=10^(-14 + 7.4)) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,32})));
-      Chemical.Processes.Reaction reaction(
-        nS=2,
-        nP=1) annotation (Placement(transformation(extent={{46,4},{66,24}})));
-      Chemical.TopologyToProcess.JunctionN junctionN(N=3) annotation (Placement(transformation(extent={{-26,-20},{-6,0}})));
+      Chemical.Topology.JunctionN          junctionN(N=3) annotation (Placement(transformation(extent={{-26,-18},{-6,2}})));
     equation
       pH = -log10( H.a);
       connect(H3PO4.solution, solution.solution) annotation (Line(
-          points={{-86,-58},{-46,-58},{-46,-98},{60.4,-98}}));
-      connect(H2PO4.solution, solution.solution) annotation (Line(points={{-36,-58},
-            {-36,-88},{60.4,-88},{60.4,-98}}));
-      connect(HPO4.solution, solution.solution) annotation (Line(points={{20,-58},
-            {22,-58},{22,-88},{60.4,-88},{60.4,-98}}));
-      connect(PO4.solution, solution.solution) annotation (Line(points={{76,-58},{76,-88},{60.4,-88},{60.4,-98}}));
+          points={{-88,-58},{-88,-106},{60.4,-106},{60.4,-98}}));
+      connect(H2PO4.solution, solution.solution) annotation (Line(points={{-34,-56},{-34,-88},{60.4,-88},{60.4,-98}}));
+      connect(HPO4.solution, solution.solution) annotation (Line(points={{20,-56},{22,-56},{22,-88},{60.4,-88},{60.4,-98}}));
+      connect(PO4.solution, solution.solution) annotation (Line(points={{82,-72},{104,-72},{104,-108},{60.4,-108},{60.4,-98}}));
       connect(H.solution, solution.solution) annotation (Line(points={{10,-20},{10,-88},{60.4,-88},{60.4,-98}}));
     connect(H2O.solution, solution.solution) annotation (Line(
-        points={{80,4},{80,-98},{60.4,-98}},
+        points={{64,18},{104,18},{104,-108},{60.4,-108},{60.4,-98}},
         color={158,66,200}));
-      connect(OH.solution, solution.solution) annotation (Line(points={{22,22},
-              {22,-88},{60.4,-88},{60.4,-98}}, color={127,127,0}));
       connect(junctionN.outlet, H.inlet) annotation (Line(
-          points={{-6,-10},{6,-10}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(OH.outlet, reaction.substrates[1]) annotation (Line(
-          points={{38,32},{42,32},{42,13.75},{46,13.75}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(H.outlet, reaction.substrates[2]) annotation (Line(
-          points={{26,-10},{40,-10},{40,14.25},{46,14.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reaction.products[1], H2O.inlet) annotation (Line(
-          points={{66,14},{76,14}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(H3PO4.outlet, chemicalReaction.substrates[1]) annotation (Line(
-          points={{-70,-48},{-68,-48},{-68,-48.25},{-66,-48.25}},
+          points={{-6,-8},{0,-8},{0,-10},{6,-10}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction.products[1], H2PO4.inlet)
         annotation (Line(
-          points={{-46,-48.25},{-44,-48.25},{-44,-48},{-40,-48}},
+          points={{-44,-48.25},{-44,-46},{-38,-46}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction.products[2], junctionN.inlets[1])
         annotation (Line(
-          points={{-46,-47.75},{-36,-47.75},{-36,-10.6667},{-26,-10.6667}},
+          points={{-44,-47.75},{-36,-47.75},{-36,-8.66667},{-26,-8.66667}},
           color={158,66,200},
           thickness=0.5));
       connect(H2PO4.outlet, chemicalReaction1.substrates[1]) annotation (Line(
-          points={{-20,-48},{-14,-48}},
+          points={{-18,-46},{-18,-48},{-14,-48}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction1.products[1], HPO4.inlet)
         annotation (Line(
-          points={{6,-48.25},{12,-48.25},{12,-48},{16,-48}},
+          points={{6,-48.25},{12,-48.25},{12,-46},{16,-46}},
           color={158,66,200},
           thickness=0.5));
       connect(HPO4.outlet, chemicalReaction2.substrates[1]) annotation (Line(
-          points={{36,-48},{44,-48}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(chemicalReaction2.products[1], PO4.inlet)
-        annotation (Line(
-          points={{64,-48.25},{68,-48.25},{68,-48},{72,-48}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(chemicalReaction2.products[2], junctionN.inlets[3])
-        annotation (Line(
-          points={{64,-47.75},{66,-47.75},{66,-26},{-40,-26},{-40,-9.33333},{-26,-9.33333}},
+          points={{36,-46},{40,-46},{40,-48},{44,-48}},
           color={158,66,200},
           thickness=0.5));
       connect(chemicalReaction1.products[2], junctionN.inlets[2])
         annotation (Line(
-          points={{6,-47.75},{10,-47.75},{10,-30},{-42,-30},{-42,-10},{-26,-10}},
+          points={{6,-47.75},{10,-47.75},{10,-30},{-42,-30},{-42,-8},{-26,-8}},
           color={158,66,200},
           thickness=0.5));
-      connect(H3PO4.outlet, chemicalReaction.substrates[2])
+      connect(H3PO4.outlet, chemicalReaction.substrates[1]) annotation (Line(
+          points={{-72,-48},{-64,-48}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(chemicalReaction2.products[1], PO4.inlet)
         annotation (Line(
-          points={{-70,-48},{-68,-48},{-68,-47.75},{-66,-47.75}},
+          points={{64,-48.25},{74,-48.25},{74,-62},{78,-62}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(chemicalReaction2.products[2], junctionN.inlets[3])
+        annotation (Line(
+          points={{64,-47.75},{72,-47.75},{72,-24},{-60,-24},{-60,-7.33333},{-26,-7.33333}},
           color={158,66,200},
           thickness=0.5));
       annotation ( Documentation(info="<html>
@@ -1946,7 +1908,7 @@ extends Modelica.Icons.ExamplesPackage;
 <p><i>2014-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"),
-        experiment(StopTime=0.05));
+        experiment(StopTime=0.01, __Dymola_Algorithm="Dassl"));
     end Phosphate;
 
     model CarbonDioxideInBlood
@@ -2189,7 +2151,7 @@ extends Modelica.Icons.ExamplesPackage;
           color={158,66,200},
           thickness=0.5));
       connect(splitterT1.outletA, gasSolubility.inlet) annotation (Line(
-          points={{-68,86},{-68,78}},
+          points={{-68,86},{-68,78},{-68,68},{-78,68}},
           color={158,66,200},
           thickness=0.5));
       connect(gasSolubilitySubstance.inlet, splitterT1.outletB)

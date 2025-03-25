@@ -2583,7 +2583,7 @@ end solution_temperature_;
 
   partial model PartialReaction "Chemical Reaction"
     extends Chemical.Interfaces.MIMO;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
+
 
     parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
      annotation (choicesAllMatching = true);
