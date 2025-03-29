@@ -213,6 +213,100 @@ package Interfaces "Chemical interfaces"
    end SubstanceData;
 
 
+    replaceable partial model BaseProperties "Base properties of the substance"
+
+      InputSubstanceData substanceDataVar "Definition of the substance";
+
+      Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
+
+      InputMoleFraction x "Mole fraction of the substance";
+
+      Modelica.Units.SI.ActivityOfSolute a
+      "Activity of the substance (mole-fraction based)";
+
+      Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
+
+      InputTemperature T
+      "Temperature of the solution";
+
+      InputPressure p "Pressure of the solution";
+
+      InputElectricPotential v
+      "Electric potential of the solution";
+
+      InputMoleFraction I
+      "Ionic strength of the solution";
+
+      Modelica.Units.SI.MolarEnthalpy h
+      "Molar enthalpy of the substance";
+
+      Modelica.Units.SI.MolarEnthalpy hPure
+      "Molar enthalpy of the pure substance";
+
+      Modelica.Units.SI.MolarEntropy sPure
+      "Molar entropy of the pure substance";
+
+      Modelica.Units.SI.ChemicalPotential u0
+      "Chemical potential of the pure substance";
+
+      Modelica.Units.SI.ChemicalPotential uPure
+      "Electro-Chemical potential of the pure substance";
+
+      Modelica.Units.SI.MolarVolume Vm
+      "Molar volume of the substance";
+
+      Modelica.Units.SI.MolarMass MM
+      "Molar mass of the substance";
+
+      Modelica.Units.SI.MolarVolume VmPure
+      "Molar volume of the pure substance";
+
+      Modelica.Units.SI.MolarVolume VmExcess
+      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+
+     // Local connector definition, used for equation balancing check
+
+      connector InputSubstanceData = input SubstanceData
+        "Substance definition as input signal connector";
+      connector InputTemperature = input Modelica.Units.SI.Temperature
+        "Temperature as input signal connector";
+      connector InputPressure = input Modelica.Units.SI.Pressure
+        "Pressure as input signal connector";
+      connector InputElectricPotential = input Modelica.Units.SI.ElectricPotential
+        "Electric potential as input signal connector";
+      connector InputMoleFraction = input Modelica.Units.SI.MoleFraction
+        "Mole fraction as input signal connector";
+
+    equation
+      assert(x > 0, "Molar fraction must be positive");
+
+     gamma = activityCoefficient(substanceDataVar,T,p,v,I);
+     z = chargeNumberOfIon(substanceDataVar,T,p,v,I);
+
+     MM = 1/specificAmountOfParticles(substanceDataVar,T,p,v,I);
+     h = molarEnthalpy(substanceDataVar,T,p,v,I);
+     sPure = molarEntropyPure(substanceDataVar,T,p,v,I);
+     hPure = uPure + T*sPure;
+     u0 = chemicalPotentialPure(substanceDataVar,T,p,v,I);
+     uPure = electroChemicalPotentialPure(substanceDataVar,T,p,v,I);
+     Vm = molarVolume(substanceDataVar,T,p,v,I);
+     VmPure = molarVolumePure(substanceDataVar,T,p,v,I);
+     VmExcess = molarVolumeExcess(substanceDataVar,T,p,v,I);
+     //  molarHeatCapacityCp = smolarHeatCapacityCp(substanceDataVar,T,p,v,I);
+
+     //activity of the substance
+     a = gamma*x;
+
+     //electro-chemical potential of the substance in the solution
+     u = chemicalPotentialPure(substanceDataVar,T,p,v,I)
+       + (Modelica.Constants.R*T)*log(a)
+       + z*Modelica.Constants.F*v;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end BaseProperties;
+
    replaceable function activityCoefficient
     "Return activity coefficient of the substance in the solution"
       extends Modelica.Icons.Function;
@@ -727,6 +821,9 @@ end solution_temperature_;
 </html>"));
     end SubstanceData;
 
+    redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
+    end BaseProperties;
+
     redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
     algorithm
@@ -1122,6 +1219,9 @@ end solution_temperature_;
 </html>"));
      end SubstanceData;
 
+     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
+     end BaseProperties;
+
    redeclare function extends activityCoefficient
     "Return activity coefficient of the substance in the solution"
    algorithm
@@ -1226,6 +1326,9 @@ end solution_temperature_;
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
     end SubstanceData;
+
+    redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
+    end BaseProperties;
 
     redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -1445,6 +1548,9 @@ end solution_temperature_;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
    end SubstanceData;
+
+   redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
+   end BaseProperties;
 
    redeclare function extends activityCoefficient
     "Return activity coefficient of the substance in the solution"
