@@ -215,19 +215,12 @@ package Interfaces "Chemical interfaces"
 
     replaceable partial model BaseProperties "Base properties of the substance"
 
-      InputSubstanceData substanceDataVar "Definition of the substance";
-
-      Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
-
       InputMoleFraction x "Mole fraction of the substance";
 
-      Modelica.Units.SI.ActivityOfSolute a
-      "Activity of the substance (mole-fraction based)";
+      InputSubstanceData substanceDataVar "Definition of the substance";
 
-      Modelica.Units.SI.ActivityCoefficient gamma
-      "Activity coefficient of the substance";
-
-      Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
+      InputAmountOfSubstance n
+      "Amount of all particles in solution";
 
       InputTemperature T
       "Temperature of the solution";
@@ -239,6 +232,17 @@ package Interfaces "Chemical interfaces"
 
       InputMoleFraction I
       "Ionic strength of the solution";
+
+      Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
+
+      Modelica.Units.SI.ActivityOfSolute a
+      "Activity of the substance (mole-fraction based)";
+
+      Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
+
 
       Modelica.Units.SI.MolarEnthalpy h
       "Molar enthalpy of the substance";
@@ -279,6 +283,8 @@ package Interfaces "Chemical interfaces"
         "Electric potential as input signal connector";
       connector InputMoleFraction = input Modelica.Units.SI.MoleFraction
         "Mole fraction as input signal connector";
+      connector InputAmountOfSubstance = input Modelica.Units.SI.AmountOfSubstance
+        "Amount of substance as input signal connector";
 
     equation
       assert(x > 0, "Molar fraction must be positive");

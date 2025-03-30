@@ -721,8 +721,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{38,76},{58,96}})));
   equation
 
-    kH_CO2_25 = CO2_25.c / CO2_g_25.x;
-    kH_O2_25 = O2_25.c / O2_g_25.x;
+    kH_CO2_25 = CO2_25.c / CO2_g_25.substance.x;
+    kH_O2_25 = O2_25.c / O2_g_25.substance.x;
   //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
   //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
 
@@ -1641,9 +1641,9 @@ extends Modelica.Icons.ExamplesPackage;
       inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
         annotation (Placement(transformation(extent={{-90,50},{-70,70}})));
     equation
-      pH3O = -log10( H3O.a);
+      pH3O = -log10( H3O.substance.a);
 
-      pH = -log10( H_.a);
+      pH = -log10( H_.substance.a);
 
       connect(H2O.solution, solution.solution) annotation (Line(
           points={{-36,36},{46.4,36},{46.4,2.94}},
@@ -1740,7 +1740,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Processes.GasSolubility gasSolubility(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
             Chemical.Substances.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-70,42},{-50,62}})));
     equation
-      pH = -log10( H.a);
+      pH = -log10( H.substance.a);
 
       connect(HCO3.solution, solution.solution) annotation (Line(points={{-12,-4},
             {-12,-98.54},{60,-98.54}},color={127,127,0}));
@@ -1847,7 +1847,7 @@ extends Modelica.Icons.ExamplesPackage;
       Real pH "acidity";
       Chemical.Topology.JunctionN          junctionN(N=3) annotation (Placement(transformation(extent={{-26,-18},{-6,2}})));
     equation
-      pH = -log10( H.a);
+      pH = -log10( H.substance.a);
       connect(H3PO4.solution, solution.solution) annotation (Line(
           points={{-88,-58},{-88,-106},{60.4,-106},{60.4,-98}}));
       connect(H2PO4.solution, solution.solution) annotation (Line(points={{-34,-56},{-34,-88},{60.4,-88},{60.4,-98}}));
@@ -2081,8 +2081,8 @@ extends Modelica.Icons.ExamplesPackage;
             Chemical.Interfaces.IdealGas                                                                                                 "Ideal Gas")
                                                                         annotation (Placement(transformation(extent={{-110,58},{-90,78}})));
     equation
-      pH_p = -log10(H.a);
-      pH_e = -log10(H_E.a);
+      pH_p = -log10(H.substance.a);
+      pH_e = -log10(H_E.substance.a);
     connect(H2O.solution, blood_plasma.solution)
       annotation (Line(points={{-32,14},{-32,0},{60,0},{60,4.52}},
                                                         color={127,127,0}));
@@ -2426,7 +2426,7 @@ extends Modelica.Icons.ExamplesPackage;
         a_start=10^(-7.2),
         BufferValue=3) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={34,-68})));
     equation
-      pH_p = -log10(H.a);
+      pH_p = -log10(H.substance.a);
     //  pH_e = -log10(H_E.a);
     connect(H2O.solution, blood_plasma.solution)
       annotation (Line(points={{-150,44},{-150,44},{-150,26},{-150,26},{-150,20},{108,
@@ -3191,8 +3191,8 @@ extends Modelica.Icons.ExamplesPackage;
             origin={-82,-16})));
       inner DropOfCommons dropOfCommons(L=10) annotation (Placement(transformation(extent={{-112,-92},{-92,-72}})));
     equation
-      sO2 = (R1.x + 2*R2.x + 3*R3.x + 4*R4.x + T1.x + 2*T2.x + 3*T3.x + 4*T4.x) /
-       (4*(R0.x + R1.x + R2.x + R3.x + R4.x + T0.x + T1.x + T2.x + T3.x + T4.x));
+      sO2 = (R1.substance.x + 2*R2.substance.x + 3*R3.substance.x + 4*R4.substance.x + T1.substance.x + 2*T2.substance.x + 3*T3.substance.x + 4*T4.substance.x) /
+       (4*(R0.substance.x + R1.substance.x + R2.substance.x + R3.substance.x + R4.substance.x + T0.substance.x + T1.substance.x + T2.substance.x + T3.substance.x + T4.substance.x));
 
       connect(oxygen_unbound.solution, solution.solution) annotation (Line(
           points={{-84,-70},{-84,-112},{102,-112},{102,-104},{84,-104},{84,-108},{68,-108},{68,-97.94}},

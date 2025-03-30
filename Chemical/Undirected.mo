@@ -176,6 +176,845 @@ package Undirected
   package Boundaries "Boundary models for undirected chemical simulation"
     extends Modelica.Icons.SourcesPackage;
 
+    model Substance "Substance in solution"
+      extends Icons.Substance;
+      extends Internal.PartialSubstanceInSolution;
+
+      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+        "Molar concentration of particles";
+
+       parameter stateOfMatter.SubstanceDataParameters substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true, Dialog(enable=not useRear));
+
+      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
+        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
+
+    parameter Modelica.Units.SI.Mass mass_start=1
+      "Initial mass of the substance"
+      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+      "Initial amount of substance base molecules"
+        annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+
+      Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+          molarMassOfBaseMolecule "Mass";
+
+      parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+
+    protected
+      parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+        amountOfSubstance_start*molarMassOfBaseMolecule;
+
+      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+           m_start/molarMassOfBaseMolecule)
+        "Amount of base molecules inside all clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+           m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of free molecules not included inside any clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+           m_start*stateOfMatter.specificAmountOfParticles(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of particles/clusters in compartment";
+
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*solutionState.T))
+        "Dissociation constant of hydrogen bond between base molecules";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          stateOfMatter.selfClusteringBondEnthalpy(substanceData)
+        - solutionState.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+        "Gibbs energy of hydrogen bond between H2O molecules";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBonds
+        "Amount of hydrogen bonds between molecules in compartment";
+
+      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
+      "Natural logarithm of the amount of base molecules in solution";
+
+      parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
+
+    initial equation
+
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+
+    equation
+      if not useRear then
+       substanceDataVar = substanceData;
+      end if;
+     //n_flow = n_flow_out;
+
+      if stateOfMatter.selfClustering(substanceData) then
+
+        //Liquid cluster theory - equilibrium:
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
+        //amountOfParticles/solutionState.n = x/(1-K*x);                //sum(x[i])
+        //amountOfBaseMolecules/solutionState.n = x/((1-K*x)^2);            //sum(i*x[i])
+        //amountOfHydrogenBonds/solutionState.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+
+        amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
+        substance.x = ((2*SelfClustering_K+solutionState.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solutionState.n/amountOfBaseMolecules)+(solutionState.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+        //TODO: more precise calculation of other properties
+
+       //der(enthalpy) = solutionState.dH + n_flow*actualStream(port_a.h_outflow);
+       //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+        dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+          amountOfBaseMolecules + h_flow + (
+          if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+          substanceData)*der(amountOfBonds) else 0)
+                        "heat transfer from other substances in solution [J/s]";
+
+        Gj =amountOfBaseMolecules*substance.u + amountOfBonds*SelfClustering_dG
+                        "Gibbs energy of the substance";
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfBonds = 0;
+
+        //der(enthalpy) = solutionState.dH + n_flow*actualStream(port_a.h_outflow);
+        //enthalpy = molarEnthalpy*amountOfBaseMolecules;
+        dH =
+          if (EnthalpyNotUsed) then  0
+          else    der(substance.h)*amountOfBaseMolecules + h_flow
+                  "heat transfer from other substances in solution [J/s]";
+
+        Gj = amountOfBaseMolecules*substance.u "Gibbs energy of the substance [J]";
+
+      end if;
+
+      //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+      // However, the numerical solvers can handle it in form of log(n) much better. :-)
+      der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+      //der(amountOfBaseMolecules) = n_flow;
+      amountOfBaseMolecules = exp(logn);
+
+      substance.x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
+
+      c = amountOfParticles/solutionState.V "concentration [mol/m3]";
+
+
+
+      //solution flows
+      i = Modelica.Constants.F*substance.z*n_flow +
+          Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+      dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+      //extensive properties
+      nj = amountOfParticles;
+      mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+      Vj = amountOfBaseMolecules*substance.Vm;
+      Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+      Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+         annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}), graphics={Text(
+              extent={{-84,22},{92,64}},
+              lineColor={128,0,255},
+              textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",     info="<html>
+<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solutionState. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end Substance;
+
+    model ElectronTransfer "Electron transfer from the solution to electric circuit"
+      extends Icons.ElectronTransfer;
+      extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter=Chemical.Interfaces.Incompressible);
+
+      Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+          Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
+              extent={{-10,88},{10,108}})));
+
+      parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
+
+
+    initial equation
+      if useRear then
+        substance.u = u_0;
+      elseif useFore then
+        r_fore_port=0;
+      end if;
+
+    equation
+      if not useRear then
+       substanceDataVar = Chemical.Substances.Electrone_solid();
+      end if;
+
+
+      substance.x = 1;
+
+      //electric
+      pin.v = substance.v;
+      pin.i + substance.z*Modelica.Constants.F*n_flow + i = 0;
+
+      //none solution changes
+      dH = 0;
+      dV = 0;
+      nj=0;
+      mj=0;
+      Vj=0;
+      Gj=0;
+      Qj=0;
+      Ij=0;
+
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Text(
+              extent={{-146,-44},{154,-84}},
+              textString="%name",
+              lineColor={128,0,255})}),
+        Documentation(revisions="<html>
+<p><i>2009-2025</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end ElectronTransfer;
+
+    model ExternalGas "Gas substance with defined partial pressure"
+      extends Chemical.Undirected.Boundaries.Internal.PartialSubstanceInSolution
+                                                 (redeclare package stateOfMatter = gasModel);
+
+       replaceable package gasModel = Chemical.Interfaces.IdealGasMSL constrainedby
+        Chemical.Interfaces.StateOfMatter "Gas substance model"
+        annotation (choices(
+          choice(redeclare package gasModel =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package gasModel =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package gasModel =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+       parameter gasModel.SubstanceDataParameters substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true, Dialog(enable=not useRear));
+
+      parameter Boolean usePartialPressureInput = false
+      "=true, if fixed partial pressure is from input instead of parameter"
+      annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Modelica.Units.SI.Pressure PartialPressure=1e-5
+        "Fixed partial pressure if usePartialPressureInput=false" annotation (
+         HideResult=true, Dialog(enable=not usePartialPressureInput));
+
+      Modelica.Blocks.Interfaces.RealInput partialPressure(start=
+            PartialPressure, final unit="Pa")=p if usePartialPressureInput
+      "Partial pressure of gas = total pressure * gas fraction"
+        annotation (HideResult=true,Placement(transformation(extent={{-20,-20},{20,20}},
+            rotation=0,
+            origin={-100,72}), iconTransformation(
+            extent={{-20,-20},{20,20}},
+            rotation=0,
+            origin={-100,72})));
+
+      Modelica.Units.SI.Pressure p "Current partial pressure";
+
+    equation
+      if not useRear then
+       substanceDataVar = substanceData;
+      end if;
+
+      if not usePartialPressureInput then
+        p=PartialPressure;
+      end if;
+
+      //mole fraction
+      substance.x = p / solutionState.p;
+
+      dH = 0;
+      i = 0;
+      dV = 0;
+      Gj = 0;
+      nj = 0;
+      mj = 0;
+      Qj = 0;
+      Ij = 0;
+      Vj = 0;
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={0,0,0},
+            pattern=LinePattern.None,
+            fillColor={170,255,255},
+            fillPattern=FillPattern.Backward),
+            Polygon(
+              points={{-100,100},{100,-100},{100,100},{-100,100}},
+              fillColor={159,159,223},
+              fillPattern=FillPattern.Backward,
+              pattern=LinePattern.None,
+              lineColor={0,0,0}),
+            Text(
+              extent={{54,108},{-46,8}},
+              lineColor={0,0,0},
+              textString="P,T"),
+            Line(
+              points={{-62,0},{56,0}},
+              color={191,0,0},
+              thickness=0.5),
+            Polygon(
+              points={{38,-20},{38,20},{78,0},{38,-20}},
+              lineColor={191,0,0},
+              fillColor={191,0,0},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,150},{150,110}},
+              textString="%name",
+              lineColor={128,0,255}),
+            Text(
+              extent={{-100,-102},{104,-126}},
+              lineColor={0,0,0},
+              textString="%T K")}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end ExternalGas;
+
+    model FixedSubstance "Constant source of molar concentration"
+       extends Chemical.Undirected.Boundaries.Internal.PartialSubstanceInSolution;
+
+      parameter stateOfMatter.SubstanceDataParameters substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true, Dialog(enable=not useRear));
+
+      parameter Real FixedValue = 1e-8
+      "Fixed value if useVariableInput=false"
+        annotation (HideResult=true, Dialog(enable=not useVariableInput));
+
+      parameter Boolean useVariableInput = false
+      "Is amount of substance an input?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      Modelica.Blocks.Interfaces.RealInput VariableInput=val if useVariableInput
+        annotation (HideResult=true, Placement(transformation(extent={{-130,56},{-90,96}})));
+
+      Real val;
+    equation
+      if not useRear then
+       substanceDataVar = substanceData;
+      end if;
+
+      if not useVariableInput then
+        val=FixedValue;
+      end if;
+
+      //mole fraction
+      substance.x = val / solutionState.p;
+
+      dH = 0;
+      i = 0;
+      dV = 0;
+      Gj = 0;
+      nj = 0;
+      mj = 0;
+      Qj = 0;
+      Ij = 0;
+      Vj = 0;
+
+      annotation ( Icon(coordinateSystem(
+              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+            graphics={
+            Rectangle(
+              extent={{-100,100},{100,-100}},
+              lineColor={0,0,0},
+              pattern=LinePattern.None,
+              fillColor={107,45,134},
+              fillPattern=FillPattern.Backward),
+            Text(
+              extent={{94,92},{-94,18}},
+              lineColor={0,0,0},
+              textString="molarity"),
+            Line(
+              points={{-62,0},{56,0}},
+              color={191,0,0},
+              thickness=0.5),
+            Polygon(
+              points={{38,-20},{38,20},{78,0},{38,-20}},
+              lineColor={191,0,0},
+              fillColor={191,0,0},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,150},{150,110}},
+              textString="%name",
+              lineColor={128,0,255}),
+            Text(
+              extent={{-104,-76},{100,-100}},
+              lineColor={0,0,0},
+              textString="%T K")}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end FixedSubstance;
+
+    package Tests "Tests for the boundaries package"
+      extends Modelica.Icons.ExamplesPackage;
+
+      model TestSubstance
+         extends Modelica.Icons.Example;
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
+
+        BoundaryRear boundaryRear(
+          substanceData=Chemical.Substances.Water_liquid(),
+          solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-76,14},{-56,34}})));
+        Substance substance(
+          useFore=false,
+          substanceData=Chemical.Substances.Water_liquid())
+                            annotation (Placement(transformation(extent={{24,14},{44,34}})));
+        Substance substance2(
+          useRear=false,
+          solutionFromInput=true,
+          substanceData=Chemical.Substances.Water_liquid())
+                                                  annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
+        BoundaryFore boundaryFore annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
+        Substance substance1(useRear=false, substanceData=Chemical.Substances.Water_liquid())
+                                                  annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
+        BoundaryFore boundaryFore1
+                                  annotation (Placement(transformation(extent={{32,72},{52,92}})));
+        BoundaryRear boundaryRear1(substanceData=Chemical.Substances.Water_liquid(), solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-78,42},{-58,62}})));
+        Substance substance3(substanceData=Chemical.Substances.Water_liquid())
+                            annotation (Placement(transformation(extent={{-28,42},{-8,62}})));
+        BoundaryFore boundaryFore2
+                                  annotation (Placement(transformation(extent={{30,42},{50,62}})));
+        BoundaryRear boundaryRear2(substanceData=Chemical.Substances.Water_liquid(), solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
+        Substance substance4(
+          useFore=false,
+          solutionFromInput=true,
+          substanceData=Chemical.Substances.Water_liquid())
+                            annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
+        BoundaryRear boundaryRear3(substanceData=Chemical.Substances.Water_liquid(), solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
+        Substance substance5(solutionFromInput=true, substanceData=Chemical.Substances.Water_liquid())
+                            annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
+        BoundaryFore boundaryFore3
+                                  annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
+      equation
+        connect(boundaryRear.fore, substance.rear) annotation (Line(
+            points={{-56,24},{24,24}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(substance2.fore,boundaryFore. rear) annotation (Line(
+            points={{-48,-16},{36,-16}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(substance2.solution, solution.solution) annotation (Line(points={{-64,-26},{-64,-104},{60,-104},{60,-98.94}},        color={127,127,0}));
+        connect(substance1.fore, boundaryFore1.rear) annotation (Line(
+            points={{-52,82},{32,82}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear1.fore, substance3.rear) annotation (Line(
+            points={{-58,52},{-28,52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(substance3.fore, boundaryFore2.rear) annotation (Line(
+            points={{-8,52},{30,52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear2.fore, substance4.rear) annotation (Line(
+            points={{-46,-72},{34,-72}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear3.fore, substance5.rear) annotation (Line(
+            points={{-48,-44},{-18,-44}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(substance5.fore, boundaryFore3.rear) annotation (Line(
+            points={{2,-44},{40,-44}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(substance5.solution, solution.solution) annotation (Line(points={{-14,-54},{-14,-104},{60,-104},{60,-98.94}}, color={127,127,0}));
+        connect(substance4.solution, solution.solution) annotation (Line(points={{38,-82},{38,-104},{60,-104},{60,-98.94}}, color={127,127,0}));
+         annotation (
+          Icon(graphics,
+               coordinateSystem(preserveAspectRatio=false)),
+          Diagram(coordinateSystem(preserveAspectRatio=false)),
+          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
+          Documentation(info="<html>
+<u>Tests for the rear and fore boundary.</u>
+<u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
+</html>"));
+      end TestSubstance;
+
+      model TestElectronTransfer
+         extends Modelica.Icons.Example;
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,0}})));
+        Chemical.Undirected.Boundaries.ElectronTransfer electronTransfer(useRear=false, solutionFromInput=true)
+                                                                                        annotation (Placement(transformation(extent={{-58,-32},{-38,-12}})));
+        Chemical.Undirected.Boundaries.BoundaryFore boundaryFore1(u0_par=1000)        annotation (Placement(transformation(extent={{56,-34},{76,-14}})));
+        ElectronTransfer                                electronTransfer1(useRear=false)
+                                                                                        annotation (Placement(transformation(extent={{-56,70},{-36,90}})));
+        BoundaryFore                                boundaryFore2(u0_par=1000)        annotation (Placement(transformation(extent={{58,70},{78,90}})));
+        ElectronTransfer electronTransfer2 annotation (Placement(transformation(extent={{-4,46},{16,66}})));
+        ElectronTransfer electronTransfer3(useFore=false) annotation (Placement(transformation(extent={{50,20},{70,40}})));
+        BoundaryRear boundaryRear(substanceData=Chemical.Substances.Electrone_solid()) annotation (Placement(transformation(extent={{-60,46},{-40,66}})));
+        BoundaryRear boundaryRear1(substanceData=Chemical.Substances.Electrone_solid()) annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
+        BoundaryFore boundaryFore annotation (Placement(transformation(extent={{58,46},{78,66}})));
+        ElectronTransfer electronTransfer4(solutionFromInput=true) annotation (Placement(transformation(extent={{0,-62},{20,-42}})));
+        ElectronTransfer electronTransfer5(useFore=false, solutionFromInput=true) annotation (Placement(transformation(extent={{54,-88},{74,-68}})));
+        BoundaryRear boundaryRear2(substanceData=Chemical.Substances.Electrone_solid()) annotation (Placement(transformation(extent={{-56,-62},{-36,-42}})));
+        BoundaryRear boundaryRear3(substanceData=Chemical.Substances.Electrone_solid()) annotation (Placement(transformation(extent={{-56,-88},{-36,-68}})));
+        BoundaryFore boundaryFore3 annotation (Placement(transformation(extent={{62,-62},{82,-42}})));
+      equation
+        connect(electronTransfer.fore, boundaryFore1.rear) annotation (Line(
+            points={{-38,-22},{56,-22},{56,-24}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(electronTransfer.solution, solution.solution) annotation (Line(points={{-54,-32},{-54,-106},{60,-106},{60,-99}}, color={127,127,0}));
+        connect(electronTransfer1.fore, boundaryFore2.rear) annotation (Line(
+            points={{-36,80},{58,80}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear.fore, electronTransfer2.rear) annotation (Line(
+            points={{-40,56},{-4,56}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(electronTransfer2.fore, boundaryFore.rear) annotation (Line(
+            points={{16,56},{58,56}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear1.fore, electronTransfer3.rear) annotation (Line(
+            points={{-40,30},{50,30}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear2.fore, electronTransfer4.rear) annotation (Line(
+            points={{-36,-52},{0,-52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(electronTransfer4.fore, boundaryFore3.rear) annotation (Line(
+            points={{20,-52},{62,-52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear3.fore, electronTransfer5.rear) annotation (Line(
+            points={{-36,-78},{54,-78}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(electronTransfer4.solution, solution.solution) annotation (Line(points={{4,-62},{6,-62},{6,-106},{60,-106},{60,-99}}, color={127,127,0}));
+        connect(electronTransfer5.solution, solution.solution) annotation (Line(points={{58,-88},{58,-94},{60,-94},{60,-99}}, color={127,127,0}));
+         annotation (
+          Icon(graphics,
+               coordinateSystem(preserveAspectRatio=false)),
+          Diagram(coordinateSystem(preserveAspectRatio=false)),
+          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
+          Documentation(info="<html>
+<u>Tests for the rear and fore boundary.</u>
+<u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
+</html>"));
+      end TestElectronTransfer;
+
+      model TestExternal
+         extends Modelica.Icons.Example;
+        Chemical.Solution solution(redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL")
+                                   annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
+
+        replaceable package gasModel = Chemical.Interfaces.IdealGasMSL constrainedby
+          Chemical.Interfaces.StateOfMatter "Gas substance model"
+          annotation (choices(
+            choice(redeclare package gasModel =
+              Chemical.Interfaces.IdealGas        "Ideal Gas"),
+            choice(redeclare package gasModel =
+              Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+            choice(redeclare package gasModel =
+              Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+        ExternalGas
+                  externalGas1(
+          useFore=false,
+          redeclare package gasModel = gasModel,
+                         PartialPressure(displayUnit="mmHg") = 133.322387415)
+                            annotation (Placement(transformation(extent={{24,14},{44,34}})));
+        ExternalGas
+                  externalGas2(
+          useRear=false,
+          solutionFromInput=true,
+          redeclare package gasModel = gasModel,
+          substanceData=Chemical.Substances.IdealGasesMSL.H2O(),
+          PartialPressure(displayUnit="mmHg") = 1333.22387415)
+                                                  annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
+        BoundaryFore boundaryFore(redeclare package stateOfMatter = gasModel)
+                                  annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
+        ExternalGas externalIdealGas(
+          useRear=false,
+          redeclare package gasModel = gasModel,
+          substanceData=Chemical.Substances.IdealGasesMSL.H2O(),
+          PartialPressure(displayUnit="mmHg") = 1999.835811225) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
+        BoundaryFore boundaryFore1(redeclare package stateOfMatter = gasModel)
+                                  annotation (Placement(transformation(extent={{32,72},{52,92}})));
+        BoundaryRear boundaryRear1(
+          redeclare package stateOfMatter = gasModel,
+          substanceData=Chemical.Substances.IdealGasesMSL.H2O(),
+          solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-76,42},{-56,62}})));
+        ExternalGas
+                  externalGas(redeclare package gasModel = gasModel,                 PartialPressure(displayUnit="mmHg") = 1333.22387415)
+                            annotation (Placement(transformation(extent={{-26,42},{-6,62}})));
+        BoundaryFore boundaryFore2(redeclare package stateOfMatter = gasModel)
+                                  annotation (Placement(transformation(extent={{30,42},{50,62}})));
+        BoundaryRear boundaryRear2(
+          redeclare package stateOfMatter = gasModel,
+                                   substanceData=Chemical.Substances.IdealGasesMSL.H2O(), solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
+        ExternalGas
+                  externalGas4(useFore=false, solutionFromInput=true,
+          redeclare package gasModel = gasModel,
+          PartialPressure(displayUnit="mmHg") = 133.322387415)
+                            annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
+        BoundaryRear boundaryRear3(
+          redeclare package stateOfMatter = gasModel,
+                                   substanceData=Chemical.Substances.IdealGasesMSL.H2O(), solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
+        ExternalGas
+                  externalGas3(solutionFromInput=true,
+          redeclare package gasModel = gasModel,       PartialPressure(displayUnit="mmHg") = 133.322387415)
+                            annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
+        BoundaryFore boundaryFore3(redeclare package stateOfMatter = gasModel)
+                                  annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
+        BoundaryRear boundaryRear4(
+          redeclare package stateOfMatter = gasModel,
+          substanceData=Chemical.Substances.IdealGasesMSL.H2O(),
+          solutionFromInput=false)
+                         annotation (Placement(transformation(extent={{-74,14},{-54,34}})));
+      equation
+        connect(externalGas2.fore, boundaryFore.rear) annotation (Line(
+            points={{-48,-16},{36,-16}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(externalGas2.solution, solution.solution) annotation (Line(points={{-64,-26},{-64,-104},{60,-104},{60,-98.94}}, color={127,127,0}));
+        connect(externalIdealGas.fore, boundaryFore1.rear) annotation (Line(
+            points={{-52,82},{32,82}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear1.fore, externalGas.rear) annotation (Line(
+            points={{-56,52},{-26,52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(externalGas.fore, boundaryFore2.rear) annotation (Line(
+            points={{-6,52},{30,52}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear2.fore, externalGas4.rear) annotation (Line(
+            points={{-46,-72},{34,-72}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundaryRear3.fore, externalGas3.rear) annotation (Line(
+            points={{-48,-44},{-18,-44}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(externalGas3.fore, boundaryFore3.rear) annotation (Line(
+            points={{2,-44},{40,-44}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(externalGas3.solution, solution.solution) annotation (Line(points={{-14,-54},{-14,-104},{60,-104},{60,-98.94}}, color={127,127,0}));
+        connect(externalGas4.solution, solution.solution) annotation (Line(points={{38,-82},{38,-104},{60,-104},{60,-98.94}}, color={127,127,0}));
+        connect(boundaryRear4.fore, externalGas1.rear) annotation (Line(
+            points={{-54,24},{24,24}},
+            color={158,66,200},
+            thickness=0.5));
+         annotation (
+          Icon(graphics,
+               coordinateSystem(preserveAspectRatio=false)),
+          Diagram(coordinateSystem(preserveAspectRatio=false)),
+          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
+          Documentation(info="<html>
+<u>Tests for the rear and fore boundary.</u>
+<u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
+</html>"));
+      end TestExternal;
+
+      model TestBoundaries "Tests for the rear and fore boundary"
+        extends Modelica.Icons.Example;
+
+        BoundaryRear boundary_rear(
+          u0_par=100000,
+          fore(n_flow(start=0, fixed=true)))
+          annotation (Placement(transformation(
+              extent={{10,-10},{-10,10}},
+              rotation=180,
+              origin={-28,82})));
+        BoundaryFore boundary_fore(
+          potentialFromInput=true,
+          u0_par=110000) annotation (Placement(transformation(extent={{22,72},{42,92}})));
+        inner Chemical.DropOfCommons dropOfCommons(n_flow_reg=0.01) annotation (Placement(transformation(extent={{-88,72},{-68,92}})));
+        Modelica.Blocks.Sources.Step step(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{62,76},{50,88}})));
+        TerminalRear terminal_rear(h=0, u_0=0)
+          annotation (Placement(transformation(extent={{-38,46},{-18,66}})));
+        BoundaryFore boundary_fore1(
+          potentialFromInput=true,
+          u0_par=110000) annotation (Placement(transformation(extent={{22,46},{42,66}})));
+        Modelica.Blocks.Sources.Step step1(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{62,50},{50,62}})));
+        BoundaryRear boundary_rear1(
+          potentialFromInput=true,
+          u0_par=100000) annotation (Placement(transformation(
+              extent={{10,-10},{-10,10}},
+              rotation=180,
+              origin={-26,30})));
+        TerminalFore terminal_fore(h=0, u_0=0)
+          annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=0,
+              origin={34,30})));
+        Modelica.Blocks.Sources.Step step2(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{-52,24},{-40,36}})));
+        BoundaryRear boundary_rear2(
+          solutionFromInput=true,
+          u0_par=100000,
+          fore(n_flow(start=0, fixed=true)))
+          annotation (Placement(transformation(
+              extent={{10,-10},{-10,10}},
+              rotation=180,
+              origin={-60,-22})));
+        BoundaryFore boundary_fore2(potentialFromInput=true, u0_par=110000)
+                         annotation (Placement(transformation(extent={{-10,-32},{10,-12}})));
+        Modelica.Blocks.Sources.Step step3(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{30,-28},{18,-16}})));
+        TerminalRear terminal_rear1(solutionFromInput=true)
+          annotation (Placement(transformation(extent={{-36,-60},{-16,-40}})));
+        BoundaryFore boundary_fore3(potentialFromInput=true, u0_par=110000)
+                         annotation (Placement(transformation(extent={{24,-60},{44,-40}})));
+        Modelica.Blocks.Sources.Step step4(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{64,-56},{52,-44}})));
+        BoundaryRear boundary_rear3(
+          substanceData=Chemical.Substances.Water_liquid(),
+          solutionFromInput=true,
+          potentialFromInput=true,
+          u0_par=100000) annotation (Placement(transformation(
+              extent={{10,-10},{-10,10}},
+              rotation=180,
+              origin={26,-78})));
+        TerminalFore terminal_fore1
+          annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=0,
+              origin={82,-78})));
+        Modelica.Blocks.Sources.Step step5(
+          height=-100000,
+          offset=140000,
+          startTime=5)
+          annotation (Placement(transformation(extent={{-10,-90},{2,-78}})));
+        Solution solution annotation (Placement(transformation(extent={{-98,-98},{102,0}})));
+      equation
+        connect(step.y, boundary_fore.u0_var)
+          annotation (Line(points={{49.4,82},{42,82},{42,88},{34,88}},
+                                                         color={0,0,127}));
+        connect(boundary_fore.rear, boundary_rear.fore) annotation (Line(
+            points={{22,82},{-18,82}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundary_fore1.rear, terminal_rear.fore) annotation (Line(
+            points={{22,56},{-18,56}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(step1.y, boundary_fore1.u0_var) annotation (Line(points={{49.4,56},{42,56},{42,62},{34,62}},
+                                                                                               color={0,0,127}));
+        connect(step2.y,boundary_rear1.u0_var)  annotation (Line(points={{-39.4,30},{-34,30},{-34,24},{-28,24}},
+                                                                                                 color={0,0,127}));
+        connect(boundary_rear1.fore, terminal_fore.rear) annotation (Line(
+            points={{-16,30},{24,30}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(step3.y, boundary_fore2.u0_var) annotation (Line(points={{17.4,-22},{10,-22},{10,-16},{2,-16}}, color={0,0,127}));
+        connect(boundary_fore2.rear, boundary_rear2.fore) annotation (Line(
+            points={{-10,-22},{-50,-22}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundary_fore3.rear, terminal_rear1.fore) annotation (Line(
+            points={{24,-50},{-16,-50}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(step4.y,boundary_fore3. u0_var) annotation (Line(points={{51.4,-50},{44,-50},{44,-44},{36,-44}},
+                                                                                               color={0,0,127}));
+        connect(step5.y,boundary_rear3.u0_var)  annotation (Line(points={{2.6,-84},{24,-84}},    color={0,0,127}));
+        connect(boundary_rear3.fore, terminal_fore1.rear) annotation (Line(
+            points={{36,-78},{72,-78}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundary_rear2.solution, solution.solution) annotation (Line(points={{-62,-16},{-62,-102},{62,-102},{62,-97.02}}, color={127,127,0}));
+        connect(terminal_rear1.solution, solution.solution) annotation (Line(points={{-25,-52},{-26,-52},{-26,-102},{62,-102},{62,-97.02}}, color={127,127,0}));
+        connect(boundary_rear3.solution,solution. solution) annotation (Line(points={{24,-72},{24,-102},{62,-102},{62,-97.02}},
+                                                                                                                    color={127,127,0}));
+        annotation (
+          Icon(graphics,
+               coordinateSystem(preserveAspectRatio=false)),
+          Diagram(coordinateSystem(preserveAspectRatio=false)),
+          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
+          Documentation(info="<html>
+<u>Tests for the rear and fore boundary.</u>
+<u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
+</html>"));
+      end TestBoundaries;
+      annotation (Documentation(info="<html>
+<u>Tests for the boundaries package.</u>
+</html>"));
+    end Tests;
+
     model BoundaryRear "Generic Boundary model (may act as source or sink)"
 
       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
@@ -191,7 +1030,8 @@ package Undirected
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-      parameter Chemical.Interfaces.SolutionStateParameters solutionState;
+      parameter Chemical.Interfaces.SolutionStateParameters solutionState
+        annotation (Dialog(enable=not solutionFromInput));
       parameter stateOfMatter.SubstanceDataParameters substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true);
@@ -201,9 +1041,9 @@ package Undirected
       parameter Boolean potentialFromInput = false "Use input connector for chemical potential";
       parameter Boolean enthalpyFromInput = false "Use input connector for molar enthalpy";
 
-      parameter Modelica.Units.SI.MolarEnthalpy h0_par "molar enthalpy set value"
+      parameter Modelica.Units.SI.MolarEnthalpy h0_par=0 "molar enthalpy set value"
         annotation (Dialog(enable=not enthalpyFromInput));
-      parameter Modelica.Units.SI.ChemicalPotential u0_par "ChemicalPotential set value" annotation (Dialog(enable=not potentialFromInput));
+      parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "ChemicalPotential set value" annotation (Dialog(enable=not potentialFromInput));
 
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation (Dialog(tab="Advanced"));
@@ -215,7 +1055,8 @@ package Undirected
         annotation (Placement(transformation(extent={{-40,40},{0,80}}), iconTransformation(extent={{-40,40},{0,80}})));
       Modelica.Blocks.Interfaces.RealInput h0_var(unit="J/mol")  if  enthalpyFromInput "Enthalpy input connector"
         annotation (Placement(transformation(extent={{-40,-40},{0,0}}), iconTransformation(extent={{-40,-20},{0,20}})));
-      Interfaces.Fore fore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+      Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+                           annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
     protected
       outer Chemical.DropOfCommons dropOfCommons;
@@ -229,7 +1070,7 @@ package Undirected
       Chemical.Interfaces.SolutionState s "State of chemical solution";
 
     public
-      Chemical.Interfaces.SolutionPort solution(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I) if solutionFromInput
+      Chemical.Interfaces.SolutionPort solution(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if solutionFromInput
         annotation (Placement(transformation(extent={{-30,-70},{-10,-50}}), iconTransformation(extent={{-30,-70},{-10,-50}})));
     equation
 
@@ -256,6 +1097,8 @@ package Undirected
       fore.state_forwards = Chemical.Interfaces.SubstanceState(u=u0,h=h0);
       fore.solution=s;
       fore.definition=substanceData;
+
+
       annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
             Rectangle(
               extent={{0,76},{64,-84}},
@@ -294,6 +1137,96 @@ package Undirected
 </html>"));
     end BoundaryRear;
 
+    model TerminalRear "Fore Boundary that imposes n_flow = 0"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+      parameter Chemical.Interfaces.SolutionStateParameters solutionState
+        annotation (Dialog(enable=not solutionFromInput));
+      parameter stateOfMatter.SubstanceDataParameters substanceData
+     "Definition of the substance"
+        annotation (choicesAllMatching = true);
+
+
+      parameter Boolean solutionFromInput = false "Use input connector for solution?";
+
+      parameter Modelica.Units.SI.Time TC=0.1 "Time constant for potential adaption" annotation (Dialog(tab="Advanced"));
+      parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
+
+      parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial potential";
+
+      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+        annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+
+    protected
+      Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
+      Chemical.Interfaces.SolutionState s "State of chemical solution";
+
+    public
+      Chemical.Interfaces.SolutionPort solution(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if solutionFromInput
+        annotation (Placement(transformation(extent={{0,-30},{20,-10}}),    iconTransformation(extent={{0,-30},{20,-10}})));
+
+    initial equation
+      u = u_0;
+
+    equation
+      if not solutionFromInput then
+        s=solutionState;
+      end if;
+
+
+      fore.n_flow = 0;
+
+      TC * der(u) =fore.r;
+      fore.state_forwards = Chemical.Interfaces.SubstanceState(u=u,h= h);
+
+
+      fore.solution=s;
+      fore.definition=substanceData;
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Rectangle(
+              extent={{34,26},{74,-34}},
+              lineColor={158,66,200},
+              lineThickness=0.5,
+              fillColor={215,215,215},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Line(
+              points={{68,0},{84,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Rectangle(
+              extent={{30,30},{70,-30}},
+              lineColor={158,66,200},
+              lineThickness=0.5,
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              pattern=LinePattern.None),
+            Line(
+              points={{70,30},{30,-30}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{30,30},{70,-30}},
+              color={158,66,200},
+              thickness=0.5)}), Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Rear Boundary that terminates the flow.  The Boundary has to be connected to the rear end of your model and therefore has a fore port.</u>
+<u>It imposes a n_flow=0 boundary and with a time constant, adapts the potential sucht, that inertal potential r goes to zero.</u>
+</html>"));
+    end TerminalRear;
+
     model BoundaryFore "Generic Boundary model (may act as source or sink)"
 
       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
@@ -313,9 +1246,9 @@ package Undirected
       parameter Boolean potentialFromInput = false "Use input connector for potential?";
       parameter Boolean enthalpyFromInput = false "Use input connector for molar enthalpy";
 
-      parameter Modelica.Units.SI.MolarEnthalpy h0_par "molar enthalpy set value"
-        annotation (Dialog(enable=setEnthalpy and not enthalpyFromInput));
-      parameter Modelica.Units.SI.ChemicalPotential u0_par "ChemicalPotential set value" annotation (Dialog(enable=not potentialFromInput));
+      parameter Modelica.Units.SI.MolarEnthalpy h0_par=0 "molar enthalpy set value"
+        annotation (Dialog(enable=not enthalpyFromInput));
+      parameter Modelica.Units.SI.ChemicalPotential u0_par=0 "ChemicalPotential set value" annotation (Dialog(enable=not potentialFromInput));
 
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation (Dialog(tab="Advanced"));
@@ -415,9 +1348,9 @@ package Undirected
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
       parameter Modelica.Units.SI.Time TC=0.1 "Time constant for potential adaption" annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarEnthalpy h "Source enthalpy";
+      parameter Modelica.Units.SI.MolarEnthalpy h=0 "Source enthalpy";
 
-      parameter Modelica.Units.SI.ChemicalPotential u_0 "Initial potential";
+      parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial potential";
 
       Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
         annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
@@ -477,2164 +1410,6 @@ package Undirected
 </html>"));
     end TerminalFore;
 
-    model TerminalRear "Fore Boundary that imposes n_flow = 0"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-      parameter Chemical.Interfaces.SolutionStateParameters solutionState;
-      parameter stateOfMatter.SubstanceDataParameters substanceData
-     "Definition of the substance"
-        annotation (choicesAllMatching = true);
-
-
-      parameter Boolean solutionFromInput = false "Use input connector for solution?";
-
-      parameter Modelica.Units.SI.Time TC=0.1 "Time constant for potential adaption" annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarEnthalpy h "Source enthalpy";
-
-      parameter Modelica.Units.SI.ChemicalPotential u_0 "Initial potential";
-
-      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
-        annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-
-    protected
-      Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
-      Chemical.Interfaces.SolutionState s "State of chemical solution";
-
-    public
-      Chemical.Interfaces.SolutionPort solution(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I) if solutionFromInput
-        annotation (Placement(transformation(extent={{0,-30},{20,-10}}),    iconTransformation(extent={{0,-30},{20,-10}})));
-
-    initial equation
-      u = u_0;
-
-    equation
-      if not solutionFromInput then
-        s=solutionState;
-      end if;
-
-
-      fore.n_flow = 0;
-
-      TC * der(u) =fore.r;
-      fore.state_forwards = Chemical.Interfaces.SubstanceState(u=u,h= h);
-
-
-      fore.solution=s;
-      fore.definition=substanceData;
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Rectangle(
-              extent={{34,26},{74,-34}},
-              lineColor={158,66,200},
-              lineThickness=0.5,
-              fillColor={215,215,215},
-              fillPattern=FillPattern.Solid,
-              pattern=LinePattern.None),
-            Line(
-              points={{68,0},{84,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Rectangle(
-              extent={{30,30},{70,-30}},
-              lineColor={158,66,200},
-              lineThickness=0.5,
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              pattern=LinePattern.None),
-            Line(
-              points={{70,30},{30,-30}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{30,30},{70,-30}},
-              color={158,66,200},
-              thickness=0.5)}), Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Rear Boundary that terminates the flow.  The Boundary has to be connected to the rear end of your model and therefore has a fore port.</u>
-<u>It imposes a n_flow=0 boundary and with a time constant, adapts the potential sucht, that inertal potential r goes to zero.</u>
-</html>"));
-    end TerminalRear;
-
-    model Substance "Substance in solution"
-      extends Icons.Substance;
-      extends Internal.PartialSubstanceInSolution;
-
-      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
-        "Molar concentration of particles";
-
-       parameter stateOfMatter.SubstanceDataParameters substanceData
-     "Definition of the substance"
-        annotation (choicesAllMatching = true);
-
-      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
-        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
-
-    parameter Modelica.Units.SI.Mass mass_start=1
-      "Initial mass of the substance"
-      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
-
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
-      "Initial amount of substance base molecules"
-        annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
-
-      Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
-          molarMassOfBaseMolecule "Mass";
-
-      parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
-          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
-
-    protected
-      parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
-        amountOfSubstance_start*molarMassOfBaseMolecule;
-
-      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
-
-      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
-           m_start/molarMassOfBaseMolecule)
-        "Amount of base molecules inside all clusters in compartment";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
-           m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
-                                       substanceData,
-                                       T=system.T_ambient,
-                                       p=system.p_ambient))
-        "Amount of free molecules not included inside any clusters in compartment";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
-           m_start*stateOfMatter.specificAmountOfParticles(
-                                       substanceData,
-                                       T=system.T_ambient,
-                                       p=system.p_ambient))
-        "Amount of particles/clusters in compartment";
-
-      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
-          Modelica.Constants.R*solution.T))
-        "Dissociation constant of hydrogen bond between base molecules";
-
-      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-          stateOfMatter.selfClusteringBondEnthalpy(substanceData)
-        - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
-        "Gibbs energy of hydrogen bond between H2O molecules";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfBonds
-        "Amount of hydrogen bonds between molecules in compartment";
-
-      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
-      "Natural logarithm of the amount of base molecules in solution";
-
-      parameter Boolean EnthalpyNotUsed=false annotation (
-        Evaluate=true,
-        HideResult=true,
-        choices(checkBox=true),
-        Dialog(tab="Advanced", group="Performance"));
-
-    initial equation
-
-      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
-
-    equation
-     substanceDataVar = substanceData;
-     //n_flow = n_flow_out;
-
-      if stateOfMatter.selfClustering(substanceData) then
-
-        //Liquid cluster theory - equilibrium:
-        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
-        //amountOfParticles/solution.n = x/(1-K*x);                //sum(x[i])
-        //amountOfBaseMolecules/solution.n = x/((1-K*x)^2);            //sum(i*x[i])
-        //amountOfHydrogenBonds/solution.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
-
-        amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
-
-        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
-        substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
-
-        amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
-
-        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
-        //TODO: more precise calculation of other properties
-
-       //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
-       //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
-        solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
-          amountOfBaseMolecules + h_flow + (
-          if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-          substanceData)*der(amountOfBonds) else 0)
-                        "heat transfer from other substances in solution [J/s]";
-
-        solution.Gj =amountOfBaseMolecules*substance.u + amountOfBonds*SelfClustering_dG
-                        "Gibbs energy of the substance";
-
-      else
-
-        amountOfParticles = amountOfFreeMolecule;
-        amountOfBaseMolecules = amountOfFreeMolecule;
-        amountOfBonds = 0;
-
-        //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
-        //enthalpy = molarEnthalpy*amountOfBaseMolecules;
-        solution.dH =
-          if (EnthalpyNotUsed) then  0
-          else    der(substance.h)*amountOfBaseMolecules + h_flow
-                  "heat transfer from other substances in solution [J/s]";
-
-        solution.Gj = amountOfBaseMolecules*substance.u "Gibbs energy of the substance [J]";
-
-      end if;
-
-      //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
-      // However, the numerical solvers can handle it in form of log(n) much better. :-)
-      der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
-      //der(amountOfBaseMolecules) = n_flow;
-      amountOfBaseMolecules = exp(logn);
-
-      substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
-
-      c = amountOfParticles/solution.V "concentration [mol/m3]";
-
-      state_out_rear = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
-      state_out_fore = state_out_rear;
-
-      //solution flows
-      solution.i = Modelica.Constants.F*substance.z*n_flow +
-          Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
-      solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
-
-      //extensive properties
-      solution.nj = amountOfParticles;
-      solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
-      solution.Vj = amountOfBaseMolecules*substance.Vm;
-      solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
-      solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
-
-         annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-                {100,100}}), graphics={Text(
-              extent={{-84,22},{92,64}},
-              lineColor={128,0,255},
-              textString="%name")}), Documentation(revisions="<html>
-<p>2009-2025 by Marek Matejak, Ph.D. </p>
-</html>",     info="<html>
-<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
-<p>where n is amount of the substance and x is mole fraction.</p>
-<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
-<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
-<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
-<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
-<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
-<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
-<p><br><br>Definition of electro-chemical potential:</p>
-<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
-<h4>u&deg; = DfG = DfH - T * DfS</h4>
-<p>where</p>
-<p>x .. mole fraction of the substance in the solution</p>
-<p>T .. temperature in Kelvins</p>
-<p>v .. relative eletric potential of the solution</p>
-<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
-<p>R .. gas constant</p>
-<p>F .. Faraday constant</p>
-<p>gamma .. activity coefficient</p>
-<p>u&deg; .. chemical potential of pure substance</p>
-<p>DfG .. free Gibbs energy of formation of the substance</p>
-<p>DfH .. free enthalpy of formation of the substance</p>
-<p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
-</html>"));
-    end Substance;
-
-    model Volume "Model of a vessel with fixed volume"
-      extends Internal1.PartialVolume;
-
-      parameter Modelica.Units.SI.Volume V_par(displayUnit="l")=0.001 "Volume of the Model";
-      parameter Boolean density_deru_h_from_media = false "EXPERIMENTAL: get density_deru_h from media model. The function is only implemented for some Media."
-        annotation(Dialog(tab="Advanced", group="Damping", enable=(k_volume_damping > 0)));
-      parameter Modelica.Units.SI.DerDensityByChemicalPotential density_deru_h_set=1e-6
-        "Derivative of density by potential upper bound; Approx. 1e-5 for air, 1e-7 for water"
-        annotation (Dialog(
-          enable=((k_volume_damping > 0) and not density_deru_h_from_media),
-          tab="Advanced",
-          group="Damping"));
-
-    equation
-      assert(abs(Medium.density_deru_h(medium.state)) > 1e-12, "The simple Volume model should not be used with incompressible or nearly incompressible media. Consider using the FlexVolume instead.");
-
-      if density_deru_h_from_media then
-        density_deru_h = Medium.density_deru_h(medium.state);
-      else
-        density_deru_h = density_deru_h_set;
-      end if;
-
-      V = V_par;
-      W_v = 0;
-
-      state_out_rear = medium.state;
-      state_out_fore = medium.state;
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Conceptually a volume is a sink and asource. It therefore defines the level of inertial potential r in a closed loop and acts as aloop breaker.</u>
-<u>This simple volume will become singular for incompressible fluids and close to singular for fluids with very low compressibility. For both cases we advise to use VolumeFlex or a Reservoir instead.</u>
-<u>Since there is no formula to compute density_deru_h for this volume, an upper bound has to be set in the parameter density_deru_h_set. Alternativeley the derivative can be taken from the media model for all the media that implement the corresponding formula by setting density_deru_h_from_media=true (default:false).</u>
-</html>"));
-    end Volume;
-
-    model VolumeFlex "Vessel that itself is subject to a bulk modulus"
-      extends Internal1.PartialVolume;
-
-      parameter Modelica.Units.SI.ChemicalPotential u_ref=1e5 "Reference potential of Volume";
-      parameter Modelica.Units.SI.Volume V_ref(displayUnit="l")=0.001 "Volume of the Model at u_ref";
-      parameter Modelica.Units.SI.BulkModulus K=1e6 "Bulk modus of Volume";
-
-    equation
-      density_deru_h = (V_ref*medium.d)/(V*K);
-
-      medium.u = u_ref + K*(V/V_ref-1);
-      W_v = 0;
-
-      state_out_rear = medium.state;
-      state_out_fore = medium.state;
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-44,18},{-44,-54}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{44,20},{44,-52}},
-              color={158,66,200},
-              thickness=0.5)}), Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>The volume has V_ref at u_ref and expands linearly with its bulk modulus. It can be used to reduce stiffness of the ODE system for loops with incompressible mediums or mediums with very low compressibility.</u>
-<u>Currently the volume change work, the volume performs on the environment is neglected.</u>
-</html>"));
-    end VolumeFlex;
-
-    model VolumeMix "Volume with N_fore fores and N_rear rears that allows mixing"
-      extends Internal1.PartialVolumeN;
-
-      parameter Modelica.Units.SI.Volume V_par(displayUnit="l")=0.001 "Volume of the Model";
-      parameter Boolean density_deru_h_from_media = false "EXPERIMENTAL: get density_deru_h from media model. The function is only implemented for some Media."
-        annotation(Dialog(tab="Advanced", group="Damping", enable=(k_volume_damping > 0)));
-      parameter Modelica.Units.SI.DerDensityByChemicalPotential density_deru_h_set=1e-6
-        "Derivative of density by potential upper bound; Approx. 1e-5 for air, 1e-7 for water"
-        annotation (Dialog(
-          enable=((k_volume_damping > 0) and not density_deru_h_from_media),
-          tab="Advanced",
-          group="Damping"));
-
-    equation
-      assert(abs(Medium.density_deru_h(medium.state)) > 1e-12, "The simple Volume model should not be used with incompressible or nearly incompressible media. Consider using the FlexVolume instead.");
-
-      if density_deru_h_from_media then
-        density_deru_h = Medium.density_deru_h(medium.state);
-      else
-        density_deru_h = density_deru_h_set;
-      end if;
-
-      V = V_par;
-      W_v = 0;
-
-      for i in 1:N_rear loop
-        state_out_rear[i] = medium.state;
-      end for;
-
-      for i in 1:N_fore loop
-        state_out_fore[i] = medium.state;
-      end for;
-
-      annotation (
-        Icon(
-          coordinateSystem(preserveAspectRatio=false),
-          graphics={
-            Text(
-              extent={{-60,8},{60,-52}},
-              textColor={158,66,200},
-              textString="Mix")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>A volume with N_fore fores and N_rear rears.</u>
-<u>Conceptually a Volume is a Sink and a Source. It therefore defines the level of inertial potential r in a closed loop and serves as a loop breaker. </u>
-<u>This mixing volume doesn&apos;t approximate mixing like a junction, but rather does it without approximation.</u>
-<u>Since there is no formula to compute density_deru_h for this volume, an upper bound has to be set in the parameter density_deru_h_set. Alternativeley the derivative can be taken from the media model for all the media that implement the corresponding formula by setting density_deru_h_from_media=true (default:false).</u>
-</html>"));
-    end VolumeMix;
-
-    model PhaseSeparator "Parent to receiver and accumulator models"
-      extends Internal1.PartialVolume
-                                    (
-        redeclare replaceable package Medium =
-            Chemical.Media.myMedia.Interfaces.PartialTwoPhaseMedium,
-        useHeatport=false,
-        final useRear=true,
-        final useFore=true,
-        final initialize_energy=false,
-        final T_start=0,
-        final h_start=0,
-        final use_hstart=false);
-
-      import Init = Chemical.Boundaries.Internal.InitializationMethodsPhaseSeperator;
-
-      parameter Modelica.Units.SI.Volume V_par(displayUnit="l")=0.01 "Volume of phase separator";
-      parameter Real pipe_low(unit="1", min=0, max=1) "Low end of pipe";
-      parameter Real pipe_high(unit="1", min=0, max=1) "High end of pipe";
-      parameter Boolean density_deru_h_from_media = false "EXPERIMENTAL: get density_deru_h from media model. The function is only implemented for some Media."
-        annotation(Dialog(tab="Advanced", group="Damping", enable=(k_volume_damping > 0)));
-      parameter Modelica.Units.SI.DerDensityByChemicalPotential density_deru_h_set=1e-6
-        "Derivative of density by potential upper bound; Approx. 1e-5 for air, 1e-7 for water"
-        annotation (Dialog(
-          enable=((k_volume_damping > 0) and not density_deru_h_from_media),
-          tab="Advanced",
-          group="Damping"));
-      parameter Init init_method = Chemical.Boundaries.Internal.InitializationMethodsPhaseSeperator.l "Initialization Method"
-        annotation(Dialog(tab="Initialization"));
-      parameter Modelica.Units.SI.MolarEnthalpy h_0=Medium.h_default "Initial molar enthalpy"
-        annotation (Dialog(tab="Initialization", enable=(init_method == Init.h)));
-      parameter Modelica.Units.SI.Mass M_0=1 "Initial mass" annotation (Dialog(tab="Initialization", enable=(init_method == Init.M)));
-      parameter Real l_0(unit="1", min=0, max=1) = 0.5 "Initial liquid level"
-        annotation(Dialog(tab="Initialization", enable=(init_method==Init.l)));
-      parameter Real x_0(unit="kg/kg", min=0, max=1) = 0.5 "Initial vapor quality"
-        annotation(Dialog(tab="Initialization", enable=(init_method==Init.x)));
-
-      //Variables to calculate h_pipe
-      Real liquid_level(unit="1") "level of liquid line";
-      Real liquid_level_pipe(unit="1") "level of liquid line in pipe";
-
-    protected
-
-
-      Modelica.Units.SI.MolarEnthalpy h_pipe;
-
-      Modelica.Units.SI.Density d_liq=Medium.bubbleDensity(Medium.setSat_p(medium.u)) "bubble density at saturation";
-      Modelica.Units.SI.Density d_gas=Medium.dewDensity(Medium.setSat_p(medium.u)) "dew density at saturation";
-
-      Modelica.Units.SI.MolarEnthalpy h_bubble=Medium.bubbleEnthalpy(Medium.setSat_p(medium.u)) - 1 "Bubble Enthalpy of Medium";
-      Modelica.Units.SI.MolarEnthalpy h_dew=Medium.dewEnthalpy(Medium.setSat_p(medium.u)) + 1 "Dew Enthalpy of Medium";
-
-    initial equation
-      assert(pipe_high > pipe_low, "Upper pipe end must be higher then lower end.", AssertionLevel.error);
-
-      if init_method == Init.h then
-        medium.h = h_0;
-      elseif init_method == Init.M then
-        x/d_gas+(1-x)/d_liq = V/M_0;
-        assert(x>=0 and x<=1, "Initialization by Mass might be inaccurate outside the two-phase region", AssertionLevel.warning);
-      elseif init_method == Init.l then
-        x = (d_gas*(1-l_0))/(d_liq*l_0+d_gas*(1-l_0));
-      elseif init_method == Init.x then
-        x = x_0;
-      end if;
-
-    equation
-      if density_deru_h_from_media then
-        density_deru_h = Medium.density_deru_h(medium.state);
-      else
-        density_deru_h = density_deru_h_set;
-      end if;
-
-      V = V_par;
-      W_v = 0;
-
-      liquid_level = max(0, min(1, M*(1-x)/d_liq/V));
-      liquid_level_pipe = max(0, min(1, (liquid_level-pipe_low)/(pipe_high-pipe_low)));
-
-      h_pipe = smooth(1,
-      if x < 0 then medium.h
-      elseif x <= 1 then liquid_level_pipe*h_bubble + (1-liquid_level_pipe)*h_dew
-      else medium.h);
-
-      state_out_fore = Chemical.Interfaces.SubstanceState(u=medium.u,h= h_pipe);
-      state_out_rear = state_out_fore;
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)),
-                                Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>This Volume is the parent class for Accumulator and Receiver models that separate the two phases and are able to output gas, liquid or two-phase medium, depending on its liquid level and the height of the outlet. </u>
-<u>Since there is no formula to compute density_deru_h for this volume, an upper bound has to be set in the parameter density_deru_h_set. Alternativeley the derivative can be taken from the media model for all the media that implement the corresponding formula by setting density_deru_h_from_media=true (default:false).</u>
-</html>"));
-    end PhaseSeparator;
-
-    model Reservoir "Model of a reservoir"
-      extends Internal1.PartialVolume
-                                    (final useHeatport=false, final initialize_potential=false, final A=0, final U=0);
-
-      parameter Boolean pEnvFromInput = false "Enable input";
-      parameter Modelica.Units.SI.Area A_surf(displayUnit="cm2")=0.01 "Base area of medium";
-      parameter Modelica.Units.SI.ChemicalPotential u_env_par=1e5 "Environmental potential" annotation (Dialog(enable=not pEnvFromInput));
-      parameter Modelica.Units.SI.Height height_0(displayUnit="cm")=0.1 "Initial height of medium" annotation (Dialog(tab="Initialization"));
-      parameter Modelica.Units.SI.Acceleration g=dropOfCommons.g "Acceleration of gravity";
-      parameter Modelica.Units.SI.Height height_min=0.01 "Minimum height of fluid in reservoir; should be above 0" annotation (Dialog(tab="Advanced"));
-
-      Modelica.Blocks.Interfaces.RealInput pEnv_input(unit="J/mol") = u_env if pEnvFromInput "Environmental potential [Pa]"
-        annotation (Placement(transformation(extent={{-10,-10},{10,10}},
-            rotation=270,
-            origin={0,100})));
-
-      Modelica.Units.SI.Height height;
-
-    protected
-      Modelica.Units.SI.ChemicalPotential u_env;
-
-    initial equation
-      height = height_0;
-
-    equation
-      assert(height > height_min, "Reservoir fill height must be greater than height_min", dropOfCommons.assertionLevel);
-
-      density_deru_h = 1/(height*g);
-
-      V = A_surf*height;
-      medium.u = u_env + M/A_surf*g;
-      W_v = -der(V)*u_env;
-
-      if not pEnvFromInput then
-        u_env = u_env_par;
-      end if;
-
-      state_out_rear = medium.state;
-      state_out_fore = medium.state;
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-           Ellipse(
-              extent={{-54,-26},{54,26}},
-              lineColor={158,66,200},
-              lineThickness=0.5,
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Backward),
-            Line(
-              points={{0,-56}, {0,4}},
-              color={158,66,200},
-              thickness=0.5),
-            Polygon(
-              points={{0,-56},{20,-36},{-20,-36}},
-              fillPattern=FillPattern.Solid,
-              fillColor={158,66,200},
-              pattern=LinePattern.None),
-            Polygon(
-              points={{0,4},{20,-16},{-20,-16}},
-              fillPattern=FillPattern.Solid,
-              fillColor={158,66,200},
-              pattern=LinePattern.None),
-            Ellipse(
-              extent={{-60,80},{60,20}},
-              lineColor={158,66,200},
-              lineThickness=0.5,
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid)}),
-                Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>
-This is a volume, that is open at the top and therefore maintains environmental
-potential at the top and adds potential depending on fill height.
-</u>
-<u>
-Conceptually it is a Sink and a Source. It therefore defines the level of inertial
-potential r and acts as a loop breaker in a closed loop.
-</u>
-<u>
-This component uses a simplification (medium.u is set to u_env + height*g, which
-is only correct at the bottom of the reservoir) which is intended to hold for
-media with low compressibility.
-</u>
-<u>
-<strong>Note that the energy equation requires the mass in the system to be 
-positive and will not give valid results otherwise (if the assert of 
-height &gt; 0 fails).</strong>
-</u>
-</html>"));
-    end Reservoir;
-
-    package Tests "Tests for the boundaries package"
-      extends Modelica.Icons.ExamplesPackage;
-
-      model TestBoundaries "Tests for the rear and fore boundary"
-        extends Modelica.Icons.Example;
-
-        BoundaryRear boundary_rear(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          T0_par=293.15,
-          u0_par=100000,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}},
-              rotation=180,
-              origin={-30,40})));
-        BoundaryFore boundary_fore(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          potentialFromInput=true,
-          T0_par=303.15,
-          u0_par=110000) annotation (Placement(transformation(extent={{20,30},{40,50}})));
-        inner Chemical.DropOfCommons dropOfCommons(n_flow_reg=0.01) annotation (Placement(transformation(extent={{-76,48},{-56,68}})));
-        Modelica.Blocks.Sources.Step step(
-          height=-100000,
-          offset=140000,
-          startTime=5)
-          annotation (Placement(transformation(extent={{60,34},{48,46}})));
-        TerminalRear terminal_rear(redeclare package Medium =
-              Chemical.Media.myMedia.Air.SimpleAir)
-          annotation (Placement(transformation(extent={{-40,-20},{-20,0}})));
-        BoundaryFore boundary_fore1(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          potentialFromInput=true,
-          T0_par=303.15,
-          u0_par=110000) annotation (Placement(transformation(extent={{20,-20},{40,0}})));
-        Modelica.Blocks.Sources.Step step1(
-          height=-100000,
-          offset=140000,
-          startTime=5)
-          annotation (Placement(transformation(extent={{60,-16},{48,-4}})));
-        BoundaryRear boundary_rear1(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          potentialFromInput=true,
-          T0_par=293.15,
-          u0_par=100000) annotation (Placement(transformation(
-              extent={{10,-10},{-10,10}},
-              rotation=180,
-              origin={-30,-50})));
-        TerminalFore terminal_fore(redeclare package Medium =
-              Chemical.Media.myMedia.Air.SimpleAir)
-          annotation (Placement(transformation(
-              extent={{-10,-10},{10,10}},
-              rotation=0,
-              origin={30,-50})));
-        Modelica.Blocks.Sources.Step step2(
-          height=-100000,
-          offset=140000,
-          startTime=5)
-          annotation (Placement(transformation(extent={{-56,-56},{-44,-44}})));
-      equation
-        connect(step.y, boundary_fore.u0_var)
-          annotation (Line(points={{47.4,40},{40,40},{40,46},{32,46}},
-                                                         color={0,0,127}));
-        connect(boundary_fore.rear, boundary_rear.fore) annotation (Line(
-            points={{20,40},{-20,40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_fore1.rear, terminal_rear.fore) annotation (Line(
-            points={{20,-10},{-20,-10}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(step1.y, boundary_fore1.u0_var) annotation (Line(points={{47.4,-10},{40,-10},{40,-4},{32,-4}},
-                                                                                               color={0,0,127}));
-        connect(step2.y,boundary_rear1.u0_var)  annotation (Line(points={{-43.4,-50},{-38,-50},{-38,-56},{-32,-56}},
-                                                                                                 color={0,0,127}));
-        connect(boundary_rear1.fore, terminal_fore.rear) annotation (Line(
-            points={{-20,-50},{20,-50}},
-            color={158,66,200},
-            thickness=0.5));
-        annotation (
-          Icon(graphics,
-               coordinateSystem(preserveAspectRatio=false)),
-          Diagram(coordinateSystem(preserveAspectRatio=false)),
-          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
-          Documentation(info="<html>
-<u>Tests for the rear and fore boundary.</u>
-<u><br>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"));
-      end TestBoundaries;
-
-      model TestVolumes "Test for undirected Volumes"
-        extends Modelica.Icons.Example;
-
-        replaceable package Medium = Chemical.Media.myMedia.Air.SimpleAir constrainedby Chemical.Media.myMedia.Interfaces.PartialMedium
-                                                 "Medium package"
-          annotation (Documentation(info="<html>
-<u>
-Medium package used in the Test.
-</u>
-</html>"));
-
-        package MediumMix = Chemical.Media.myMedia.IdealGases.MixtureGases.CombustionAir
-                                                                                "Medium package"
-            annotation (Documentation(info="<html>
-        <u>Medium package used in the Test of the MixVolumes. </u>
-        </html>"));
-
-        inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{140,-12},{160,8}})));
-        VolumeFlex flexVolume1(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=100000,
-          T_start=293.15,
-          V_ref(displayUnit="m3") = 1,
-          rear(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-90,-30},{-70,-10}})));
-        Volume volume(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=150000,
-          T_start=313.15,
-          rear(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-130,-30},{-110,-10}})));
-        Volume heatportVolume(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=true,
-          V_par=1,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{-110,-60},{-90,-40}})));
-        Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T(displayUnit="K") = 500)
-          annotation (Placement(transformation(extent={{-146,-90},{-126,-70}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{-80,-60},{-60,-40}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance1(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{-140,-60},{-120,-40}})));
-        Chemical.Boundaries.Source
-               source(redeclare package stateOfMatter = stateOfMatter, u0_par=200000)
-          annotation (Placement(transformation(extent={{-176,60},{-156,80}})));
-        Chemical.Boundaries.Sink
-             sink(redeclare package stateOfMatter = stateOfMatter,
-          u0_par=100000,
-          inlet(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-44,60},{-24,80}})));
-        Chemical.Boundaries.VolumeFlex
-                   flexVolume2(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=100000,
-          T_start=293.15,
-          V_ref(displayUnit="m3") = 1,
-          inlet(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-90,60},{-70,80}})));
-        Chemical.Boundaries.Volume
-               volume1(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=150000,
-          T_start=313.15,
-          inlet(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-130,60},{-110,80}})));
-        Chemical.Boundaries.Source
-               source1(redeclare package stateOfMatter = stateOfMatter, u0_par=200000)
-          annotation (Placement(transformation(extent={{-176,30},{-156,50}})));
-        Chemical.Boundaries.Sink
-             sink1(redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
-          annotation (Placement(transformation(extent={{-44,30},{-24,50}})));
-        Chemical.Boundaries.Volume
-               heatportVolume1(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=true,
-          V_par=1,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{-110,30},{-90,50}})));
-        Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature1(T(displayUnit="K") = 500)
-          annotation (Placement(transformation(extent={{-148,0},{-128,20}})));
-        Chemical.Processes.FlowResistance flowResistance2(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (
-            material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{-80,30},{-60,50}})));
-        Chemical.Processes.FlowResistance flowResistance3(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (
-            material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{-140,30},{-120,50}})));
-        BoundaryFore boundary_fore(redeclare package stateOfMatter = stateOfMatter, u0_par=100000) annotation (Placement(transformation(extent={{-44,-60},{-24,-40}})));
-        BoundaryFore boundary_fore1(redeclare package stateOfMatter = stateOfMatter,
-          u0_par=100000,
-          rear(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{-44,-30},{-24,-10}})));
-        BoundaryRear boundary_rear(redeclare package stateOfMatter = stateOfMatter, u0_par=200000) annotation (Placement(transformation(extent={{-176,-30},{-156,-10}})));
-        BoundaryRear boundary_rear1(redeclare package stateOfMatter = stateOfMatter, u0_par=200000) annotation (Placement(transformation(extent={{-176,-60},{-156,-40}})));
-        Chemical.Boundaries.VolumeMix volumeMix1(
-          redeclare package Medium = MediumMix,
-          N=2,
-          Xi_0={0.1337,1 - 0.1337},
-          V_par(displayUnit="l") = 0.1)
-          annotation (Placement(transformation(extent={{88,40},{108,60}})));
-        Chemical.Boundaries.Source source4(
-          redeclare package Medium = MediumMix,
-          u0_par=200000,
-          Xi0_par={1,0})
-          annotation (Placement(transformation(extent={{10,60},{30,80}})));
-        Chemical.Boundaries.Source source5(
-          redeclare package Medium = MediumMix,
-          u0_par=200000,
-          Xi0_par={0,1})
-          annotation (Placement(transformation(extent={{10,20},{30,40}})));
-        Chemical.Boundaries.Sink sink3(
-          redeclare package Medium = MediumMix,
-          u0_par=100000)
-          annotation (Placement(transformation(extent={{142,40},{162,60}})));
-        Chemical.Processes.FlowResistance flowResistance5(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (
-            k=1e5))
-          annotation (Placement(transformation(extent={{46,60},{66,80}})));
-        Chemical.Processes.FlowResistance flowResistance6(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (
-            k=2e5))
-          annotation (Placement(transformation(extent={{46,20},{66,40}})));
-        VolumeMix volumeMix2(
-          redeclare package Medium = MediumMix,
-          N_rear=3,
-          N_fore=0,
-          Xi_0={0.1337,1 - 0.1337},
-          V_par(displayUnit="l") = 0.1)
-          annotation (Placement(transformation(extent={{90,-50},{110,-30}})));
-        BoundaryRear boundary_rear2(
-          redeclare package Medium = MediumMix,
-          u0_par=200000,
-          Xi0_par={1,0}) annotation (Placement(transformation(extent={{10,-30},{30,-10}})));
-        BoundaryRear boundary_rear3(
-          redeclare package Medium = MediumMix,
-          u0_par=200000,
-          Xi0_par={0,1}) annotation (Placement(transformation(extent={{10,-70},{30,-50}})));
-        BoundaryRear boundary_rear4(redeclare package Medium = MediumMix, u0_par=100000)
-          annotation (Placement(transformation(extent={{160,-80},{140,-60}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance4(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=1e5))
-          annotation (Placement(transformation(extent={{46,-30},{66,-10}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance7(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=2e5))
-          annotation (Placement(transformation(extent={{46,-70},{66,-50}})));
-        Chemical.Processes.FlowResistance flowResistance8(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (
-            k=1e3))
-          annotation (Placement(transformation(extent={{116,40},{136,60}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance9(
-          redeclare package Medium = MediumMix,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=1e3))
-          annotation (Placement(transformation(extent={{120,-80},{100,-60}})));
-        Volume heatportVolume2(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=true,
-          useRear=false,
-          V_par=1,
-          u_start=150000,
-          T_start=313.15,
-          A=1,
-          U=200)
-          annotation (Placement(transformation(extent={{-110,-100},{-90,-120}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance10(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.05,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{-80,-120},{-60,-100}})));
-        BoundaryFore boundary_fore2(redeclare package stateOfMatter = stateOfMatter, u0_par=100000) annotation (Placement(transformation(extent={{-44,-120},{-24,-100}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance11(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss (material=Chemical.Processes.Internal.Material.wood))
-          annotation (Placement(transformation(extent={{40,-120},{60,-100}})));
-        BoundaryRear boundary_rear5(redeclare package stateOfMatter = stateOfMatter, u0_par=200000) annotation (Placement(transformation(extent={{10,-120},{30,-100}})));
-        Volume heatportVolume3(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          k_volume_damping=0,
-          V_par=1,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{70,-120},{90,-100}})));
-      equation
-        connect(fixedTemperature.port,heatportVolume. heatPort)
-          annotation (Line(points={{-126,-80},{-100,-80},{-100,-58}},
-              color={191,0,0}));
-        connect(volume1.inlet, source.outlet) annotation (Line(
-            points={{-130,70},{-156,70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(volume1.outlet, flexVolume2.inlet) annotation (Line(
-            points={{-110,70},{-90,70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flexVolume2.outlet,sink. inlet) annotation (Line(
-            points={{-70,70},{-44,70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(fixedTemperature1.port, heatportVolume1.heatPort) annotation (Line(points={{-128,10},{-100,10},{-100,32}},
-                                                                                                                  color={191,0,0}));
-        connect(heatportVolume1.outlet, flowResistance2.inlet) annotation (Line(
-            points={{-90,40},{-80,40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance2.outlet, sink1.inlet) annotation (Line(
-            points={{-60,40},{-44,40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance3.inlet,source1. outlet) annotation (Line(
-            points={{-140,40},{-156,40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance3.outlet, heatportVolume1.inlet) annotation (Line(
-            points={{-120,40},{-110,40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_fore.rear, flowResistance.fore) annotation (Line(
-            points={{-44,-50},{-60,-50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume.fore, flowResistance.rear) annotation (Line(
-            points={{-90,-50},{-80,-50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume.rear, flowResistance1.fore) annotation (Line(
-            points={{-110,-50},{-120,-50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_rear1.fore, flowResistance1.rear) annotation (Line(
-            points={{-156,-50},{-140,-50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_rear.fore, volume.rear) annotation (Line(
-            points={{-156,-20},{-130,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flexVolume1.rear, volume.fore) annotation (Line(
-            points={{-90,-20},{-110,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_fore1.rear, flexVolume1.fore) annotation (Line(
-            points={{-44,-20},{-70,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(source4.outlet,flowResistance5. inlet) annotation (Line(
-            points={{30,70},{46,70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(source5.outlet,flowResistance6. inlet) annotation (Line(
-            points={{30,30},{46,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance6.outlet, volumeMix1.inlet[1]) annotation (Line(
-            points={{66,30},{70,30},{70,49},{88,49}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance5.outlet, volumeMix1.inlet[2]) annotation (Line(
-            points={{66,70},{70,70},{70,51},{88,51}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance7.rear, boundary_rear3.fore) annotation (Line(
-            points={{46,-60},{30,-60}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance4.rear, boundary_rear2.fore) annotation (Line(
-            points={{46,-20},{30,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance7.fore, volumeMix2.rear[2]) annotation (Line(
-            points={{66,-60},{74,-60},{74,-40},{90,-40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance4.fore, volumeMix2.rear[3]) annotation (Line(
-            points={{66,-20},{80,-20},{80,-38.6667},{90,-38.6667}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(volumeMix1.outlet, flowResistance8.inlet) annotation (Line(
-            points={{108,50},{116,50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(sink3.inlet, flowResistance8.outlet) annotation (Line(
-            points={{142,50},{136,50}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_rear4.fore, flowResistance9.rear) annotation (Line(
-            points={{140,-70},{120,-70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance9.fore, volumeMix2.rear[1]) annotation (Line(
-            points={{100,-70},{90,-70},{90,-41.3333},{90,-41.3333}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume2.fore, flowResistance10.rear)
-          annotation (Line(
-            points={{-90,-110},{-80,-110}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance10.fore, boundary_fore2.rear)
-          annotation (Line(
-            points={{-60,-110},{-44,-110}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundary_rear5.fore, flowResistance11.rear) annotation (Line(
-            points={{30,-110},{40,-110}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance11.fore, heatportVolume3.rear)
-          annotation (Line(
-            points={{60,-110},{70,-110}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume2.heatPort, heatportVolume.heatPort) annotation (Line(points={{-100,-102},{-100,-58}}, color={191,0,0}));
-        annotation (
-        experiment(StopTime=1, Tolerance=1e-6, Interval=0.001, __Dymola_Algorithm="Dassl"),
-        Documentation(info="<html>
-<u>Test&nbsp;for&nbsp;undirected&nbsp;Volumes</u>
-<u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"),Diagram(coordinateSystem(extent={{-180,-140},{180,100}})),
-          Icon(coordinateSystem(extent={{-100,-100},{100,100}})));
-      end TestVolumes;
-
-      model Reservoir "Test for Reservoir"
-        extends Modelica.Icons.Example;
-
-        replaceable package Medium = Chemical.Media.myMedia.CompressibleLiquids.LinearColdWater constrainedby
-          Chemical.Media.myMedia.Interfaces.PartialMedium
-          "Medium Model"
-            annotation(choicesAllMatching=true, Documentation(info="<html>
-<u>Medium Model for the test. Be aware that the Component is mainly meant for liquids with low compressablility.</u>
-</html>"));
-
-        Chemical.Undirected.Boundaries.Reservoir reservoir(
-          redeclare package stateOfMatter = stateOfMatter,
-          pEnvFromInput=true,
-          A_surf=0.01,
-          T_start=293.15,
-          height_0=0.1) annotation (Placement(transformation(extent={{0,-80},{20,-60}})));
-        BoundaryRear boundary_rear(redeclare package stateOfMatter = stateOfMatter, u0_par=101200) annotation (Placement(transformation(extent={{-60,-80},{-40,-60}})));
-        BoundaryFore boundary_fore(redeclare package stateOfMatter = stateOfMatter, u0_par=101000) annotation (Placement(transformation(extent={{58,-80},{78,-60}})));
-        Modelica.Blocks.Sources.Ramp ramp1(
-          height=2e2,
-          duration=0.1,
-          offset=1e5,
-          startTime=3)
-          annotation (Placement(transformation(extent={{-66,-42},{-46,-22}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance1(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=100))
-          annotation (Placement(transformation(extent={{-30,-80},{-10,-60}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance2(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=100))
-          annotation (Placement(transformation(extent={{30,-80},{50,-60}})));
-        Chemical.Boundaries.Reservoir reservoir2(
-          redeclare package stateOfMatter = stateOfMatter,
-          pEnvFromInput=true,
-          A_surf=0.01,
-          T_start=293.15,
-          height_0=0.1)
-          annotation (Placement(transformation(extent={{0,20},{20,40}})));
-        Chemical.Boundaries.Source source1(redeclare package stateOfMatter = stateOfMatter,
-            u0_par=101200)
-          annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
-        Chemical.Boundaries.Sink sink1(redeclare package stateOfMatter = stateOfMatter,
-            u0_par=101000)
-          annotation (Placement(transformation(extent={{58,20},{78,40}})));
-        Modelica.Blocks.Sources.Ramp ramp(
-          height=2e2,
-          duration=0.1,
-          offset=1e5,
-          startTime=3)
-          annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
-        Chemical.Processes.FlowResistance flowResistance4(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss =
-              Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (
-               k=100))
-          annotation (Placement(transformation(extent={{-32,20},{-12,40}})));
-        Chemical.Processes.FlowResistance flowResistance5(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.1,
-          l=10,
-          redeclare function pLoss =
-              Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (
-               k=100))
-          annotation (Placement(transformation(extent={{30,20},{50,40}})));
-        inner Chemical.DropOfCommons dropOfCommons(assertionLevel=AssertionLevel.warning)
-          annotation (Placement(transformation(extent={{40,-20},{60,0}})));
-      equation
-
-        connect(reservoir2.inlet, flowResistance4.outlet) annotation (Line(
-            points={{0,30},{-12,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(source1.outlet, flowResistance4.inlet) annotation (Line(
-            points={{-40,30},{-32,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(reservoir2.outlet, flowResistance5.inlet) annotation (Line(
-            points={{20,30},{30,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(sink1.inlet, flowResistance5.outlet) annotation (Line(
-            points={{58,30},{50,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance1.rear, boundary_rear.fore) annotation (Line(
-            points={{-30,-70},{-40,-70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance1.fore, reservoir.rear) annotation (Line(
-            points={{-10,-70},{0,-70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(reservoir.fore, flowResistance2.rear) annotation (Line(
-            points={{20,-70},{30,-70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance2.fore, boundary_fore.rear) annotation (Line(
-            points={{50,-70},{58,-70}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(reservoir.pEnv_input, ramp1.y) annotation (Line(points={{10,-60},{10,-32},{-45,-32}}, color={0,0,127}));
-        connect(reservoir2.pEnv_input, ramp.y) annotation (Line(points={{10,40},{10,68},{-45,68}}, color={0,0,127}));
-
-      annotation (
-        experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
-        Documentation(info="<html>
-    <u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-    </html>"));
-      end Reservoir;
-
-      model VolumesDirectCoupling "Test Volumes"
-        extends Modelica.Icons.Example;
-
-        replaceable package Medium = Chemical.Media.myMedia.Water.StandardWater constrainedby Chemical.Media.myMedia.Interfaces.PartialMedium
-          "Medium package"
-          annotation (choicesAllMatching=true, Documentation(info="<html>
-<u>
-Medium package used in the Test.
-</u>
-</html>"));
-
-        package MediumMix = Chemical.Media.myMedia.IdealGases.MixtureGases.CombustionAir
-          "Medium package"
-          annotation (Documentation(info="<html>
-<u>
-Medium package used in the Test of the MixVolumes.
-</u>
-</html>"));
-
-        inner Chemical.DropOfCommons dropOfCommons(k_volume_damping=0.5) annotation (Placement(transformation(extent={{70,-148},{90,-128}})));
-        Volume heatportVolume2(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          V_par=0.001,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-        BoundaryFore
-             boundaryFore(redeclare package stateOfMatter = stateOfMatter, u0_par=130000)
-          annotation (Placement(transformation(extent={{36,-10},{56,10}})));
-        Volume heatportVolume1(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          V_par=0.001,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          density_deru_h_from_media=true)
-          annotation (Placement(transformation(extent={{-10,-96},{10,-76}})));
-        BoundaryRear
-               boundaryRear(
-          redeclare package stateOfMatter = stateOfMatter,
-          u0_par=200000,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-58,-96},{-38,-76}})));
-        Volume heatportVolume3(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          V_par=0.001,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          density_deru_h_from_media=true,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-30,20},{-10,40}})));
-        Volume heatportVolume4(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          V_par=0.001,
-          u_start=130000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{10,20},{30,40}})));
-        VolumeFlex
-               heatportVolume5(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-30,50},{-10,70}})));
-        Volume heatportVolume6(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          V_par=0.001,
-          u_start=130000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{10,50},{30,70}})));
-        VolumeFlex
-               heatportVolume7(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-10,-30},{10,-10}})));
-        BoundaryFore
-             boundaryFore1(redeclare package stateOfMatter = stateOfMatter, u0_par=130000)
-          annotation (Placement(transformation(extent={{36,-30},{56,-10}})));
-        VolumeFlex
-               heatportVolume8(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-30,78},{-10,98}})));
-        VolumeFlex
-               heatportVolume9(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          u_start=130000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{10,78},{30,98}})));
-        VolumeFlex
-               heatportVolume10(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useFore=false,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200)
-          annotation (Placement(transformation(extent={{-10,-118},{10,-98}})));
-        BoundaryRear
-               boundaryRear1(
-          redeclare package stateOfMatter = stateOfMatter,
-          u0_par=200000,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-58,-118},{-38,-98}})));
-        VolumeFlex
-               heatportVolume11(
-          redeclare package stateOfMatter = stateOfMatter,
-          useHeatport=false,
-          useRear=false,
-          u_start=150000,
-          T_start=313.15,
-          A=2,
-          U=200,
-          fore(n_flow(start=0, fixed=true)))
-          annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
-        BoundaryFore
-             boundaryFore2(redeclare package stateOfMatter = stateOfMatter, u0_par=130000)
-          annotation (Placement(transformation(extent={{36,-50},{56,-30}})));
-        Chemical.Undirected.Boundaries.Reservoir heatportVolume12(
-          redeclare package stateOfMatter = stateOfMatter,
-          useRear=false,
-          T_start=313.15,
-          height_0=0.2,
-          fore(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{-30,102},{-10,122}})));
-        Chemical.Undirected.Boundaries.Reservoir heatportVolume13(
-          redeclare package stateOfMatter = stateOfMatter,
-          useFore=false,
-          T_start=313.15,
-          height_0=0.1) annotation (Placement(transformation(extent={{10,102},{30,122}})));
-        Chemical.Undirected.Boundaries.Reservoir heatportVolume14(
-          redeclare package stateOfMatter = stateOfMatter,
-          useRear=false,
-          T_start=313.15,
-          height_0(displayUnit="m") = 0.2,
-          fore(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{-10,-76},{10,-56}})));
-        BoundaryFore
-             boundaryFore3(redeclare package stateOfMatter = stateOfMatter, u0_par=101000)
-          annotation (Placement(transformation(extent={{36,-76},{56,-56}})));
-      equation
-
-        connect(heatportVolume13.rear, heatportVolume12.fore)
-          annotation (Line(
-            points={{10,112},{-10,112}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume9.rear, heatportVolume8.fore) annotation (Line(
-            points={{10,88},{-10,88}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume6.rear, heatportVolume5.fore) annotation (Line(
-            points={{10,60},{-10,60}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume3.fore, heatportVolume4.rear) annotation (Line(
-            points={{-10,30},{10,30}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundaryFore.rear, heatportVolume2.fore) annotation (Line(
-            points={{36,0},{10,0}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume7.fore, boundaryFore1.rear) annotation (Line(
-            points={{10,-20},{36,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume11.fore, boundaryFore2.rear) annotation (Line(
-            points={{10,-40},{36,-40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(heatportVolume14.fore, boundaryFore3.rear) annotation (Line(
-            points={{10,-66},{36,-66}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundaryRear.fore, heatportVolume1.rear) annotation (Line(
-            points={{-38,-86},{-10,-86}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundaryRear1.fore, heatportVolume10.rear)
-          annotation (Line(
-            points={{-38,-108},{-10,-108}},
-            color={158,66,200},
-            thickness=0.5));
-        annotation (experiment(
-            StopTime=0.05,
-         Tolerance=1e-6,
-         Interval=5e-5,
-            __Dymola_Algorithm="Dassl"),
-          Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}})),
-                                                                       Diagram(
-              coordinateSystem(preserveAspectRatio=false, extent={{-100,-160},{100,160}})),
-              Documentation(info="<html>
-<u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"));
-      end VolumesDirectCoupling;
-
-      model PhaseSeperator
-        extends Modelica.Icons.Example;
-
-        package Medium = Chemical.Media.myMedia.Water.StandardWater;
-
-        BoundaryRear boundaryRear(
-          redeclare package stateOfMatter = stateOfMatter,
-          setEnthalpy=true,
-          enthalpyFromInput=true,
-          u0_par=120000,
-          h0_par=2000) annotation (Placement(transformation(extent={{-120,10},{-100,30}})));
-        Chemical.Undirected.Boundaries.PhaseSeparator receiver(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=110000,
-          V_par(displayUnit="l") = 0.01,
-          pipe_low=0.05,
-          pipe_high=0.15,
-          init_method=Chemical.Boundaries.Internal.InitializationMethodsPhaseSeperator.l)
-          annotation (Placement(transformation(extent={{0,10},{20,30}})));
-        BoundaryFore boundaryFore1(
-          redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
-          annotation (Placement(transformation(extent={{130,-30},{150,-10}})));
-
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{-84,-52},{-64,-32}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect1(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{56,-52},{76,-32}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect2(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{44,32},{64,52}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect3(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{116,-52},{136,-32}})));
-        Modelica.Blocks.Sources.TimeTable timeTable(
-          table=[0.0,1500e3; 24.9,1500e3; 25.1,3500e3; 49.9,3500e3; 50.1,1500e3; 74.9,1500e3; 75.1,410e3; 99.9,410e3; 100.1,1500e3; 124.9,1500e3; 1e10,
-              1500e3],
-          offset=0,
-          startTime=0) annotation (Placement(transformation(extent={{-154,-10},{-134,10}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance1(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r(displayUnit="cm") = 0.05,
-          l=1,
-          computeL=false,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=5000))
-          annotation (Placement(transformation(extent={{-60,10},{-40,30}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance2(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r(displayUnit="cm") = 0.05,
-          l=1,
-          computeL=false,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=5000))
-          annotation (Placement(transformation(extent={{-70,-30},{-50,-10}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r(displayUnit="cm") = 0.05,
-          l=1,
-          computeL=false,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=5000))
-          annotation (Placement(transformation(extent={{60,10},{80,30}})));
-        Chemical.Undirected.Processes.FlowResistance flowResistance3(
-          redeclare package stateOfMatter = stateOfMatter,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r(displayUnit="cm") = 0.05,
-          l=1,
-          computeL=false,
-          redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss (k=5000))
-          annotation (Placement(transformation(extent={{72,-30},{92,-10}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect4(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{-24,-52},{-4,-32}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect5(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{-16,34},{4,54}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{-16,42},{4,62}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect1(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{44,40},{64,60}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect2(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{-24,-60},{-4,-40}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect3(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{56,-60},{76,-40}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect4(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{116,-60},{136,-40}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect5(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{-84,-60},{-64,-40}})));
-        BoundaryRear boundaryRear1(
-          redeclare package stateOfMatter = stateOfMatter,
-          setEnthalpy=true,
-          enthalpyFromInput=true,
-          u0_par=120000,
-          h0_par=2000) annotation (Placement(transformation(extent={{-130,-30},{-110,-10}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect6(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{-76,32},{-56,52}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect6(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{-76,40},{-56,60}})));
-        BoundaryFore boundaryFore(
-          redeclare package stateOfMatter = stateOfMatter,
-          u0_par=100000)
-          annotation (Placement(transformation(extent={{120,10},{140,30}})));
-        Chemical.Sensors.TwoPhaseSensorSelect twoPhaseSensorSelect7(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.TwoPhaseQuantities.x_kgpkg) annotation (Placement(transformation(extent={{104,32},{124,52}})));
-        Chemical.Sensors.SingleSensorSelect singleSensorSelect7(
-          redeclare package stateOfMatter = stateOfMatter,
-          digits=2,
-          quantity=Chemical.Sensors.Internal.Types.Quantities.u_bar) annotation (Placement(transformation(extent={{104,40},{124,60}})));
-        inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-130,-68},{-110,-48}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-90,18},{-70,26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter1(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-30,18},{-10,26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter2(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{30,18},{50,26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter3(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{90,18},{110,26}})));
-        Chemical.Undirected.Boundaries.PhaseSeparator accumulator(
-          redeclare package stateOfMatter = stateOfMatter,
-          u_start=110000,
-          V_par(displayUnit="l") = 0.01,
-          pipe_low=0.05,
-          pipe_high=0.15) annotation (Placement(transformation(extent={{20,-30},{0,-10}})));
-        Chemical.Undirected.Topology.ConnectForeFore connectForeFore(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{20,-30},{40,-10}})));
-        Chemical.Undirected.Topology.ConnectRearRear connectRearRear(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-20,-30},{0,-10}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter4(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-40,-18},{-20,-26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter5(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{40,-18},{60,-26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter6(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{100,-18},{120,-26}})));
-        Chemical.Undirected.Sensors.UnidirectionalSensorAdapter unidirectionalSensorAdapter7(redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-100,-18},{-80,-26}})));
-      equation
-        connect(boundaryRear.h0_var, timeTable.y) annotation (Line(points={{-112,20},{-124,20},{-124,0},{-133,0}}, color={0,0,127}));
-        connect(boundaryRear1.h0_var, timeTable.y) annotation (Line(points={{-122,-20},{-128,-20},{-128,0},{-133,0}}, color={0,0,127}));
-        connect(boundaryRear.fore, unidirectionalSensorAdapter.rear)
-          annotation (Line(
-            points={{-100,20},{-90,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter.fore, flowResistance1.rear)
-          annotation (Line(
-            points={{-70,20},{-60,20},{-60,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance1.fore, unidirectionalSensorAdapter1.rear)
-          annotation (Line(
-            points={{-40,20},{-30,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter1.fore,receiver. rear)
-          annotation (Line(
-            points={{-10,20},{0,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(receiver.fore, unidirectionalSensorAdapter2.rear)
-          annotation (Line(
-            points={{20,20},{30,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter2.fore, flowResistance.rear)
-          annotation (Line(
-            points={{50,20},{60,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance.fore, unidirectionalSensorAdapter3.rear)
-          annotation (Line(
-            points={{80,20},{90,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundaryFore.rear, unidirectionalSensorAdapter3.fore)
-          annotation (Line(
-            points={{120,20},{110,20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance2.fore, unidirectionalSensorAdapter4.rear)
-          annotation (Line(
-            points={{-50,-20},{-40,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(connectRearRear.rear_a, unidirectionalSensorAdapter4.fore)
-          annotation (Line(
-            points={{-13,-20},{-20,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(accumulator.fore, connectRearRear.rear_b) annotation (Line(
-            points={{0,-20},{-7,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(accumulator.rear, connectForeFore.fore_a) annotation (Line(
-            points={{20,-20},{27,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(connectForeFore.fore_b, unidirectionalSensorAdapter5.rear)
-          annotation (Line(
-            points={{33,-20},{40,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter5.fore, flowResistance3.rear)
-          annotation (Line(
-            points={{60,-20},{72,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance3.fore, unidirectionalSensorAdapter6.rear)
-          annotation (Line(
-            points={{92,-20},{100,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter6.fore, boundaryFore1.rear)
-          annotation (Line(
-            points={{120,-20},{130,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(unidirectionalSensorAdapter7.fore, flowResistance2.rear)
-          annotation (Line(
-            points={{-80,-20},{-70,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(boundaryRear1.fore, unidirectionalSensorAdapter7.rear)
-          annotation (Line(
-            points={{-110,-20},{-100,-20}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect.inlet, unidirectionalSensorAdapter7.outlet)
-          annotation (Line(
-            points={{-84,-42},{-90,-42},{-90,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect5.inlet, unidirectionalSensorAdapter7.outlet)
-          annotation (Line(
-            points={{-84,-50},{-90,-50},{-90,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect4.inlet, unidirectionalSensorAdapter4.outlet)
-          annotation (Line(
-            points={{-24,-42},{-30,-42},{-30,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect2.inlet, unidirectionalSensorAdapter4.outlet)
-          annotation (Line(
-            points={{-24,-50},{-30,-50},{-30,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect1.inlet, unidirectionalSensorAdapter5.outlet)
-          annotation (Line(
-            points={{56,-42},{50,-42},{50,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect3.inlet, unidirectionalSensorAdapter5.outlet)
-          annotation (Line(
-            points={{56,-50},{50,-50},{50,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect3.inlet, unidirectionalSensorAdapter6.outlet)
-          annotation (Line(
-            points={{116,-42},{110,-42},{110,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect4.inlet, unidirectionalSensorAdapter6.outlet)
-          annotation (Line(
-            points={{116,-50},{110,-50},{110,-24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect6.inlet, unidirectionalSensorAdapter.outlet)
-          annotation (Line(
-            points={{-76,42},{-80,42},{-80,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect6.inlet, unidirectionalSensorAdapter.outlet)
-          annotation (Line(
-            points={{-76,50},{-80,50},{-80,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect5.inlet, unidirectionalSensorAdapter1.outlet)
-          annotation (Line(
-            points={{-16,44},{-20,44},{-20,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect.inlet, unidirectionalSensorAdapter1.outlet)
-          annotation (Line(
-            points={{-16,52},{-20,52},{-20,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect2.inlet, unidirectionalSensorAdapter2.outlet)
-          annotation (Line(
-            points={{44,42},{40,42},{40,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect1.inlet, unidirectionalSensorAdapter2.outlet)
-          annotation (Line(
-            points={{44,50},{40,50},{40,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(twoPhaseSensorSelect7.inlet, unidirectionalSensorAdapter3.outlet)
-          annotation (Line(
-            points={{104,42},{100,42},{100,24}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(singleSensorSelect7.inlet, unidirectionalSensorAdapter3.outlet)
-          annotation (Line(
-            points={{104,50},{100,50},{100,24}},
-            color={158,66,200},
-            thickness=0.5));
-        annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}})),
-                                                                       Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-160,-100},{160,100}})),
-          experiment(StopTime=125, Tolerance=1e-6, Interval=0.125, __Dymola_Algorithm="Dassl"),
-          Documentation(info="<html>
-<u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"));
-      end PhaseSeperator;
-      annotation (Documentation(info="<html>
-<u>Tests for the boundaries package.</u>
-</html>"));
-    end Tests;
-
-    package Internal1 "Partials and Internal functions"
-    extends Modelica.Icons.InternalPackage;
-
-      partial model PartialVolume "Partial parent class for Volumes with one fore and one rear"
-        replaceable package Medium = Chemical.Media.myMedia.Interfaces.PartialMedium
-          "Medium model" annotation (
-            choicesAllMatching=true, Documentation(info="<html>
-<u>
-Medium package used in the Volume. Make sure it is the same as
-the fores and rears the volume is connected to.
-</u>
-</html>"));
-
-        parameter Boolean useHeatport = false "If true heatport is added";
-        parameter Boolean useRear = true "If true rear is added";
-        parameter Boolean useFore = true "If true fore is added";
-        parameter Modelica.Units.SI.Area A=1 "Contact area of volume with medium" annotation (Dialog(enable=useHeatport));
-        parameter Modelica.Units.SI.CoefficientOfHeatTransfer U=200 "Heat transfer coefficient to medium" annotation (Dialog(enable=useHeatport));
-        parameter Boolean initialize_potential = true "If true: initialize ChemicalPotential"
-          annotation(Dialog(tab= "Initialization"));
-        parameter Modelica.Units.SI.ChemicalPotential u_start=Medium.u_default "Initial ChemicalPotential" annotation (Dialog(tab="Initialization", enable=initialize_potential));
-        parameter Boolean initialize_energy = true "Initialize specific inner energy with temperature or molar enthalpy condition"
-          annotation(Dialog(tab= "Initialization"));
-        parameter Modelica.Units.SI.Temperature T_start=Medium.T_default "Initial Temperature"
-          annotation (Dialog(tab="Initialization", enable=initialize_energy and (not use_hstart)));
-        parameter Boolean use_hstart = false "True: molar enthalpy condition instead of temperature"
-          annotation(Dialog(tab= "Initialization", enable=initialize_energy));
-        parameter Modelica.Units.SI.MolarEnthalpy h_start=Medium.h_default "Initial molar enthalpy"
-          annotation (Dialog(tab="Initialization", enable=initialize_energy and use_hstart));
-        parameter Boolean initialize_Xi = true "If true: initialize mass fractions"
-           annotation(Dialog(tab= "Initialization"));
-
-        parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance at inlet and outlet" annotation (Dialog(tab="Advanced"));
-        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
-          annotation (Dialog(tab="Advanced"));
-        parameter Real k_volume_damping(unit="1") = dropOfCommons.k_volume_damping "Damping factor multiplicator"
-          annotation(Dialog(tab="Advanced", group="Damping"));
-        parameter Boolean usePreferredMediumStates=false "Use medium states instead of the ones differentiated in this component"
-          annotation(Dialog(tab="Advanced"));
-
-        Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(Q_flow=Q_flow, T=T_heatPort) if useHeatport
-          annotation (Placement(transformation(extent={{-10,-90},{10,-70}})));
-        Chemical.Undirected.Interfaces.Rear rear(
-          redeclare package stateOfMatter = stateOfMatter,
-          n_flow=n_flow_rear,
-          r=r_rear_port,
-          state_rearwards=state_out_rear,
-          state_forwards=state_in_rear) if useRear
-          annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-        Chemical.Undirected.Interfaces.Fore fore(
-          redeclare package stateOfMatter = stateOfMatter,
-          n_flow=n_flow_fore,
-          r=r_fore_port,
-          state_forwards=state_out_fore,
-          state_rearwards=state_in_fore) if useFore
-          annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-
-        Medium.BaseProperties medium(preferredMediumStates=usePreferredMediumStates);
-
-        Modelica.Units.SI.Volume V;
-
-        //setting the state is to prohibit dynamic state selection e.g. in VolumesDirectCoupling
-        Modelica.Units.SI.Mass M(stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=V*medium.d;
-        Modelica.Units.SI.Mass MXi[Medium.nXi](each stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=M*medium.Xi;
-        Modelica.Units.SI.Energy U_med(stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=M*medium.u;
-
-        Modelica.Units.SI.HeatFlowRate Q_flow;
-        Modelica.Units.SI.Power W_v;
-
-      protected
-        outer Chemical.DropOfCommons dropOfCommons;
-
-        Modelica.Units.SI.Temperature T_heatPort;
-
-        //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
-        Modelica.Units.SI.ChemicalPotential r_rear_intern=Chemical.Undirected.Internal.regStep(
-                  n_flow_rear,
-                  medium.u - state_in_rear.u,
-                  0,
-                  n_flow_reg);
-        Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Undirected.Internal.regStep(
-                  n_flow_fore,
-                  medium.u - state_in_fore.u,
-                  0,
-                  n_flow_reg);
-        // dont regstep variables that are only in der(state), to increase accuracy
-        Modelica.Units.SI.EnthalpyFlowRate H_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else h_out_rear)*n_flow_rear;
-        Modelica.Units.SI.EnthalpyFlowRate H_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else h_out_fore)*n_flow_fore;
-        Modelica.Units.SI.MassFlowRate Xi_flow_rear[Medium.nXi]=(if n_flow_rear >= 0 then Medium.massFraction(state_in_rear) else Xi_out_rear)*n_flow_rear;
-        Modelica.Units.SI.MassFlowRate Xi_flow_fore[Medium.nXi]=(if n_flow_fore >= 0 then Medium.massFraction(state_in_fore) else Xi_out_fore)*n_flow_fore;
-
-        Medium.ThermodynamicState state_out_rear;
-        Modelica.Units.SI.MolarEnthalpy h_out_rear=state_out_rear.h;
-
-        Medium.ThermodynamicState state_out_fore;
-        Modelica.Units.SI.MolarEnthalpy h_out_fore=state_out_fore.h;
-
-        Real d(unit="1/(m.s)") = k_volume_damping*sqrt(abs(2*L/(V*max(density_deru_h, 1e-10)))) "Friction factor for coupled boundaries";
-        Modelica.Units.SI.DerDensityByChemicalPotential density_deru_h "Partial derivative of density by potential";
-        Modelica.Units.SI.ChemicalPotential r_damping=d*der(M);
-
-        Modelica.Units.SI.ChemicalPotential r_rear_port;
-        Modelica.Units.SI.ChemicalPotential r_fore_port;
-        Modelica.Units.SI.MolarFlowRate n_flow_rear;
-        Modelica.Units.SI.MolarFlowRate n_flow_fore;
-        Medium.ThermodynamicState state_in_rear, state_in_fore;
-
-      initial equation
-        if initialize_potential then
-          medium.u=u_start;
-        end if;
-
-        if initialize_energy then
-          if use_hstart then
-            medium.h = h_start;
-          else
-            medium.T=T_start;
-          end if;
-        end if;
-
-        if initialize_Xi then
-          medium.Xi = Xi_0;
-        end if;
-
-      equation
-        assert(M > 0, "Volumes might not become empty");
-
-        der(n_flow_rear)*L = r_rear_port - r_rear_intern - r_damping;
-        der(n_flow_fore)*L = r_fore_port - r_fore_intern - r_damping;
-
-        der(M) = n_flow_rear + n_flow_fore;
-        der(U_med) = Q_flow +H_flow_rear + H_flow_fore;
-        der(MXi) = Xi_flow_rear + Xi_flow_fore;
-
-        Q_flow = U*A*(T_heatPort - medium.T);
-
-        if not useHeatport then
-          T_heatPort = medium.T;
-        end if;
-        if not useRear then
-          n_flow_rear = 0;
-          state_in_rear = Chemical.Interfaces.SubstanceState(u=Medium.u_default,h= Medium.h_default);
-          end if;
-        if not useFore then
-          n_flow_fore = 0;
-          state_in_fore = Chemical.Interfaces.SubstanceState(u=Medium.u_default,h= Medium.h_default);
-        end if;
-
-        annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-              Ellipse(
-                extent={{-56,76},{64,16}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Rectangle(
-                extent={{-56,46},{64,-56}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Ellipse(
-                extent={{-56,-28},{64,-88}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Line(
-                points={{-100,0},{100,0}},
-                color={158,66,200},
-                thickness=0.5),
-              Ellipse(
-                extent={{-60,-20},{60,-80}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid),
-              Rectangle(
-                extent={{-60,50},{60,-50}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Ellipse(
-                extent={{-60,80},{60,20}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid),
-              Line(
-                points={{-60,50},{-60,-52}},
-                color={158,66,200},
-                thickness=0.5),
-              Line(
-                points={{60,50},{60,-52}},
-                color={158,66,200},
-                thickness=0.5)}), Diagram(coordinateSystem(preserveAspectRatio=false)),
-          Documentation(info="<html>
-<u>This is the partial parent class for all undirected volumes with only one fore and rear. It is partial and is missing one equation for its volume or medium potential and one for the volume work performed.</u>
-<u>Conceptually a volume is a sink and a source. It therefore defines the level of inertial potential r in a closed loop and acts as a loop breaker.</u>
-<u>Volumes implement a damping term on the change of the stored mass to dampen out fast, otherwise undamped oscillations that appear when connecting volumes directly to other volumes or other boundaries (source, sink, boundary_fore, boundary_rear). With the damping term these oscillations will be still very fast, but dampened out, so a stiff solver might be able to handle them well. Damping is enabled by default and can be disabled by setting Advanced.k_volume_damping=0. </u>
-<u>Per default the Volume has the two states energy and mass (U_med and M) and one state for each mass, as well as one state for each substance of the fluid (except the first one). These will be enforced to be states of the simulation, which can result in nonlinear systems of size one or two, but works very reliable. To get rid of these systems the modeler can enable the flag &apos;usePreferredMediumStates&apos; in the &apos;Advanced&apos; tab. Then the volume uses the states preferred by the medium object, rather then the default ones, which can improve the nonlinear systems most of the time, but also might lead to larger nonlinear systems (e.g. in the Test &apos;VolumesDirectCoupling&apos;).</u>
-</html>"));
-      end PartialVolume;
-
-      partial model PartialVolumeN "Partial parent class for Volumes with N_fore fores and N_rear rears"
-        replaceable package Medium = Chemical.Media.myMedia.Interfaces.PartialMedium
-          "Medium model" annotation (
-            choicesAllMatching=true, Documentation(info="<html>
-<u>
-Medium package used in the Volume. Make sure it is the same as
-the fores and rears the volume is connected to.
-</u>
-</html>"));
-
-        parameter Integer N_rear = 1 "Number if rears";
-        parameter Integer N_fore = 1 "Number if fores";
-        parameter Boolean useHeatport = false "If true heatport is added";
-        parameter Modelica.Units.SI.Area A=1 "Contact area of volume with medium" annotation (Dialog(enable=useHeatport));
-        parameter Modelica.Units.SI.CoefficientOfHeatTransfer U=200 "Heat transfer coefficient to medium" annotation (Dialog(enable=useHeatport));
-        parameter Boolean initialize_potential = true "If true: initialize ChemicalPotential"
-          annotation(Dialog(tab= "Initialization"));
-        parameter Modelica.Units.SI.ChemicalPotential u_start=Medium.u_default "Initial ChemicalPotential" annotation (Dialog(tab="Initialization", enable=initialize_potential));
-        parameter Boolean initialize_energy = true "Initialize specific inner energy with temperature or molar enthalpy condition"
-          annotation(Dialog(tab= "Initialization"));
-        parameter Modelica.Units.SI.Temperature T_start=Medium.T_default "Initial Temperature"
-          annotation (Dialog(tab="Initialization", enable=initialize_energy and (not use_hstart)));
-        parameter Boolean use_hstart = false "True: molar enthalpy condition instead of temperature"
-          annotation(Dialog(tab= "Initialization", enable=initialize_energy));
-        parameter Modelica.Units.SI.MolarEnthalpy h_start=Medium.h_default "Initial molar enthalpy"
-          annotation (Dialog(tab="Initialization", enable=initialize_energy and use_hstart));
-        parameter Boolean initialize_Xi = true "If true: initialize mass fractions"
-           annotation(Dialog(tab= "Initialization"));
-
-        parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance at inlet and outlet" annotation (Dialog(tab="Advanced"));
-        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
-          annotation (Dialog(tab="Advanced"));
-        parameter Real k_volume_damping(unit="1") = dropOfCommons.k_volume_damping "Damping factor multiplicator"
-          annotation(Dialog(tab="Advanced", group="Damping"));
-        parameter Boolean usePreferredMediumStates=false "Use medium states instead of the ones differentiated in this component"
-          annotation(Dialog(tab="Advanced"));
-
-        Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort(Q_flow=Q_flow, T=T_heatPort) if useHeatport
-          annotation (Placement(transformation(extent={{-10,-90},{10,-70}})));
-        Chemical.Undirected.Interfaces.Rear rear[N_rear](redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-        Chemical.Undirected.Interfaces.Fore fore[N_fore](redeclare package stateOfMatter = stateOfMatter)
-          annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-
-        Medium.BaseProperties medium(preferredMediumStates=usePreferredMediumStates);
-
-        Modelica.Units.SI.Volume V;
-
-        //setting the state is to prohibit dynamic state selection e.g. in VolumesDirectCoupling
-        Modelica.Units.SI.Mass M(stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=V*medium.d;
-        Modelica.Units.SI.Mass MXi[Medium.nXi](each stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=M*medium.Xi;
-        Modelica.Units.SI.Energy U_med(stateSelect=if usePreferredMediumStates then StateSelect.default else StateSelect.always)=M*medium.u;
-
-        Modelica.Units.SI.HeatFlowRate Q_flow;
-        Modelica.Units.SI.Power W_v;
-
-      protected
-        outer Chemical.DropOfCommons dropOfCommons;
-
-        Modelica.Units.SI.Temperature T_heatPort;
-
-        Medium.ThermodynamicState state_out_rear[N_rear];
-        Medium.ThermodynamicState state_out_fore[N_fore];
-
-        Modelica.Units.SI.ChemicalPotential r_rear[N_rear];
-        Modelica.Units.SI.ChemicalPotential r_fore[N_fore];
-        Modelica.Units.SI.MolarEnthalpy h_rear[N_rear];
-        Modelica.Units.SI.MolarEnthalpy h_fore[N_fore];
-
-        Real d(unit="1/(m.s)") = k_volume_damping*sqrt(abs(2*L/(V*max(density_deru_h, 1e-10)))) "Friction factor for coupled boundaries";
-        Modelica.Units.SI.DerDensityByChemicalPotential density_deru_h "Partial derivative of density by potential";
-        Modelica.Units.SI.ChemicalPotential r_damping=d*der(M);
-
-      initial equation
-        assert(M > 0, "Volumes might not become empty");
-
-        if initialize_potential then
-          medium.u=u_start;
-        end if;
-
-        if initialize_energy then
-          if use_hstart then
-            medium.h = h_start;
-          else
-            medium.T=T_start;
-          end if;
-        end if;
-
-        if initialize_Xi then
-          medium.Xi = Xi_0;
-        end if;
-
-      equation
-        assert(M > 0, "Volumes might not become empty");
-
-        der(rear.n_flow)*L = rear.r - r_rear - r_damping*ones(N_rear);
-        der(fore.n_flow)*L = fore.r - r_fore - r_damping*ones(N_fore);
-
-        for i in 1:N_rear loop
-          r_rear[i] = Chemical.Undirected.Internal.regStep(
-            rear[i].n_flow,
-            medium.u - rear[i].state_forwards.u,
-            0,
-            n_flow_reg);
-          // dont regstep variables that are only in der(state), to increase accuracy
-          h_rear[i] = if rear[i].n_flow >= 0 then rear[i].state_forwards.h else state_out_rear[i].h;
-
-          rear[i].state_rearwards = medium.state;
-        end for;
-        for i in 1:N_fore loop
-          r_fore[i] = Chemical.Undirected.Internal.regStep(
-            fore[i].n_flow,
-            medium.u - fore[i].state_rearwards.u,
-            0,
-            n_flow_reg);
-          // dont regstep variables that are only in der(state), to increase accuracy
-          h_fore[i] = if fore[i].n_flow >= 0 then fore[i].state_rearwards.h else state_out_fore[i].h;
-          Xi_fore[:, i] = if fore[i].n_flow >= 0 then Medium.massFraction(fore[i].state_rearwards) else Medium.massFraction(state_out_fore[i]);
-
-          fore[i].state_forwards = medium.state;
-        end for;
-
-        der(M) = sum(rear.n_flow) + sum(fore.n_flow);
-        der(U_med) = W_v + Q_flow + h_rear*rear.n_flow +h_fore*fore.n_flow;
-        der(MXi) = Xi_rear*rear.n_flow + Xi_fore*fore.n_flow;
-
-        Q_flow = U*A*(T_heatPort - medium.T);
-
-        if not useHeatport then
-          T_heatPort = medium.T;
-        end if;
-
-        annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-              Ellipse(
-                extent={{-56,76},{64,16}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Rectangle(
-                extent={{-56,46},{64,-56}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Ellipse(
-                extent={{-56,-28},{64,-88}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={215,215,215},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Line(
-                points={{-100,0},{100,0}},
-                color={158,66,200},
-                thickness=0.5),
-              Ellipse(
-                extent={{-60,-20},{60,-80}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid),
-              Rectangle(
-                extent={{-60,50},{60,-50}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid,
-                pattern=LinePattern.None),
-              Ellipse(
-                extent={{-60,80},{60,20}},
-                lineColor={158,66,200},
-                lineThickness=0.5,
-                fillColor={194,138,221},
-                fillPattern=FillPattern.Solid),
-              Line(
-                points={{-60,50},{-60,-52}},
-                color={158,66,200},
-                thickness=0.5),
-              Line(
-                points={{60,50},{60,-52}},
-                color={158,66,200},
-                thickness=0.5),
-              Text(
-                extent={{-90,48},{-64,6}},
-                textColor={116,116,116},
-                textString="%N_rear"),
-              Text(
-                extent={{66,48},{92,6}},
-                textColor={116,116,116},
-                textString="%N_fore")}),
-          Diagram(coordinateSystem(preserveAspectRatio=false)),
-          Documentation(info="<html>
-<u>This is the partial parent class for all unidirectional volumes with more then one fore or rear. It is partial missing one equation its volume or the medium potential and one for the volume work performed.</u>
-<u>Conceptually a volume is a sink and a source. It therefore defines the level of inertial potential r in a closed loop and acts as a loop breaker.</u>
-<u>Volumes implement a damping term on the change of the stored mass to dampen out fast, otherwise undamped oscillations that appear when connecting volumes directly to other volumes or other boundaries (source, sink, boundary_fore, boundary_rear). With the damping term these oscillations will be still very fast, but dampened out, so a stiff solver might be able to handle them well. Damping is enabled by default and can be disabled by setting Advanced.k_volume_damping=0. </u>
-<u>Per default the Volume has the two states energy and mass (U_med and M) and one state for each mass, as well as one state for each substance of the fluid (except the first one). These will be enforced to be states of the simulation, which can result in nonlinear systems of size one or two, but works very reliable. To get rid of these systems the modeler can enable the flag &apos;usePreferredMediumStates&apos; in the &apos;Advanced&apos; tab. Then the volume uses the states preferred by the medium object, rather then the default ones, which can improve the nonlinear systems most of the time, but also might lead to larger nonlinear systems (e.g. in the Test &apos;VolumesDirectCoupling&apos;).</u>
-</html>"));
-      end PartialVolumeN;
-    annotation (Documentation(info="<html>
-<u>This package contains all internal functions, partials, and other (e.g. experimental) models for the Boundaries package.</u>
-</html>"));
-    end Internal1;
-
     package Internal "Partials and Internal functions"
     extends Modelica.Icons.InternalPackage;
 
@@ -2655,8 +1430,8 @@ the fores and rears the volume is connected to.
 
         outer Modelica.Fluid.System system "System wide properties";
 
-        parameter Boolean useRear = true "If true rear is added";
-        parameter Boolean useFore = true "If true fore is added";
+        parameter Boolean useRear = true "If true rear is added" annotation( HideResult=true);
+        parameter Boolean useFore = true "If true fore is added" annotation( HideResult=true);
 
         parameter Boolean initialize_potential = true "If true: initialize ChemicalPotential"
           annotation(Dialog(tab= "Initialization"));
@@ -2724,16 +1499,32 @@ the fores and rears the volume is connected to.
         Modelica.Units.SI.ChemicalPotential r_fore_port;
         Modelica.Units.SI.MolarFlowRate n_flow_rear;
         Modelica.Units.SI.MolarFlowRate n_flow_fore;
-        Chemical.Interfaces.SubstanceState state_in_rear;
-        Chemical.Interfaces.SubstanceState state_in_fore;
 
+        InputSubstanceData state_in_rear;
+        InputSubstanceData state_in_fore;
+
+        connector InputSubstanceData = input Chemical.Interfaces.SubstanceState
+          "Substance definition as input signal connector";
       equation
+        substance.substanceDataVar=substanceDataVar;
+
+        substance.T = solutionState.T;
+        substance.p = solutionState.p;
+        substance.v = solutionState.v;
+        substance.I = solutionState.I;
+        substance.n = solutionState.n;
+
+
+        state_out_rear = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
+        state_out_fore = state_out_rear;
+
 
         der(n_flow_rear)*L = r_rear_port - r_rear_intern;
         der(n_flow_fore)*L = r_fore_port - r_fore_intern;
 
         n_flow = n_flow_rear + n_flow_fore;
         h_flow = h_flow_rear + h_flow_fore;
+
 
         if not useRear then
           n_flow_rear = 0;
@@ -2748,55 +1539,59 @@ the fores and rears the volume is connected to.
       end PartialSubstance;
 
       partial model PartialSubstanceInSolution "Substance properties for components, where the substance is connected with the solution"
+       extends PartialSubstance;
 
-        Chemical.Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+        parameter Boolean solutionFromInput = false "Use input connector for solution?";
+
+        parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+          annotation (Dialog(enable=not solutionFromInput and not useRear));
+
+        Chemical.Interfaces.SolutionPort solution(
+            T=solutionPortState.T,
+            p=solutionPortState.p,
+            v=solutionPortState.v,
+            n=solutionPortState.n,
+            m=solutionPortState.m,
+            V=solutionPortState.V,
+            G=solutionPortState.G,
+            Q=solutionPortState.Q,
+            I=solutionPortState.I,
+            i=i,
+            dH=dH,
+            dV=dV,
+            nj=nj,
+            mj=mj,
+            Vj=Vj,
+            Gj=Gj,
+            Qj=Qj,
+            Ij=Ij)
+              if solutionFromInput "To connect substance with solution, where is pressented"
           annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-        extends PartialSubstance;
 
       protected
-      Modelica.Units.SI.AmountOfSubstance amountOfSolution
-        "Amount of all solution particles";
+           Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
 
+           Chemical.Interfaces.SolutionState solutionPortState;
       equation
 
-        solutionState.T=substance.T "Temperature of the solution";
-        solutionState.p=substance.p "Pressure of the solution";
-        solutionState.v=substance.v "Electric potential in the solution";
-        solutionState.n=amountOfSolution "Amount of the solution";
-        solutionState.m=solution.m "Mass of the solution";
-        solutionState.V=solution.V "Volume of the solution";
-        solutionState.G=solution.G "Free Gibbs energy of the solution";
-        solutionState.Q=solution.Q "Electric charge of the solution";
-        solutionState.I=solution.I "Mole fraction based ionic strength of the solution";
 
-        //aliases
-        substance.T = solution.T;
-        substance.p = solution.p;
-        substance.v = solution.v;
-        amountOfSolution = solution.n;
-        substance.I = solution.I;
+        if (solutionFromInput and not useRear) or (not solutionFromInput) then
+          solutionState=solutionPortState;
+        end if;
+
+        if not solutionFromInput and not useRear then
+          solutionState.T=solutionParam.T "Temperature of the solution";
+          solutionState.p=solutionParam.p "Pressure of the solution";
+          solutionState.v=solutionParam.v "Electric potential in the solution";
+          solutionState.n=solutionParam.n "Amount of the solution";
+          solutionState.m=solutionParam.m "Mass of the solution";
+          solutionState.V=solutionParam.V "Volume of the solution";
+          solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
+          solutionState.Q=solutionParam.Q "Electric charge of the solution";
+          solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
+        end if;
 
       end PartialSubstanceInSolution;
-
-      partial model PartialSolutionSensor "Base class for sensor based on substance and solution properties"
-
-        Chemical.Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
-          annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-      equation
-        //solution is not changed by the sensor components
-        solution.dH = 0;
-        solution.i = 0;
-        solution.dV = 0;
-        solution.Gj = 0;
-        solution.nj = 0;
-        solution.mj = 0;
-        solution.Qj = 0;
-        solution.Ij = 0;
-        solution.Vj = 0;
-
-      end PartialSolutionSensor;
 
       partial model ConditionalSolutionFlow "Input of solution molar flow vs. parametric solution molar flow"
 
