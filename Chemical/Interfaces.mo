@@ -140,7 +140,6 @@ package Interfaces "Chemical interfaces"
   end Outlet;
 
  replaceable record SubstanceState "Set that defines a state of substance"
-  extends Modelica.Icons.Record;
 
    Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
    Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy of the substance";
@@ -279,11 +278,13 @@ package Interfaces "Chemical interfaces"
         "Temperature as input signal connector";
       connector InputPressure = input Modelica.Units.SI.Pressure
         "Pressure as input signal connector";
-      connector InputElectricPotential = input Modelica.Units.SI.ElectricPotential
+      connector InputElectricPotential = input
+          Modelica.Units.SI.ElectricPotential
         "Electric potential as input signal connector";
       connector InputMoleFraction = input Modelica.Units.SI.MoleFraction
         "Mole fraction as input signal connector";
-      connector InputAmountOfSubstance = input Modelica.Units.SI.AmountOfSubstance
+      connector InputAmountOfSubstance = input
+          Modelica.Units.SI.AmountOfSubstance
         "Amount of substance as input signal connector";
 
     equation
@@ -2124,7 +2125,8 @@ end solution_temperature_;
 
     Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
           stateOfMatterIn)                                                           annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter = stateOfMatterOut) annotation (Placement(transformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
+          stateOfMatterOut)                                                               annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect) = inlet.n_flow
         "Molar flow through component";
@@ -2557,7 +2559,8 @@ end solution_temperature_;
           rotation=180,
           origin={-100,0})));
 
-    Chemical.Interfaces.Outlet products[nP](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
+    Chemical.Interfaces.Outlet products[nP](redeclare package stateOfMatter =
+          stateOfMatter)                                                                     annotation (Placement(transformation(
           extent={{10,-10},{-10,10}},
           rotation=180,
           origin={100,0}), iconTransformation(
@@ -2910,4 +2913,34 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
   end PartialSubstanceInlet;
+
+  connector StateInput = input Chemical.Interfaces.SubstanceState "Substance state as connector"
+    annotation (
+      defaultComponentName="u",
+      Icon(graphics={
+        Polygon(
+          lineColor={162,29,33},
+          fillColor={162,29,33},
+          fillPattern=FillPattern.Solid,
+          points={{-100.0,100.0},{100.0,0.0},{-100.0,-100.0}})},
+        coordinateSystem(extent={{-100.0,-100.0},{100.0,100.0}},
+          preserveAspectRatio=true,
+          initialScale=0.2)),
+      Diagram(
+        coordinateSystem(preserveAspectRatio=true,
+          initialScale=0.2,
+          extent={{-100.0,-100.0},{100.0,100.0}}),
+          graphics={
+        Polygon(
+          lineColor={162,29,33},
+          fillColor={162,29,33},
+          fillPattern=FillPattern.Solid,
+          points={{0.0,50.0},{100.0,0.0},{0.0,-50.0},{0.0,50.0}}),
+        Text(
+          textColor={162,29,33},
+          extent={{-10.0,60.0},{-10.0,85.0}},
+          textString="%name")}),
+      Documentation(info="<html>
+<p>Connector with one input signal of type Medium.Thermodynamic state. </p>
+</html>"));
 end Interfaces;

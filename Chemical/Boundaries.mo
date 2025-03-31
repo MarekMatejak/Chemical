@@ -573,8 +573,8 @@ extends Modelica.Icons.SourcesPackage;
   end ElectronSink;
 
   model ExternalIdealGas "Ideal gas substance with defined partial pressure"
-    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter
-        = Interfaces.IdealGas);
+    extends Internal.PartialSubstanceInSolution(redeclare package stateOfMatter =
+          Interfaces.IdealGas);
     extends Internal.PartialSolutionSensor;
 
      parameter stateOfMatter.SubstanceDataParameters substanceData
@@ -1143,7 +1143,8 @@ extends Modelica.Icons.SourcesPackage;
     parameter Modelica.Units.SI.Pressure p=1 "Partial pressure of substance - setpoint of Sink";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of electro-chemical potential" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=stateOfMatterIn) annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter=
+          stateOfMatterIn)                                                           annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Blocks.Interfaces.RealInput p_input(unit="Pa")=_p
       if partialPressureFromInput "Partial pressure of substance"
@@ -1271,7 +1272,6 @@ extends Modelica.Icons.SourcesPackage;
     outlet.state.u = u;
     outlet.state.h = stateOfMatter.molarEnthalpy(substanceData,solutionState.T);
    annotation (
-
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
               100,100}}), graphics={
           Rectangle(
@@ -1716,10 +1716,11 @@ Test package for the Boundaries package of ThermofluidStream.
         n_flow=n_flow_out,
         state=state_out,
         solution=solutionState,
-        definition=substanceDataVar
+        definition=substanceDataVar)
+                   "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
         /*uRT=uRT_out,
     u0RT=u0RT,
-    h=h_out*/)     "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    h=h_out*/
 
 
 
