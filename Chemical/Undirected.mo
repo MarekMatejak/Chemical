@@ -2226,6 +2226,8 @@ Boundary models for undirected chemical simulation.
 
     model ConnectForeOutlet
       "Directed/undirected connector with rear and outlet"
+      extends
+        Chemical.Undirected.Topology.Internal.PartialSubstanceAndSolutionSource;
 
       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
         Chemical.Interfaces.StateOfMatter
@@ -2254,7 +2256,9 @@ Boundary models for undirected chemical simulation.
             stateOfMatter, final L=L/2, final useDefaultStateAsRear = useDefaultStateAsRear)
         annotation (Placement(transformation(extent={{0,-10},{20,10}})));
       ConnectForeFore connectForeFore(redeclare package stateOfMatter =
-            stateOfMatter, final L=L/2)
+            stateOfMatter,
+        substanceData=substanceData, solutionParam=solutionParam, useSolution=useSolution,
+                           final L=L/2)
         annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
       Chemical.Interfaces.StateInput state_rear if not useDefaultStateAsRear
         annotation (Placement(
@@ -2268,6 +2272,9 @@ Boundary models for undirected chemical simulation.
 
     equation
 
+      if useSolution then
+        connect(solution,connectForeFore.solution);
+      end if;
       connect(connectRearOutlet.rear, connectForeFore.fore_b) annotation (Line(
           points={{7,0},{-7,0}},
           color={158,66,200},
@@ -2304,20 +2311,20 @@ Boundary models for undirected chemical simulation.
     end ConnectForeOutlet;
 
     model ConnectForeFore "Undirected connector with fore and fore"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
+      extends Chemical.Undirected.Topology.Internal.PartialSubstanceAndSolutionSource;
+     /* replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby 
+    Chemical.Interfaces.StateOfMatter
+  "Substance model to translate data into substance properties"
+    annotation (choices(
+      choice(redeclare package stateOfMatter =
+        Chemical.Interfaces.Incompressible  "Incompressible"),
+      choice(redeclare package stateOfMatter =
+        Chemical.Interfaces.IdealGas        "Ideal Gas"),
+      choice(redeclare package stateOfMatter =
+        Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+      choice(redeclare package stateOfMatter =
+        Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+*/
       parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
       Chemical.Undirected.Interfaces.Fore fore_a(redeclare package stateOfMatter =
@@ -2335,6 +2342,11 @@ Boundary models for undirected chemical simulation.
       fore_a.state_forwards = fore_b.state_rearwards;
       fore_a.n_flow + fore_b.n_flow = 0;
       L*der(fore_a.n_flow) = fore_a.r - fore_b.r;
+
+      fore_b.definition=substanceData;
+      fore_a.definition=substanceData;
+      fore_b.solution=solutionState;
+      fore_a.solution=solutionState;
 
       annotation (Icon(
           graphics={
@@ -2398,6 +2410,754 @@ Boundary models for undirected chemical simulation.
 <u>Basically the connector switches the names of output and input of the two ports.</u>
 </html>"));
     end ConnectRearRear;
+
+    model JunctionRFF "Junction with rear and two fores"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      JunctionMN junctionMN(
+        final M=2,
+        final N=1,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+
+      connect(junctionMN.rears[1], rear) annotation (Line(
+          points={{-50,0},{-76,0},{-76,0},{-100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[1], foreB) annotation (Line(
+          points={{-30,-0.5},{0,-0.5},{0,-100}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreA, junctionMN.fores[2]) annotation (Line(
+          points={{0,100},{0,0.5},{-30,0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,-100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{20,100},{60,60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{20,-60},{60,-100}},
+              textColor={175,175,175},
+              textString="B")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>
+Junction with a rear and two fores in a lying T shape.
+</u>
+</html>"));
+    end JunctionRFF;
+
+    model JunctionRFF2 "Junction with rear and two fores"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      JunctionMN junctionMN(
+        final M=2,
+        final N=1,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+
+      connect(junctionMN.rears[1], rear) annotation (Line(
+          points={{-50,0},{-76,0},{-76,0},{-100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[2], foreA) annotation (Line(
+          points={{-30,0.5},{-30,1},{0,1},{0,100}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreB, junctionMN.fores[1]) annotation (Line(
+          points={{100,0},{20,0},{20,-0.5},{-30,-0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{20,100},{60,60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{60,-20},{100,-60}},
+              textColor={175,175,175},
+              textString="B")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with a rear and two fores in a standing T shape.</u>
+</html>"));
+    end JunctionRFF2;
+
+    model JunctionRRF "Junction with two rears and a fore"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      JunctionMN junctionMN(
+        final M=1,
+        final N=2,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{30,-10},{50,10}})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+
+      connect(rearB, junctionMN.rears[1]) annotation (Line(
+          points={{0,-100},{0,-2},{30,-2},{30,-0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(rearA, junctionMN.rears[2]) annotation (Line(
+          points={{0,100},{0,0.5},{30,0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[1], fore) annotation (Line(
+          points={{50,0},{76,0},{76,0},{100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,-100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{20,100},{60,60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{20,-60},{60,-100}},
+              textColor={175,175,175},
+              textString="B")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with two rears and a fore in a lying T shape.</u>
+</html>"));
+    end JunctionRRF;
+
+    model JunctionRRF2 "Junction with two rears and a fore"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      JunctionMN junctionMN(
+        final M=1,
+        final N=2,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{30,-10},{50,10}})));
+      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+
+      connect(junctionMN.rears[1], rearA) annotation (Line(
+          points={{30,-0.5},{0,-0.5},{0,-100}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(fore, junctionMN.fores[1]) annotation (Line(
+          points={{100,0},{76,0},{76,0},{50,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(rearB, junctionMN.rears[2]) annotation (Line(
+          points={{-100,0},{-36,0},{-36,0.5},{30,0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,-100}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{20,-100},{60,-60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{60,20},{100,60}},
+              textColor={175,175,175},
+              textString="B")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with two rears and a fore in a standing T shape.</u>
+</html>"));
+    end JunctionRRF2;
+
+    model JunctionRFFF "Junction with a rear and three fores"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      Chemical.Undirected.Interfaces.Fore foreC(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      JunctionMN junctionMN(
+        final M=3,
+        final N=1,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+      connect(junctionMN.rears[1], rear) annotation (Line(
+          points={{-50,0},{-76,0},{-76,0},{-100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[3], foreA) annotation (Line(
+          points={{-30,0.666667},{0,0.666667},{0,100}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreB, junctionMN.fores[2]) annotation (Line(
+          points={{100,0},{-30,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreC, junctionMN.fores[1]) annotation (Line(
+          points={{0,-100},{0,-0.666667},{-30,-0.666667}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,-100},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{-60,100},{-20,60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{50,20},{90,60}},
+              textColor={175,175,175},
+              textString="B"),
+            Text(
+              extent={{60,-100},{20,-60}},
+              textColor={175,175,175},
+              textString="C")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with a rear and three fores in a x shape.</u>
+</html>"));
+    end JunctionRFFF;
+
+    model JunctionRRFF "Junction with two rears and two fores"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear reara(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Rear rearb(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      JunctionMN junctionMN(
+        final M=2,
+        final N=2,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+      connect(foreB, junctionMN.fores[2]) annotation (Line(
+          points={{100,0},{40,0},{40,0.5},{10,0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreA, junctionMN.fores[1]) annotation (Line(
+          points={{0,-100},{0,-20},{10,-20},{10,-0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.rears[1], reara) annotation (Line(
+          points={{-10,-0.5},{-40,-0.5},{-40,0},{-100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(rearb, junctionMN.rears[2]) annotation (Line(
+          points={{0,100},{0,20},{-10,20},{-10,0.5}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,-100},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{-60,100},{-20,60}},
+              textColor={175,175,175},
+              textString="b"),
+            Text(
+              extent={{50,20},{90,60}},
+              textColor={175,175,175},
+              textString="B"),
+            Text(
+              extent={{60,-100},{20,-60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{-50,-20},{-90,-60}},
+              textColor={175,175,175},
+              textString="a")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with two rears and two fores in a x shape.</u>
+</html>"));
+    end JunctionRRFF;
+
+    model JunctionRRFF2 "Junction with two rears and two fores"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear reara(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Rear rearb(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      JunctionMN junctionMN(
+        final M=2,
+        final N=2,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+            rotation=90,
+            origin={0,10})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+      connect(rearb, junctionMN.rears[1]) annotation (Line(
+          points={{0,-100},{0,-20},{20,-20},{20,20},{0.5,20}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(reara, junctionMN.rears[2]) annotation (Line(
+          points={{0,100},{0,20},{-0.5,20}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[2], foreA) annotation (Line(
+          points={{-0.5,0},{-100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(foreB, junctionMN.fores[1]) annotation (Line(
+          points={{100,0},{0.5,0}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,-100},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{-60,100},{-20,60}},
+              textColor={175,175,175},
+              textString="a"),
+            Text(
+              extent={{50,20},{90,60}},
+              textColor={175,175,175},
+              textString="B"),
+            Text(
+              extent={{60,-100},{20,-60}},
+              textColor={175,175,175},
+              textString="b"),
+            Text(
+              extent={{-50,-20},{-90,-60}},
+              textColor={175,175,175},
+              textString="A")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with two rears and two fores in a x shape.</u>
+</html>"));
+    end JunctionRRFF2;
+
+    model JunctionRRRF "Junction with tree rears and a fore"
+
+      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+        Chemical.Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+        annotation (choices(
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.Incompressible  "Incompressible"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGas        "Ideal Gas"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+          choice(redeclare package stateOfMatter =
+            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        annotation (Dialog(tab="Advanced"));
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
+
+      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
+      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
+      JunctionMN junctionMN(
+        final M=1,
+        final N=3,
+        final n_flow_reg=n_flow_reg,
+        final L=L,
+        redeclare package stateOfMatter=stateOfMatter)
+        annotation (Placement(transformation(extent={{0,-10},{20,10}})));
+      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
+      Chemical.Undirected.Interfaces.Rear rearC(redeclare package stateOfMatter =
+            stateOfMatter)
+        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
+
+    protected
+      outer Chemical.DropOfCommons dropOfCommons;
+
+    equation
+      connect(rearA, junctionMN.rears[2]) annotation (Line(
+          points={{0,100},{0,0}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(rearB, junctionMN.rears[1]) annotation (Line(
+          points={{-100,0},{0,0},{0,-0.666667}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(rearC, junctionMN.rears[3]) annotation (Line(
+          points={{0,-100},{0,0.666667}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(junctionMN.fores[1], fore) annotation (Line(
+          points={{20,0},{60,0},{60,0},{100,0}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+            Line(
+              points={{-100,0},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{100,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,0},{0,100}},
+              color={158,66,200},
+              thickness=0.5),
+            Line(
+              points={{0,-100},{0,0}},
+              color={158,66,200},
+              thickness=0.5),
+            Ellipse(
+              extent={{-6,6},{6,-6}},
+              lineColor={158,66,200},
+              fillColor={194,138,221},
+              fillPattern=FillPattern.Solid,
+              lineThickness=0.5),
+            Text(
+              extent={{-60,100},{-20,60}},
+              textColor={175,175,175},
+              textString="A"),
+            Text(
+              extent={{-50,-20},{-90,-60}},
+              textColor={175,175,175},
+              textString="B"),
+            Text(
+              extent={{60,-100},{20,-60}},
+              textColor={175,175,175},
+              textString="C")}),
+        Diagram(coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<u>Junction with three rears and a fore in a x shape.</u>
+</html>"));
+    end JunctionRRRF;
 
     model ConnectorInletOutletFore
 
@@ -2523,778 +3283,6 @@ Boundary models for undirected chemical simulation.
               fillPattern=FillPattern.Solid,
               lineThickness=0.5)}), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end ConnectorInletOutletFore;
-
-    model JunctionRFF "Junction with rear and two fores"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      JunctionMN junctionMN(
-        final M=2,
-        final N=1,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-
-      connect(junctionMN.rears[1], rear) annotation (Line(
-          points={{-50,0},{-76,0},{-76,0},{-100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[1], foreB) annotation (Line(
-          points={{-30,-0.5},{0,-0.5},{0,-100}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreA, junctionMN.fores[2]) annotation (Line(
-          points={{0,100},{0,0.5},{-30,0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,-100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{20,100},{60,60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{20,-60},{60,-100}},
-              textColor={175,175,175},
-              textString="B")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>
-Junction with a rear and two fores in a lying T shape.
-</u>
-</html>"));
-    end JunctionRFF;
-
-    model JunctionRFF2 "Junction with rear and two fores"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      JunctionMN junctionMN(
-        final M=2,
-        final N=1,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-
-      connect(junctionMN.rears[1], rear) annotation (Line(
-          points={{-50,0},{-76,0},{-76,0},{-100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[2], foreA) annotation (Line(
-          points={{-30,0.5},{-30,1},{0,1},{0,100}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreB, junctionMN.fores[1]) annotation (Line(
-          points={{100,0},{20,0},{20,-0.5},{-30,-0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{20,100},{60,60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{60,-20},{100,-60}},
-              textColor={175,175,175},
-              textString="B")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with a rear and two fores in a standing T shape.</u>
-</html>"));
-    end JunctionRFF2;
-
-    model JunctionRRF "Junction with two rears and a fore"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      JunctionMN junctionMN(
-        final M=1,
-        final N=2,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{30,-10},{50,10}})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-
-      connect(rearB, junctionMN.rears[1]) annotation (Line(
-          points={{0,-100},{0,-2},{30,-2},{30,-0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(rearA, junctionMN.rears[2]) annotation (Line(
-          points={{0,100},{0,0.5},{30,0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[1], fore) annotation (Line(
-          points={{50,0},{76,0},{76,0},{100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,-100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{20,100},{60,60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{20,-60},{60,-100}},
-              textColor={175,175,175},
-              textString="B")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with two rears and a fore in a lying T shape.</u>
-</html>"));
-    end JunctionRRF;
-
-    model JunctionRRF2 "Junction with two rears and a fore"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      JunctionMN junctionMN(
-        final M=1,
-        final N=2,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{30,-10},{50,10}})));
-      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-
-      connect(junctionMN.rears[1], rearA) annotation (Line(
-          points={{30,-0.5},{0,-0.5},{0,-100}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(fore, junctionMN.fores[1]) annotation (Line(
-          points={{100,0},{76,0},{76,0},{50,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(rearB, junctionMN.rears[2]) annotation (Line(
-          points={{-100,0},{-36,0},{-36,0.5},{30,0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,-100}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{20,-100},{60,-60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{60,20},{100,60}},
-              textColor={175,175,175},
-              textString="B")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with two rears and a fore in a standing T shape.</u>
-</html>"));
-    end JunctionRRF2;
-
-    model JunctionRFFF "Junction with a rear and three fores"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear rear(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      Chemical.Undirected.Interfaces.Fore foreC(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      JunctionMN junctionMN(
-        final M=3,
-        final N=1,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-      connect(junctionMN.rears[1], rear) annotation (Line(
-          points={{-50,0},{-76,0},{-76,0},{-100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[3], foreA) annotation (Line(
-          points={{-30,0.666667},{0,0.666667},{0,100}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreB, junctionMN.fores[2]) annotation (Line(
-          points={{100,0},{-30,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreC, junctionMN.fores[1]) annotation (Line(
-          points={{0,-100},{0,-0.666667},{-30,-0.666667}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,-100},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{-60,100},{-20,60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{50,20},{90,60}},
-              textColor={175,175,175},
-              textString="B"),
-            Text(
-              extent={{60,-100},{20,-60}},
-              textColor={175,175,175},
-              textString="C")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with a rear and three fores in a x shape.</u>
-</html>"));
-    end JunctionRFFF;
-
-    model JunctionRRFF "Junction with two rears and two fores"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear reara(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Rear rearb(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      JunctionMN junctionMN(
-        final M=2,
-        final N=2,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-      connect(foreB, junctionMN.fores[2]) annotation (Line(
-          points={{100,0},{40,0},{40,0.5},{10,0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreA, junctionMN.fores[1]) annotation (Line(
-          points={{0,-100},{0,-20},{10,-20},{10,-0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.rears[1], reara) annotation (Line(
-          points={{-10,-0.5},{-40,-0.5},{-40,0},{-100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(rearb, junctionMN.rears[2]) annotation (Line(
-          points={{0,100},{0,20},{-10,20},{-10,0.5}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,-100},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{-60,100},{-20,60}},
-              textColor={175,175,175},
-              textString="b"),
-            Text(
-              extent={{50,20},{90,60}},
-              textColor={175,175,175},
-              textString="B"),
-            Text(
-              extent={{60,-100},{20,-60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{-50,-20},{-90,-60}},
-              textColor={175,175,175},
-              textString="a")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with two rears and two fores in a x shape.</u>
-</html>"));
-    end JunctionRRFF;
-
-    model JunctionRRFF2 "Junction with two rears and two fores"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear reara(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Rear rearb(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-      Chemical.Undirected.Interfaces.Fore foreA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Fore foreB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      JunctionMN junctionMN(
-        final M=2,
-        final N=2,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{10,-10},{-10,10}},
-            rotation=90,
-            origin={0,10})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-      connect(rearb, junctionMN.rears[1]) annotation (Line(
-          points={{0,-100},{0,-20},{20,-20},{20,20},{0.5,20}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reara, junctionMN.rears[2]) annotation (Line(
-          points={{0,100},{0,20},{-0.5,20}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[2], foreA) annotation (Line(
-          points={{-0.5,0},{-100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(foreB, junctionMN.fores[1]) annotation (Line(
-          points={{100,0},{0.5,0}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,-100},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{-60,100},{-20,60}},
-              textColor={175,175,175},
-              textString="a"),
-            Text(
-              extent={{50,20},{90,60}},
-              textColor={175,175,175},
-              textString="B"),
-            Text(
-              extent={{60,-100},{20,-60}},
-              textColor={175,175,175},
-              textString="b"),
-            Text(
-              extent={{-50,-20},{-90,-60}},
-              textColor={175,175,175},
-              textString="A")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with two rears and two fores in a x shape.</u>
-</html>"));
-    end JunctionRRFF2;
-
-    model JunctionRRRF "Junction with tree rears and a fore"
-
-      replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-      parameter Boolean assumeConstantDensity = true "If true only mass-flow rate will determine the mixing"
-        annotation (Dialog(tab="Advanced"));
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
-        annotation (Dialog(tab="Advanced"));
-      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
-
-      Chemical.Undirected.Interfaces.Rear rearA(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-      Chemical.Undirected.Interfaces.Fore fore(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-      JunctionMN junctionMN(
-        final M=1,
-        final N=3,
-        final assumeConstantDensity=assumeConstantDensity,
-        final n_flow_reg=n_flow_reg,
-        final L=L,
-        redeclare package Medium=Medium)
-        annotation (Placement(transformation(extent={{0,-10},{20,10}})));
-      Chemical.Undirected.Interfaces.Rear rearB(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-      Chemical.Undirected.Interfaces.Rear rearC(redeclare package stateOfMatter =
-            stateOfMatter)
-        annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-
-    protected
-      outer Chemical.DropOfCommons dropOfCommons;
-
-    equation
-      connect(rearA, junctionMN.rears[2]) annotation (Line(
-          points={{0,100},{0,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(rearB, junctionMN.rears[1]) annotation (Line(
-          points={{-100,0},{0,0},{0,-0.666667}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(rearC, junctionMN.rears[3]) annotation (Line(
-          points={{0,-100},{0,0.666667}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(junctionMN.fores[1], fore) annotation (Line(
-          points={{20,0},{60,0},{60,0},{100,0}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-            Line(
-              points={{-100,0},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{100,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,0},{0,100}},
-              color={158,66,200},
-              thickness=0.5),
-            Line(
-              points={{0,-100},{0,0}},
-              color={158,66,200},
-              thickness=0.5),
-            Ellipse(
-              extent={{-6,6},{6,-6}},
-              lineColor={158,66,200},
-              fillColor={194,138,221},
-              fillPattern=FillPattern.Solid,
-              lineThickness=0.5),
-            Text(
-              extent={{-60,100},{-20,60}},
-              textColor={175,175,175},
-              textString="A"),
-            Text(
-              extent={{-50,-20},{-90,-60}},
-              textColor={175,175,175},
-              textString="B"),
-            Text(
-              extent={{60,-100},{20,-60}},
-              textColor={175,175,175},
-              textString="C")}),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Junction with three rears and a fore in a x shape.</u>
-</html>"));
-    end JunctionRRRF;
 
     package Tests "Test models for the undirected topology package"
     extends Modelica.Icons.ExamplesPackage;
@@ -3914,6 +3902,73 @@ Junction with a rear and two fores in a lying T shape.
 <u>This package contains the test cases for the undirected topology package. </u>
 </html>"));
     end Tests;
+
+    package Internal
+      partial model PartialSubstanceAndSolutionSource
+        "Substance properties for components, where the substance is connected with the solution"
+
+       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+          Chemical.Interfaces.StateOfMatter
+        "Substance model to translate data into substance properties"
+          annotation (choices(
+            choice(redeclare package stateOfMatter =
+              Chemical.Interfaces.Incompressible  "Incompressible"),
+            choice(redeclare package stateOfMatter =
+              Chemical.Interfaces.IdealGas        "Ideal Gas"),
+            choice(redeclare package stateOfMatter =
+              Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+            choice(redeclare package stateOfMatter =
+              Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+        parameter stateOfMatter.SubstanceDataParameters substanceData
+       "Definition of the substance"
+          annotation (choicesAllMatching = true, Dialog(enable=not useRear));
+
+        parameter Boolean useSolution = false "Use solution connector?"
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+        parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+          annotation (Dialog(enable=not useSolution and not useRear));
+
+        Chemical.Interfaces.SolutionPort solution(
+            T=solutionState.T,
+            p=solutionState.p,
+            v=solutionState.v,
+            n=solutionState.n,
+            m=solutionState.m,
+            V=solutionState.V,
+            G=solutionState.G,
+            Q=solutionState.Q,
+            I=solutionState.I,
+            i=0,
+            dH=0,
+            dV=0,
+            nj=0,
+            mj=0,
+            Vj=0,
+            Gj=0,
+            Qj=0,
+            Ij=0)
+              if useSolution "To connect substance with solution, where is pressented"
+          annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+           Chemical.Interfaces.SolutionState solutionState;
+      equation
+
+        if not useSolution then
+          solutionState.T=solutionParam.T "Temperature of the solution";
+          solutionState.p=solutionParam.p "Pressure of the solution";
+          solutionState.v=solutionParam.v "Electric potential in the solution";
+          solutionState.n=solutionParam.n "Amount of the solution";
+          solutionState.m=solutionParam.m "Mass of the solution";
+          solutionState.V=solutionParam.V "Volume of the solution";
+          solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
+          solutionState.Q=solutionParam.Q "Electric charge of the solution";
+          solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
+        end if;
+
+      end PartialSubstanceAndSolutionSource;
+    end Internal;
   annotation (Documentation(info="<html>
 <u>This package contains the undirected junctions and necessary connectors between two undirected components, as well as directed-undirected connectors.</u>
 <u>Note that in the undirected case it a distinction between junction and splitter is not possible.</u>
@@ -4713,7 +4768,7 @@ Medium model for the test. Can be anything.
 
       initial equation
         if init == Internal.InitializationMethodsCondElement.T then
-           h = Medium.setState_pTX(u, T_0, Xi).h;
+           h = Medium.setState_pTX(u, T_0, Xi);
         elseif init == Internal.InitializationMethodsCondElement.h then
            h = h_0;
         elseif init == InitializationMethodsCondElement.port then
@@ -6112,8 +6167,8 @@ Choices for initialization of a state h.
         Modelica.Units.SI.CoefficientOfHeatTransfer U_tp "Coefficient of heat transfer for two-phase region";
         Modelica.Units.SI.CoefficientOfHeatTransfer U_vap "Coefficient of heat transfer for vapour region";
 
-        Modelica.Units.SI.MolarEnthalpy h_dew=Medium.dewEnthalpy(Medium.setSat_p(state)).u "Dew enthalpy at inlet";
-        Modelica.Units.SI.MolarEnthalpy h_bubble=Medium.bubbleEnthalpy(Medium.setSat_p(state)).u "Bubble enthalpy at inlet";
+        Modelica.Units.SI.MolarEnthalpy h_dew=Medium.dewEnthalpy(Medium.setSat_p(state)) "Dew enthalpy at inlet";
+        Modelica.Units.SI.MolarEnthalpy h_bubble=Medium.bubbleEnthalpy(Medium.setSat_p(state)) "Bubble enthalpy at inlet";
 
       initial equation
         assert(init <> Chemical.Undirected.Processes.Internal.InitializationMethodsCondElement.port,
@@ -8717,7 +8772,7 @@ Medium package used in the Test.
       if potentialUnit == "J/mol" then
         direct_p =state.u;
       elseif potentialUnit == "bar" then
-        direct_p =Modelica.Units.Conversions.to_bar(state).u;
+        direct_p =Modelica.Units.Conversions.to_bar(state);
       end if;
 
       if massFlowUnit == "(kg/s)" then
