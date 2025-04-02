@@ -2,7 +2,7 @@ within Chemical;
 package Processes
 
   model Reaction "Chemical Reaction"
-    extends Interfaces.PartialReaction;
+    extends Interfaces.PartialProcessWithSubstanceData;
     extends Interfaces.ConditionalKinetics(k_forward=1);
     //Real rr_exact2,  kb;
   equation
@@ -112,7 +112,7 @@ package Processes
   end Reaction;
 
   model ForwardReaction "Chemical Reaction"
-    extends Interfaces.PartialReaction;
+    extends Interfaces.PartialProcessWithSubstanceData;
     extends Interfaces.ConditionalKinetics(k_forward=1);
 
   equation
@@ -215,7 +215,7 @@ package Processes
   end ForwardReaction;
 
   model FastReaction "Chemical Reaction"
-    extends Interfaces.PartialReaction;
+    extends Interfaces.PartialProcessWithSubstanceData;
 
     parameter Real kC = 1;
 
@@ -321,7 +321,7 @@ package Processes
   end FastReaction;
 
   model FastReactionWithSolutions "Chemical Reaction"
-    extends Chemical.Interfaces.MIMO;
+    extends Chemical.Interfaces.PartialProcess;
 
     parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
      annotation (choicesAllMatching = true);

@@ -2504,7 +2504,7 @@ end solution_temperature_;
 </html>"));
   end PartialLiquidToGas;
 
-  partial model MIMO "Chemical Reaction"
+  partial model PartialProcess "Abstract chemical process"
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
@@ -2694,11 +2694,10 @@ end solution_temperature_;
 </tr>
 </table>
 </html>"));
-  end MIMO;
+  end PartialProcess;
 
-  partial model PartialReaction "Chemical Reaction"
-    extends Chemical.Interfaces.MIMO;
-
+  partial model PartialProcessWithSubstanceData "Chemical process with products definitions"
+    extends Chemical.Interfaces.PartialProcess;
 
     parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
      annotation (choicesAllMatching = true);
@@ -2784,7 +2783,7 @@ end solution_temperature_;
 </tr>
 </table>
 </html>"));
-  end PartialReaction;
+  end PartialProcessWithSubstanceData;
 
   partial model PartialSubstanceInlet
 
