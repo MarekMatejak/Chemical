@@ -285,8 +285,9 @@ package Undirected
        //der(enthalpy) = solutionState.dH + n_flow*actualStream(port_a.h_outflow);
        //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
         dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
-          amountOfBaseMolecules + h_flow + (
-          if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+          amountOfBaseMolecules +
+          n_flow*substance.h - h_flow +
+          (if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
           substanceData)*der(amountOfBonds) else 0)
                         "heat transfer from other substances in solution [J/s]";
 
@@ -303,7 +304,8 @@ package Undirected
         //enthalpy = molarEnthalpy*amountOfBaseMolecules;
         dH =
           if (EnthalpyNotUsed) then  0
-          else    der(substance.h)*amountOfBaseMolecules + h_flow
+          else    der(substance.h)*amountOfBaseMolecules +
+                  n_flow*substance.h - h_flow
                   "heat transfer from other substances in solution [J/s]";
 
         Gj = amountOfBaseMolecules*substance.u "Gibbs energy of the substance [J]";
@@ -1719,7 +1721,6 @@ package Undirected
         substance.p = solutionState.p;
         substance.v = solutionState.v;
         substance.I = solutionState.I;
-        substance.n = solutionState.n;
 
 
         state_out_rear = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
@@ -1730,7 +1731,13 @@ package Undirected
         der(n_flow_fore)*L = r_fore_port - r_fore_intern;
 
         n_flow = n_flow_rear + n_flow_fore;
-        h_flow = h_flow_rear + h_flow_fore;
+        if not useRear then
+          h_flow = h_flow_fore;
+        elseif not useFore then
+          h_flow = h_flow_rear;
+        else
+          h_flow = h_flow_rear + h_flow_fore;
+        end if;
 
 
         if not useRear then
@@ -3997,14 +4004,16 @@ Junction with a rear and two fores in a lying T shape.
 
   package Processes "Undirected process package"
     model Reaction "Chemical Reaction"
-      extends Chemical.Undirected.Processes.Internal.PartialReactionWithSubstanceData(nS=1,nP=1);
+      extends Chemical.Undirected.Processes.Internal.PartialReactionWithSubstanceData;
       extends Chemical.Interfaces.ConditionalKinetics
                                             (k_forward=1);
       Real rr_fore_exact,rr_rear_exact,  kb;
     equation
 
       rr = kf * Sx_fore * ( 1  -  exp(-duRT_fore));
-      rr = kb * Px_rear * ( 1  -  exp(-duRT_rear));
+      if nS>0 then
+        rr = -kb * Px_rear * ( 1  -  exp(duRT_rear));
+      end if;
 
       Kx = kb/kf;
 
@@ -4353,25 +4362,13 @@ For further documentation see the documentation of the
       model TestFlowResistance "Test for the undirected flow resistance"
         extends Modelica.Icons.Example;
 
-        Processes.FlowResistance flowResistance(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=1,
-          redeclare function pLoss =
-              .Chemical.Processes.Internal.FlowResistance.laminarChemicalPotentialLoss)
-          annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
-        Chemical.Undirected.Boundaries.BoundaryRear boundary_rear(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          T0_par=293.15,
+        Chemical.Undirected.Boundaries.BoundaryRear boundary_rear(substanceData=Chemical.Substances.Water_liquid(),
           u0_par=100000) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=180,
               origin={-30,0})));
         Chemical.Undirected.Boundaries.BoundaryFore boundary_fore(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
           potentialFromInput=true,
-          T0_par=303.15,
           u0_par=110000) annotation (Placement(transformation(extent={{20,-10},{40,10}})));
         inner Chemical.DropOfCommons dropOfCommons(n_flow_reg=0.01) annotation (Placement(transformation(extent={{-80,20},{-60,40}})));
         Modelica.Blocks.Sources.Step step(
@@ -4379,48 +4376,45 @@ For further documentation see the documentation of the
           offset=140000,
           startTime=5)
           annotation (Placement(transformation(extent={{60,-6},{48,6}})));
-        FlowResistance flowResistance1(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-          r=0.01,
-          l=1,
-          redeclare function pLoss =
-              Chemical.Processes.Internal.FlowResistance.laminarChemicalPotentialLoss)
-          annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
-        Chemical.Undirected.Boundaries.BoundaryRear boundary_rear1(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
-          potentialFromInput=true,
-          T0_par=303.15) annotation (Placement(transformation(
+        Chemical.Undirected.Boundaries.BoundaryRear boundary_rear1(substanceData=Chemical.Substances.Water_liquid(),
+          potentialFromInput=true)
+                         annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=180,
-              origin={-30,-40})));
+              origin={-28,-38})));
         Chemical.Undirected.Boundaries.BoundaryFore boundary_fore1(
-          redeclare package Medium = Chemical.Media.myMedia.Air.SimpleAir,
           potentialFromInput=false,
-          T0_par=303.15,
-          u0_par=100000) annotation (Placement(transformation(extent={{20,-50},{40,-30}})));
+          u0_par=100000) annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
+        Reaction reaction(
+          productsSubstanceData={Chemical.Substances.Water_liquid()},
+          nS=1,
+          nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+        Reaction reaction1(
+          productsSubstanceData={Chemical.Substances.Water_liquid()},
+          nS=1,
+          nP=1) annotation (Placement(transformation(extent={{-8,-48},{12,-28}})));
       equation
-        connect(boundary_rear.fore, flowResistance.rear) annotation (Line(
-            points={{-20,-1.33227e-15},{-18,-1.33227e-15},{-18,0},{-10,0}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance.fore, boundary_fore.rear) annotation (Line(
-            points={{10,0},{20,0}},
-            color={158,66,200},
-            thickness=0.5));
         connect(step.y, boundary_fore.u0_var)
           annotation (Line(points={{47.4,0},{40,0},{40,6},{32,6}},
                                                          color={0,0,127}));
-        connect(boundary_rear1.fore, flowResistance1.rear) annotation (Line(
-            points={{-20,-40},{-10,-40}},
-            color={158,66,200},
-            thickness=0.5));
-        connect(flowResistance1.fore, boundary_fore1.rear) annotation (Line(
-            points={{10,-40},{20,-40}},
-            color={158,66,200},
-            thickness=0.5));
         connect(boundary_rear1.u0_var, boundary_fore.u0_var)
-          annotation (Line(points={{-32,-46},{-40,-46},{-40,-20},{40,-20},{40,6},{32,6}}, color={0,0,127}));
+          annotation (Line(points={{-30,-44},{-40,-44},{-40,-20},{40,-20},{40,6},{32,6}}, color={0,0,127}));
+        connect(boundary_rear.fore, reaction.substrates[1]) annotation (Line(
+            points={{-20,0},{-10,0}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction.products[1], boundary_fore.rear) annotation (Line(
+            points={{10,0},{20,0}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(boundary_rear1.fore, reaction1.substrates[1]) annotation (Line(
+            points={{-18,-38},{-8,-38}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction1.products[1], boundary_fore1.rear) annotation (Line(
+            points={{12,-38},{22,-38}},
+            color={158,66,200},
+            thickness=0.5));
         annotation (
           Icon(graphics,
                coordinateSystem(preserveAspectRatio=false)),
@@ -4431,6 +4425,293 @@ For further documentation see the documentation of the
 <u><br>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
 </html>"));
       end TestFlowResistance;
+
+      model SimpleReaction "The simple chemical reaction A<->B with equilibrium B/A = 2"
+         extends Modelica.Icons.Example;
+
+        constant Real K = 2 "Dissociation constant of the reaction";
+
+        constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+        constant Real R = Modelica.Constants.R "Gas constant";
+
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+        Boundaries.Substance          A(
+          useRear=false,
+          useFore=true,
+          useSolution=true,             use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+
+        Reaction reaction2_1(
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
+          nS=1,
+          nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
+        Boundaries.Substance B(
+          useRear=true,
+          useSolution=true,
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
+
+        inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
+      equation
+        connect(A.solution, solution.solution) annotation (Line(
+            points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
+            color={127,127,0}));
+        connect(B.solution, solution.solution) annotation (Line(points={{46,-8},{46,-92},{60,-92},{60,-98}},
+                                           color={127,127,0}));
+        connect(A.fore, reaction2_1.substrates[1]) annotation (Line(
+            points={{-32,2},{-10,2}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction2_1.products[1], B.rear) annotation (Line(
+            points={{10,2},{42,2}},
+            color={158,66,200},
+            thickness=0.5));
+        annotation (Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
+</html>"),experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
+      end SimpleReaction;
+
+      model SimpleReaction2 "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
+         extends Modelica.Icons.Example;
+
+        constant Real Kb(unit="kg/mol") = 2
+          "Molarity based dissociation constant of the reaction with one more reactant";
+
+        constant Real Kx(unit="1") = Kb*55.508
+          "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
+
+        constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+        constant Real R = Modelica.Constants.R "Gas constant";
+
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+        Boundaries.Substance          A(
+          useFore=true,
+          useSolution=true,
+          substanceData(MolarWeight=1),
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,4},{-14,24}})));
+        Reaction reaction2_1(
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(MolarWeight=2, DfG=-R*T_25degC*log(Kx))},
+          nS=2,
+          nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
+        Boundaries.Substance          B(
+          useFore=true,
+          useSolution=true,
+          substanceData(MolarWeight=1),
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
+        Boundaries.Substance C(
+          useRear=true,
+          useSolution=true,
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+
+      equation
+        connect(A.solution, solution.solution) annotation (Line(
+            points={{-30,4},{-30,-90},{60,-90},{60,-98}},
+            color={127,127,0}));
+        connect(C.solution, solution.solution) annotation (Line(points={{52,-8},{66,-8},{66,-90},{60,-90},{60,-98}},
+                                                   color={127,127,0}));
+        connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
+              {-30,-90},{60,-90},{60,-98}},color={127,127,0}));
+
+        connect(A.fore, reaction2_1.substrates[1])
+          annotation (Line(
+            points={{-14,14},{-4,14},{-4,1.75},{4,1.75}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(B.fore, reaction2_1.substrates[2])
+          annotation (Line(
+            points={{-14,-14},{-8,-14},{-8,2.25},{4,2.25}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction2_1.products[1], C.rear) annotation (Line(
+            points={{24,2},{48,2}},
+            color={158,66,200},
+            thickness=0.5));
+        annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
+</html>"),experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
+      end SimpleReaction2;
+
+      model SimpleReaction22 "The simple chemical reaction A+B<->C+D with equilibrium [C]*[D]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
+         extends Modelica.Icons.Example;
+
+        constant Real Kb(unit="kg/mol") = 2
+          "Molarity based dissociation constant of the reaction with one more reactant";
+
+        constant Real Kx(unit="1") = Kb*55.508
+          "Mole fraction based dissociation constant of the reaction with one more reactant in the pure water";
+
+        constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+        constant Real R = Modelica.Constants.R "Gas constant";
+
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+        Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
+        Chemical.Processes.Reaction reaction2_1(
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx)),
+              Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx))},
+          nS=2,
+          nP=2) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
+        Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
+        Chemical.Boundaries.Accumulation C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+
+        Chemical.Boundaries.Accumulation D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
+        inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,56},{72,76}})));
+      equation
+        connect(A.solution, solution.solution) annotation (Line(
+            points={{-30,2},{-30,-90},{60,-90},{60,-98}},
+            color={127,127,0}));
+        connect(C.solution, solution.solution) annotation (Line(points={{52,-8},{66,-8},{66,-90},{60,-90},{60,-98}},
+                                                   color={127,127,0}));
+        connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
+              {-30,-90},{60,-90},{60,-98}},color={127,127,0}));
+
+        connect(B.outlet, reaction2_1.substrates[1]) annotation (Line(
+            points={{-14,-14},{-4,-14},{-4,1.75},{4,1.75}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(A.outlet, reaction2_1.substrates[2]) annotation (Line(
+            points={{-14,12},{-4,12},{-4,2.25},{4,2.25}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(D.solution, solution.solution) annotation (Line(points={{48,-34},{60,-34},{60,-98}}, color={127,127,0}));
+        connect(reaction2_1.products[1], C.inlet) annotation (Line(
+            points={{24,1.75},{36,1.75},{36,2},{48,2}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction2_1.products[2], D.inlet) annotation (Line(
+            points={{24,2.25},{34,2.25},{34,-24},{44,-24}},
+            color={158,66,200},
+            thickness=0.5));
+        annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
+</html>"),experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
+      end SimpleReaction22;
+
+      model ExothermicReaction "Exothermic reaction in ideally thermal isolated solution and in constant temperature conditions"
+
+         extends Modelica.Icons.Example;
+
+        parameter Modelica.Units.SI.MolarEnergy ReactionEnthalpy=-55000;
+
+        Chemical.Solution thermal_isolated_solution(useMechanicPorts=true, ConstantTemperature=false)
+          annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
+        Boundaries.Substance          A(
+          useFore=true,
+          useSolution=true,             use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
+        Reaction reaction2_2(
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
+          nS=1,
+          nP=1) annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
+        Boundaries.Substance B(
+          useRear=true,
+          useSolution=true,
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{20,-60},{40,-40}})));
+
+        Chemical.Solution solution_at_constant_temperature(useMechanicPorts=true, useThermalPort=true)
+          annotation (Placement(transformation(extent={{-100,0},{98,94}})));
+        Boundaries.Substance          A1(
+          useFore=true,
+          useSolution=true,              use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
+        Reaction reaction2_1(
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
+          nS=1,
+          nP=1) annotation (Placement(transformation(extent={{-8,40},{12,60}})));
+        Boundaries.Substance B1(
+          useRear=true,
+          useSolution=true,
+          use_mass_start=false,
+          amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{20,40},{40,60}})));
+
+        //  Modelica.SIunits.HeatFlowRate q
+        //    "Heat flow to environment to reach constant temperature";
+        Modelica.Units.SI.Temperature t
+          "Temperature if the solution is ideally thermal isolated from environment";
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+          annotation (Placement(transformation(extent={{20,4},{40,24}})));
+        Chemical.Boundaries.Substance H2O1(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+          annotation (Placement(transformation(extent={{20,-94},{40,-74}})));
+        Modelica.Mechanics.Translational.Components.Fixed fixed1
+          annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
+        Modelica.Mechanics.Translational.Components.Fixed fixed2
+          annotation (Placement(transformation(extent={{-26,-96},{-6,-76}})));
+        inner Modelica.Fluid.System system(T_ambient=298.15)
+          annotation (Placement(transformation(extent={{56,64},{76,84}})));
+        Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=
+              298.15)
+          annotation (Placement(transformation(extent={{-88,26},{-68,46}})));
+      equation
+        //  q = fixedTemperature.port.Q_flow;
+        t = thermal_isolated_solution.solution.T;
+
+        connect(B.solution, thermal_isolated_solution.solution) annotation (Line(
+            points={{24,-60},{24,-64},{58.4,-64},{58.4,-99.06}},
+            color={127,127,0}));
+        connect(A.solution, thermal_isolated_solution.solution) annotation (Line(
+              points={{-36,-60},{-36,-64},{58.4,-64},{58.4,-99.06}},
+                                                               color={127,127,0}));
+        connect(B1.solution, solution_at_constant_temperature.solution) annotation (
+            Line(
+            points={{24,40},{24,34},{58.4,34},{58.4,0.94}},
+            color={127,127,0}));
+        connect(A1.solution, solution_at_constant_temperature.solution) annotation (
+            Line(points={{-36,40},{-36,34},{58.4,34},{58.4,0.94}},
+                                                            color={127,127,0}));
+      connect(solution_at_constant_temperature.solution, H2O.solution)
+        annotation (Line(
+          points={{58.4,0.94},{24,0.94},{24,4}},
+          color={127,127,0}));
+      connect(thermal_isolated_solution.solution, H2O1.solution) annotation (Line(
+          points={{58.4,-99.06},{24,-99.06},{24,-94}},
+          color={127,127,0}));
+      connect(solution_at_constant_temperature.bottom, fixed1.flange) annotation (
+         Line(
+          points={{-1,-0.94},{0,-0.94},{0,14},{-18,14}},
+          color={0,127,0}));
+      connect(thermal_isolated_solution.bottom, fixed2.flange) annotation (Line(
+          points={{-1,-100.94},{-1,-86},{-16,-86}},
+          color={0,127,0}));
+        connect(solution_at_constant_temperature.heatPort, fixedTemperature.port)
+          annotation (Line(points={{-60.4,-0.94},{-60.4,36},{-68,36}}, color={191,0,
+                0}));
+        connect(A1.fore, reaction2_1.substrates[1]) annotation (Line(
+            points={{-20,50},{-8,50}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction2_1.products[1], B1.rear) annotation (Line(
+            points={{12,50},{20,50}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(A.fore, reaction2_2.substrates[1]) annotation (Line(
+            points={{-20,-50},{-8,-50}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(reaction2_2.products[1], B.rear) annotation (Line(
+            points={{12,-50},{20,-50}},
+            color={158,66,200},
+            thickness=0.5));
+        annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
+</html>"),experiment(StopTime=10, __Dymola_Algorithm="Dassl"),
+          Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+                  100}})));
+      end ExothermicReaction;
 
       model ConductionElement "Test for ConductionElement"
         extends Modelica.Icons.Example;
@@ -5179,7 +5460,7 @@ Choices for initialization of a state h.
 
         Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
 
-        Chemical.Undirected.Interfaces.Fore substrates[nS](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
+        Chemical.Undirected.Interfaces.Rear substrates[nS](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=180,
               origin={-100,0}), iconTransformation(
@@ -5187,7 +5468,7 @@ Choices for initialization of a state h.
               rotation=180,
               origin={-100,0})));
 
-        Chemical.Undirected.Interfaces.Rear products[nP](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
+        Chemical.Undirected.Interfaces.Fore products[nP](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=180,
               origin={100,0}), iconTransformation(

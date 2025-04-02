@@ -218,9 +218,6 @@ package Interfaces "Chemical interfaces"
 
       InputSubstanceData substanceDataVar "Definition of the substance";
 
-      InputAmountOfSubstance n
-      "Amount of all particles in solution";
-
       InputTemperature T
       "Temperature of the solution";
 
