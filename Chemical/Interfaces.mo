@@ -227,20 +227,42 @@ package Interfaces "Chemical interfaces"
 
     replaceable partial model BaseProperties "Base properties of the substance"
 
-      InputMoleFraction x "Mole fraction of the substance";
+      parameter Boolean FixedSubstanceData "substanceDataVar==substanceData";
+
+      parameter SubstanceDataParameters substanceData "used only if FixedSubstanceData to help initialization";
+
+      parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
 
       InputSubstanceData substanceDataVar "Definition of the substance";
 
-      InputTemperature T
-      "Temperature of the solution";
+      InputSolutionState solutionState "State of the solution";
 
-      InputPressure p "Pressure of the solution";
+      InputAmountOfSubstance amountOfBaseMolecules
+        "Amount of base molecules inside all clusters in compartment";
 
-      InputElectricPotential v
-      "Electric potential of the solution";
+      InputMolarFlowRate n_flow "Molar change of the substance";
 
-      InputMoleFraction I
-      "Ionic strength of the solution";
+      InputHeatFlowRate h_flow "Substance enthaply change";
+
+
+      Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
+
+      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+        "Molar concentration of particles";
+
+
+    /*  InputTemperature T
+  "Temperature of the solution";
+
+  InputPressure p "Pressure of the solution";
+
+  InputElectricPotential v
+  "Electric potential of the solution";
+
+  InputMoleFraction I
+  "Ionic strength of the solution";
+  */
 
       Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
 
@@ -282,6 +304,11 @@ package Interfaces "Chemical interfaces"
 
      // Local connector definition, used for equation balancing check
 
+      connector InputMolarFlowRate = input Modelica.Units.SI.MolarFlowRate
+        "Molar flow rate as input signal connector";
+      connector InputHeatFlowRate = input Modelica.Units.SI.HeatFlowRate
+        "Heat flow rate as input signal connector";
+
       connector InputSubstanceData = input SubstanceData
         "Substance definition as input signal connector";
       connector InputTemperature = input Modelica.Units.SI.Temperature
@@ -297,30 +324,132 @@ package Interfaces "Chemical interfaces"
           Modelica.Units.SI.AmountOfSubstance
         "Amount of substance as input signal connector";
 
+
+
+
+
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+           m_start*specificAmountOfFreeBaseMolecule(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of free molecules not included inside any clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+           m_start*specificAmountOfParticles(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of particles/clusters in compartment";
+
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*solutionState.T))
+        "Dissociation constant of hydrogen bond between base molecules";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          selfClusteringBondEnthalpy(substanceDataVar)
+        - solutionState.T * selfClusteringBondEntropy(substanceDataVar)
+        "Gibbs energy of hydrogen bond between H2O molecules";
+
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBonds
+        "Amount of hydrogen bonds between molecules in compartment";
+
+
+      outer Modelica.Fluid.System system "System wide properties";
+
+      Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
+
     equation
       assert(x > 0, "Molar fraction must be positive");
 
-     gamma = activityCoefficient(substanceDataVar,T,p,v,I);
-     z = chargeNumberOfIon(substanceDataVar,T,p,v,I);
+     gamma = activityCoefficient(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     z = chargeNumberOfIon(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
 
-     MM = 1/specificAmountOfParticles(substanceDataVar,T,p,v,I);
-     h = molarEnthalpy(substanceDataVar,T,p,v,I);
-     sPure = molarEntropyPure(substanceDataVar,T,p,v,I);
-     hPure = uPure + T*sPure;
-     u0 = chemicalPotentialPure(substanceDataVar,T,p,v,I);
-     uPure = electroChemicalPotentialPure(substanceDataVar,T,p,v,I);
-     Vm = molarVolume(substanceDataVar,T,p,v,I);
-     VmPure = molarVolumePure(substanceDataVar,T,p,v,I);
-     VmExcess = molarVolumeExcess(substanceDataVar,T,p,v,I);
-     //  molarHeatCapacityCp = smolarHeatCapacityCp(substanceDataVar,T,p,v,I);
+     MM = 1/specificAmountOfParticles(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     h = molarEnthalpy(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     sPure = molarEntropyPure(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     hPure = uPure + solutionState.T*sPure;
+     u0 = chemicalPotentialPure(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     uPure = electroChemicalPotentialPure(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     Vm = molarVolume(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     VmPure = molarVolumePure(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     VmExcess = molarVolumeExcess(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
+     //  molarHeatCapacityCp = smolarHeatCapacityCp(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I);
 
      //activity of the substance
      a = gamma*x;
 
      //electro-chemical potential of the substance in the solution
-     u = chemicalPotentialPure(substanceDataVar,T,p,v,I)
-       + (Modelica.Constants.R*T)*log(a)
-       + z*Modelica.Constants.F*v;
+     u = chemicalPotentialPure(substanceDataVar,solutionState.T,solutionState.p,solutionState.v,solutionState.I)
+       + (Modelica.Constants.R*solutionState.T)*log(a)
+       + z*Modelica.Constants.F*solutionState.v;
+
+
+
+      // during initialization it does not take value from parameter substanceData if not useInlet,
+      // so instead of just "selfClustering(substanceDataVar)" it must be written
+      if (not FixedSubstanceData and selfClustering(substanceData)) or selfClustering(substanceDataVar) then
+
+        //Liquid cluster theory - equilibrium:
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
+        //amountOfParticles/solutionState.n = x/(1-K*x);                //sum(x[i])
+        //amountOfBaseMolecules/solutionState.n = x/((1-K*x)^2);            //sum(i*x[i])
+        //amountOfHydrogenBonds/solutionState.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+
+        amountOfParticles*(1 - SelfClustering_K*x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
+        x = ((2*SelfClustering_K+solutionState.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solutionState.n/amountOfBaseMolecules)+(solutionState.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfBonds = amountOfBaseMolecules*x*SelfClustering_K;
+
+        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+        //TODO: more precise calculation of other properties
+
+       //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
+       //enthalpy = h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+        dH = der(h)*
+          amountOfBaseMolecules + n_flow*h - h_flow +
+          selfClusteringBondEnthalpy(substanceDataVar)*der(amountOfBonds)
+                        "heat transfer from other substances in solution [J/s]";
+
+        Gj =amountOfBaseMolecules*u + amountOfBonds*SelfClustering_dG
+                        "Gibbs energy of the substance";
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfBonds = 0;
+
+        //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
+        //enthalpy = h*amountOfBaseMolecules;
+        dH =  der(h)*amountOfBaseMolecules + n_flow*h - h_flow
+                  "heat transfer from other substances in solution [J/s]";
+
+        Gj = amountOfBaseMolecules*u "Gibbs energy of the substance [J]";
+
+      end if;
+
+
+      x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
+
+      c = amountOfParticles/solutionState.V "concentration [mol/m3]";
+
+      //solution flows
+      i = Modelica.Constants.F*z*n_flow +
+          Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
+      dV = Vm*n_flow + der(Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+      //extensive properties
+      nj = amountOfParticles;
+      mj = amountOfBaseMolecules*molarMassOfBaseMolecule(substanceDataVar);
+      Vj = amountOfBaseMolecules*Vm;
+      Qj = Modelica.Constants.F*amountOfBaseMolecules*z;
+      Ij = (1/2)*(amountOfBaseMolecules*z^2);
+
+
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end BaseProperties;
 

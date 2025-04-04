@@ -185,8 +185,7 @@ extends Modelica.Icons.ExamplesPackage;
     Modelica.Mechanics.Translational.Components.Fixed fixed1
       annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
     Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(),
-      use_mass_start=true,                                                             mass_start=1,
-      calculateClusteringHeat=true)
+      use_mass_start=true,                                                             mass_start=1)
       annotation (Placement(transformation(extent={{22,-28},{42,-8}})));
     inner Modelica.Fluid.System system(T_ambient=298.15)
       annotation (Placement(transformation(extent={{60,50},{80,70}})));
