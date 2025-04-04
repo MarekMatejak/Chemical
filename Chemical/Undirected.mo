@@ -185,6 +185,13 @@ package Undirected
         useFore=false,
         useRear=false);
 
+      import Chemical.Utilities.Types.InitializationMethods;
+
+      parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance"
+       annotation (HideResult=not useRear, Dialog(enable=useRear));
+       // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+
       Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
         "Molar concentration of particles";
 
@@ -210,25 +217,26 @@ package Undirected
           annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
     protected
-      parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
-        amountOfSubstance_start*molarMassOfBaseMolecule;
+      //parameter
+      Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+         amountOfSubstance_start*molarMassOfBaseMolecule;
 
-      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+      //parameter
+      Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
 
-      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
-           m_start/molarMassOfBaseMolecule)
+      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=amountOfSubstance_start)
         "Amount of base molecules inside all clusters in compartment";
 
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
-                                       substanceData,
+                                       substanceDataVar,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
         "Amount of free molecules not included inside any clusters in compartment";
 
       Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
            m_start*stateOfMatter.specificAmountOfParticles(
-                                       substanceData,
+                                       substanceDataVar,
                                        T=system.T_ambient,
                                        p=system.p_ambient))
         "Amount of particles/clusters in compartment";
@@ -238,8 +246,8 @@ package Undirected
         "Dissociation constant of hydrogen bond between base molecules";
 
       Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-          stateOfMatter.selfClusteringBondEnthalpy(substanceData)
-        - solutionState.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+          stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+        - solutionState.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
         "Gibbs energy of hydrogen bond between H2O molecules";
 
       Modelica.Units.SI.AmountOfSubstance amountOfBonds
@@ -247,6 +255,11 @@ package Undirected
 
       Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
       "Natural logarithm of the amount of base molecules in solution";
+
+      parameter Modelica.Units.SI.MolarFlowRate change_start=1
+      "Initial change of substance base molecules"
+        annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
 
       parameter Boolean EnthalpyNotUsed=false annotation (
         Evaluate=true,
@@ -256,7 +269,16 @@ package Undirected
 
     initial equation
 
-      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+      if not useRear then
+        amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+      elseif initAmount == InitializationMethods.steadyState then
+        r_fore_intern=0;
+      elseif initAmount == InitializationMethods.state then
+        amountOfBaseMolecules = amountOfSubstance_start;
+      elseif initAmount == InitializationMethods.derivative then
+        n_flow = change_start;
+      end if;
+
 
     equation
       if not useRear then
@@ -264,7 +286,7 @@ package Undirected
       end if;
      //n_flow = n_flow_out;
 
-      if stateOfMatter.selfClustering(substanceData) then
+      if stateOfMatter.selfClustering(substanceDataVar) then
 
         //Liquid cluster theory - equilibrium:
         //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
@@ -288,7 +310,7 @@ package Undirected
           amountOfBaseMolecules +
           n_flow*substance.h - h_flow +
           (if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-          substanceData)*der(amountOfBonds) else 0)
+          substanceDataVar)*der(amountOfBonds) else 0)
                         "heat transfer from other substances in solution [J/s]";
 
         Gj =amountOfBaseMolecules*substance.u + amountOfBonds*SelfClustering_dG
@@ -4119,6 +4141,116 @@ Junction with a rear and two fores in a lying T shape.
     end Reaction;
     extends Modelica.Icons.Package;
 
+    model ForwardReaction "Chemical Reaction"
+      extends Internal.PartialReactionWithSubstanceData;
+      extends Chemical.Interfaces.ConditionalKinetics
+                                            (k_forward=1);
+
+    equation
+
+      rr = kf * Sx_fore;
+
+      if nP>0 then
+         der(products[1].state_forwards.u).*TC = products[1].r;
+      end if;
+
+
+
+      annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
+            Rectangle(
+              extent={{-100,-30},{100,30}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-100,-72},{100,-40}},
+              lineColor={128,0,255},
+            textString="%name"),
+            Polygon(
+              points={{-60,2},{-60,0},{54,0},{54,0},{18,10},{18,2},{-60,2}},
+              lineColor={0,0,0},
+              fillColor={0,0,0},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{-60,-2},{-60,0},{54,0},{54,0},{18,-10},{18,-2},{-60,-2}},
+              lineColor={0,0,0},
+              fillColor={0,0,0},
+              fillPattern=FillPattern.Solid)}),
+        Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+    end ForwardReaction;
+
     model FlowResistance "Flow resistance model"
       extends Chemical.Undirected.Interfaces.SISOBiFlow(
                                     final L=if computeL then l/(r^2*pi) else L_value, final cliu_u_out=true);
@@ -4562,9 +4694,9 @@ For further documentation see the documentation of the
           nS=2,
           nP=2) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
         Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-        Chemical.Boundaries.Accumulation C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+        Chemical.Boundaries.Substance C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
 
-        Chemical.Boundaries.Accumulation D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
+        Chemical.Boundaries.Substance D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
         inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,56},{72,76}})));
       equation
         connect(A.solution, solution.solution) annotation (Line(
@@ -5097,6 +5229,156 @@ Medium model for the test. Can be anything.
 <u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
 </html>"));
       end TransportDelay;
+
+      model EnzymeKinetics "Basic enzyme kinetics"
+        extends Modelica.Icons.Example;
+
+        Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+        //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
+        Boundaries.Substance P(
+          useRear=true,
+          useSolution=true,
+          use_mass_start=false,amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
+
+        Boundaries.Substance          S(
+          useFore=true,
+          useSolution=true,             use_mass_start=false, amountOfSubstance_start=100) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
+
+        parameter Modelica.Units.SI.AmountOfSubstance tE=1
+          "Total amount of enzyme";
+           parameter Real k_cat(
+          unit="mol/s",
+          displayUnit="mol/min")=1
+          "Forward rate of second reaction";
+        constant Modelica.Units.SI.Concentration Km=0.1
+          "Michaelis constant = substrate concentration at rate of half Vmax";
+
+        parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
+          "Maximal molar flow";
+
+        Boundaries.Substance ES(
+          useRear=true,
+          useFore=true,
+          useSolution=true,
+          initAmount=Chemical.Utilities.Types.InitializationMethods.state,
+          use_mass_start=false, amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
+        Boundaries.Substance E(
+          useRear=true,
+          useFore=true,
+          useSolution=true,
+          use_mass_start=false,amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{12,36},{-8,56}})));
+        Reaction                    chemicalReaction(
+          k_forward=1,
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km))},
+                nS=2,
+          nP=1) annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
+
+        Processes.ForwardReaction chemicalReaction1(
+          k_forward=k_cat,
+          productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
+              Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
+          nS=1,
+          nP=2) annotation (Placement(transformation(extent={{24,-8},{44,12}})));
+
+        Boundaries.Substance liquidWater(
+          useSolution=true,              substanceData=Chemical.Substances.Water_liquid(),
+          use_mass_start=true,                                                             mass_start=1)
+          annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
+        inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
+      equation
+        //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+        connect(E.solution, solution.solution) annotation (Line(
+            points={{8,36},{-8,36},{-8,-98},{60,-98}},
+            color={127,127,0}));
+        connect(ES.solution, solution.solution)
+          annotation (Line(points={{-4,-10},{-4,-98},{60,-98}},         color={127,127,0}));
+
+        connect(S.solution, solution.solution) annotation (Line(
+            points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
+            color={127,127,0}));
+        connect(P.solution, solution.solution) annotation (Line(
+            points={{76,-12},{76,-98},{60,-98}},
+            color={127,127,0}));
+        connect(liquidWater.solution, solution.solution) annotation (Line(points={{
+                46,-80},{46,-98},{60,-98}}, color={127,127,0}));
+        connect(chemicalReaction.products[1], ES.rear) annotation (Line(
+            points={{-22,0},{-8,0}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(ES.fore, chemicalReaction1.substrates[1])
+          annotation (Line(
+            points={{12,0},{18,0},{18,2},{24,2}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(S.fore, chemicalReaction.substrates[1])
+          annotation (Line(
+            points={{-72,-4},{-52,-4},{-52,-2},{-42,-2},{-42,-0.25}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(E.fore, chemicalReaction.substrates[2])
+          annotation (Line(
+            points={{-8,46},{-52,46},{-52,0.25},{-42,0.25}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(chemicalReaction1.products[1], P.rear)
+          annotation (Line(
+            points={{44,1.75},{58,1.75},{58,-2},{72,-2}},
+            color={158,66,200},
+            thickness=0.5));
+        connect(E.rear, chemicalReaction1.products[2])
+          annotation (Line(
+            points={{12,46},{48,46},{48,48},{56,48},{56,2.25},{44,2.25}},
+            color={158,66,200},
+            thickness=0.5));
+            annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",       info="<html>
+<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
+<p>S = Km .. the amount of substrate is Km</p>
+<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
+<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
+<p>x(Km) = Km/MM</p>
+<p>x(tE) = tE/MM</p>
+<p>xS = S/MM = Km/MM</p>
+<p><br>The new kinetics of the system defined as:</p>
+<p>uS&deg; = DfG(S) = 0</p>
+<p>uE&deg; = DfG(E) = 0</p>
+<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
+<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>uP&deg; = DfG(P) </p>
+<p><br>r = Vmax/2</p>
+<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
+<p>because xES=xE this time</p>
+<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
+<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
+<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
+<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
+<p><br>where</p>
+<p>AmountOfSolution = MM = 55.508 (for water)</p>
+<p>Tau = 1 s (just to be physical unit correct)</p>
+<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
+<h4>The maximum of the new enzyme kinetics</h4>
+<p>The enzymatic rate must have a maximum near of Vmax. </p>
+<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The proof:</p>
+<p>We want to sutisfied the following inequality:</p>
+<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
+<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
+<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
+<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
+</html>"),experiment(StopTime=100000, __Dymola_Algorithm="Dassl"),
+          __Dymola_experimentSetupOutput);
+      end EnzymeKinetics;
       annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));

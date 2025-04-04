@@ -18,9 +18,9 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-    input SubstanceState state "State of substance";
-    input SolutionState solution "State of solution";
-    input stateOfMatter.SubstanceData definition "Definition of substance";
+    InputSubstanceState state "State of substance";
+    InputSolutionState solution "State of solution";
+    stateOfMatter.InputSubstanceData definition "Definition of substance";
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
@@ -88,9 +88,10 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-    output SubstanceState state "State of substance in solution";
-    output SolutionState solution "State of solution";
-    output stateOfMatter.SubstanceData definition "Definition of substance";
+    OutputSubstanceState state "State of substance in solution";
+    OutputSolutionState solution "State of solution";
+    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+
 
     annotation ( Icon(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
@@ -140,12 +141,12 @@ package Interfaces "Chemical interfaces"
   end Outlet;
 
  replaceable record SubstanceState "Set that defines a state of substance"
+  extends Modelica.Icons.Record;
 
    Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
    Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy of the substance";
-
-
  end SubstanceState;
+
 
  operator record SolutionState "Set that defines a state of solution"
   extends Modelica.Icons.Record;
@@ -198,6 +199,11 @@ package Interfaces "Chemical interfaces"
 
  end SolutionStateParameters;
 
+  connector InputSubstanceState = input SubstanceState;
+  connector InputSolutionState = input SolutionState;
+  connector OutputSubstanceState = output SubstanceState;
+  connector OutputSolutionState = output SolutionState;
+
   partial package StateOfMatter "Abstract package for all state of matters"
 
    replaceable partial record SubstanceDataParameters
@@ -211,6 +217,13 @@ package Interfaces "Chemical interfaces"
 
    end SubstanceData;
 
+    replaceable connector InputSubstanceData
+
+    end InputSubstanceData;
+
+    replaceable connector OutputSubstanceData
+
+    end OutputSubstanceData;
 
     replaceable partial model BaseProperties "Base properties of the substance"
 
@@ -776,8 +789,9 @@ end solution_temperature_;
       parameter Modelica.Units.SI.MolarHeatCapacity Cp=75.32
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
-      parameter Boolean SelfClustering=false
+      parameter Real SelfClustering=0
         "Pure substance is making clusters (weak bonds between molecules)";
+                                      //false
 
       parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
         "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
@@ -811,7 +825,7 @@ end solution_temperature_;
 
       Modelica.Units.SI.MolarHeatCapacity Cp "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
-      Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+      Real SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
 
       Modelica.Units.SI.ChemicalPotential SelfClustering_dH "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
 
@@ -824,6 +838,9 @@ end solution_temperature_;
 <p>Marek Mateják </p>
 </html>"));
     end SubstanceData;
+
+    redeclare connector InputSubstanceData = input SubstanceData;
+    redeclare connector OutputSubstanceData = output SubstanceData;
 
     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
     end BaseProperties;
@@ -907,7 +924,7 @@ end solution_temperature_;
       input SubstanceData substanceData "Data record of substance";
       output Boolean selfClustering;
     algorithm
-      selfClustering := substanceData.SelfClustering;
+      selfClustering := (substanceData.SelfClustering>0.5);
     end selfClustering;
 
     redeclare function selfClusteringBondEnthalpy
@@ -1223,6 +1240,9 @@ end solution_temperature_;
 </html>"));
      end SubstanceData;
 
+     redeclare connector InputSubstanceData = input SubstanceData;
+     redeclare connector OutputSubstanceData = output SubstanceData;
+
      redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
      end BaseProperties;
 
@@ -1330,6 +1350,9 @@ end solution_temperature_;
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
     end SubstanceData;
+
+    redeclare connector InputSubstanceData = input SubstanceData;
+    redeclare connector OutputSubstanceData = output SubstanceData;
 
     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
     end BaseProperties;
@@ -1513,6 +1536,8 @@ end solution_temperature_;
 
    redeclare record extends SubstanceData "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
+    connector InputSubstanceData = input SubstanceData;
+
     Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
 
     Modelica.Units.SI.ChargeNumberOfIon z
@@ -1552,6 +1577,9 @@ end solution_temperature_;
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
    end SubstanceData;
+
+   redeclare connector InputSubstanceData = input SubstanceData;
+   redeclare connector OutputSubstanceData = output SubstanceData;
 
    redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
    end BaseProperties;
@@ -1972,7 +2000,7 @@ end solution_temperature_;
   partial model PartialSolutionWithHeatPort
     "Chemical solution as homogenous mixture of the substances"
 
-    extends Interfaces.PartialSolution;
+    extends Interfaces.PartialSolution(temperature(start=temperature_start));
 
   parameter Modelica.Units.SI.Temperature temperature_start=system.T_ambient
     "Initial temperature of the solution"

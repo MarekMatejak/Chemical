@@ -6,39 +6,65 @@ extends Modelica.Icons.SourcesPackage;
     extends Icons.Substance;
     extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
 
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true, Dialog(enable = not useInlet));
+
+    parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
+      annotation (Evaluate=true, choices(checkBox=true));
+
+    parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(not use_mass_start)));
+
+    parameter Boolean useInlet=false   "Use inlet conector?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
     Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
       "Molar concentration of particles";
 
-     parameter stateOfMatter.SubstanceDataParameters substanceData
-   "Definition of the substance"
-      annotation (choicesAllMatching = true);
-
-    parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
-      annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
-
-  parameter Modelica.Units.SI.Mass mass_start=1
-    "Initial mass of the substance"
-    annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
-
-  parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
-    "Initial amount of substance base molecules"
-      annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in) if useInlet
+      "The substance entering"
+      annotation (Placement(transformation(extent={{-110,-10},{-90,10}}),
+                                                                        iconTransformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
         molarMassOfBaseMolecule "Mass";
 
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance"
+      annotation(Dialog(tab="Initialization"));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial molar change of substance base molecules"
+      annotation ( Dialog(tab="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
     parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
-        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
 
   protected
+    parameter Modelica.Units.SI.AmountOfSubstance n_start=if use_mass_start then mass_start/stateOfMatter.molarMassOfBaseMolecule(substanceData) else
+       amountOfSubstance_start;
+
     parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
-      amountOfSubstance_start*molarMassOfBaseMolecule;
+       amountOfSubstance_start*stateOfMatter.molarMassOfBaseMolecule(substanceData);
+   // Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
 
-    parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
 
-    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
-         m_start/molarMassOfBaseMolecule)
+    //parameter Modelica.Units.SI.MolarMass molarMassOfBaseMoleculeFixed = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules
       "Amount of base molecules inside all clusters in compartment";
+    //(start=if use_mass_start then mass_start/molarMassOfBaseMoleculeFixed else amountOfSubstance_start)
+  //  (start= amountOfSubstance_start)
 
     Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
          m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
@@ -59,15 +85,28 @@ extends Modelica.Icons.SourcesPackage;
       "Dissociation constant of hydrogen bond between base molecules";
 
     Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-        stateOfMatter.selfClusteringBondEnthalpy(substanceData)
-      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
       "Gibbs energy of hydrogen bond between H2O molecules";
+
+  /*  parameter Modelica.Units.SI.MoleFraction SelfClustering_K_Fixed = exp(-SelfClustering_dG_Fixed/(
+      Modelica.Constants.R*system.T_ambient));
+
+  parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dG_Fixed=
+      stateOfMatter.selfClusteringBondEnthalpy(substanceData)
+    - system.T_ambient * stateOfMatter.selfClusteringBondEntropy(substanceData)
+    "Gibbs energy of hydrogen bond between H2O molecules";
+*/
 
     Modelica.Units.SI.AmountOfSubstance amountOfBonds
       "Amount of hydrogen bonds between molecules in compartment";
 
-    Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start))
     "Natural logarithm of the amount of base molecules in solution";
+
+    Real logm(stateSelect=StateSelect.prefer, start=log(mass_start))
+    "Natural logarithm of the substance mass in solution";
 
     parameter Boolean EnthalpyNotUsed=false annotation (
       Evaluate=true,
@@ -75,15 +114,44 @@ extends Modelica.Icons.SourcesPackage;
       choices(checkBox=true),
       Dialog(tab="Advanced", group="Performance"));
 
-  initial equation
+    Real r, r_in, n_flow_in;
 
-    amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+    Chemical.Interfaces.InputSubstanceState state_in;
+    stateOfMatter.InputSubstanceData substanceDefinition;
+
+  initial equation
+    if initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state and not use_mass_start then
+      logn=log(amountOfSubstance_start);
+    elseif initAmount == InitializationMethods.state and use_mass_start then
+      logm=log(mass_start);
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
 
   equation
-   substanceDataVar = substanceData;
-   n_flow = n_flow_out;
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    //state_in = inlet.state;
+    connect(state_in,inlet.state);
 
-    if stateOfMatter.selfClustering(substanceData) then
+    if not useInlet then
+      r_in=0;
+      n_flow_in=0;
+
+      state_in.h=0;
+      substanceDataVar = substanceData;
+    end if;
+
+    n_flow = n_flow_in + n_flow_out;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+    // during initialization it does not take value from parameter substanceData if not useInlet,
+    // so instead of just "stateOfMatter.selfClustering(substanceDataVar)" it must be written
+    if (not useInlet and stateOfMatter.selfClustering(substanceData)) or stateOfMatter.selfClustering(substanceDataVar) then
 
       //Liquid cluster theory - equilibrium:
       //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
@@ -104,9 +172,9 @@ extends Modelica.Icons.SourcesPackage;
      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
      //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
       solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
-        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h  + (
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
         if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-        substanceData)*der(amountOfBonds) else 0)
+        substanceDataVar)*der(amountOfBonds) else 0)
                       "heat transfer from other substances in solution [J/s]";
 
       solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
@@ -123,7 +191,7 @@ extends Modelica.Icons.SourcesPackage;
       solution.dH =
         if (EnthalpyNotUsed) then  0
         else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
-                - n_flow_out*state_out.h
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
                 "heat transfer from other substances in solution [J/s]";
 
       solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
@@ -132,9 +200,14 @@ extends Modelica.Icons.SourcesPackage;
 
     //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
     // However, the numerical solvers can handle it in form of log(n) much better. :-)
-    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    if use_mass_start then
+      der(logm) = (n_flow/amountOfBaseMolecules) "accumulation of mass=exp(logm) [kg]";
+    else
+      der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    end if;
     //der(amountOfBaseMolecules) = n_flow;
     amountOfBaseMolecules = exp(logn);
+    amountOfBaseMolecules = exp(logm)*1/molarMassOfBaseMolecule;
 
     substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
 
@@ -185,201 +258,6 @@ extends Modelica.Icons.SourcesPackage;
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
   end Substance;
-
-  model Accumulation "Substance in solution with inlet"
-    extends Icons.Substance;
-    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
-
-    import Chemical.Utilities.Types.InitializationMethods;
-
-    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
-     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
-
-    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
-      "Molar concentration of particles";
-
-    Chemical.Interfaces.Inlet inlet(
-      redeclare package stateOfMatter=stateOfMatter,
-      r=r_in,
-      n_flow=n_flow_in)
-      "The substance entering"
-      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
-
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
-    "Initial amount of substance base molecules"
-      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
-
-    parameter Modelica.Units.SI.MolarFlowRate change_start=1
-    "Initial change of substance base molecules"
-      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
-
-    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
-        molarMassOfBaseMolecule "Mass";
-
-    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
-        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
-
-  protected
-    Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
-
-    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
-
-    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
-         amountOfSubstance_start)
-      "Amount of base molecules inside all clusters in compartment";
-
-    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
-      "Amount of free molecules not included inside any clusters in compartment";
-
-    Modelica.Units.SI.AmountOfSubstance amountOfParticles
-      "Amount of particles/clusters in compartment";
-
-    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
-        Modelica.Constants.R*solution.T))
-      "Dissociation constant of hydrogen bond between base molecules";
-
-    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
-      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
-      "Gibbs energy of hydrogen bond between H2O molecules";
-
-    Modelica.Units.SI.AmountOfSubstance amountOfBonds
-      "Amount of hydrogen bonds between molecules in compartment";
-
-    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
-    "Natural logarithm of the amount of base molecules in solution";
-
-    parameter Boolean EnthalpyNotUsed=false annotation (
-      Evaluate=true,
-      HideResult=true,
-      choices(checkBox=true),
-      Dialog(tab="Advanced", group="Performance"));
-
-    Real r, r_in, n_flow_in;
-
-    Chemical.Interfaces.SubstanceState state_in;
-
-
-  initial equation
-    if initAmount == InitializationMethods.steadyState then
-      r=0;
-    elseif initAmount == InitializationMethods.state then
-      amountOfBaseMolecules = amountOfSubstance_start;
-    elseif initAmount == InitializationMethods.derivative then
-      n_flow = change_start;
-    end if;
-
-  equation
-    substanceDataVar = inlet.definition;
-    state_in = inlet.state;
-
-    n_flow = n_flow_in + n_flow_out;
-
-    der(n_flow_in)*L = r_in - r;
-    state_out.u = state_in.u + r;
-
-  if stateOfMatter.selfClustering(substanceDataVar) then
-
-      //Liquid cluster theory - equilibrium:
-      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
-      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
-      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
-      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
-
-      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
-
-      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
-      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
-
-      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
-
-      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
-      //TODO: more precise calculation of other properties
-
-     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
-     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
-      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
-        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
-        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-        substanceDataVar)*der(amountOfBonds) else 0)
-                      "heat transfer from other substances in solution [J/s]";
-
-      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
-                      "Gibbs energy of the substance";
-
-    else
-
-      amountOfParticles = amountOfFreeMolecule;
-      amountOfBaseMolecules = amountOfFreeMolecule;
-      amountOfBonds = 0;
-
-      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
-      //enthalpy = substance.h*amountOfBaseMolecules;
-      solution.dH =
-        if (EnthalpyNotUsed) then  0
-        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
-                - n_flow_out*state_out.h - n_flow_in*state_in.h
-                "heat transfer from other substances in solution [J/s]";
-
-      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
-
-    end if;
-
-    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
-    // However, the numerical solvers can handle it in form of log(n) much better. :-)
-    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
-    //der(amountOfBaseMolecules) = n_flow;
-    amountOfBaseMolecules = exp(logn);
-
-    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
-
-    c = amountOfParticles/solution.V "concentration [mol/m3]";
-
-    //solution flows
-    solution.i = Modelica.Constants.F*substance.z*n_flow +
-        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
-    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
-
-    //extensive properties
-    solution.nj = amountOfParticles;
-    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
-    solution.Vj = amountOfBaseMolecules*substance.Vm;
-    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
-    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
-
-       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
-              {100,100}}), graphics={Text(
-            extent={{-84,22},{92,64}},
-            lineColor={128,0,255},
-            textString="%name")}), Documentation(revisions="<html>
-<p>2009-2025 by Marek Matejak, Ph.D. </p>
-</html>",   info="<html>
-<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
-<p>where n is amount of the substance and substance.x is mole fraction.</p>
-<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
-<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
-<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
-<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
-<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
-<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
-<p><br><br>Definition of electro-chemical potential:</p>
-<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
-<h4>u&deg; = DfG = DfH - T * DfS</h4>
-<p>where</p>
-<p>substance.x .. mole fraction of the substance in the solution</p>
-<p>T .. temperature in Kelvins</p>
-<p>v .. relative eletric potential of the solution</p>
-<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
-<p>R .. gas constant</p>
-<p>F .. Faraday constant</p>
-<p>gamma .. activity coefficient</p>
-<p>u&deg; .. chemical potential of pure substance</p>
-<p>DfG .. free Gibbs energy of formation of the substance</p>
-<p>DfH .. free enthalpy of formation of the substance</p>
-<p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
-</html>"));
-  end Accumulation;
 
   model ElectronSource "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
@@ -1706,7 +1584,8 @@ Test package for the Boundaries package of ThermofluidStream.
 
      outer Modelica.Fluid.System system "System wide properties";
 
-     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
+     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
+       annotation( Dialog(tab = "Advanced"));
 
 
 
@@ -1727,6 +1606,8 @@ Test package for the Boundaries package of ThermofluidStream.
 
      stateOfMatter.SubstanceData substanceDataVar;
 
+     //connector InputSubstanceData = input stateOfMatter.SubstanceData;
+
      parameter Modelica.Units.SI.MolarFlowRate n_flow_assert(max=0) = -dropOfCommons.n_flow_reg "Assertion threshold for negative molar flows"
         annotation(Dialog(tab="Advanced"));
 
@@ -1743,7 +1624,7 @@ Modelica.Units.SI.ActivityOfSolute a
 
  //Modelica.Units.SI.ChemicalPotential r "Inertial electro-chemical potential";
 
- 
+
 Modelica.Units.SI.ActivityCoefficient gamma
   "Activity coefficient of the substance";
 
@@ -1779,8 +1660,8 @@ Modelica.Units.SI.MolarVolume molarVolumePure
 
 Modelica.Units.SI.MolarVolume molarVolumeExcess
   "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
-
 */
+
      Real r_out,n_flow_out;
 
      Chemical.Interfaces.SubstanceState state_out;
@@ -1834,8 +1715,11 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
    moleFractionBasedIonicStrength)
    + (Modelica.Constants.R*temperature)*log(a)
    + z*Modelica.Constants.F*electricPotential;
-*/
+ */
+
      state_out.h = substance.h;
+     //molarEnthalpy;
+
 
      der(n_flow_out)*L = r_out;
     /*
@@ -1864,6 +1748,7 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
     protected
     Modelica.Units.SI.AmountOfSubstance amountOfSolution
       "Amount of all solution particles";
+
 
     equation
 
@@ -1938,6 +1823,130 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
       end if;
 
     end ConditionalSolutionFlow;
+
+    partial model PartialSubstanceInSolution2 "Substance properties for components, where the substance is connected with the solution"
+
+      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+      extends Boundaries.Internal.PartialSubstance;
+
+       parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+
+       Modelica.Units.SI.MolarFlowRate n_flow_in;
+
+       Modelica.Units.SI.Mass mass "Mass";
+
+    protected
+       Chemical.Interfaces.InputSubstanceState state_in;
+       stateOfMatter.InputSubstanceData substanceDefinition;
+
+
+      Modelica.Units.SI.AmountOfSubstance amountOfSolution
+      "Amount of all solution particles";
+
+      Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules=mass/molarMassOfBaseMolecule
+        "Amount of base molecules inside all clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
+        "Amount of free molecules not included inside any clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles
+        "Amount of particles/clusters in compartment";
+
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*solution.T))
+        "Dissociation constant of hydrogen bond between base molecules";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+        - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+        "Gibbs energy of hydrogen bond between H2O molecules";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBonds
+        "Amount of hydrogen bonds between molecules in compartment";
+    equation
+
+      solutionState.T=temperature "Temperature of the solution";
+      solutionState.p=pressure "Pressure of the solution";
+      solutionState.v=electricPotential "Electric potential in the solution";
+      solutionState.n=amountOfSolution "Amount of the solution";
+      solutionState.m=solution.m "Mass of the solution";
+      solutionState.V=solution.V "Volume of the solution";
+      solutionState.G=solution.G "Free Gibbs energy of the solution";
+      solutionState.Q=solution.Q "Electric charge of the solution";
+      solutionState.I=solution.I "Mole fraction based ionic strength of the solution";
+
+      //aliases
+      temperature = solution.T;
+      pressure = solution.p;
+      electricPotential = solution.v;
+      amountOfSolution = solution.n;
+      moleFractionBasedIonicStrength = solution.I;
+
+      if stateOfMatter.selfClustering(substanceDataVar) then
+
+        //Liquid cluster theory - equilibrium:
+        //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+        //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+        //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+        //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+        amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+        substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+        //TODO: more precise calculation of other properties
+
+       //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+       //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+        solution.dH = der(substance.h)*
+          amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
+          if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+          substanceDataVar)*der(amountOfBonds) else 0)
+                        "heat transfer from other substances in solution [J/s]";
+
+        solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                        "Gibbs energy of the substance";
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfBonds = 0;
+
+        //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+        //enthalpy = substance.h*amountOfBaseMolecules;
+        solution.dH =
+              der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                  - n_flow_out*state_out.h - n_flow_in*state_in.h
+                  "heat transfer from other substances in solution [J/s]";
+
+        solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+      end if;
+
+          //solution flows
+      solution.i = Modelica.Constants.F*substance.z*n_flow +
+          Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+      solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+      //extensive properties
+      solution.nj = amountOfParticles;
+      solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+      solution.Vj = amountOfBaseMolecules*substance.Vm;
+      solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+      solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+    end PartialSubstanceInSolution2;
   annotation (Documentation(info="<html>
 <p>This package contains all internal functions, partials, and other (e.g. experimental) models for the Boundaries package.</p>
 </html>"));
@@ -2030,6 +2039,1464 @@ equation
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
   end Buffer;
+
+  model Accumulation "Substance in solution with inlet"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter Boolean use_mass=false  "prefere state as mass, otherwise amountOfSubstance"
+      annotation (Evaluate=true, choices(checkBox=true));
+
+    parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+      annotation (HideResult=not use_mass, Dialog(group="Initialization", enable=(use_mass and initAmount == InitializationMethods.state)));
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in)
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(not use_mass and initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial molar change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        molarMassOfBaseMolecule "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+  protected
+    //Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules
+      "Amount of base molecules inside all clusters in compartment";
+  //  (start= amountOfSubstance_start)
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    Real logm(stateSelect=StateSelect.prefer, start=log(mass_start), min=0)
+    "Natural logarithm of the substance mass in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    Real r, r_in, n_flow_in;
+
+    Chemical.Interfaces.InputSubstanceState state_in;
+    stateOfMatter.InputSubstanceData substanceDefinition;
+
+  initial equation
+    if initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state and not use_mass then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.state and not use_mass then
+      amountOfBaseMolecules = mass_start/molarMassOfBaseMolecule;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    //state_in = inlet.state;
+    connect(state_in,inlet.state);
+
+    n_flow = n_flow_in + n_flow_out;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+  if stateOfMatter.selfClustering(substanceDataVar) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceDataVar)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    if use_mass then
+      der(logm) = (n_flow/amountOfBaseMolecules) "accumulation of mass=exp(logm) [kg]";
+    else
+      der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    end if;
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+    amountOfBaseMolecules = exp(logm)*1/molarMassOfBaseMolecule;
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end Accumulation;
+
+  model SubstanceOld "Substance in solution"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
+      annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
+
+    parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+    annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+     "Initial amount of substance base molecules"
+      annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        molarMassOfBaseMolecule "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+
+  protected
+    parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+      amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+         m_start/molarMassOfBaseMolecule)
+      "Amount of base molecules inside all clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+         m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                     substanceData,
+                                     T=system.T_ambient,
+                                     p=system.p_ambient))
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+         m_start*stateOfMatter.specificAmountOfParticles(
+                                     substanceData,
+                                     T=system.T_ambient,
+                                     p=system.p_ambient))
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceData)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+  initial equation
+
+    amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+
+  equation
+   substanceDataVar = substanceData;
+   n_flow = n_flow_out;
+
+    if stateOfMatter.selfClustering(substanceData) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h  + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceData)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end SubstanceOld;
+
+  model S "Substance"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+     parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    parameter Boolean useInlet = true;
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in) if useInlet
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        molarMassOfBaseMolecule "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+  protected
+    Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+         amountOfSubstance_start)
+      "Amount of base molecules inside all clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    Real r, r_in, n_flow_in;
+
+    Chemical.Interfaces.InputSubstanceState state_in;
+    stateOfMatter.InputSubstanceData substanceDefinition;
+
+  initial equation
+    if useInlet then
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+    elseif initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    connect(state_in,inlet.state);
+
+    if not useInlet then
+      substanceData = substanceDefinition;
+      r_in = 0;
+      n_flow_in = 0;
+      state_in.h = 0;
+    end if;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+    n_flow = n_flow_in + n_flow_out;
+
+    if stateOfMatter.selfClustering(substanceDataVar) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceDataVar)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end S;
+
+  model S1 "Substance"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution2(amountOfBaseMolecules(start=amountOfSubstance_start));
+
+    /*m_start=if use_mass_start then mass_start else 
+    amountOfSubstance_start*stateOfMatter.molarMassOfBaseMolecule(substanceData),
+  amountOfBaseMolecules(start=m_start/molarMassOfBaseMolecule),
+  amountOfFreeMolecule(start=m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                   substanceData,
+                                   T=system.T_ambient,
+                                   p=system.p_ambient)),
+  amountOfParticles(start=m_start*stateOfMatter.specificAmountOfParticles(
+                                   substanceData,
+                                   T=system.T_ambient,
+                                   p=system.p_ambient))
+  */
+
+
+  ///////////////
+    import Chemical.Utilities.Types.InitializationMethods;
+
+     parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    parameter Boolean useInlet = true;
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in) if useInlet
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+  protected
+    Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
+
+     Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+
+    Real r, r_in;
+
+
+  initial equation
+    if useInlet then
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+    elseif initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    connect(state_in,inlet.state);
+
+    if not useInlet then
+      substanceData = substanceDefinition;
+      r_in = 0;
+      n_flow_in = 0;
+      state_in.h = 0;
+    end if;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+    n_flow = n_flow_in + n_flow_out;
+
+
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end S1;
+
+  model S2 "Substance"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution2(mass(start=m_start));
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    parameter Boolean useInlet = true;
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in) if useInlet
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    parameter Modelica.Units.SI.Mass m_start=1;
+
+    Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=m_start/molarMassOfBaseMolecule
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+
+
+
+  protected
+
+
+
+    Real logm(stateSelect=StateSelect.prefer, start=log(m_start), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    Real r, r_in;
+
+
+
+  initial equation
+    if useInlet then
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+    elseif initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    connect(state_in,inlet.state);
+
+    if not useInlet then
+      substanceData = substanceDefinition;
+      r_in = 0;
+      n_flow_in = 0;
+      state_in.h = 0;
+    end if;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+    n_flow = n_flow_in + n_flow_out;
+
+
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logm) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules*molarMassOfBaseMolecule = exp(logm);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end S2;
+
+  model AccumulationMass "Substance in solution with inlet"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in)
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+  //  parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+  //  "Initial amount of substance base molecules"
+  //    annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.Mass mass_start=1
+    "Initial mass of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+    Modelica.Units.SI.Mass mass(start=mass_start)=amountOfBaseMolecules*molarMassOfBaseMolecule
+        "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+  protected
+    Modelica.Units.SI.Mass m_start=mass_start; //amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule(fixed=true) = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules
+      "Amount of base molecules inside all clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logm(stateSelect=StateSelect.prefer, start=log(mass_start), min=0)
+    "Natural logarithm of the mass of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    Real r, r_in, n_flow_in;
+
+    Chemical.Interfaces.InputSubstanceState state_in;
+    stateOfMatter.InputSubstanceData substanceDefinition;
+
+  initial equation
+    if initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      mass = mass_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    //state_in = inlet.state;
+    connect(state_in,inlet.state);
+
+    n_flow = n_flow_in + n_flow_out;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+  if stateOfMatter.selfClustering(substanceDataVar) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceDataVar)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logm) = (n_flow/amountOfBaseMolecules) "accumulation of mass=exp(logm) [kg]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logm - log(molarMassOfBaseMolecule));
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end AccumulationMass;
+
+  model SubstanceA "Substance in solution"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution(substanceDataVar = substanceData);
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+     parameter stateOfMatter.SubstanceDataParameters substanceData
+   "Definition of the substance"
+      annotation (choicesAllMatching = true);
+
+    parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
+      annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
+
+  parameter Modelica.Units.SI.Mass mass_start=1
+    "Initial mass of the substance"
+    annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+
+  parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        molarMassOfBaseMolecule "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+
+  protected
+    parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+      amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+         m_start/molarMassOfBaseMolecule)
+      "Amount of base molecules inside all clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+         m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                     substanceData,
+                                     T=system.T_ambient,
+                                     p=system.p_ambient))
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+         m_start*stateOfMatter.specificAmountOfParticles(
+                                     substanceData,
+                                     T=system.T_ambient,
+                                     p=system.p_ambient))
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceData)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+  initial equation
+
+    amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+
+  equation
+
+   n_flow = n_flow_out;
+
+    if stateOfMatter.selfClustering(substanceData) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h  + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceData)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end SubstanceA;
+
+  model AccumulationOld "Substance in solution with inlet"
+    extends Icons.Substance;
+    extends Chemical.Boundaries.Internal.PartialSubstanceInSolution;
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance";
+     // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+
+    Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+      "Molar concentration of particles";
+
+    Chemical.Interfaces.Inlet inlet(
+      redeclare package stateOfMatter=stateOfMatter,
+      r=r_in,
+      n_flow=n_flow_in)
+      "The substance entering"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.state)));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial change of substance base molecules"
+      annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+
+    Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+        molarMassOfBaseMolecule "Mass";
+
+    parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+        annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
+
+  protected
+    Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
+
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+         amountOfSubstance_start)
+      "Amount of base molecules inside all clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule
+      "Amount of free molecules not included inside any clusters in compartment";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfParticles
+      "Amount of particles/clusters in compartment";
+
+    Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+        Modelica.Constants.R*solution.T))
+      "Dissociation constant of hydrogen bond between base molecules";
+
+    Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+        stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
+      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+      "Gibbs energy of hydrogen bond between H2O molecules";
+
+    Modelica.Units.SI.AmountOfSubstance amountOfBonds
+      "Amount of hydrogen bonds between molecules in compartment";
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start), min=0)
+    "Natural logarithm of the amount of base molecules in solution";
+
+    parameter Boolean EnthalpyNotUsed=false annotation (
+      Evaluate=true,
+      HideResult=true,
+      choices(checkBox=true),
+      Dialog(tab="Advanced", group="Performance"));
+
+    Real r, r_in, n_flow_in;
+
+    Chemical.Interfaces.InputSubstanceState state_in;
+    stateOfMatter.InputSubstanceData substanceDefinition;
+
+
+  initial equation
+    if initAmount == InitializationMethods.steadyState then
+      r=0;
+    elseif initAmount == InitializationMethods.state then
+      amountOfBaseMolecules = amountOfSubstance_start;
+    elseif initAmount == InitializationMethods.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+    connect(substanceDefinition,inlet.definition);
+    substanceDataVar = substanceDefinition;
+    //state_in = inlet.state;
+    connect(state_in,inlet.state);
+
+    n_flow = n_flow_in + n_flow_out;
+
+    der(n_flow_in)*L = r_in - r;
+    state_out.u = state_in.u + r;
+
+  if stateOfMatter.selfClustering(substanceDataVar) then
+
+      //Liquid cluster theory - equilibrium:
+      //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
+      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+
+      amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
+
+      //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
+      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+      amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
+
+      //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+      //TODO: more precise calculation of other properties
+
+     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+        amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
+        if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
+        substanceDataVar)*der(amountOfBonds) else 0)
+                      "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+                      "Gibbs energy of the substance";
+
+    else
+
+      amountOfParticles = amountOfFreeMolecule;
+      amountOfBaseMolecules = amountOfFreeMolecule;
+      amountOfBonds = 0;
+
+      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //enthalpy = substance.h*amountOfBaseMolecules;
+      solution.dH =
+        if (EnthalpyNotUsed) then  0
+        else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
+                - n_flow_out*state_out.h - n_flow_in*state_in.h
+                "heat transfer from other substances in solution [J/s]";
+
+      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+
+    end if;
+
+    //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
+    // However, the numerical solvers can handle it in form of log(n) much better. :-)
+    der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+    //der(amountOfBaseMolecules) = n_flow;
+    amountOfBaseMolecules = exp(logn);
+
+    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+
+    c = amountOfParticles/solution.V "concentration [mol/m3]";
+
+    //solution flows
+    solution.i = Modelica.Constants.F*substance.z*n_flow +
+        Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
+    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+    //extensive properties
+    solution.nj = amountOfParticles;
+    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    solution.Vj = amountOfBaseMolecules*substance.Vm;
+    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = substance.x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and substance.x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>substance.x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of substance.x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of substance.x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*substance.x) + substance.z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>substance.x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>substance.z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end AccumulationOld;
   annotation (Documentation(revisions="<html>
 <p><img src=\"modelica:/ThermofluidStream/Resources/dlr_logo.png\"/>(c) 2020-2021, DLR, Institute of System Dynamics and Control</p>
 

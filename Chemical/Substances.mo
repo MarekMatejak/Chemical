@@ -7648,7 +7648,7 @@ package Substances "Definitions of substances"
       DfH=-285830,
       DfG=-227230,
       Cp=75.3,
-      SelfClustering=true,
+      SelfClustering=1,
       SelfClustering_dH=-81.6348,
       SelfClustering_dS=32.845554);
 
