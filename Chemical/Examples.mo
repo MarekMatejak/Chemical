@@ -1068,6 +1068,7 @@ extends Modelica.Icons.ExamplesPackage;
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
     Chemical.Boundaries.Substance P(
       useInlet=true,
+      useSolution=true,
       mass_start=1e-8,
       amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
 
@@ -1096,8 +1097,8 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Processes.Reaction chemicalReaction(
       k_forward=1,
       productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km))},
-            nS=2,
-      nP=1) annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
+      nP=1,
+      nS=2) annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
 
     Processes.ForwardReaction   chemicalReaction1(
       k_forward=k_cat,
@@ -1129,16 +1130,6 @@ extends Modelica.Icons.ExamplesPackage;
         points={{12,0},{16,0},{16,-2},{24,-2}},
         color={158,66,200},
         thickness=0.5));
-    connect(E.outlet, chemicalReaction.substrates[1])
-      annotation (Line(
-        points={{-10,46},{-48,46},{-48,-0.25},{-40,-0.25}},
-        color={158,66,200},
-        thickness=0.5));
-    connect(S.outlet, chemicalReaction.substrates[2])
-      annotation (Line(
-        points={{-72,-4},{-62,-4},{-62,2},{-50,2},{-50,0.25},{-40,0.25}},
-        color={158,66,200},
-        thickness=0.5));
     connect(chemicalReaction1.products[1], P.inlet)
       annotation (Line(
         points={{44,-2.25},{58,-2.25},{58,-2},{72,-2}},
@@ -1151,6 +1142,16 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(chemicalReaction.products[1], ES.inlet) annotation (Line(
         points={{-20,0},{-8,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(S.outlet, chemicalReaction.substrates[1])
+      annotation (Line(
+        points={{-72,-4},{-66,-4},{-66,-0.25},{-40,-0.25}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(E.outlet, chemicalReaction.substrates[2])
+      annotation (Line(
+        points={{-10,46},{-52,46},{-52,0},{-40,0},{-40,0.25}},
         color={158,66,200},
         thickness=0.5));
         annotation ( Documentation(revisions="<html>

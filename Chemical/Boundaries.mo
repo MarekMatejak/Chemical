@@ -8,9 +8,6 @@ extends Modelica.Icons.SourcesPackage;
 
     import Chemical.Utilities.Types.InitializationMethods;
 
-    parameter stateOfMatter.SubstanceDataParameters substanceData
-   "Definition of the substance"
-      annotation (choicesAllMatching = true, Dialog(enable = not useInlet));
 
     parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
       annotation (Evaluate=true, choices(checkBox=true));
@@ -22,19 +19,10 @@ extends Modelica.Icons.SourcesPackage;
     "Initial amount of substance base molecules"
       annotation ( Dialog(group="Initialization", enable=(not use_mass_start)));
 
-    parameter Boolean useInlet=false   "Use inlet conector?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
     Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
       "Molar concentration of particles";
 
-    Chemical.Interfaces.Inlet inlet(
-      redeclare package stateOfMatter=stateOfMatter,
-      r=r_in,
-      n_flow=n_flow_in) if useInlet
-      "The substance entering"
-      annotation (Placement(transformation(extent={{-110,-10},{-90,10}}),
-                                                                        iconTransformation(extent={{-110,-10},{-90,10}})));
 
     Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
         molarMassOfBaseMolecule "Mass";
@@ -50,21 +38,16 @@ extends Modelica.Icons.SourcesPackage;
         annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceDataVar)));
 
   protected
-    parameter Modelica.Units.SI.AmountOfSubstance n_start=if use_mass_start then mass_start/stateOfMatter.molarMassOfBaseMolecule(substanceData) else
-       amountOfSubstance_start;
 
     parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
        amountOfSubstance_start*stateOfMatter.molarMassOfBaseMolecule(substanceData);
-   // Modelica.Units.SI.Mass m_start=amountOfSubstance_start*molarMassOfBaseMolecule;
+
 
     Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
 
-    //parameter Modelica.Units.SI.MolarMass molarMassOfBaseMoleculeFixed = stateOfMatter.molarMassOfBaseMolecule(substanceData);
-
     Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules
       "Amount of base molecules inside all clusters in compartment";
-    //(start=if use_mass_start then mass_start/molarMassOfBaseMoleculeFixed else amountOfSubstance_start)
-  //  (start= amountOfSubstance_start)
+
 
     Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
          m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
@@ -81,22 +64,14 @@ extends Modelica.Icons.SourcesPackage;
       "Amount of particles/clusters in compartment";
 
     Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
-        Modelica.Constants.R*solution.T))
+        Modelica.Constants.R*solutionState.T))
       "Dissociation constant of hydrogen bond between base molecules";
 
     Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
         stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
-      - solution.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
+      - solutionState.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
       "Gibbs energy of hydrogen bond between H2O molecules";
 
-  /*  parameter Modelica.Units.SI.MoleFraction SelfClustering_K_Fixed = exp(-SelfClustering_dG_Fixed/(
-      Modelica.Constants.R*system.T_ambient));
-
-  parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dG_Fixed=
-      stateOfMatter.selfClusteringBondEnthalpy(substanceData)
-    - system.T_ambient * stateOfMatter.selfClusteringBondEntropy(substanceData)
-    "Gibbs energy of hydrogen bond between H2O molecules";
-*/
 
     Modelica.Units.SI.AmountOfSubstance amountOfBonds
       "Amount of hydrogen bonds between molecules in compartment";
@@ -114,10 +89,9 @@ extends Modelica.Icons.SourcesPackage;
       choices(checkBox=true),
       Dialog(tab="Advanced", group="Performance"));
 
-    Real r, r_in, n_flow_in;
 
-    Chemical.Interfaces.InputSubstanceState state_in;
-    stateOfMatter.InputSubstanceData substanceDefinition;
+
+
 
   initial equation
     if initAmount == InitializationMethods.steadyState then
@@ -131,23 +105,6 @@ extends Modelica.Icons.SourcesPackage;
     end if;
 
   equation
-    connect(substanceDefinition,inlet.definition);
-    substanceDataVar = substanceDefinition;
-    //state_in = inlet.state;
-    connect(state_in,inlet.state);
-
-    if not useInlet then
-      r_in=0;
-      n_flow_in=0;
-
-      state_in.h=0;
-      substanceDataVar = substanceData;
-    end if;
-
-    n_flow = n_flow_in + n_flow_out;
-
-    der(n_flow_in)*L = r_in - r;
-    state_out.u = state_in.u + r;
 
     // during initialization it does not take value from parameter substanceData if not useInlet,
     // so instead of just "stateOfMatter.selfClustering(substanceDataVar)" it must be written
@@ -155,29 +112,29 @@ extends Modelica.Icons.SourcesPackage;
 
       //Liquid cluster theory - equilibrium:
       //substance.x[i] = substance.x*(K*substance.x)^i .. mole fraction of cluster composed with i base molecules
-      //amountOfParticles/solution.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
-      //amountOfBaseMolecules/solution.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
-      //amountOfHydrogenBonds/solution.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
+      //amountOfParticles/solutionState.n = substance.x/(1-K*substance.x);                //sum(substance.x[i])
+      //amountOfBaseMolecules/solutionState.n = substance.x/((1-K*substance.x)^2);            //sum(i*substance.x[i])
+      //amountOfHydrogenBonds/solutionState.n = substance.x*substance.x*K/((1-K*substance.x)^2);   //sum((i-1)*substance.x[i])
 
       amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
 
       //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*substance.x)) = amountOfParticles":
-      substance.x = ((2*SelfClustering_K+solution.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solution.n/amountOfBaseMolecules)+(solution.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+      substance.x = ((2*SelfClustering_K+solutionState.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solutionState.n/amountOfBaseMolecules)+(solutionState.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
 
       amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
 
       //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
       //TODO: more precise calculation of other properties
 
-     //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+     //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
      //enthalpy = substance.h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
-      solution.dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
+      dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
         amountOfBaseMolecules + n_flow*substance.h - n_flow_out*state_out.h - n_flow_in*state_in.h + (
         if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
         substanceDataVar)*der(amountOfBonds) else 0)
                       "heat transfer from other substances in solution [J/s]";
 
-      solution.Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
+      Gj =amountOfBaseMolecules*state_out.u + amountOfBonds*SelfClustering_dG
                       "Gibbs energy of the substance";
 
     else
@@ -186,15 +143,15 @@ extends Modelica.Icons.SourcesPackage;
       amountOfBaseMolecules = amountOfFreeMolecule;
       amountOfBonds = 0;
 
-      //der(enthalpy) = solution.dH + n_flow*actualStream(port_a.h_outflow);
+      //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
       //enthalpy = substance.h*amountOfBaseMolecules;
-      solution.dH =
+      dH =
         if (EnthalpyNotUsed) then  0
         else    der(substance.h)*amountOfBaseMolecules + n_flow*substance.h
                 - n_flow_out*state_out.h - n_flow_in*state_in.h
                 "heat transfer from other substances in solution [J/s]";
 
-      solution.Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
+      Gj = amountOfBaseMolecules*state_out.u "Gibbs energy of the substance [J]";
 
     end if;
 
@@ -209,21 +166,21 @@ extends Modelica.Icons.SourcesPackage;
     amountOfBaseMolecules = exp(logn);
     amountOfBaseMolecules = exp(logm)*1/molarMassOfBaseMolecule;
 
-    substance.x = amountOfFreeMolecule/solution.n "mole fraction [mol/mol]";
+    substance.x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
 
-    c = amountOfParticles/solution.V "concentration [mol/m3]";
+    c = amountOfParticles/solutionState.V "concentration [mol/m3]";
 
     //solution flows
-    solution.i = Modelica.Constants.F*substance.z*n_flow +
+    i = Modelica.Constants.F*substance.z*n_flow +
         Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
-    solution.dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+    dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
 
     //extensive properties
-    solution.nj = amountOfParticles;
-    solution.mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
-    solution.Vj = amountOfBaseMolecules*substance.Vm;
-    solution.Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
-    solution.Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+    nj = amountOfParticles;
+    mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
+    Vj = amountOfBaseMolecules*substance.Vm;
+    Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
+    Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
 
        annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
               {100,100}}), graphics={Text(
@@ -1566,26 +1523,29 @@ Test package for the Boundaries package of ThermofluidStream.
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-     stateOfMatter.BaseProperties substance(substanceDataVar=substanceDataVar,T=temperature,p=pressure,v=electricPotential,I=moleFractionBasedIonicStrength);
+      parameter stateOfMatter.SubstanceDataParameters substanceData    "Definition of the substance"
+        annotation (choicesAllMatching = true, Dialog(enable = not useInlet));
 
 
-     Modelica.Units.SI.Temperature temperature
-      "Temperature of the solution";
-
-    Modelica.Units.SI.Pressure pressure "Pressure of the solution";
-
-    Modelica.Units.SI.ElectricPotential electricPotential
-      "Electric potential of the solution";
-
-    Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength
-      "Ionic strength of the solution";
+      parameter Boolean useInlet=false   "Use inlet conector?"
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
 
+     stateOfMatter.BaseProperties substance(substanceDataVar=substanceDataVar,T=solutionState.T,p=solutionState.p,v=solutionState.v,I=solutionState.I);
 
      outer Modelica.Fluid.System system "System wide properties";
 
      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
        annotation( Dialog(tab = "Advanced"));
+
+      Chemical.Interfaces.Inlet inlet(
+        redeclare package stateOfMatter=stateOfMatter,
+        r=r_in,
+        n_flow=n_flow_in,
+        solution=solutionState) if useInlet
+        "The substance entering"
+        annotation (Placement(transformation(extent={{-110,-10},{-90,10}}),
+                                                                          iconTransformation(extent={{-110,-10},{-90,10}})));
 
 
 
@@ -1597,70 +1557,25 @@ Test package for the Boundaries package of ThermofluidStream.
         solution=solutionState,
         definition=substanceDataVar)
                    "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-        /*uRT=uRT_out,
-    u0RT=u0RT,
-    h=h_out*/
-
 
 
 
      stateOfMatter.SubstanceData substanceDataVar;
 
-     //connector InputSubstanceData = input stateOfMatter.SubstanceData;
 
      parameter Modelica.Units.SI.MolarFlowRate n_flow_assert(max=0) = -dropOfCommons.n_flow_reg "Assertion threshold for negative molar flows"
         annotation(Dialog(tab="Advanced"));
 
      Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
 
+
     protected
       outer Chemical.DropOfCommons dropOfCommons;
 
-    /*
-Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
+      Real r, r_in, n_flow_in;
 
-Modelica.Units.SI.ActivityOfSolute a
-  "Activity of the substance (mole-fraction based)";
-
- //Modelica.Units.SI.ChemicalPotential r "Inertial electro-chemical potential";
-
-
-Modelica.Units.SI.ActivityCoefficient gamma
-  "Activity coefficient of the substance";
-
-Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
-
-
-
-//Modelica.Units.SI.MolarMass molarMass "Molar mass of the substance";
-
-Modelica.Units.SI.MolarEnthalpy molarEnthalpy
-  "Molar enthalpy of the substance";
-
-Modelica.Units.SI.MolarEnthalpy molarEnthalpyPure
-  "Molar enthalpy of the pure substance";
-
-Modelica.Units.SI.MolarEntropy molarEntropyPure
-  "Molar entropy of the pure substance";
-
-Modelica.Units.SI.ChemicalPotential u0
-  "Chemical potential of the pure substance";
-
-Modelica.Units.SI.ChemicalPotential uPure
-  "Electro-Chemical potential of the pure substance";
-
-Modelica.Units.SI.MolarVolume molarVolume
-  "Molar volume of the substance";
-
-Modelica.Units.SI.MolarMass molarMass
-  "Molar mass of the substance";
-
-Modelica.Units.SI.MolarVolume molarVolumePure
-  "Molar volume of the pure substance";
-
-Modelica.Units.SI.MolarVolume molarVolumeExcess
-  "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
-*/
+       Chemical.Interfaces.InputSubstanceState state_in;
+       stateOfMatter.InputSubstanceData substanceDefinition;
 
      Real r_out,n_flow_out;
 
@@ -1670,67 +1585,31 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
 
 
     equation
-      //assert(n_flow_in > n_flow_assert, "Negative massflow at Volume inlet", dropOfCommons.assertionLevel);
-      //assert(-n_flow_out > n_flow_assert, "Positive massflow at Volume outlet", dropOfCommons.assertionLevel);
-    /*  assert(x > 0, "Molar fraction must be positive");
 
-
-
- //aliases
- gamma = stateOfMatter.activityCoefficient(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- z = stateOfMatter.chargeNumberOfIon(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-// molarMass = stateOfMatter.molarMass(substanceDataVar);
-
- molarMass = 1/stateOfMatter.specificAmountOfParticles(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarEnthalpy = stateOfMatter.molarEnthalpy(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarEntropyPure = stateOfMatter.molarEntropyPure(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarEnthalpyPure = uPure + temperature*molarEntropyPure;
- u0 = stateOfMatter.chemicalPotentialPure(
-   substanceDataVar,
-   temperature,
-   pressure,
-   electricPotential,
-   moleFractionBasedIonicStrength);
- uPure = stateOfMatter.electroChemicalPotentialPure(
-   substanceDataVar,
-   temperature,
-   pressure,
-   electricPotential,
-   moleFractionBasedIonicStrength);
- molarVolume = stateOfMatter.molarVolume(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarVolumePure = stateOfMatter.molarVolumePure(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceDataVar,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-
- //activity of the substance
- a = gamma*x;
-*/
      //electro-chemical potential of the substance in the solution
      state_out.u = substance.u;
-     /*stateOfMatter.chemicalPotentialPure(
-   substanceDataVar,
-   temperature,
-   pressure,
-   electricPotential,
-   moleFractionBasedIonicStrength)
-   + (Modelica.Constants.R*temperature)*log(a)
-   + z*Modelica.Constants.F*electricPotential;
- */
-
      state_out.h = substance.h;
-     //molarEnthalpy;
-
 
      der(n_flow_out)*L = r_out;
-    /*
- if not useInlet then
-   n_flow_in = 0;
-   state_in = state_out;
-   solutionState=solutionStateIn;
-   substanceDataVarIn=substanceDataVar;
- end if;
 
-*/
+     connect(substanceDefinition,inlet.definition);
+      substanceDataVar = substanceDefinition;
+      //state_in = inlet.state;
+      connect(state_in,inlet.state);
+
+      if not useInlet then
+        r_in=0;
+        n_flow_in=0;
+
+        state_in.h=0;
+        substanceDataVar = substanceData;
+      end if;
+
+      n_flow = n_flow_in + n_flow_out;
+
+      der(n_flow_in)*L = r_in - r;
+      state_out.u = state_in.u + r;
+
      annotation (
        Documentation(revisions="<html>
 <p><i>2009-2025</i></p>
@@ -1740,34 +1619,62 @@ Modelica.Units.SI.MolarVolume molarVolumeExcess
 
     partial model PartialSubstanceInSolution "Substance properties for components, where the substance is connected with the solution"
 
-      Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
       extends Boundaries.Internal.PartialSubstance;
 
+
+      parameter Boolean useSolution = true "Use solution connector?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+        annotation (Dialog(enable=not useSolution and not useRear));
+
+      Chemical.Interfaces.SolutionPort solution(
+          T=solutionPortState.T,
+          p=solutionPortState.p,
+          v=solutionPortState.v,
+          n=solutionPortState.n,
+          m=solutionPortState.m,
+          V=solutionPortState.V,
+          G=solutionPortState.G,
+          Q=solutionPortState.Q,
+          I=solutionPortState.I,
+          i=i,
+          dH=dH,
+          dV=dV,
+          nj=nj,
+          mj=mj,
+          Vj=Vj,
+          Gj=Gj,
+          Qj=Qj,
+          Ij=Ij)
+            if useSolution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
     protected
-    Modelica.Units.SI.AmountOfSubstance amountOfSolution
-      "Amount of all solution particles";
+         Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
+
+         Chemical.Interfaces.SolutionState solutionPortState;
+
 
 
     equation
 
-      solutionState.T=temperature "Temperature of the solution";
-      solutionState.p=pressure "Pressure of the solution";
-      solutionState.v=electricPotential "Electric potential in the solution";
-      solutionState.n=amountOfSolution "Amount of the solution";
-      solutionState.m=solution.m "Mass of the solution";
-      solutionState.V=solution.V "Volume of the solution";
-      solutionState.G=solution.G "Free Gibbs energy of the solution";
-      solutionState.Q=solution.Q "Electric charge of the solution";
-      solutionState.I=solution.I "Mole fraction based ionic strength of the solution";
 
-      //aliases
-      temperature = solution.T;
-      pressure = solution.p;
-      electricPotential = solution.v;
-      amountOfSolution = solution.n;
-      moleFractionBasedIonicStrength = solution.I;
+      if (useSolution and not useInlet) or (not useSolution) then
+        solutionState=solutionPortState;
+      end if;
+
+      if not useSolution and not useInlet then
+        solutionState.T=solutionParam.T "Temperature of the solution";
+        solutionState.p=solutionParam.p "Pressure of the solution";
+        solutionState.v=solutionParam.v "Electric potential in the solution";
+        solutionState.n=solutionParam.n "Amount of the solution";
+        solutionState.m=solutionParam.m "Mass of the solution";
+        solutionState.V=solutionParam.V "Volume of the solution";
+        solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
+        solutionState.Q=solutionParam.Q "Electric charge of the solution";
+        solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
+      end if;
 
     end PartialSubstanceInSolution;
 
