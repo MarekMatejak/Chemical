@@ -1418,6 +1418,13 @@ Test package for the Boundaries package of ThermofluidStream.
       parameter Boolean useInlet=false   "Use inlet conector?"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
+       annotation( Dialog(tab = "Advanced"));
+
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_assert(max=0) = -dropOfCommons.n_flow_reg "Assertion threshold for negative molar flows"
+        annotation(Dialog(tab="Advanced"));
+
+
      stateOfMatter.BaseProperties substance(
        substanceDataVar=substanceDataVar,
        solutionState=solutionState,
@@ -1430,8 +1437,6 @@ Test package for the Boundaries package of ThermofluidStream.
 
      outer Modelica.Fluid.System system "System wide properties";
 
-     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
-       annotation( Dialog(tab = "Advanced"));
 
       Chemical.Interfaces.Inlet inlet(
         redeclare package stateOfMatter=stateOfMatter,
@@ -1457,10 +1462,6 @@ Test package for the Boundaries package of ThermofluidStream.
 
      stateOfMatter.SubstanceData substanceDataVar;
 
-
-     parameter Modelica.Units.SI.MolarFlowRate n_flow_assert(max=0) = -dropOfCommons.n_flow_reg "Assertion threshold for negative molar flows"
-        annotation(Dialog(tab="Advanced"));
-
      Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
 
      Modelica.Units.SI.EnthalpyFlowRate h_flow "Enthalpy change";
@@ -1475,16 +1476,18 @@ Test package for the Boundaries package of ThermofluidStream.
 
       outer Chemical.DropOfCommons dropOfCommons;
 
-      Real r, r_in, n_flow_in;
+      stateOfMatter.InputSubstanceData substanceDefinition;
+      Chemical.Interfaces.SolutionState solutionState;
 
-       Chemical.Interfaces.InputSubstanceState state_in;
-       stateOfMatter.InputSubstanceData substanceDefinition;
+      Modelica.Units.SI.ChemicalPotential r = state_out.u - state_in.u;
 
-     Real r_out,n_flow_out;
+      Modelica.Units.SI.ChemicalPotential r_in;
+      Modelica.Units.SI.ChemicalPotential r_out;
+      Modelica.Units.SI.MolarFlowRate n_flow_in;
+      Modelica.Units.SI.MolarFlowRate n_flow_out;
 
-     Chemical.Interfaces.SubstanceState state_out;
-
-     Chemical.Interfaces.SolutionState solutionState;
+      Chemical.Interfaces.InputSubstanceState state_in;
+      Chemical.Interfaces.SubstanceState state_out;
 
 
     equation
@@ -1494,10 +1497,10 @@ Test package for the Boundaries package of ThermofluidStream.
      state_out.h = substance.h;
 
      der(n_flow_out)*L = r_out;
+     der(n_flow_in)*L = r_in - r;
 
      connect(substanceDefinition,inlet.definition);
       substanceDataVar = substanceDefinition;
-      //state_in = inlet.state;
       connect(state_in,inlet.state);
 
       if not useInlet then
@@ -1510,10 +1513,6 @@ Test package for the Boundaries package of ThermofluidStream.
 
       n_flow = n_flow_in + n_flow_out;
       h_flow = n_flow_out*state_out.h + n_flow_in*state_in.h;
-
-
-      der(n_flow_in)*L = r_in - r;
-      state_out.u = state_in.u + r;
 
      annotation (
        Documentation(revisions="<html>

@@ -28,5 +28,26 @@ package Utilities
 Choices for initialization of a&nbsp;state.
 </p>
 </html>"));
+    type InitializationUndirectedSubstance
+                               = enumeration(
+      none
+        "No initialization",
+      steadyStateForwards
+        "Steady state initialization in forward direction (chemical potential from rear connector)",
+      steadyStateRearwards
+        "Steady state initialization in rearward direction (chemical potential from fore connector)",
+      state
+        "Initialization with initial states",
+      derivative
+        "Initialization with initial derivatives of states") "Choices for initialization of a state."
+      annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false)),
+        Diagram(
+          coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<p>
+Choices for initialization of a&nbsp;state.
+</p>
+</html>"));
   end Types;
 end Utilities;

@@ -19,11 +19,11 @@ package Undirected
       Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
       flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-      output Chemical.Interfaces.SubstanceState state_forwards "State of substance in forwards direction";
-      input Chemical.Interfaces.SubstanceState state_rearwards "State of substance in rearwards direction";
+      Chemical.Interfaces.OutputSubstanceState state_forwards "State of substance in forwards direction";
+      Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
 
-      output Chemical.Interfaces.SolutionState solution "State of solution";
-      output stateOfMatter.SubstanceData definition "Definition of substance";
+      Chemical.Interfaces.OutputSolutionState solution "State of solution";
+      stateOfMatter.OutputSubstanceData definition "Definition of substance";
       annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
               extent={{-80,80},{80,-80}},
               lineColor={158,66,200},
@@ -61,11 +61,11 @@ package Undirected
       Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
       flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-      input Chemical.Interfaces.SubstanceState state_forwards "State of substance in forwards direction";
-      output Chemical.Interfaces.SubstanceState state_rearwards "State of substance in rearwards direction";
+      Chemical.Interfaces.InputSubstanceState state_forwards "State of substance in forwards direction";
+      Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
 
-      input Chemical.Interfaces.SolutionState solution "State of solution";
-      input stateOfMatter.SubstanceData definition "Definition of substance";
+      Chemical.Interfaces.InputSolutionState solution "State of solution";
+      stateOfMatter.InputSubstanceData definition "Definition of substance";
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
               extent={{-80,80},{80,-80}},
@@ -182,181 +182,78 @@ package Undirected
       extends Icons.Substance;
       extends Internal.PartialSubstanceInSolution(
         useSolution=false,
-        useFore=false,
-        useRear=false);
+        useRear=false,
+        m_start=if use_mass_start then mass_start else
+         amountOfSubstance_start*stateOfMatter.molarMassOfBaseMolecule(substanceData));
 
-      import Chemical.Utilities.Types.InitializationMethods;
-
-      parameter InitializationMethods initAmount = Chemical.Utilities.Types.InitializationMethods.state "Initialization method for amount of substance"
-       annotation (HideResult=not useRear, Dialog(enable=useRear));
-       // annotation(Dialog(tab= "Initialization", group="Molar flow"));
+      import Chemical.Utilities.Types.InitializationUndirectedSubstance;
 
 
-      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
-        "Molar concentration of particles";
 
-       parameter stateOfMatter.SubstanceDataParameters substanceData
-     "Definition of the substance"
-        annotation (choicesAllMatching = true, Dialog(enable=not useRear));
 
-      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
-        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
+      parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
+        annotation (Evaluate=true, choices(checkBox=true));
 
-    parameter Modelica.Units.SI.Mass mass_start=1
-      "Initial mass of the substance"
-      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+      parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+        annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
 
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+      parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
       "Initial amount of substance base molecules"
-        annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+        annotation ( Dialog(group="Initialization", enable=(not use_mass_start)));
 
-      Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
-          molarMassOfBaseMolecule "Mass";
 
-      parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
-          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
 
-    protected
-      //parameter
-      Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
-         amountOfSubstance_start*molarMassOfBaseMolecule;
+      Modelica.Units.SI.Mass mass=n*molarMassOfBaseMolecule "Mass";
 
-      //parameter
-      Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
-
-      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=amountOfSubstance_start)
-        "Amount of base molecules inside all clusters in compartment";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
-           m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
-                                       substanceDataVar,
-                                       T=system.T_ambient,
-                                       p=system.p_ambient))
-        "Amount of free molecules not included inside any clusters in compartment";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
-           m_start*stateOfMatter.specificAmountOfParticles(
-                                       substanceDataVar,
-                                       T=system.T_ambient,
-                                       p=system.p_ambient))
-        "Amount of particles/clusters in compartment";
-
-      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
-          Modelica.Constants.R*solutionState.T))
-        "Dissociation constant of hydrogen bond between base molecules";
-
-      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
-          stateOfMatter.selfClusteringBondEnthalpy(substanceDataVar)
-        - solutionState.T * stateOfMatter.selfClusteringBondEntropy(substanceDataVar)
-        "Gibbs energy of hydrogen bond between H2O molecules";
-
-      Modelica.Units.SI.AmountOfSubstance amountOfBonds
-        "Amount of hydrogen bonds between molecules in compartment";
-
-      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule), min=0)
-      "Natural logarithm of the amount of base molecules in solution";
+      parameter InitializationUndirectedSubstance initAmount = Chemical.Utilities.Types.InitializationUndirectedSubstance.state "Initialization method for amount of substance"
+        annotation(Dialog(tab="Initialization"));
 
       parameter Modelica.Units.SI.MolarFlowRate change_start=1
-      "Initial change of substance base molecules"
-        annotation ( Dialog(group="Initialization", enable=(initAmount == InitializationMethods.derivative)));
+      "Initial molar change of substance base molecules"
+        annotation ( Dialog(tab="Initialization", enable=(initAmount == InitializationMethods.derivative)));
 
 
-      parameter Boolean EnthalpyNotUsed=false annotation (
-        Evaluate=true,
-        HideResult=true,
-        choices(checkBox=true),
-        Dialog(tab="Advanced", group="Performance"));
+    protected
+
+      Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
+
+
+
+      Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start))
+      "Natural logarithm of the amount of base molecules in solution";
+
+      Real logm(stateSelect=StateSelect.prefer, start=log(mass_start))
+      "Natural logarithm of the substance mass in solution";
+
+
 
     initial equation
 
-      if not useRear then
-        amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
-      elseif initAmount == InitializationMethods.steadyState then
-        r_fore_intern=0;
-      elseif initAmount == InitializationMethods.state then
-        amountOfBaseMolecules = amountOfSubstance_start;
-      elseif initAmount == InitializationMethods.derivative then
+      if initAmount == InitializationUndirectedSubstance.steadyStateForwards then
+        substance.u = state_in_rear.u;
+      elseif initAmount == InitializationUndirectedSubstance.steadyStateRearwards then
+        substance.u = state_in_fore.u;
+      elseif initAmount == InitializationUndirectedSubstance.state and not use_mass_start then
+        logn=log(amountOfSubstance_start);
+      elseif initAmount == InitializationUndirectedSubstance.state and use_mass_start then
+        logm=log(mass_start);
+      elseif initAmount == InitializationUndirectedSubstance.derivative then
         n_flow = change_start;
       end if;
 
 
     equation
-      if not useRear then
-       substanceDataVar = substanceData;
-      end if;
-     //n_flow = n_flow_out;
 
-      if stateOfMatter.selfClustering(substanceDataVar) then
-
-        //Liquid cluster theory - equilibrium:
-        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
-        //amountOfParticles/solutionState.n = x/(1-K*x);                //sum(x[i])
-        //amountOfBaseMolecules/solutionState.n = x/((1-K*x)^2);            //sum(i*x[i])
-        //amountOfHydrogenBonds/solutionState.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
-
-        amountOfParticles*(1 - SelfClustering_K*substance.x) = amountOfFreeMolecule;
-
-        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
-        substance.x = ((2*SelfClustering_K+solutionState.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solutionState.n/amountOfBaseMolecules)+(solutionState.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
-
-        amountOfBonds = amountOfBaseMolecules*substance.x*SelfClustering_K;
-
-        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
-        //TODO: more precise calculation of other properties
-
-       //der(enthalpy) = solutionState.dH + n_flow*actualStream(port_a.h_outflow);
-       //enthalpy = molarEnthalpy*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
-        dH =if (EnthalpyNotUsed) then 0 else der(substance.h)*
-          amountOfBaseMolecules +
-          n_flow*substance.h - h_flow +
-          (if (calculateClusteringHeat) then stateOfMatter.selfClusteringBondEnthalpy(
-          substanceDataVar)*der(amountOfBonds) else 0)
-                        "heat transfer from other substances in solution [J/s]";
-
-        Gj =amountOfBaseMolecules*substance.u + amountOfBonds*SelfClustering_dG
-                        "Gibbs energy of the substance";
-
+      //The main accumulation equation is "der(n)=n_flow"
+      // However, the numerical solvers can handle it during equilibration of chemical potential in form of log(n) much better. :-)
+      if use_mass_start then
+        der(logm) = (n_flow/n) "accumulation of m=exp(logm) [kg]";
       else
-
-        amountOfParticles = amountOfFreeMolecule;
-        amountOfBaseMolecules = amountOfFreeMolecule;
-        amountOfBonds = 0;
-
-        //der(enthalpy) = solutionState.dH + n_flow*actualStream(port_a.h_outflow);
-        //enthalpy = molarEnthalpy*amountOfBaseMolecules;
-        dH =
-          if (EnthalpyNotUsed) then  0
-          else    der(substance.h)*amountOfBaseMolecules +
-                  n_flow*substance.h - h_flow
-                  "heat transfer from other substances in solution [J/s]";
-
-        Gj = amountOfBaseMolecules*substance.u "Gibbs energy of the substance [J]";
-
+        der(logn) = (n_flow/n) "accumulation of n=exp(logn) [mol]";
       end if;
-
-      //The main accumulation equation is "der(amountOfBaseMolecules)=n_flow"
-      // However, the numerical solvers can handle it in form of log(n) much better. :-)
-      der(logn) = (n_flow/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
-      //der(amountOfBaseMolecules) = n_flow;
-      amountOfBaseMolecules = exp(logn);
-
-      substance.x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
-
-      c = amountOfParticles/solutionState.V "concentration [mol/m3]";
-
-
-
-      //solution flows
-      i = Modelica.Constants.F*substance.z*n_flow +
-          Modelica.Constants.F*der(substance.z)*amountOfBaseMolecules "change of sunstance charge [A]";
-      dV = substance.Vm*n_flow + der(substance.Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
-
-      //extensive properties
-      nj = amountOfParticles;
-      mj = amountOfBaseMolecules*molarMassOfBaseMolecule;
-      Vj = amountOfBaseMolecules*substance.Vm;
-      Qj = Modelica.Constants.F*amountOfBaseMolecules*substance.z;
-      Ij = (1/2)*(amountOfBaseMolecules*substance.z^2);
+      //der(n) = n_flow;
+      n = exp(logn);
+      n = exp(logm)*1/molarMassOfBaseMolecule;
 
          annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics={Text(
@@ -1068,8 +965,9 @@ package Undirected
         Substance substance(
           useRear=true,
           useFore=false,
+
           substanceData=Chemical.Substances.Water_liquid())
-                            annotation (Placement(transformation(extent={{24,14},{44,34}})));
+                            annotation (Placement(transformation(extent={{24,12},{44,32}})));
         Substance substance2(
           useRear=false,
           useFore=true,
@@ -1095,6 +993,7 @@ package Undirected
         Substance substance4(
           useRear=true,
           useFore=false,
+
           useSolution=true,
           substanceData=Chemical.Substances.Water_liquid())
                             annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
@@ -1109,7 +1008,7 @@ package Undirected
                                   annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
       equation
         connect(boundaryRear.fore, substance.rear) annotation (Line(
-            points={{-56,24},{24,24}},
+            points={{-56,24},{-16,24},{-16,22},{24,22}},
             color={158,66,200},
             thickness=0.5));
         connect(substance2.fore,boundaryFore. rear) annotation (Line(
@@ -1634,6 +1533,20 @@ package Undirected
 <u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
 </html>"));
       end TestBoundaries;
+
+      model TestSubstance2
+         extends Modelica.Icons.Example;
+
+         annotation (
+          Icon(graphics,
+               coordinateSystem(preserveAspectRatio=false)),
+          Diagram(coordinateSystem(preserveAspectRatio=false)),
+          experiment(StopTime=10, Tolerance=1e-6, Interval=0.01),
+          Documentation(info="<html>
+<u>Tests for the rear and fore boundary.</u>
+<u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
+</html>"));
+      end TestSubstance2;
       annotation (Documentation(info="<html>
 <u>Tests for the boundaries package.</u>
 </html>"));
@@ -1657,52 +1570,72 @@ package Undirected
             choice(redeclare package stateOfMatter =
               Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
+        parameter stateOfMatter.SubstanceDataParameters substanceData    "Definition of the substance"
+          annotation (choicesAllMatching = true, Dialog(enable = not useRear));
+
+
         outer Modelica.Fluid.System system "System wide properties";
 
-        parameter Boolean useRear = true "Use rearward conector?"
+        parameter Boolean useRear = false "Use rearwards conector?"
             annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
-        parameter Boolean useFore = true "Use forward connector?"
+        parameter Boolean useFore = true "Use forwards connector?"
             annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-        parameter Boolean initialize_potential = true "If true: initialize ChemicalPotential"
-          annotation(Dialog(tab= "Initialization"));
-        parameter Modelica.Units.SI.ChemicalPotential u_start=0 "Initial ChemicalPotential" annotation (Dialog(tab="Initialization", enable=initialize_potential));
 
-        parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance at inlet and outlet" annotation (Dialog(tab="Advanced"));
+
+        parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
+         annotation( Dialog(tab = "Advanced"));
+
         parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
           annotation (Dialog(tab="Advanced"));
 
-        stateOfMatter.BaseProperties substance;
+        stateOfMatter.BaseProperties substance(
+         substanceDataVar=substanceDataVar,
+         solutionState=solutionState,
+         FixedSubstanceData=not useRear,
+         substanceData=substanceData,
+         amountOfBaseMolecules=n,
+         m_start=m_start,
+         n_flow=n_flow,
+         h_flow=h_flow);
+
+
 
         Chemical.Undirected.Interfaces.Rear rear(
           redeclare package stateOfMatter = stateOfMatter,
           n_flow=n_flow_rear,
           r=r_rear_port,
-          state_rearwards=state_out_rear,
-          state_forwards=state_in_rear,
-          solution=solutionState,
-          definition=substanceDataVar) if useRear
+          state_rearwards=state_out,
+          solution=solutionState)
+            if useRear
           annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
         Chemical.Undirected.Interfaces.Fore fore(
           redeclare package stateOfMatter = stateOfMatter,
           n_flow=n_flow_fore,
           r=r_fore_port,
-          state_forwards=state_out_fore,
-          state_rearwards=state_in_fore,
+          state_forwards=state_out,
           solution=solutionState,
-          definition=substanceDataVar) if useFore
+          definition=substanceDataVar)
+            if useFore
           annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
-         //Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
-         //Modelica.Units.SI.MolarEnthalpy molarEnthalpy "Molar enthalpy of the substance";
-         Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
-         Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
+        stateOfMatter.SubstanceData substanceDataVar;
 
-       protected
+        Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
+        Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
+
+        Modelica.Units.SI.AmountOfSubstance n
+          "Amount of base molecules inside all clusters in compartment";
+
+
+      protected
+
+        parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
         outer Chemical.DropOfCommons dropOfCommons;
 
-        stateOfMatter.SubstanceData substanceDataVar;
+        stateOfMatter.InputSubstanceData substanceDefinition;
         Chemical.Interfaces.SolutionState solutionState;
 
          //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
@@ -1717,59 +1650,51 @@ package Undirected
                   0,
                   n_flow_reg);
         // dont regstep variables that are only in der(state), to increase accuracy
-        Modelica.Units.SI.EnthalpyFlowRate h_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else h_out_rear)*n_flow_rear;
-        Modelica.Units.SI.EnthalpyFlowRate h_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else h_out_fore)*n_flow_fore;
+        Modelica.Units.SI.EnthalpyFlowRate h_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else state_out.h)*n_flow_rear;
+        Modelica.Units.SI.EnthalpyFlowRate h_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else state_out.h)*n_flow_fore;
 
-        Chemical.Interfaces.SubstanceState state_out_rear;
-        Modelica.Units.SI.MolarEnthalpy h_out_rear=state_out_rear.h;
-
-        Chemical.Interfaces.SubstanceState state_out_fore;
-        Modelica.Units.SI.MolarEnthalpy h_out_fore=state_out_fore.h;
 
         Modelica.Units.SI.ChemicalPotential r_rear_port;
         Modelica.Units.SI.ChemicalPotential r_fore_port;
         Modelica.Units.SI.MolarFlowRate n_flow_rear;
         Modelica.Units.SI.MolarFlowRate n_flow_fore;
 
-        InputSubstanceData state_in_rear;
-        InputSubstanceData state_in_fore;
+        Chemical.Interfaces.InputSubstanceState state_in_rear;
+        Chemical.Interfaces.InputSubstanceState state_in_fore;
+        Chemical.Interfaces.SubstanceState state_out;
 
-        connector InputSubstanceData = input Chemical.Interfaces.SubstanceState
-          "Substance definition as input signal connector";
+
+
       equation
-        substance.substanceDataVar=substanceDataVar;
 
-        substance.T = solutionState.T;
-        substance.p = solutionState.p;
-        substance.v = solutionState.v;
-        substance.I = solutionState.I;
-
-
-        state_out_rear = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
-        state_out_fore = state_out_rear;
+        state_out.u = substance.u;
+        state_out.h = substance.h;
 
 
         der(n_flow_rear)*L = r_rear_port - r_rear_intern;
         der(n_flow_fore)*L = r_fore_port - r_fore_intern;
 
-        n_flow = n_flow_rear + n_flow_fore;
-        if not useRear then
-          h_flow = h_flow_fore;
-        elseif not useFore then
-          h_flow = h_flow_rear;
-        else
-          h_flow = h_flow_rear + h_flow_fore;
-        end if;
+        connect(rear.definition, substanceDefinition);
+        substanceDataVar = substanceDefinition;
+        connect(state_in_rear,rear.state_forwards);
+        connect(state_in_fore,fore.state_rearwards);
 
 
         if not useRear then
+          r_rear_port = 0;
           n_flow_rear = 0;
-          state_in_rear = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
-          end if;
-        if not useFore then
-          n_flow_fore = 0;
-          state_in_fore = Chemical.Interfaces.SubstanceState(u=substance.u,h=substance.h);
+          state_in_rear.h = 0;
+          substanceDataVar = substanceData;
         end if;
+
+        if not useFore then
+          r_fore_port = 0;
+          n_flow_fore = 0;
+          state_in_fore.h = 0;
+        end if;
+
+        n_flow = n_flow_rear + n_flow_fore;
+        h_flow = h_flow_rear + h_flow_fore;
 
         annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
       end PartialSubstance;
@@ -1793,20 +1718,19 @@ package Undirected
             G=solutionPortState.G,
             Q=solutionPortState.Q,
             I=solutionPortState.I,
-            i=i,
-            dH=dH,
-            dV=dV,
-            nj=nj,
-            mj=mj,
-            Vj=Vj,
-            Gj=Gj,
-            Qj=Qj,
-            Ij=Ij)
+            i=substance.i,
+            dH=substance.dH,
+            dV=substance.dV,
+            nj=substance.nj,
+            mj=substance.mj,
+            Vj=substance.Vj,
+            Gj=substance.Gj,
+            Qj=substance.Qj,
+            Ij=substance.Ij)
               if useSolution "To connect substance with solution, where is pressented"
           annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
       protected
-           Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
 
            Chemical.Interfaces.SolutionState solutionPortState;
       equation
