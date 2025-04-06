@@ -521,7 +521,7 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
       substanceDataOut=Chemical.Substances.Water_gas(),
       k_forward=10,                       redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGas                                                                      "Ideal Gas")
+          Chemical.Interfaces.IdealGas "Ideal Gas")
                                           annotation (Placement(transformation(extent={{10,10},{-10,-10}},
           rotation=180,
           origin={-78,26})));
@@ -619,8 +619,7 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
       substanceDataOut=Chemical.Substances.Water_gas(),
                                                     redeclare package stateOfMatterOut =
-          Chemical.Interfaces.IdealGas                                                                                "Ideal Gas",
-                                                    k_forward=1)
+          Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
                                                            annotation (Placement(transformation(extent={{-10,-10},{10,10}},
           rotation=0,
           origin={-66,26})));
@@ -1397,10 +1396,13 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-6,-54},{14,-34}})));
     inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{-80,-82},{-60,-62}})));
     Chemical.Processes.Membrane membrane annotation (Placement(transformation(extent={{-40,-44},{-20,-24}})));
-    Chemical.Boundaries.ExternalPartialPressureSink H2(
-      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas",
-      substanceData=Chemical.Substances.Hydrogen_gas(),
-      p=100000) annotation (Placement(transformation(extent={{60,52},{80,72}})));
+    Chemical.Boundaries.ExternalIdealGas            H2(
+      useInlet=true,
+      useSolution=false,
+      redeclare package gasModel = Chemical.Interfaces.IdealGas "Ideal Gas",
+      PartialPressure=100000,
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas")
+                annotation (Placement(transformation(extent={{60,52},{80,72}})));
   equation
     connect(Cl.solution, solution1.solution) annotation (Line(
         points={{-10,-26},{-10,-30},{24.4,-30},{24.4,-59.34}},
@@ -1497,6 +1499,11 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.Substances.HydrogenSulfate_aqueous(),
       use_mass_start=false,
       amountOfSubstance_start=1) annotation (Placement(transformation(extent={{4,-70},{-16,-50}})));
+    Chemical.Boundaries.Substance PbSO4(
+      use_mass_start=false,
+      useInlet=true,
+      initAmount=Chemical.Utilities.Types.InitializationMethods.steadyState,
+      amountOfSubstance_start=0.001) annotation (Placement(transformation(extent={{10,-10},{-10,10}}, origin={-60,6})));
     Chemical.Boundaries.Substance PbSO4_(
       use_mass_start=false,
       amountOfSubstance_start(displayUnit="mol") = 0.001,
@@ -1536,11 +1543,6 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.114/0.018015,
       useInlet=true) annotation (Placement(transformation(extent={{-22,-6},{-2,14}})));
-    Chemical.Boundaries.Substance PbSO4(
-      use_mass_start=false,
-      useInlet=true,
-      initAmount=Chemical.Utilities.Types.InitializationMethods.steadyState,
-      amountOfSubstance_start=0.001) annotation (Placement(transformation(extent={{10,-10},{-10,10}}, origin={-60,6})));
 
   Modelica.Electrical.Analog.Basic.Ground ground
     annotation (Placement(transformation(extent={{16,30},{36,50}})));
@@ -2536,7 +2538,7 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=0.00223) annotation (Placement(transformation(extent={{164,-94},{144,-74}})));
       Processes.Reaction HendersonHasselbalch(
         nS=2,
-        nP=2)                   "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-24,-58},{-4,-78}})));
+        nP=2) "K=10^(-6.103 + 3), dH=7.3 kJ/mol"                   annotation (Placement(transformation(extent={{-24,-58},{-4,-78}})));
 
       Boundaries.Buffer Hemoglobin(
         useInlet=true,
@@ -5056,4 +5058,44 @@ extends Modelica.Icons.ExamplesPackage;
     end MethanElectrosynthesis2;
   end ClimateChange;
 
+  model PKPD
+    Boundaries.TerminalInflow substanceInflow(SubstanceFlow=2) annotation (Placement(transformation(extent={{-82,22},{-62,42}})));
+    Boundaries.Substance pumped(useInlet=true, useSolution=false) annotation (Placement(transformation(extent={{-28,22},{-8,42}})));
+    Boundaries.TerminalOutflow outflow(SubstanceFlow=1) annotation (Placement(transformation(extent={{54,22},{74,42}})));
+    Boundaries.TerminalInflow substanceInflow2(SubstanceFlow=2) annotation (Placement(transformation(extent={{-82,-10},{-62,10}})));
+    Boundaries.Substance clearanced(useInlet=true, useSolution=false) annotation (Placement(transformation(extent={{-28,-10},{-8,10}})));
+    Boundaries.Clearance clearance(Clearance(displayUnit="l/s") = 0.002) annotation (Placement(transformation(extent={{54,-10},{74,10}})));
+    Boundaries.Degradation degradation(HalfTime(displayUnit="min") = 60) annotation (Placement(transformation(extent={{54,-48},{74,-28}})));
+    Boundaries.TerminalInflow substanceInflow3(SubstanceFlow=2) annotation (Placement(transformation(extent={{-82,-48},{-62,-28}})));
+    Boundaries.Substance degraded(useInlet=true, useSolution=false) annotation (Placement(transformation(extent={{-28,-48},{-8,-28}})));
+  equation
+    connect(substanceInflow.outlet, pumped.inlet) annotation (Line(
+        points={{-62,32},{-28,32}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(pumped.outlet, outflow.inlet) annotation (Line(
+        points={{-8,32},{54,32}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(substanceInflow2.outlet, clearanced.inlet) annotation (Line(
+        points={{-62,0},{-28,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(substanceInflow3.outlet, degraded.inlet) annotation (Line(
+        points={{-62,-38},{-28,-38}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(clearanced.outlet, clearance.inlet) annotation (Line(
+        points={{-8,0},{54,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(degraded.outlet, degradation.inlet) annotation (Line(
+        points={{-8,-38},{54,-38}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false)),
+      Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(StopTime=300, __Dymola_Algorithm="Dassl"));
+  end PKPD;
 end Examples;

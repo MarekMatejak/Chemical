@@ -1,9 +1,9 @@
 within Chemical;
 package Interfaces "Chemical interfaces"
-  connector Inlet "Inlet"
+  connector Fore "Undirected connector outputting the forward state"
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
+    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
     "Substance model to translate data into substance properties"
       annotation (choices(
         choice(redeclare package stateOfMatter =
@@ -18,127 +18,72 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-    InputSubstanceState state "State of substance";
-    InputSolutionState solution "State of solution";
+    Chemical.Interfaces.OutputSubstanceState state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
+
+    Chemical.Interfaces.OutputSolutionState solution "State of solution";
+    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
+            extent={{-80,80},{80,-80}},
+            lineColor={158,66,200},
+            lineThickness=0.5,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid), Ellipse(
+            extent={{-40,40},{40,-40}},
+            lineColor={194,138,221},
+            lineThickness=0.5,
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid)}),
+                              Diagram(coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
+<u>At positive molarflow, Fore is a output. </u>
+</html>"));
+
+  end Fore;
+
+  connector Rear "Undirected connector outputting the rearward state"
+
+    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
+    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
+
+    Chemical.Interfaces.InputSubstanceState state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
+
+    Chemical.Interfaces.InputSolutionState solution "State of solution";
     stateOfMatter.InputSubstanceData definition "Definition of substance";
 
-    annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
-          Polygon(
-            points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
-            fillColor={194,138,221},
-            fillPattern=FillPattern.Solid,
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
+            extent={{-80,80},{80,-80}},
+            lineColor={158,66,200},
             lineThickness=0.5,
-            lineColor={158,66,200})}),
-      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
-          Polygon(
-            points={{52,0},{-48,50},{-28,0},{-48,-50},{52,0}},
             fillColor={194,138,221},
-            fillPattern=FillPattern.Solid,
+            fillPattern=FillPattern.Solid), Ellipse(
+            extent={{-40,40},{40,-40}},
+            lineColor={194,138,221},
             lineThickness=0.5,
-            lineColor={158,66,200})}),
-      Documentation(revisions="<html>
-<p><i>2023</i></p>
-<p>Marek Matejak </p>
-</html>",   info="<html>
-
-<p>Chemical streams:</p>
-<h4>u = û + r</h4>
-<h4>&Delta;r = -der(q)*L</h4>
-<p>u .. electro-chemical potential</p>
-<p>û .. steady-state electro-chemical potential</p>
-<p>r .. electro-chemical inertia</p>
-<p>q .. molar flow rate</p>
-<p>L .. electro-chemical inductance</p>
-
-<p>Definition of electro-chemical potential of the substance:</p>
-<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
-<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
-<p>where</p>
-<p>x .. mole fraction of the substance in the solution</p>
-<p>T .. temperature in Kelvins</p>
-<p>v .. eletric potential of the solution</p>
-<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
-<p>R .. gas constant</p>
-<p>F .. Faraday constant</p>
-<p>gamma .. activity coefficient</p>
-<p>u&deg;(T) .. chemical potential of pure substance</p>
-<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
-<p>DfH .. free enthalpy of formation of the substance</p>
-<p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid)}),
+                              Diagram(coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
+<u>At positive molarflow, Rear is a input.</u>
 </html>"));
-  end Inlet;
+  end Rear;
   extends Modelica.Icons.InterfacesPackage;
-
-  connector Outlet "Outlet providing substance and solution definition"
-
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
-    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
-
-    OutputSubstanceState state "State of substance in solution";
-    OutputSolutionState solution "State of solution";
-    stateOfMatter.OutputSubstanceData definition "Definition of substance";
-
-
-    annotation ( Icon(coordinateSystem(preserveAspectRatio=true), graphics={
-          Polygon(
-            points={{100,0},{-100,100},{-40,0},{-100,-100},{100,0}},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid,
-            lineColor={158,66,200},
-            lineThickness=0.5)}),
-      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
-          Polygon(
-            points={{50,0},{-50,50},{-30,0},{-50,-50},{50,0}},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid,
-            lineColor={158,66,200},
-            lineThickness=0.5)}),
-      Documentation(revisions="<html>
-<p><i>2025</i></p>
-<p>Marek Matejak </p>
-</html>",   info="<html>
-
-<p>Chemical streams:</p>
-<h4>u = û + r</h4>
-<h4>&Delta;r = -der(q)*L</h4>
-<p>u .. electro-chemical potential</p>
-<p>û .. steady-state electro-chemical potential</p>
-<p>r .. electro-chemical inertia</p>
-<p>q .. molar flow rate</p>
-<p>L .. electro-chemical inductance</p>
-
-<p>Definition of electro-chemical potential of the substance:</p>
-<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
-<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
-<p>where</p>
-<p>x .. mole fraction of the substance in the solution</p>
-<p>T .. temperature in Kelvins</p>
-<p>v .. eletric potential of the solution</p>
-<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
-<p>R .. gas constant</p>
-<p>F .. Faraday constant</p>
-<p>gamma .. activity coefficient</p>
-<p>u&deg;(T) .. chemical potential of pure substance</p>
-<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
-<p>DfH .. free enthalpy of formation of the substance</p>
-<p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
-</html>"));
-  end Outlet;
 
  replaceable record SubstanceState "Set that defines a state of substance"
   extends Modelica.Icons.Record;
@@ -232,6 +177,8 @@ package Interfaces "Chemical interfaces"
       parameter SubstanceDataParameters substanceData "used only if FixedSubstanceData to help initialization";
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
+      parameter Boolean SolutionObserverOnly = false "True if substance does not affect the solution";
 
 
       InputSubstanceData substanceDataVar "Definition of the substance";
@@ -437,17 +384,27 @@ package Interfaces "Chemical interfaces"
 
       c = amountOfParticles/solutionState.V "concentration [mol/m3]";
 
+      if SolutionObserverOnly then
+        i = 0;
+        dV = 0;
+        nj = 0;
+        mj = 0;
+        Vj = 0;
+        Qj = 0;
+        Ij = 0;
+      else
       //solution flows
-      i = Modelica.Constants.F*z*n_flow +
+        i = Modelica.Constants.F*z*n_flow +
           Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
-      dV = Vm*n_flow + der(Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+        dV = Vm*n_flow + der(Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
 
       //extensive properties
-      nj = amountOfParticles;
-      mj = amountOfBaseMolecules*molarMassOfBaseMolecule(substanceDataVar);
-      Vj = amountOfBaseMolecules*Vm;
-      Qj = Modelica.Constants.F*amountOfBaseMolecules*z;
-      Ij = (1/2)*(amountOfBaseMolecules*z^2);
+        nj = amountOfParticles;
+        mj = amountOfBaseMolecules*molarMassOfBaseMolecule(substanceDataVar);
+        Vj = amountOfBaseMolecules*Vm;
+        Qj = Modelica.Constants.F*amountOfBaseMolecules*z;
+        Ij = (1/2)*(amountOfBaseMolecules*z^2);
+      end if;
 
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
@@ -2238,6 +2195,231 @@ end solution_temperature_;
   end ConditionalKinetics;
 
   partial model SISO "Base Model with basic flow eqautions for SISO"
+
+    import Chemical.Utilities.Types.InitializationMethods;
+
+    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (Dialog(tab="Advanced"));
+    parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
+      annotation(Dialog(tab="Advanced"));
+    parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
+      annotation(Dialog(tab= "Initialization"));
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_0=0 "Initial value for n_flow"
+      annotation (Dialog(tab="Initialization", enable=(initM_flow == InitializationMethods.state)));
+    parameter Chemical.Utilities.Units.MolarFlowAcceleration n_acceleration_0=0 "Initial value for der(n_flow)"
+      annotation (Dialog(tab="Initialization", enable=(initM_flow == InitializationMethods.derivative)));
+
+    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+      annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+      annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+
+    Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect)=rear.n_flow;
+
+    // delta potential computation
+    Modelica.Units.SI.ChemicalPotential du_fore;
+                         // delta = fore - rear
+    Modelica.Units.SI.ChemicalPotential du_rear;
+                         // delta = rear - fore
+
+  protected
+    outer Chemical.DropOfCommons dropOfCommons;
+
+    // input state quantities
+    Modelica.Units.SI.ChemicalPotential u_rear_in=rear.state_forwards.u "Chemical potential of substance entering";
+    Modelica.Units.SI.ChemicalPotential u_fore_in=fore.state_rearwards.u "Chemical potential of substance entering";
+    Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance enetering";
+    Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance enetering";
+
+    //outlet state quantities
+    Modelica.Units.SI.ChemicalPotential u_rear_out "Chemical potential of substance exiting";
+    Modelica.Units.SI.ChemicalPotential u_fore_out "Chemical potential of substance exiting";
+    Modelica.Units.SI.MolarEnthalpy h_rear_out "Enthalpy of substance exiting";
+    Modelica.Units.SI.MolarEnthalpy h_fore_out "Enthalpy of substance exiting";
+
+  initial equation
+    if initN_flow == InitializationMethods.state then
+      n_flow = n_flow_0;
+    elseif initN_flow == InitializationMethods.derivative then
+      der(n_flow) = n_acceleration_0;
+    elseif initN_flow == InitializationMethods.steadyState then
+      der(n_flow) = 0;
+    end if;
+
+  equation
+
+    fore.n_flow + rear.n_flow = 0;
+    fore.r = rear.r - der(rear.n_flow) * L;
+
+    u_fore_out = u_rear_in + du_fore;
+    u_rear_out = u_fore_in + du_rear;
+
+    rear.state_rearwards.u = u_rear_out;
+    rear.state_rearwards.h = h_rear_out;
+    fore.state_forwards.u = u_fore_out;
+    fore.state_forwards.u = h_fore_out;
+
+    annotation (Documentation(info="<html>
+<u>Interface class for all components with one fore and one rear port and a massflow without a mass storage between.</u>
+<u>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation, as well as the clipping of u_out to u_min. </u>
+<u>If u_out should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
+<u>The component offers different initialization methods for the massflow, as well as several parameters used in the equations above. </u>
+<u>The clipping of the massflow can be turned off (this should be done by the modeler as a final modificator while extending to hide this option from the enduser).</u>
+</html>"));
+  end SISO;
+
+  connector Inlet "Inlet"
+
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
+    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
+
+    InputSubstanceState state "State of substance";
+    InputSolutionState solution "State of solution";
+    stateOfMatter.InputSubstanceData definition "Definition of substance";
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{-100,100},{-40,0},{-100,-100},{100,0},{-100,100}},
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid,
+            lineThickness=0.5,
+            lineColor={158,66,200})}),
+      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{52,0},{-48,50},{-28,0},{-48,-50},{52,0}},
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid,
+            lineThickness=0.5,
+            lineColor={158,66,200})}),
+      Documentation(revisions="<html>
+<p><i>2023</i></p>
+<p>Marek Matejak </p>
+</html>",   info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>&Delta;r = -der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. electro-chemical inertia</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end Inlet;
+
+  connector Outlet "Outlet providing substance and solution definition"
+
+    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
+    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
+
+    OutputSubstanceState state "State of substance in solution";
+    OutputSolutionState solution "State of solution";
+    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+
+
+    annotation ( Icon(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{100,0},{-100,100},{-40,0},{-100,-100},{100,0}},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid,
+            lineColor={158,66,200},
+            lineThickness=0.5)}),
+      Diagram(coordinateSystem(preserveAspectRatio=true), graphics={
+          Polygon(
+            points={{50,0},{-50,50},{-30,0},{-50,-50},{50,0}},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid,
+            lineColor={158,66,200},
+            lineThickness=0.5)}),
+      Documentation(revisions="<html>
+<p><i>2025</i></p>
+<p>Marek Matejak </p>
+</html>",   info="<html>
+
+<p>Chemical streams:</p>
+<h4>u = û + r</h4>
+<h4>&Delta;r = -der(q)*L</h4>
+<p>u .. electro-chemical potential</p>
+<p>û .. steady-state electro-chemical potential</p>
+<p>r .. electro-chemical inertia</p>
+<p>q .. molar flow rate</p>
+<p>L .. electro-chemical inductance</p>
+
+<p>Definition of electro-chemical potential of the substance:</p>
+<h4>u(x,T,v) = u&deg;(T) + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg;(T) = DfG(T) = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg;(T) .. chemical potential of pure substance</p>
+<p>DfG(T) .. free Gibbs energy of formation of the substance at current temperature T. </p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end Outlet;
+
+  partial model SISOOnedirectional "Base Model with basic flow eqautions for SISO"
     import Chemical;
     import Chemical.Utilities.Types.InitializationMethods;
 
@@ -2368,7 +2550,6 @@ end solution_temperature_;
 
     h_out = h_in;
 
-
     annotation (Documentation(revisions="<html>
 <p><i>2025</i></p>
 <p><i>by </i>Marek Matejak, Ph.D.</p>
@@ -2376,10 +2557,10 @@ end solution_temperature_;
 <p>Interface class for all components with an Inlet and an Outlet and a molarflow without a mass storage between.</p>
 <p>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation. </p>
 </html>"));
-  end SISO;
+  end SISOOnedirectional;
 
   partial model PartialChangeSolution "Substance between different chemical solutions"
-    extends Chemical.Interfaces.SISO;
+    extends Chemical.Interfaces.SISOOnedirectional;
 
 
 
@@ -2487,7 +2668,7 @@ end solution_temperature_;
   end PartialChangeSolution;
 
   partial model PartialChangeState
-    extends Chemical.Interfaces.SISO;
+    extends Chemical.Interfaces.SISOOnedirectional;
 
 
     Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-52},{112,-32}}),   iconTransformation(extent={{92,-52},{112,-32}})));
@@ -2938,134 +3119,6 @@ end solution_temperature_;
 </table>
 </html>"));
   end PartialProcessWithSubstanceData;
-
-  partial model PartialSubstanceInlet
-
-   outer Modelica.Fluid.System system "System wide properties";
-
-   replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    Interfaces.Inlet inlet(redeclare package stateOfMatter = stateOfMatter) "The substance"
-      annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
-
-     stateOfMatter.SubstanceData substanceData=inlet.definition;
-
-     Modelica.Units.SI.Concentration c "Concentration of the substance [mmol/L]";
-
-     Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
-
-  Modelica.Units.SI.ActivityOfSolute a
-    "Activity of the substance (mole-fraction based)";
-
-  //protected
-  Modelica.Units.SI.ActivityCoefficient gamma
-    "Activity coefficient of the substance";
-
-  Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
-
-  Modelica.Units.SI.Temperature temperature
-    "Temperature of the solution";
-
-  Modelica.Units.SI.Pressure pressure "Pressure of the solution";
-
-  Modelica.Units.SI.ElectricPotential electricPotential
-    "Electric potential of the solution";
-
-  Modelica.Units.SI.MoleFraction moleFractionBasedIonicStrength
-    "Ionic strength of the solution";
-
-  //Modelica.Units.SI.MolarMass molarMass "Molar mass of the substance";
-
-  Modelica.Units.SI.MolarEnthalpy molarEnthalpy
-    "Molar enthalpy of the substance";
-  /*
-Modelica.Units.SI.MolarEntropy molarEntropyPure
-  "Molar entropy of the pure substance";
-
-Modelica.Units.SI.ChemicalPotential u0
-  "Chemical potential of the pure substance";
-
-Modelica.Units.SI.ChemicalPotential uPure
-  "Electro-Chemical potential of the pure substance";
-
-Modelica.Units.SI.MolarVolume molarVolume
-  "Molar volume of the substance";
-
-Modelica.Units.SI.MolarVolume molarVolumePure
-  "Molar volume of the pure substance";
-
-Modelica.Units.SI.MolarVolume molarVolumeExcess
-  "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
-*/
-    //  Modelica.SIunits.MolarHeatCapacity molarHeatCapacityCp
-    //    "Molar heat capacity of the substance at constant pressure";
-
-
-  equation
-
-   c = x * (inlet.solution.n/inlet.solution.V);
-
-   //aliases
-   gamma = stateOfMatter.activityCoefficient(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-   z = stateOfMatter.chargeNumberOfIon(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-  // molarMass = stateOfMatter.molarMass(substanceData);
-
-   //molarEnthalpy = stateOfMatter.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-   //molarEntropyPure = stateOfMatter.molarEntropyPure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-   /*u0 = stateOfMatter.chemicalPotentialPure(
-   substanceData,
-   temperature,
-   pressure,
-   electricPotential,
-   moleFractionBasedIonicStrength);
- uPure = stateOfMatter.electroChemicalPotentialPure(
-   substanceData,
-   temperature,
-   pressure,
-   electricPotential,
-   moleFractionBasedIonicStrength);
- molarVolume = stateOfMatter.molarVolume(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarVolumePure = stateOfMatter.molarVolumePure(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- molarVolumeExcess = stateOfMatter.molarVolumeExcess(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
- //  molarHeatCapacityCp = stateOfMatter.molarHeatCapacityCp(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-*/
-   //activity of the substance
-   a = gamma*x;
-
-   //electro-chemical potential of the substance in the solution
-   inlet.state.u = stateOfMatter.chemicalPotentialPure(
-     substanceData,
-     temperature,
-     pressure,
-     electricPotential,
-     moleFractionBasedIonicStrength)
-     + (Modelica.Constants.R*temperature)*log(a)
-     + z*Modelica.Constants.F*electricPotential;
-
-   inlet.state.h = molarEnthalpy;
-
-   inlet.solution.T=temperature;
-   inlet.solution.p=pressure;
-   inlet.solution.v=electricPotential;
-   inlet.solution.I=moleFractionBasedIonicStrength;
-
-   annotation (
-     Documentation(revisions="<html>
-<p><i>2009-2015</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-  end PartialSubstanceInlet;
 
   connector StateInput = input Chemical.Interfaces.SubstanceState "Substance state as connector"
     annotation (
