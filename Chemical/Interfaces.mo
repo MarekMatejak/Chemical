@@ -136,7 +136,7 @@ package Interfaces "Chemical interfaces"
    parameter Modelica.Units.SI.ElectricPotential v = 0 "Electric potential in the solution";
    parameter Modelica.Units.SI.AmountOfSubstance n = 1 "Amount of the solution";
    parameter Modelica.Units.SI.Mass m = 1 "Mass of the solution";
-   parameter Modelica.Units.SI.Volume V = 1e-1 "Volume of the solution";
+   parameter Modelica.Units.SI.Volume V = 1e-3 "Volume of the solution";
    parameter Modelica.Units.SI.Energy G = 0 "Free Gibbs energy of the solution";
    parameter Modelica.Units.SI.ElectricCharge Q = 0 "Electric charge of the solution";
    parameter Modelica.Units.SI.MoleFraction I = 0 "Mole fraction based ionic strength of the solution";
@@ -2198,17 +2198,29 @@ end solution_temperature_;
 
     import Chemical.Utilities.Types.InitializationMethods;
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
+    replaceable package stateOfMatterRear = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter "Substance model of rear"
+      annotation (Dialog(tab="Advanced"), choices(
+        choice(redeclare package stateOfMatterRear =
           Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterRear =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterRear =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
+        choice(redeclare package stateOfMatterRear =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    replaceable package stateOfMatterFore = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter
+    "Substance model of fore"
+      annotation (Dialog(tab="Advanced"), choices(
+        choice(redeclare package stateOfMatterFore =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatterFore =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatterFore =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatterFore =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (Dialog(tab="Advanced"));
@@ -2221,33 +2233,51 @@ end solution_temperature_;
     parameter Chemical.Utilities.Units.MolarFlowAcceleration n_acceleration_0=0 "Initial value for der(n_flow)"
       annotation (Dialog(tab="Initialization", enable=(initM_flow == InitializationMethods.derivative)));
 
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore(
+      redeclare package stateOfMatter = stateOfMatterFore,
+      state_forwards(u=u_fore_out,h=h_fore_out))
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+
+    Chemical.Interfaces.Rear rear(
+      redeclare package stateOfMatter = stateOfMatterRear,
+      state_rearwards(u=u_rear_out,h=h_rear_out))
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect)=rear.n_flow;
 
     // delta potential computation
     Modelica.Units.SI.ChemicalPotential du_fore;
-                         // delta = fore - rear
     Modelica.Units.SI.ChemicalPotential du_rear;
-                         // delta = rear - fore
 
+    Modelica.Units.SI.MoleFraction x_rear, x_fore;
+  /*  Modelica.Units.SI.Concentration c_in, c_out;
+  Modelica.Units.SI.Molality b_in, b_out;
+  Modelica.Units.SI.MassFraction X_in, X_out;
+*/
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
+    Chemical.Interfaces.InputSubstanceState state_rear_in "Input substance state in forwards direction";
+    Chemical.Interfaces.InputSubstanceState state_fore_in "Input substance state in rearwards direction";
+
+    //Chemical.Interfaces.SubstanceState state_out "Input substance state in rearwards direction";
+
     // input state quantities
-    Modelica.Units.SI.ChemicalPotential u_rear_in=rear.state_forwards.u "Chemical potential of substance entering";
-    Modelica.Units.SI.ChemicalPotential u_fore_in=fore.state_rearwards.u "Chemical potential of substance entering";
-    Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance enetering";
-    Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance enetering";
+    //Modelica.Units.SI.ChemicalPotential u_rear_in=rear.state_forwards.u "Chemical potential of substance entering";
+    //Modelica.Units.SI.ChemicalPotential u_fore_in=fore.state_rearwards.u "Chemical potential of substance entering";
+    //Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance enetering";
+    //Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance enetering";
 
     //outlet state quantities
     Modelica.Units.SI.ChemicalPotential u_rear_out "Chemical potential of substance exiting";
     Modelica.Units.SI.ChemicalPotential u_fore_out "Chemical potential of substance exiting";
     Modelica.Units.SI.MolarEnthalpy h_rear_out "Enthalpy of substance exiting";
     Modelica.Units.SI.MolarEnthalpy h_fore_out "Enthalpy of substance exiting";
+
+    Modelica.Units.SI.ChemicalPotential uPure_substrate "Electro-chemical potential of pure substance entering";
+    Modelica.Units.SI.ChemicalPotential uPure_product "Electro-chemical potential of pure substance exiting";
+
+    //Chemical.Utilities.Units.URT duRT_fore, duRT_rear;
 
   initial equation
     if initN_flow == InitializationMethods.state then
@@ -2260,21 +2290,55 @@ end solution_temperature_;
 
   equation
 
+    connect(rear.state_forwards, state_rear_in);
+    connect(fore.state_rearwards, state_fore_in);
+
+    u_fore_out = state_rear_in.u + du_fore;
+    u_rear_out = state_fore_in.u + du_rear;
+
+  //  du_fore = rear.state_forwards.u - fore.state_forwards.u;
+  //  du_rear = rear.state_rearwards.u - fore.state_rearwards.u;
+
+
+    h_rear_out = state_fore_in.h;
+    h_fore_out = state_rear_in.h;
+
+
+  //  duRT_fore = (rear.state_forwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_forwards.u / (Modelica.Constants.R*fore.solution.T));
+  //  duRT_rear = (rear.state_rearwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_rearwards.u / (Modelica.Constants.R*fore.solution.T));
+
+
+    x_rear = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution.T)));
+    x_fore = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution.T)));
+
+
+    uPure_substrate = stateOfMatterRear.electroChemicalPotentialPure(
+      rear.definition,
+      rear.solution.T,
+      rear.solution.p,
+      rear.solution.v,
+      rear.solution.I);
+    uPure_product = stateOfMatterFore.electroChemicalPotentialPure(
+      fore.definition,
+      fore.solution.T,
+      fore.solution.p,
+      fore.solution.v,
+      fore.solution.I);
+
+
+
     fore.n_flow + rear.n_flow = 0;
     fore.r = rear.r - der(rear.n_flow) * L;
 
-    u_fore_out = u_rear_in + du_fore;
-    u_rear_out = u_fore_in + du_rear;
 
-    rear.state_rearwards.u = u_rear_out;
-    rear.state_rearwards.h = h_rear_out;
-    fore.state_forwards.u = u_fore_out;
-    fore.state_forwards.u = h_fore_out;
+
+
+
 
     annotation (Documentation(info="<html>
 <u>Interface class for all components with one fore and one rear port and a massflow without a mass storage between.</u>
-<u>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation, as well as the clipping of u_out to u_min. </u>
-<u>If u_out should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
+<u>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation, as well as the clipping of u_fore to u_min. </u>
+<u>If u_fore should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
 <u>The component offers different initialization methods for the massflow, as well as several parameters used in the equations above. </u>
 <u>The clipping of the massflow can be turned off (this should be done by the modeler as a final modificator while extending to hide this option from the enduser).</u>
 </html>"));
