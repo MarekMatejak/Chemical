@@ -49,6 +49,22 @@ Choices for initialization of a&nbsp;state.
 Choices for initialization of a&nbsp;state.
 </p>
 </html>"));
+    type SolutionChoice        = enumeration(
+      fromSubstrate
+        "Chemical solution state from substrate (first one)",
+      fromSolutionPort
+        "Chemical solution state from solution port",
+      fromParameter
+        "Chemical solution state from parameter (with default values 20°C, 101.325kPa, 1mol, 1kg, 1L)")
+      annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false)),
+        Diagram(
+          coordinateSystem(preserveAspectRatio=false)),
+        Documentation(info="<html>
+<p>
+Choices for selection of a&nbsp;solution state.
+</p>
+</html>"));
   end Types;
 
   package Internal "Internal helper functions and models for the undirected themofluid simulation."

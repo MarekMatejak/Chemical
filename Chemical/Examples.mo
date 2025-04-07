@@ -20,6 +20,7 @@ extends Modelica.Icons.ExamplesPackage;
 
     Processes.Reaction reaction2_1(
       productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
+      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
       nS=1,
       nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
     Chemical.Boundaries.Substance B(

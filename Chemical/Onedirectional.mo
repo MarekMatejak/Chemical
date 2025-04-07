@@ -3866,16 +3866,20 @@ equation
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-      Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
+      Chemical.Onedirectional.Boundaries.Substance
+                                    A(use_mass_start=false, amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
-      Chemical.Processes.Reaction reaction2_1(
+      Chemical.Onedirectional.Processes.Reaction
+                                  reaction2_1(
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-      Chemical.Boundaries.Substance B(
+      Chemical.Onedirectional.Boundaries.Substance
+                                    B(
+        useInlet=true,
         use_mass_start=false,
-        amountOfSubstance_start=0.1,
-        useInlet=true) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
+        amountOfSubstance_start=0.1)
+                       annotation (Placement(transformation(extent={{42,-8},{62,12}})));
 
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
     equation

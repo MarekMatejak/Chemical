@@ -481,7 +481,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ExternalGas;
 
   model TerminalInflow "Molar pump of substance to system"
-    extends Chemical.Boundaries.Internal.PartialSolutionSensor         (useSolutionFromRear=false);
+    extends Chemical.Interfaces.PartialSolutionSensor                  (useSolutionFromRear=false);
     extends Chemical.Interfaces.ConditionalSubstanceFlow(useSubstanceFlowInput=false);
 
     replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
@@ -971,7 +971,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         useFore=false,
 
         substanceData=Chemical.Substances.Water_liquid())
-                          annotation (Placement(transformation(extent={{24,12},{44,32}})));
+                          annotation (Placement(transformation(extent={{26,12},{46,32}})));
       Substance substance2(
         useRear=false,
         useFore=true,
@@ -1013,9 +1013,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
             rotation=180,
             origin={44,82})));
       Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-78},{86,-58}})));
+      Substance substance6(substanceData=Chemical.Substances.Water_liquid()) annotation (Placement(transformation(extent={{-96,70},{-76,90}})));
     equation
       connect(boundaryRear.fore, substance.rear) annotation (Line(
-          points={{-56,24},{-16,24},{-16,22},{24,22}},
+          points={{-56,24},{-16,24},{-16,22},{26,22}},
           color={158,66,200},
           thickness=0.5));
       connect(substance2.fore,boundaryFore. rear) annotation (Line(
@@ -1710,65 +1711,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end PartialTerminalRear;
-
-    model PartialSolutionSensor
-
-      parameter Boolean useSolution = true "Use solution connector?"
-        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
-
-      parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
-        annotation (Dialog(enable=not useSolution and not useRear));
-
-      Chemical.Interfaces.SolutionPort solution(
-          T=solutionPortState.T,
-          p=solutionPortState.p,
-          v=solutionPortState.v,
-          n=solutionPortState.n,
-          m=solutionPortState.m,
-          V=solutionPortState.V,
-          G=solutionPortState.G,
-          Q=solutionPortState.Q,
-          I=solutionPortState.I,
-          i=0,
-          dH=0,
-          dV=0,
-          nj=0,
-          mj=0,
-          Vj=0,
-          Gj=0,
-          Qj=0,
-          Ij=0)
-            if useSolution "To connect substance with solution, where is pressented"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-        Chemical.Interfaces.SolutionState solutionState;
-
-    protected
-        parameter Boolean useSolutionFromRear = false "Use solution from Rear port?";
-
-        Chemical.Interfaces.SolutionState solutionPortState;
-
-    equation
-
-     if (useSolution and not useSolutionFromRear) or (not useSolution) then
-        solutionState=solutionPortState;
-      end if;
-
-      if not useSolution and not useSolutionFromRear then
-        solutionState.T=solutionParam.T "Temperature of the solution";
-        solutionState.p=solutionParam.p "Pressure of the solution";
-        solutionState.v=solutionParam.v "Electric potential in the solution";
-        solutionState.n=solutionParam.n "Amount of the solution";
-        solutionState.m=solutionParam.m "Mass of the solution";
-        solutionState.V=solutionParam.V "Volume of the solution";
-        solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
-        solutionState.Q=solutionParam.Q "Electric charge of the solution";
-        solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
-      end if;
-
-       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-
-    end PartialSolutionSensor;
 
     partial model ConditionalSolutionFlow "Input of solution molar flow vs. parametric solution molar flow"
 

@@ -131,12 +131,12 @@ package Interfaces "Chemical interfaces"
  operator record SolutionStateParameters "Set that defines a state of solution"
   extends Modelica.Icons.Record;
 
-   parameter Modelica.Units.SI.Temperature T = 293.15 "Temperature of the solution";
-   parameter Modelica.Units.SI.Pressure p = 100000 "Pressure of the solution";
-   parameter Modelica.Units.SI.ElectricPotential v = 0 "Electric potential in the solution";
-   parameter Modelica.Units.SI.AmountOfSubstance n = 1 "Amount of the solution";
+   parameter Modelica.Units.SI.Temperature T=293.15   "Temperature of the solution";
+   parameter Modelica.Units.SI.Pressure p=101325   "Pressure of the solution";
    parameter Modelica.Units.SI.Mass m = 1 "Mass of the solution";
-   parameter Modelica.Units.SI.Volume V = 1e-3 "Volume of the solution";
+   parameter Modelica.Units.SI.Volume V(displayUnit="l")=0.001  "Volume of the solution";
+   parameter Modelica.Units.SI.AmountOfSubstance n = 1 "Amount of the solution";
+   parameter Modelica.Units.SI.ElectricPotential v = 0 "Electric potential in the solution";
    parameter Modelica.Units.SI.Energy G = 0 "Free Gibbs energy of the solution";
    parameter Modelica.Units.SI.ElectricCharge Q = 0 "Electric charge of the solution";
    parameter Modelica.Units.SI.MoleFraction I = 0 "Mole fraction based ionic strength of the solution";
@@ -857,8 +857,7 @@ end solution_temperature_;
 
     redeclare record extends SubstanceDataParameters "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
-           0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=1 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
         "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -872,7 +871,7 @@ end solution_temperature_;
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
         "Activity coefficient of the substance";
 
-      parameter Modelica.Units.SI.MolarHeatCapacity Cp=75.32
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp=1
         "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
       parameter Real SelfClustering=0
@@ -1263,8 +1262,7 @@ end solution_temperature_;
 
      redeclare record extends SubstanceDataParameters "Base substance data"
 
-      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
-         0.01801528 "Molar weight of the substance";
+      parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=1 "Molar weight of the substance";
 
       parameter Modelica.Units.SI.ChargeNumberOfIon z=0
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -1278,7 +1276,7 @@ end solution_temperature_;
       parameter Modelica.Units.SI.ActivityCoefficient gamma=1
       "Activity coefficient of the substance";
 
-      parameter Modelica.Units.SI.MolarHeatCapacity Cp=75.32
+      parameter Modelica.Units.SI.MolarHeatCapacity Cp=1
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
       parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
@@ -1580,8 +1578,7 @@ end solution_temperature_;
    redeclare record extends SubstanceDataParameters
      "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
-    parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=
-         0.01801528 "Molar weight of the substance";
+    parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=1 "Molar weight of the substance";
 
     parameter Modelica.Units.SI.ChargeNumberOfIon z=0
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -1595,7 +1592,7 @@ end solution_temperature_;
     parameter Modelica.Units.SI.ActivityCoefficient gamma=1
       "Activity coefficient of the substance";
 
-    parameter Modelica.Units.SI.MolarHeatCapacity Cp=33.6
+    parameter Modelica.Units.SI.MolarHeatCapacity Cp=1
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
     parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
@@ -2162,6 +2159,64 @@ end solution_temperature_;
     end if;
 
   end ConditionalSubstanceFlow;
+
+  partial model PartialSolutionSensor
+
+    import Chemical.Utilities.Types.SolutionChoice;
+
+   // parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution"
+    parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution"
+        annotation(HideResult=true, Dialog(group="Conditional inputs"));
+
+    parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+      annotation (Dialog(enable=(solutionFrom == SolutionChoice.fromParameter)));
+
+    Chemical.Interfaces.SolutionPort solution(
+        T=solutionState.T,
+        p=solutionState.p,
+        v=solutionState.v,
+        n=solutionState.n,
+        m=solutionState.m,
+        V=solutionState.V,
+        G=solutionState.G,
+        Q=solutionState.Q,
+        I=solutionState.I,
+        i=0,
+        dH=0,
+        dV=0,
+        nj=0,
+        mj=0,
+        Vj=0,
+        Gj=0,
+        Qj=0,
+        Ij=0)
+          if (solutionFrom == SolutionChoice.fromSolutionPort) "To connect substance with solution, where is pressented"
+      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+      Chemical.Interfaces.SolutionState solutionState;
+
+  protected
+
+      Chemical.Interfaces.InputSolutionState inputSubstrateSolution=solutionState if (solutionFrom == Chemical.Utilities.Types.SolutionChoice.fromSubstrate);
+
+  equation
+
+    if (solutionFrom == SolutionChoice.fromParameter) then
+      solutionState.T=solutionParam.T "Temperature of the solution";
+      solutionState.p=solutionParam.p "Pressure of the solution";
+      solutionState.v=solutionParam.v "Electric potential in the solution";
+      solutionState.n=solutionParam.n "Amount of the solution";
+      solutionState.m=solutionParam.m "Mass of the solution";
+      solutionState.V=solutionParam.V "Volume of the solution";
+      solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
+      solutionState.Q=solutionParam.Q "Electric charge of the solution";
+      solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
+    end if;
+
+
+     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+
+  end PartialSolutionSensor;
 
   partial model ConditionalKinetics
     "Input of kinetics coefficient vs. parametric kinetics coefficient"

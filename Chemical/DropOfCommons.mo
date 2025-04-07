@@ -1,7 +1,7 @@
 within Chemical;
 model DropOfCommons "Model for global parameters"
 
-  parameter Chemical.Utilities.Units.Inertance L=1e-3 "Inertance of the molar flow through electro-chemical process" annotation (Dialog(tab="Advanced"));
+  parameter Chemical.Utilities.Units.Inertance L=1 "Inertance of the molar flow through electro-chemical process" annotation (Dialog(tab="Advanced"));
 
   parameter Modelica.Units.SI.MolarFlowRate n_flow_reg = 1e-5 "Regularization threshold of molar flow rate"
     annotation(Dialog(group="Regularization"));

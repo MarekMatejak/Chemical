@@ -4,14 +4,14 @@ model Solution "Chemical solution as homogenous mixture of the substances"
 
   extends Interfaces.PartialSolutionWithHeatPort(pressure(start=BasePressure));
 
-parameter Modelica.Units.SI.Pressure BasePressure=system.p_ambient
+  parameter Modelica.Units.SI.Pressure BasePressure=system.p_ambient
   "Pressure at zero mechanic force (or if not useMechanicPorts)"
   annotation (HideResult=true);
 
   parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
   annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-parameter Modelica.Units.SI.Area SurfaceArea=0.01
+  parameter Modelica.Units.SI.Area SurfaceArea=0.01
   "Area for surfacePort to connect MultiBody components"
   annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 

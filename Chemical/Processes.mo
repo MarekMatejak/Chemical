@@ -2,10 +2,33 @@ within Chemical;
 package Processes "Undirected process package"
   model Reaction "Chemical Reaction"
     extends Chemical.Processes.Internal.PartialReactionWithSubstanceData;
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.fromParameter else SolutionChoice.fromSubstrate);
     extends Chemical.Interfaces.ConditionalKinetics
                                           (k_forward=1);
+
+
+    import Chemical.Utilities.Types.SolutionChoice;
+
     Real rr_fore_exact,rr_rear_exact,  kb;
+
+    replaceable function uLoss =
+        Internal.Kinetics.pleaseSelectPotentialLoss
+      constrainedby
+        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+      annotation(choicesAllMatching=true, Documentation(info="<html>
+    <p>Electro-chemical potential loss function used in the diffusion.</p>
+    </html>"));
+
+    Real du_fore_,du_rear_;
   equation
+
+    connect(substrates[1].solution,inputSubstrateSolution);
+
+
+    du_fore_ = -uLoss(rr,Sx_fore,solutionState);
+  //  if nS>0 then
+      du_rear_ = -uLoss(-rr,Px_rear,solutionState);
+  //  end if;
 
     rr = kf * Sx_fore * ( 1  -  exp(-duRT_fore));
     if nS>0 then
@@ -467,8 +490,10 @@ package Processes "Undirected process package"
 
   model Diffusion "Solute diffusion"
     extends Icons.Diffusion;
-    extends Internal.PartialSwitchSolution(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
-    extends Interfaces.ConditionalKinetics(k_forward=1);
+    extends Chemical.Interfaces.SISO(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+
+    import Chemical.Utilities.Types.SolutionChoice;
 
     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
@@ -488,16 +513,17 @@ package Processes "Undirected process package"
         Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
-</html>"));
+    </html>"));
+
   equation
+    fore.definition = rear.definition;
+    fore.solution = solutionState;
+
+    connect(rear.solution,inputSubstrateSolution);
 
 
     du_rear = -uLoss(n_flow,x_fore,rear.solution);
     du_fore = -uLoss(-n_flow,x_fore,fore.solution);
-
-  /*  n_flow = kf * x_fore * ( 1  -  exp(-duRT_fore));
-  n_flow = -kf * x_rear * ( 1  -  exp(duRT_rear));
-*/
 
      annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -505,35 +531,6 @@ package Processes "Undirected process package"
 <p>Diffusion of the substance as equilibration of electro-chemical potentials.</p>
 </html>"));
   end Diffusion;
-
-  model FastDiffusion "Solute diffusion"
-    extends Icons.Diffusion;
-    extends Internal.PartialSwitchSolution(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
-
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter "Substance model of inlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    parameter Real kC = 1;
-  equation
-
-    n_flow = kC * du_fore;
-    n_flow = kC * du_rear;
-
-     annotation (                 Documentation(revisions="<html>
-<p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Diffusion of the substance as equilibration of electro-chemical potentials.</p>
-</html>"));
-  end FastDiffusion;
 
   model GasSolubility "Henry's law of gas solubility into liquid."
 
@@ -1982,7 +1979,8 @@ du := n_flow/kC;
         use_mass_start=false,
         amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
-      Reaction reaction2_1(
+      Chemical.Processes.FastReaction
+               fastReaction(
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
@@ -1999,11 +1997,11 @@ du := n_flow/kC;
           color={127,127,0}));
       connect(B.solution, solution.solution) annotation (Line(points={{46,-8},{46,-92},{60,-92},{60,-98}},
                                          color={127,127,0}));
-      connect(A.fore, reaction2_1.substrates[1]) annotation (Line(
+      connect(A.fore, fastReaction.substrates[1]) annotation (Line(
           points={{-32,2},{-10,2}},
           color={158,66,200},
           thickness=0.5));
-      connect(reaction2_1.products[1], B.rear) annotation (Line(
+      connect(fastReaction.products[1], B.rear) annotation (Line(
           points={{10,2},{42,2}},
           color={158,66,200},
           thickness=0.5));
@@ -2813,6 +2811,134 @@ Medium model for the test. Can be anything.
         experiment(StopTime=100000, __Dymola_Algorithm="Dassl"),
         __Dymola_experimentSetupOutput);
     end EnzymeKinetics;
+
+    model Diffusion
+      Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
+      Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
+      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
+            Chemical.Processes.Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
+      Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
+      Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
+      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter, redeclare function uLoss =
+            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
+      Boundaries.Substance s3(
+        useFore=true,
+        useSolution=true,
+        mass_start=0.6) annotation (Placement(transformation(extent={{-170,-54},{-150,-34}})));
+      Boundaries.Substance p3(
+        useRear=true,
+        useSolution=true,
+        mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
+      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
+            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
+      Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
+      inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
+      Boundaries.Substance s4(
+        useFore=true,
+        useSolution=false,
+        mass_start=0.6) annotation (Placement(transformation(extent={{78,64},{98,84}})));
+      Boundaries.Substance p4(
+        useRear=true,
+        useSolution=false,
+        mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
+      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
+            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
+      Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
+      Boundaries.Substance
+                solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{194,24},{214,44}})));
+      Boundaries.Substance s5(
+        useFore=true,
+        useSolution=true,
+        mass_start=0.6) annotation (Placement(transformation(extent={{64,-54},{84,-34}})));
+      Boundaries.Substance p5(
+        useRear=true,
+        useSolution=true,
+        mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));
+      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
+            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
+      Solution solution2 annotation (Placement(transformation(extent={{12,-122},{220,-12}})));
+    equation
+      connect(s2.fore, d2.rear) annotation (Line(
+          points={{-154,30},{-118,30}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(d2.fore, p2.rear) annotation (Line(
+          points={{-98,30},{-66,30}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(s1.fore, d1.rear) annotation (Line(
+          points={{-154,68},{-118,68}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(d1.fore, p1.rear) annotation (Line(
+          points={{-98,68},{-66,68}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(s3.fore, d3.rear) annotation (Line(
+          points={{-150,-44},{-122,-44},{-122,-46},{-114,-46}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(d3.fore, p3.rear) annotation (Line(
+          points={{-94,-46},{-70,-46},{-70,-44},{-62,-44}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(solution.solution, d3.solution) annotation (Line(points={{-55.6,-120.9},{-55.6,-126},{-110,-126},{-110,-56}}, color={127,127,0}));
+      connect(s3.solution, solution.solution) annotation (Line(points={{-166,-54},{-166,-120.9},{-55.6,-120.9}}, color={127,127,0}));
+      connect(p3.solution, solution.solution) annotation (Line(points={{-58,-54},{-58,-126},{-55.6,-126},{-55.6,-120.9}}, color={127,127,0}));
+      connect(s4.fore, d4.rear) annotation (Line(
+          points={{98,74},{126,74},{126,72},{134,72}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(d4.fore, p4.rear) annotation (Line(
+          points={{154,72},{178,72},{178,74},{186,74}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(solution1.solution, d4.solution) annotation (Line(points={{192.4,-2.9},{192.4,-8},{138,-8},{138,62}}, color={127,127,0}));
+      connect(solution1.solution, solvent.solution) annotation (Line(points={{192.4,-2.9},{192.4,-10},{198,-10},{198,24}},     color={127,127,0}));
+      connect(s5.fore, d5.rear) annotation (Line(
+          points={{84,-44},{112,-44},{112,-46},{120,-46}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(d5.fore, p5.rear) annotation (Line(
+          points={{140,-46},{164,-46},{164,-44},{172,-44}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(s5.solution, solution2.solution) annotation (Line(points={{68,-54},{68,-120.9},{178.4,-120.9}}, color={127,127,0}));
+      connect(p5.solution, solution2.solution) annotation (Line(points={{176,-54},{176,-126},{178.4,-126},{178.4,-120.9}}, color={127,127,0}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,-140},{240,140}})), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-240,
+                -140},{240,140}})));
+    end Diffusion;
+
+    model Diffusion2
+      Boundaries.Substance substrateInSolution1(
+        useFore=true,
+        useSolution=false,
+        mass_start=0.5) annotation (Placement(transformation(extent={{-22,42},{-2,62}})));
+      Boundaries.Substance productInSolution1(
+        useRear=true,
+        useSolution=false,
+        mass_start=0.5) annotation (Placement(transformation(extent={{86,40},{106,60}})));
+      Chemical.Processes.Diffusion diffusion3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
+            Chemical.Processes.Internal.Kinetics.fastPotentialLoss) annotation (Placement(transformation(extent={{34,38},{54,58}})));
+      Solution solution1 annotation (Placement(transformation(extent={{-74,-28},{134,82}})));
+      Boundaries.Substance
+                solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{94,0},{114,20}})));
+    equation
+      connect(substrateInSolution1.fore, diffusion3.rear)
+        annotation (Line(
+          points={{-2,52},{26,52},{26,48},{34,48}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(diffusion3.fore, productInSolution1.rear)
+        annotation (Line(
+          points={{54,48},{78,48},{78,50},{86,50}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(solution1.solution, diffusion3.solution) annotation (Line(points={{92.4,-26.9},{92.4,-32},{38,-32},{38,38}}, color={127,127,0}));
+      connect(solution1.solution, solvent.solution) annotation (Line(points={{92.4,-26.9},{92.4,-34},{98,-34},{98,0}}, color={127,127,0}));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{760,100}})), Diagram(coordinateSystem(preserveAspectRatio=false, extent
+              ={{-100,-100},{760,100}})));
+    end Diffusion2;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));
@@ -2937,44 +3063,6 @@ Medium model for the test. Can be anything.
              fillPattern=FillPattern.Solid)}));
   end TransportDelay;
 
-  model Diffusion2 "Solute diffusion"
-    extends Icons.Diffusion;
-    extends Chemical.Interfaces.SISO(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
-    extends Interfaces.ConditionalKinetics(k_forward=1);
-
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter "Substance model of inlet"
-      annotation (choices(
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    replaceable function uLoss =
-        Internal.Kinetics.pleaseSelectPotentialLoss
-      constrainedby
-        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
-      annotation(choicesAllMatching=true, Documentation(info="<html>
-    <p>Electro-chemical potential loss function used in the diffusion.</p>
-</html>"));
-  equation
-    fore.definition = rear.definition;
-    fore.solution = rear.solution;
-
-    du_rear = -uLoss(n_flow,x_fore,rear.solution);
-    du_fore = -uLoss(-n_flow,x_fore,fore.solution);
-
-
-     annotation (                 Documentation(revisions="<html>
-<p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Diffusion of the substance as equilibration of electro-chemical potentials.</p>
-</html>"));
-  end Diffusion2;
   annotation (Documentation(info="<html>
 <u>This package contains models implementing undirected versions of the processes. Here, the thermodynamic state of one or more fluid streams is changed by exchanging heat or work with the streams, or by delaying the state.</u>
 </html>", revisions="<html>

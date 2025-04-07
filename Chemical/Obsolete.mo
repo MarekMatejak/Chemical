@@ -17385,7 +17385,7 @@ end solution_temperature_;
         Chemical.Obsolete.Components.Substance oxygen_unbound(
           substanceData(DfG=GO2aq),
           use_mass_start=false,
-          amountOfSubstance_start=1e-4) annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
+          amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-62,-46},{-42,-26}})));
 
         Chemical.Obsolete.Components.Substance T0(
           substanceData(DfG=GT0),
@@ -17514,14 +17514,14 @@ end solution_temperature_;
           nP=1,
           KC=KC) annotation (Placement(transformation(extent={{10,-92},{30,-72}})));
 
-        Modelica.Blocks.Sources.ContinuousClock clock(offset=10000)
+        Modelica.Blocks.Sources.ContinuousClock clock(offset=10)
           annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=270,
               origin={-84,62})));
         Chemical.Obsolete.Sources.ExternalIdealGasSubstance O2_in_air(
           usePartialPressureInput=true,
-          TotalPressure(displayUnit="Pa") = 101325.0144354,
+          TotalPressure(displayUnit="kPa") = 101325.0144354,
           substanceData=Chemical.Obsolete.Substances.Oxygen_gas(),
           PartialPressure(displayUnit="kPa") = 3733)
           annotation (Placement(transformation(
@@ -17529,8 +17529,7 @@ end solution_temperature_;
               rotation=270,
               origin={-84,22})));
 
-        Chemical.Obsolete.Components.GasSolubility gasSolubility(KC=1000*KC)
-                                                                        annotation (Placement(transformation(extent={{-94,-18},{-74,2}})));
+        Chemical.Obsolete.Components.GasSolubility gasSolubility(KC=KC) annotation (Placement(transformation(extent={{-94,-16},{-74,4}})));
 
         Real sO2;
         Obsolete.Components.Substance substance(substanceData=Obsolete.Substances.Water_liquid(), mass_start=1)
@@ -17546,7 +17545,7 @@ end solution_temperature_;
             points={{-8,54},{-8,46},{0,46}},
             color={107,45,134}));
         connect(R1.port_a,oxyR2. products[1]) annotation (Line(
-            points={{0,46},{0,32},{-11,32}},
+            points={{0,46},{0,32},{-8,32}},
             color={107,45,134}));
         connect(oxyR2.substrates[1],R2. port_a) annotation (Line(
             points={{-10,12},{-10,0},{0,0}},
@@ -17555,28 +17554,28 @@ end solution_temperature_;
             points={{-10,-34},{-10,-44},{0,-44}},
             color={107,45,134}));
         connect(oxyR3.products[1],R2. port_a) annotation (Line(
-            points={{-11,-14},{-11,-7},{0,-7},{0,0}},
+            points={{-8,-14},{-8,-7},{0,-7},{0,0}},
             color={107,45,134}));
         connect(R3.port_a,oxyR4. products[1]) annotation (Line(
-            points={{0,-44},{0,-56},{-11,-56}},
+            points={{0,-44},{0,-56},{-8,-56}},
             color={107,45,134}));
         connect(oxyR4.substrates[1],R4. port_a) annotation (Line(
             points={{-10,-76},{-10,-82},{0,-82}},
             color={107,45,134}));
         connect(oxyT1.products[1],T0. port_a) annotation (Line(
-            points={{45,74},{45,88},{54,88}},
+            points={{42,74},{42,88},{54,88}},
             color={107,45,134}));
         connect(oxyT1.substrates[1],T1. port_a) annotation (Line(
             points={{44,54},{44,46},{54,46}},
             color={107,45,134}));
         connect(T1.port_a,oxyT2. products[1]) annotation (Line(
-            points={{54,46},{54,32},{45,32}},
+            points={{54,46},{54,32},{42,32}},
             color={107,45,134}));
         connect(oxyT3.substrates[1],T3. port_a) annotation (Line(
             points={{44,-34},{44,-44},{54,-44}},
             color={107,45,134}));
         connect(T3.port_a,oxyT4. products[1]) annotation (Line(
-            points={{54,-44},{54,-56},{45,-56}},
+            points={{54,-44},{54,-56},{42,-56}},
             color={107,45,134}));
         connect(oxyT4.substrates[1],T4. port_a) annotation (Line(
             points={{44,-76},{44,-82},{54,-82}},
@@ -17585,7 +17584,7 @@ end solution_temperature_;
             points={{0,88},{4,88}},
             color={107,45,134}));
         connect(R0.port_a,oxyR1. products[1]) annotation (Line(
-            points={{0,88},{0,74},{-9,74}},
+            points={{0,88},{0,74},{-6,74}},
             color={107,45,134}));
         connect(R1.port_a,quaternaryForm1. substrates[1]) annotation (Line(
             points={{0,46},{8,46}},
@@ -17610,41 +17609,41 @@ end solution_temperature_;
             color={107,45,134}));
         connect(oxyR1.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-7,74},{-42,74},{-42,-36}},
+            points={{-10,74},{-42,74},{-42,-36}},
             color={107,45,134}));
         connect(oxyR2.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9,32},{-42,32},{-42,-36}},
+            points={{-12,32},{-42,32},{-42,-36}},
             color={107,45,134}));
         connect(oxyR3.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9,-14},{-42,-14},{-42,-36}},
+            points={{-12,-14},{-42,-14},{-42,-36}},
             color={107,45,134}));
         connect(oxyR4.products[2],oxygen_unbound. port_a)
                                             annotation (Line(
-            points={{-9,-56},{-42,-56},{-42,-36}},
+            points={{-12,-56},{-42,-56},{-42,-36}},
             color={107,45,134}));
         connect(oxygen_unbound.port_a, oxyT1.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,74},{43,74}},
+            points={{-42,-36},{-42,74},{46,74}},
             color={107,45,134}));
         connect(oxygen_unbound.port_a, oxyT2.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,32},{43,32}},
+            points={{-42,-36},{-42,32},{46,32}},
             color={107,45,134}));
         connect(oxygen_unbound.port_a, oxyT3.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,-14},{43,-14}},
+            points={{-42,-36},{-42,-14},{46,-14}},
             color={107,45,134}));
         connect(oxygen_unbound.port_a, oxyT4.products[2])
                                             annotation (Line(
-            points={{-42,-36},{-42,-56},{43,-56}},
+            points={{-42,-36},{-42,-56},{46,-56}},
             color={107,45,134}));
         connect(O2_in_air.port_a, gasSolubility.gas_port) annotation (Line(
-            points={{-84,12},{-84,2}},
+            points={{-84,12},{-84,4}},
             color={158,66,200}));
         connect(gasSolubility.liquid_port, oxygen_unbound.port_a) annotation (Line(
-            points={{-84,-18},{-84,-36},{-42,-36}},
+            points={{-84,-16},{-84,-36},{-42,-36}},
             color={158,66,200}));
         connect(oxygen_unbound.solution, solution.solution) annotation (Line(
             points={{-58,-46},{-58,-64},{-58,-64},{-58,-82},{-16,-82},{-16,-100},
@@ -17684,7 +17683,7 @@ end solution_temperature_;
             points={{44,12},{44,0},{54,0}},
             color={158,66,200}));
         connect(T2.port_a, oxyT3.products[1]) annotation (Line(
-            points={{54,0},{54,-14},{45,-14}},
+            points={{54,0},{54,-14},{42,-14}},
             color={158,66,200}));
         connect(T2.solution, solution.solution) annotation (Line(points={{38,-10},
                 {38,-99.74},{60.8,-99.74}},
@@ -17824,7 +17823,7 @@ end solution_temperature_;
             color={107,45,134}));
         connect(oxygenation_T.products[1], DeoxyTHm.port_a)
                                                annotation (Line(
-            points={{62,-9},{70,-10},{76,-10}},
+            points={{62,-6},{70,-10},{76,-10}},
             color={107,45,134}));
 
         connect(clock.y, oxygen_in_air.partialPressure) annotation (Line(
@@ -17837,7 +17836,7 @@ end solution_temperature_;
             points={{-28,-10},{-39,-10},{-39,-27.8}},
             color={107,45,134}));
         connect(oxygenation_R.products[1], DeoxyRHm.port_a) annotation (Line(
-            points={{-48,-9},{-38,-9},{-38,-10},{-28,-10}},
+            points={{-48,-6},{-38,-6},{-38,-10},{-28,-10}},
             color={107,45,134}));
 
         connect(T0_in_T.subunits, DeoxyTHm.port_a)   annotation (Line(
@@ -17859,10 +17858,10 @@ end solution_temperature_;
 
         for i in 1:4 loop
           connect(oxygenation_T[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{62,-7},{70,-7},{70,16},{18,16}},
+            points={{62,-10},{70,-10},{70,16},{18,16}},
             color={107,45,134}));
           connect(oxygenation_R[i].products[2], oxygen_unbound.port_a) annotation (Line(
-            points={{-48,-7},{-34,-7},{-34,16},{18,16}},
+            points={{-48,-10},{-34,-10},{-34,16},{18,16}},
             color={107,45,134}));
         connect(R0_in_R.subunitSolution, DeoxyRHm[i].solution) annotation (Line(
             points={{-32,-32},{-32,-22},{-12,-22},{-12,-20}},
@@ -20475,89 +20474,4 @@ end solution_temperature_;
       end ElectrochemicalAcetateProduction;
     end ClimateChange;
   end Examples;
-
-  package Icons "Icons for chemical models"
-    //extends Modelica.Icons.IconsPackage;
-    extends Modelica.Icons.Package;
-
-    partial class Diffusion
-
-      annotation (Icon(graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                  "modelica://Chemical/Resources/Icons/diffusion.png")}));
-
-    end Diffusion;
-
-    class Substance
-
-        annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                  "modelica://Chemical/Resources/Icons/Substance.png")}));
-    end Substance;
-
-    class Speciation
-
-      annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                  "modelica://Chemical/Resources/Icons/Speciation.png")}));
-    end Speciation;
-
-    class GasSolubility
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics={Bitmap(extent={{-100,-100},{100,
-                100}},
-                fileName=
-                  "modelica://Chemical/Resources/Icons/GasSolubility.png")}));
-    end GasSolubility;
-
-    class Membrane
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics={Bitmap(extent={{-100,100},{100,-100}},
-                fileName="modelica://Chemical/Resources/Icons/membrane.png")}));
-    end Membrane;
-
-    class EnzymeKinetics
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-                -100},{100,100}}), graphics={Bitmap(extent={{-80,-26},{86,84}},
-                fileName=
-                  "modelica://Chemical/Resources/Icons/EnzymeKinetics.png")}));
-    end EnzymeKinetics;
-
-    class Solution
-
-        annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-            graphics={
-          Line(
-            points={{-98,90},{-94,96},{-84,98},{84,98},{96,96},{100,92},{98,86},
-                {94,80},{94,80},{94,-92},{94,-92},{94,-96},{92,-100},{88,-100},
-                {84,-100},{-84,-100},{-88,-100},{-92,-100},{-94,-96},{-94,-92},
-                {-94,24},{-94,78},{-94,80},{-98,90}},
-            color={127,0,127},
-            smooth=Smooth.Bezier,
-            pattern=LinePattern.Dot,
-            thickness=0.5)}));
-    end Solution;
-
-    class Buffer
-
-        annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                  "modelica://Chemical/Resources/Icons/buffer.png")}));
-    end Buffer;
-
-    class ElectronTransfer
-
-        annotation ( Icon(coordinateSystem(
-              preserveAspectRatio=true, extent={{-100,-100},{100,100}}),
-            graphics={Bitmap(extent={{-100,-100},{100,100}}, fileName=
-                "modelica://Chemical/Resources/Icons/electron.png")}));
-    end ElectronTransfer;
-    annotation (Documentation(revisions=""));
-  end Icons;
 end Obsolete;
