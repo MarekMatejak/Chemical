@@ -1452,7 +1452,7 @@ Choices for initialization of a state h.
         products[2:nP].definition = productsData;
       end if;
       if (nP>0) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
-        products[1].definition = stateOfMatter.firstProductDefinition(processData,substrates.definition,productsData);
+        products[1].definition = stateOfMatter.firstProductDefinition(s,p,processData,substrates.definition,productsData);
       end if;
 
 

@@ -425,6 +425,9 @@ package Interfaces "Chemical interfaces"
    replaceable function firstProductDefinition
        "Return formation definition of the first product of chemical process"
         extends Modelica.Icons.Function;
+    //input
+    input Modelica.Units.SI.StoichiometricNumber s[:] "Stoichiometric reaction coefficient for substrates [nS]";
+    input Modelica.Units.SI.StoichiometricNumber p[:] "Stoichiometric reaction coefficient for products [nP]";
     input SubstanceData processData "Data record of process changes";
     input SubstanceData substratesData[:] "Substrates definitions [nS]";
     input SubstanceData productsData[:] "Other products definitions [nP-1]";
@@ -977,16 +980,16 @@ end solution_temperature_;
        "Return formation definition of the first product of chemical process"
     algorithm
        firstProductDefinition :=  SubstanceDataParameters(
-         MolarWeight = sum(productsData.MolarWeight)-sum(substratesData.MolarWeight),
-         z = sum(productsData.z)-sum(substratesData.z),
-         DfG = sum(productsData.DfG)-sum(substratesData.DfG)-processData.DfG,
-         DfH = sum(productsData.DfH)-sum(substratesData.DfH)-processData.DfH,
+         MolarWeight = ((p[2:end]*productsData.MolarWeight) - (s*substratesData.MolarWeight))/p[1],
+         z = ((p[2:end]*productsData.z) - (s*substratesData.z))/p[1],
+         DfG = ((p[2:end]*productsData.DfG) - (s*substratesData.DfG) - processData.DfG)/p[1],
+         DfH = ((p[2:end]*productsData.DfH) - (s*substratesData.DfH) - processData.DfH)/p[1],
          gamma = 1,
-         Cp = sum(productsData.Cp)-sum(substratesData.Cp)-processData.Cp,
+         Cp = ((p[2:end]*productsData.Cp) - (s*substratesData.Cp) - processData.Cp)/p[1],
          SelfClustering = 0,
          SelfClustering_dH = 0,
          SelfClustering_dS = 0,
-         Vs = sum(productsData.Vs)-sum(substratesData.Vs) - processData.Vs);
+         Vs = ((p[2:end]*productsData.Vs) - (s*substratesData.Vs) - processData.Vs)/p[1]);
     end firstProductDefinition;
 
 
