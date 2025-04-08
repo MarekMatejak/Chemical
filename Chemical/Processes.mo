@@ -1901,8 +1901,6 @@ And K = kf/kb = xB/xA is a dissociation coefficient of the chemical process.
 </p>
 </html>"));
 
-      equation
-
       end classicPotentialLoss;
 
       function fastPotentialLoss "Fast potential loss function"
