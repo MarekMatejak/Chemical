@@ -198,18 +198,14 @@ package Interfaces "Chemical interfaces"
       Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
         "Molar concentration of particles";
 
+      Modelica.Units.SI.MassConcentration M(displayUnit="mg/l")
+            "Mass concentration";
 
-    /*  InputTemperature T
-  "Temperature of the solution";
+      Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
+            "Molality";
 
-  InputPressure p "Pressure of the solution";
+      Modelica.Units.SI.MassFraction X "Mass fraction";
 
-  InputElectricPotential v
-  "Electric potential of the solution";
-
-  InputMoleFraction I
-  "Ionic strength of the solution";
-  */
 
       Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
 
@@ -384,6 +380,12 @@ package Interfaces "Chemical interfaces"
 
       c = amountOfParticles/solutionState.V "concentration [mol/m3]";
 
+      M = amountOfParticles*molarMassOfBaseMolecule(substanceDataVar)/solutionState.V "mass concentration [kg/m3]";
+
+      b = amountOfParticles/solutionState.m "molality [mol/kg]";
+
+      X  = amountOfParticles*molarMassOfBaseMolecule(substanceDataVar)/solutionState.m "mass fraction [kg/kg]";
+
       if SolutionObserverOnly then
         i = 0;
         dV = 0;
@@ -409,6 +411,26 @@ package Interfaces "Chemical interfaces"
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end BaseProperties;
+
+   replaceable function processData
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+        extends Modelica.Icons.Function;
+    input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
+    input Modelica.Units.SI.MolarEnergy dH "Process molar enthalpy change at 25°C,1bar";
+    input Modelica.Units.SI.MolarHeatCapacity dCp "Process molar heat capacity change at 25°C,1bar";
+    input Modelica.Units.SI.SpecificVolume dVs "Process specific volume change at 25°C,1bar";
+    output SubstanceData processData "Data record of process changes";
+   end processData;
+
+   replaceable function firstProductDefinition
+       "Return formation definition of the first product of chemical process"
+        extends Modelica.Icons.Function;
+    input SubstanceData processData "Data record of process changes";
+    input SubstanceData substratesData[:] "Substrates definitions [nS]";
+    input SubstanceData productsData[:] "Other products definitions [nP-1]";
+    output SubstanceData firstProductDefinition "Definition of the first product in process";
+   end firstProductDefinition;
+
 
    replaceable function activityCoefficient
     "Return activity coefficient of the substance in the solution"
@@ -855,6 +877,9 @@ end solution_temperature_;
   package Incompressible "Incompressible as basic state of matter"
     extends StateOfMatter;
 
+    constant Modelica.Units.SI.Temperature T0=298.15;
+    constant Modelica.Units.SI.Pressure p0=100000;
+
     redeclare record extends SubstanceDataParameters "Base substance data"
 
       parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=1 "Molar weight of the substance";
@@ -884,8 +909,8 @@ end solution_temperature_;
       parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
         "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-      parameter Modelica.Units.SI.Density density(displayUnit="kg/dm3") = 1000
-        "Density of the pure substance (default density of water at 25degC)";
+      parameter Modelica.Units.SI.SpecificVolume Vs(displayUnit="dm3/kg") = 0.001
+        "Specific volumt of the pure substance (default 1L/kg)";
 
       //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
       //      "Molar heat capacity of the substance at constant volume";
@@ -916,7 +941,9 @@ end solution_temperature_;
 
       Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-      Modelica.Units.SI.Density density(displayUnit="kg/dm3") "Density of the pure substance (default density of water at 25degC)";
+      Modelica.Units.SI.SpecificVolume Vs(displayUnit="dm3/kg") "Specific volumt of the pure substance (default 1L/kg)";
+
+     // Modelica.Units.SI.Density density(displayUnit="kg/dm3") "Density of the pure substance (default density of water at 25degC)";
 
       annotation (preferredView="info", Documentation(revisions="<html>
 <p><i>2015-2025</i></p>
@@ -929,6 +956,39 @@ end solution_temperature_;
 
     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
     end BaseProperties;
+
+    redeclare function extends processData
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+    algorithm
+      processData :=  SubstanceDataParameters(
+        MolarWeight = 0,
+        z = 0,
+        DfG = -Modelica.Constants.R*T0*log(K),
+        DfH = dH,
+        gamma = 1,
+        Cp = dCp,
+        SelfClustering = 0,
+        SelfClustering_dH = 0,
+        SelfClustering_dS = 0,
+        Vs = dVs);
+    end processData;
+
+    redeclare function extends firstProductDefinition
+       "Return formation definition of the first product of chemical process"
+    algorithm
+       firstProductDefinition :=  SubstanceDataParameters(
+         MolarWeight = sum(productsData.MolarWeight)-sum(substratesData.MolarWeight),
+         z = sum(productsData.z)-sum(substratesData.z),
+         DfG = sum(productsData.DfG)-sum(substratesData.DfG)-processData.DfG,
+         DfH = sum(productsData.DfH)-sum(substratesData.DfH)-processData.DfH,
+         gamma = 1,
+         Cp = sum(productsData.Cp)-sum(substratesData.Cp)-processData.Cp,
+         SelfClustering = 0,
+         SelfClustering_dH = 0,
+         SelfClustering_dS = 0,
+         Vs = sum(productsData.Vs)-sum(substratesData.Vs) - processData.Vs);
+    end firstProductDefinition;
+
 
     redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -987,7 +1047,7 @@ end solution_temperature_;
         "Ionic strengh (mole fraction based)";
       output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
     algorithm
-      molarVolumePure := substanceData.MolarWeight/substanceData.density;
+      molarVolumePure := substanceData.MolarWeight*substanceData.Vs;
       //incompressible
     end molarVolumePure;
 
@@ -1248,7 +1308,7 @@ end solution_temperature_;
      redeclare function extends density
       "Return density of the substance in the solution"
      algorithm
-      density := substanceData.density;
+      density := 1/substanceData.Vs;
      end density;
 
     annotation (Documentation(revisions="<html>
@@ -2169,7 +2229,7 @@ end solution_temperature_;
         annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
     parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
-      annotation (Dialog(enable=(solutionFrom == SolutionChoice.fromParameter)));
+      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.fromParameter)));
 
     Chemical.Interfaces.SolutionPort solution(
         T=solutionState.T,

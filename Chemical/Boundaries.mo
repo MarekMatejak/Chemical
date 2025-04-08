@@ -14,24 +14,26 @@ package Boundaries "Boundary models for undirected chemical simulation"
     import Chemical.Utilities.Types.InitializationUndirectedSubstance;
 
     parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
-      annotation (Evaluate=true, choices(checkBox=true));
+      annotation (HideResult=true, Evaluate=true, choices(checkBox=true));
 
     parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
-      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+      annotation (HideResult=true, Dialog(group="Initialization", enable=use_mass_start));
+  //    HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or (not use_mass_start)
 
     parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
     "Initial amount of substance base molecules"
-      annotation ( Dialog(group="Initialization", enable=(not use_mass_start)));
+      annotation (HideResult=true, Dialog(group="Initialization", enable=(not use_mass_start)));
+      //HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or use_mass_start,
 
     Modelica.Units.SI.Mass mass=n*molarMassOfBaseMolecule "Mass";
 
     parameter InitializationUndirectedSubstance initAmount = Chemical.Utilities.Types.InitializationUndirectedSubstance.state "Initialization"
-      annotation(Dialog(tab="Initialization"));
+      annotation(HideResult=true, Dialog(tab="Initialization"));
 
     parameter Modelica.Units.SI.MolarFlowRate change_start=1
     "Initial molar change of substance base molecules"
-      annotation ( Dialog(tab="Initialization", enable=(initAmount == InitializationMethods.derivative)));
-
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(initAmount == InitializationUndirectedSubstance.derivative)));
+      //HideResult=not (initAmount==Chemical.Utilities.Types.InitializationUndirectedSubstance.derivative),
   protected
 
     Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceDataVar);
@@ -1499,10 +1501,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
-       annotation( Dialog(tab = "Advanced"));
+       annotation(HideResult=true, Dialog(tab = "Advanced"));
 
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
-        annotation (Dialog(tab="Advanced"));
+        annotation(HideResult=true, Dialog(tab="Advanced"));
 
       Chemical.Interfaces.Rear rear(
         redeclare package stateOfMatter = stateOfMatter,
@@ -1523,13 +1525,15 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     //  stateOfMatter.SubstanceData substanceDataVar;
 
+    protected
+
       Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
       Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
 
       Modelica.Units.SI.AmountOfSubstance n
         "Amount of base molecules inside all clusters in compartment";
 
-    protected
+
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
@@ -1609,7 +1613,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
-        annotation (Dialog(enable=not useSolution and not useRear));
+        annotation (HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear));
 
       Chemical.Interfaces.SolutionPort solution(
           T=solutionPortState.T,
@@ -1633,11 +1637,30 @@ package Boundaries "Boundary models for undirected chemical simulation"
             if useSolution "To connect substance with solution, where is pressented"
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
+        Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+            "Concentration";
+        Modelica.Units.SI.MassConcentration M(displayUnit="g/l")
+            "Mass concentration";
+        Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
+            "Molality";
+
+        Modelica.Units.SI.MoleFraction x "Mole fraction";
+        Modelica.Units.SI.MassFraction X "Mass fraction";
+
+
     protected
 
          Chemical.Interfaces.SolutionState solutionPortState;
 
+
+
+
     equation
+      c = substance.c;
+      b = substance.b;
+      M = substance.M;
+      x = substance.x;
+      X = substance.X;
 
       state_out.u = substance.u;
       state_out.h = substance.h;

@@ -62,9 +62,28 @@ Choices for initialization of a&nbsp;state.
           coordinateSystem(preserveAspectRatio=false)),
         Documentation(info="<html>
 <p>
-Choices for selection of a&nbsp;solution state.
+Choices for selection of a&nbsp;chemical solution state.
 </p>
 </html>"));
+
+    type ProductsDefinitionChoice
+                                = enumeration(
+      fromProcessParameters
+        "Firs product is defined by process parameters, others from substancesData",
+      fromProcessEnergies
+        "Firs product is defined by processData, others from substancesData",
+      fromParameter
+        "Chemical substance definition from substancesData (with default values 1kg/mol, 1J/(mol.K), 0J/mol)")
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false)),
+      Diagram(
+        coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<p>
+Choices for selection of a&nbsp;products definition.
+</p>
+</html>"));
+
   end Types;
 
   package Internal "Internal helper functions and models for the undirected themofluid simulation."

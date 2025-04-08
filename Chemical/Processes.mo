@@ -1,45 +1,42 @@
 within Chemical;
 package Processes "Undirected process package"
   model Reaction "Chemical Reaction"
-    extends Chemical.Processes.Internal.PartialReactionWithSubstanceData;
+    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.fromParameter else SolutionChoice.fromSubstrate);
-    extends Chemical.Interfaces.ConditionalKinetics
-                                          (k_forward=1);
-
+    extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
     import Chemical.Utilities.Types.SolutionChoice;
 
-    Real rr_fore_exact,rr_rear_exact,  kb;
-
-    replaceable function uLoss =
-        Internal.Kinetics.pleaseSelectPotentialLoss
+    replaceable function uLoss = Chemical.Processes.Internal.Kinetics.classicPotentialLoss
       constrainedby
         Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
 
-    Real du_fore_,du_rear_;
+    //Real rr_fore_exact,rr_rear_exact,  kb;
+
   equation
 
-    connect(substrates[1].solution,inputSubstrateSolution);
-
-
-    du_fore_ = -uLoss(rr,Sx_fore,solutionState);
-  //  if nS>0 then
-      du_rear_ = -uLoss(-rr,Px_rear,solutionState);
-  //  end if;
-
-    rr = kf * Sx_fore * ( 1  -  exp(-duRT_fore));
+    //chemical kinetics
+    du_fore = -uLoss(rr,kf,Sx_fore,solutionState);
     if nS>0 then
-      rr = -kb * Px_rear * ( 1  -  exp(duRT_rear));
+      du_rear = -uLoss(-rr,Kx*kf,Px_rear,solutionState);
     end if;
 
-    Kx = kb/kf;
+    //chemical solution and its propagation
+    connect(substrates[1].solution,inputSubstrateSolution);
+    if nS>0 then
+      products.solution = fill(solutionState,nP);
+    end if;
 
-    //the same as:
+
+  /*  Kx = kb/kf;
+
+  //the same as:
     rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
-    rr_rear_exact = (kf*Sx_rear - kb*Px_rear);
+    rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
+*/
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -138,7 +135,7 @@ package Processes "Undirected process package"
   extends Modelica.Icons.Package;
 
   model ForwardReaction "Chemical Reaction"
-    extends Internal.PartialReactionWithSubstanceData;
+    extends Internal.PartialReactionWithProductsDefinition;
     extends Chemical.Interfaces.ConditionalKinetics
                                           (k_forward=1);
 
@@ -246,7 +243,7 @@ package Processes "Undirected process package"
   end ForwardReaction;
 
   model FastReaction "Chemical Reaction"
-    extends Chemical.Processes.Internal.PartialReactionWithSubstanceData;
+    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
 
     parameter Real kC = 1;
 
@@ -255,7 +252,7 @@ package Processes "Undirected process package"
 
     rr = kC * du_fore;
     if nS>0 then
-      rr = kC * du_rear;
+      rr = -kC * du_rear;
     end if;
 
     annotation (
@@ -366,7 +363,7 @@ package Processes "Undirected process package"
 
     rr = kC * du_fore;
     if nS>0 then
-      rr = kC * du_rear;
+      rr = -kC * du_rear;
     end if;
 
     products.definition = productsSubstanceData;
@@ -492,6 +489,8 @@ package Processes "Undirected process package"
     extends Icons.Diffusion;
     extends Chemical.Interfaces.SISO(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.ConditionalKinetics
+                                          (k_forward=1);
 
     import Chemical.Utilities.Types.SolutionChoice;
 
@@ -522,8 +521,8 @@ package Processes "Undirected process package"
     connect(rear.solution,inputSubstrateSolution);
 
 
-    du_rear = -uLoss(n_flow,x_fore,rear.solution);
-    du_fore = -uLoss(-n_flow,x_fore,fore.solution);
+    du_rear = -uLoss(n_flow,kf,x_fore,rear.solution);
+    du_fore = -uLoss(-n_flow,kf,x_rear,fore.solution);
 
      annotation (                 Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1414,18 +1413,49 @@ package Processes "Undirected process package"
 Choices for initialization of a state h.
 </u>
 </html>"));
-    partial model PartialReactionWithSubstanceData "Chemical Reaction"
+    partial model PartialReactionWithProductsDefinition "Chemical Reaction"
       extends Chemical.Processes.Internal.PartialReaction;
 
-      parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP] "Array of products definitions"
-       annotation (choicesAllMatching = true);
+      import Chemical.Utilities.Types.ProductsDefinitionChoice;
+
+      parameter ProductsDefinitionChoice productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters
+                                                                                                           "Choice of products definition"
+          annotation(HideResult=true, Dialog(group="Conditional inputs"));
+
+      parameter stateOfMatter.SubstanceDataParameters productsData[nP] "Array of products definitions"
+       annotation (choicesAllMatching = true, Dialog(group="Process definition",enable=((productsFrom == ProductsDefinitionChoice.fromParameter) or (nP>1))));
+
+
+      parameter stateOfMatter.SubstanceDataParameters processData = stateOfMatter.processData(K,dH,dCp,dVs)
+       "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+       annotation (Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessEnergies)));
+
+
+      parameter Real K=1 "Process dissociation constant at 25°C,1bar"
+       annotation (HideResult=true, Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+      parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
+       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+      parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
+       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+      parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
+       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
 
     equation
 
-      products.definition = productsSubstanceData;
-      if nS>0 then
-        products.solution = fill(substrates[1].solution,nP);
+      if (productsFrom == ProductsDefinitionChoice.fromParameter) then
+        products.definition = productsData;
       end if;
+      if (nP>1) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
+        products[2:nP].definition = productsData;
+      end if;
+      if (nP>0) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
+        products[1].definition = stateOfMatter.firstProductDefinition(processData,substrates.definition,productsData);
+      end if;
+
+
 
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -1501,11 +1531,12 @@ Choices for initialization of a state h.
 </tr>
 </table>
 </html>"));
-    end PartialReactionWithSubstanceData;
+    end PartialReactionWithProductsDefinition;
 
     partial model PartialReaction "Chemical Reaction"
       import Chemical;
       import Chemical.Utilities.Types.InitializationMethods;
+
 
       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
       "Substance model to translate data into substance properties"
@@ -1520,17 +1551,17 @@ Choices for initialization of a state h.
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
       parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-        annotation(Dialog(tab="Advanced"));
+        annotation(HideResult=true, Dialog(tab="Advanced"));
       parameter InitializationMethods initN_flow =Chemical.Utilities.Types.InitializationMethods.none  "Initialization method for n_flow"
-        annotation(Dialog(tab= "Initialization", group="Molar flow"));
+        annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow"));
       parameter Modelica.Units.SI.MolarFlowRate n_flow_0 = 0 "Initial value for n_flow"
-        annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
+        annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
       parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
-        annotation(Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
+        annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
 
-      parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+      parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (HideResult=true, Dialog(tab="Advanced"));
       parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
-        annotation(Dialog(tab="Advanced"));
+        annotation(HideResult=true, Dialog(tab="Advanced"));
 
       parameter Integer nS=0 "Number of substrate types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
@@ -1564,17 +1595,17 @@ Choices for initialization of a state h.
             rotation=180,
             origin={100,0})));
 
+    protected
+
       Modelica.Units.SI.MolarEnthalpy h_fore_mix, h_rear_mix;
 
       Real duRT_fore, duRT_rear, du_fore, du_rear, dr, Sx_fore,Px_rear,Kx;
 
       Modelica.Units.SI.ChemicalPotential uPure_substrates[nS];
       Modelica.Units.SI.ChemicalPotential uPure_products[nP];
-    protected
       outer DropOfCommons dropOfCommons;
 
-    public
-        //debug only:
+
       Real Px_fore,Sx_rear;
 
     initial equation
@@ -1589,10 +1620,10 @@ Choices for initialization of a state h.
     equation
 
       du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
-      du_rear = (s * substrates.state_rearwards.u) - (p * products.state_rearwards.u);
+      du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
 
       duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution.T))));
-      duRT_rear = ((s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution.T))) - (p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution.T))));
+      duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution.T))));
 
       for i in 1:nS loop
        uPure_substrates[i] = stateOfMatter.electroChemicalPotentialPure(
@@ -1837,6 +1868,7 @@ be used as a default.
         extends Modelica.Icons.Function;
 
         input Modelica.Units.SI.MolarFlowRate n_flow "Molar flow rate";
+        input Real kf "Forward rate coefficient";
         input Modelica.Units.SI.MoleFraction x "Substrates mole fraction product";
         input Chemical.Interfaces.SolutionState solutionState "Solution state";
 
@@ -1851,13 +1883,11 @@ be used as a default.
       function classicPotentialLoss "Classical potential loss function"
         extends partialPotentialLoss;
 
-        input Real kf(unit="Pa.s/kg") = 1 "Forward rate coeeficient"
-          annotation(Dialog(enable=true));
-
+       // input Real kf(unit="Pa.s/kg") = 1 "Forward rate coeeficient"
       algorithm
         potentialLoss := Modelica.Constants.R*solutionState.T*log(1-n_flow/(kf*x));
-
-        annotation (Documentation(info="<html>
+          annotation(Dialog(enable=true),
+                    Documentation(info="<html>
 <p>
 This Gibbs energy loss du to reach chemical process molar flow q: 
 </p>
@@ -1870,6 +1900,9 @@ xA is mole fraction os substrate and xB is mole fraction of product.
 And K = kf/kb = xB/xA is a dissociation coefficient of the chemical process.
 </p>
 </html>"));
+
+      equation
+
       end classicPotentialLoss;
 
       function fastPotentialLoss "Fast potential loss function"
@@ -1960,6 +1993,36 @@ du := n_flow/kC;
 </html>"));
     end TestFlowResistance;
 
+    model SimpleReaction0
+      constant Real K = 2 "Dissociation constant of the reaction";
+
+      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+      constant Real R = Modelica.Constants.R "Gas constant";
+      Chemical.Processes.Reaction reaction(
+        solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
+        productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
+        redeclare function uLoss = Chemical.Processes.Internal.Kinetics.classicPotentialLoss,
+        nS=1,
+        nP=1) annotation (Placement(transformation(extent={{-10,14},{10,34}})));
+      Chemical.Boundaries.Substance substance(useFore=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.9)                        annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
+      Chemical.Boundaries.Substance substance1(useRear=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.1)                         annotation (Placement(transformation(extent={{48,12},{68,32}})));
+      inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
+    equation
+      connect(substance.fore, reaction.substrates[1]) annotation (Line(
+          points={{-50,24},{-10,24}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(reaction.products[1], substance1.rear) annotation (Line(
+          points={{10,24},{40,24},{40,22},{48,22}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation();
+    end SimpleReaction0;
+
     model SimpleReaction "The simple chemical reaction A<->B with equilibrium B/A = 2"
       import Chemical;
       import Chemical;
@@ -1979,8 +2042,8 @@ du := n_flow/kC;
         use_mass_start=false,
         amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
-      Chemical.Processes.FastReaction
-               fastReaction(
+      Chemical.Processes.Reaction
+               reaction(
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
@@ -1993,15 +2056,15 @@ du := n_flow/kC;
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
     equation
       connect(A.solution, solution.solution) annotation (Line(
-          points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
+          points={{-48,-8},{-48,-86},{60,-86},{60,-98}},
           color={127,127,0}));
-      connect(B.solution, solution.solution) annotation (Line(points={{46,-8},{46,-92},{60,-92},{60,-98}},
+      connect(B.solution, solution.solution) annotation (Line(points={{46,-8},{46,-86},{60,-86},{60,-98}},
                                          color={127,127,0}));
-      connect(A.fore, fastReaction.substrates[1]) annotation (Line(
+      connect(A.fore, reaction.substrates[1]) annotation (Line(
           points={{-32,2},{-10,2}},
           color={158,66,200},
           thickness=0.5));
-      connect(fastReaction.products[1], B.rear) annotation (Line(
+      connect(reaction.products[1], B.rear) annotation (Line(
           points={{10,2},{42,2}},
           color={158,66,200},
           thickness=0.5));
@@ -2813,6 +2876,8 @@ Medium model for the test. Can be anything.
     end EnzymeKinetics;
 
     model Diffusion
+      extends Modelica.Icons.Example;
+
       Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
       Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
       Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
@@ -2906,39 +2971,10 @@ Medium model for the test. Can be anything.
       connect(s5.solution, solution2.solution) annotation (Line(points={{68,-54},{68,-120.9},{178.4,-120.9}}, color={127,127,0}));
       connect(p5.solution, solution2.solution) annotation (Line(points={{176,-54},{176,-126},{178.4,-126},{178.4,-120.9}}, color={127,127,0}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,-140},{240,140}})), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-240,
-                -140},{240,140}})));
+                -140},{240,140}})),
+        experiment(StopTime=1, __Dymola_Algorithm="Dassl"));
     end Diffusion;
 
-    model Diffusion2
-      Boundaries.Substance substrateInSolution1(
-        useFore=true,
-        useSolution=false,
-        mass_start=0.5) annotation (Placement(transformation(extent={{-22,42},{-2,62}})));
-      Boundaries.Substance productInSolution1(
-        useRear=true,
-        useSolution=false,
-        mass_start=0.5) annotation (Placement(transformation(extent={{86,40},{106,60}})));
-      Chemical.Processes.Diffusion diffusion3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
-            Chemical.Processes.Internal.Kinetics.fastPotentialLoss) annotation (Placement(transformation(extent={{34,38},{54,58}})));
-      Solution solution1 annotation (Placement(transformation(extent={{-74,-28},{134,82}})));
-      Boundaries.Substance
-                solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{94,0},{114,20}})));
-    equation
-      connect(substrateInSolution1.fore, diffusion3.rear)
-        annotation (Line(
-          points={{-2,52},{26,52},{26,48},{34,48}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(diffusion3.fore, productInSolution1.rear)
-        annotation (Line(
-          points={{54,48},{78,48},{78,50},{86,50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(solution1.solution, diffusion3.solution) annotation (Line(points={{92.4,-26.9},{92.4,-32},{38,-32},{38,38}}, color={127,127,0}));
-      connect(solution1.solution, solvent.solution) annotation (Line(points={{92.4,-26.9},{92.4,-34},{98,-34},{98,0}}, color={127,127,0}));
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{760,100}})), Diagram(coordinateSystem(preserveAspectRatio=false, extent
-              ={{-100,-100},{760,100}})));
-    end Diffusion2;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));
