@@ -118,10 +118,12 @@ operator record Definition "Definition of a chemical substance or a chemical pro
    end substract;
   end '-';
 
-  encapsulated operator function '*'
+  encapsulated operator '*'
     import Definition=Chemical.Definition;
     import DataRecord=Modelica.Media.IdealGases.Common.DataRecord;
     constant Real R=1.380649e-23*6.02214076e23;
+
+  function scalar
     input Real n=1 "Stoichiometric coefficient";
     input Definition d;
     output Definition result " = n * d";
@@ -140,6 +142,29 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           R_s=R/(n*d.data.MM)),
         z=n*d.z);
         annotation (Inline=true);
+  end scalar;
+
+  function vector
+    input Real[:] n "Stoichiometric coefficients";
+    input Definition[:] d;
+    output Definition result " = n * d";
+  algorithm
+    result :=Definition(
+        data=DataRecord(
+          name="n*d",
+          MM=n*d.data.MM,
+          Hf=n*d.data.Hf,
+          H0=n*d.data.H0,
+          Tlimit=d[1].data.Tlimit,
+          alow={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.alow[j] for i in 1:size(n,1)}) for j in 1:7},
+          blow={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.blow[j] for i in 1:size(n,1)}) for j in 1:2},
+          ahigh={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.ahigh[j] for i in 1:size(n,1)}) for j in 1:7},
+          bhigh={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.bhigh[j] for i in 1:size(n,1)}) for j in 1:2},
+          R_s=R/(n*d.data.MM)),
+        z=n*d.z);
+        annotation (Inline=true);
+  end vector;
   end '*';
+
 
 end Definition;

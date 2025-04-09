@@ -5592,7 +5592,10 @@ extends Modelica.Icons.ExamplesPackage;
 
       parameter Definition H2O(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2O, z=0);
 
-      parameter Definition Reaction = H2O - H2 - 0.5*O2;
+      parameter Real s[2] = {1,0.5};
+      parameter Definition S[2] = {H2,O2};
+
+      Definition Reaction = H2O - (s*S); //- H2 - 0.5*O2;
 
       Definition H2O_restored = H2 + 0.5*O2 + Reaction;
 
