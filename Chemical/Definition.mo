@@ -9,7 +9,7 @@ operator record Definition "Definition of a chemical substance or a chemical pro
   encapsulated operator 'constructor'
     import Definition=Chemical.Definition;
     import DataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-    constant Real R=8.314;
+    constant Real R=1.380649e-23*6.02214076e23;
 
     function fromDataRecord
       input DataRecord data;
@@ -51,7 +51,7 @@ operator record Definition "Definition of a chemical substance or a chemical pro
   encapsulated operator function '+'
     import Definition=Chemical.Definition;
     import DataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-    constant Real R=8.314;
+    constant Real R=1.380649e-23*6.02214076e23;
     input Definition d1;
     input Definition d2;
     output Definition result " = d1 + d2";
@@ -75,7 +75,7 @@ operator record Definition "Definition of a chemical substance or a chemical pro
   encapsulated operator '-'
     import Definition=Chemical.Definition;
     import DataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-    constant Real R=8.314;
+    constant Real R=1.380649e-23*6.02214076e23;
    function negate
      input Definition d;
      output Definition result " = - d";
@@ -121,7 +121,7 @@ operator record Definition "Definition of a chemical substance or a chemical pro
   encapsulated operator function '*'
     import Definition=Chemical.Definition;
     import DataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-    constant Real R=8.314;
+    constant Real R=1.380649e-23*6.02214076e23;
     input Real n=1 "Stoichiometric coefficient";
     input Definition d;
     output Definition result " = n * d";
