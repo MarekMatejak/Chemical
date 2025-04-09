@@ -21,6 +21,7 @@ extends Modelica.Icons.ExamplesPackage;
     Processes.Reaction reaction(
       productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
+      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
       nS=1,
       nP=1) annotation (Placement(transformation(extent={{-8,-8},{12,12}})));
     Chemical.Boundaries.Substance B(
@@ -31,6 +32,25 @@ extends Modelica.Icons.ExamplesPackage;
       useRear=true) annotation (Placement(transformation(extent={{42,-8},{62,12}})));
 
     inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
+    Chemical.Boundaries.Substance A1(
+      useFore=true,
+      useSolution=true,
+      use_mass_start=false,
+      amountOfSubstance_start=0.1)                                          annotation (Placement(transformation(extent={{-64,34},{-44,54}})));
+    Chemical.Processes.Reaction
+                       reaction1(
+      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(1/K))},
+      k_forward=1/K,
+      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
+      nS=1,
+      nP=1) annotation (Placement(transformation(extent={{-18,34},{2,54}})));
+    Chemical.Boundaries.Substance B1(
+      useSolution=true,
+      useFore=false,
+      use_mass_start=false,
+      amountOfSubstance_start=0.9,
+      useRear=true) annotation (Placement(transformation(extent={{30,34},{50,54}})));
   equation
     connect(A.solution, solution.solution) annotation (Line(
         points={{-48,-8},{-48,-92},{60,-92},{60,-98}},
@@ -43,6 +63,16 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(reaction.products[1], B.rear) annotation (Line(
         points={{12,2},{42,2}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(A1.solution, solution.solution) annotation (Line(points={{-60,34},{-104,34},{-104,-108},{60,-108},{60,-98}}, color={127,127,0}));
+    connect(B1.solution, solution.solution) annotation (Line(points={{34,34},{104,34},{104,-108},{60,-108},{60,-98}}, color={127,127,0}));
+    connect(A1.fore, reaction1.substrates[1]) annotation (Line(
+        points={{-44,44},{-18,44}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(reaction1.products[1], B1.rear) annotation (Line(
+        points={{2,44},{30,44}},
         color={158,66,200},
         thickness=0.5));
     annotation (Documentation(revisions="<html>
@@ -448,12 +478,13 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=1,
       useRear=true) annotation (Placement(transformation(extent={{-34,-8},{-14,12}})));
-    Processes.FastReaction      fastReaction(
+    Chemical.Processes.Reaction reaction(
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas",
       p={2},
       s={1,2},
       productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
       productsData={Chemical.Substances.Water_gas()},
+      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
       nS=2,
       nP=1) annotation (Placement(transformation(extent={{-68,-8},{-48,12}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
@@ -498,21 +529,21 @@ extends Modelica.Icons.ExamplesPackage;
   connect(idealGas.bottom, fixed1.flange) annotation (Line(
       points={{-58,-51},{-58,-56}},
       color={0,127,0}));
-    connect(O2_gas.fore, fastReaction.substrates[1])
+    connect(O2_gas.fore, reaction.substrates[1])
       annotation (Line(
         points={{-80,20},{-74,20},{-74,1.75},{-68,1.75}},
         color={158,66,200},
         thickness=0.5));
-    connect(H2_gas.fore, fastReaction.substrates[2])
+    connect(H2_gas.fore, reaction.substrates[2])
       annotation (Line(
         points={{-76,-16},{-74,-16},{-74,2.25},{-68,2.25}},
         color={158,66,200},
         thickness=0.5));
-    connect(fastReaction.products[1], H2O_gas.rear) annotation (Line(
+    connect(reaction.products[1], H2O_gas.rear) annotation (Line(
         points={{-48,2},{-34,2}},
         color={158,66,200},
         thickness=0.5));
-    annotation ( experiment(StopTime=0.0009, __Dymola_Algorithm="Dassl"),
+    annotation ( experiment(StopTime=0.00082, __Dymola_Algorithm="Dassl"),
                                          Documentation(info="<html>
 <p>The gaseous reaction of hydrogen combustion: </p>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -528,6 +559,115 @@ extends Modelica.Icons.ExamplesPackage;
 </html>"),
       Diagram(coordinateSystem(extent={{-120,-100},{120,100}})));
   end HydrogenCombustion;
+
+  model HydrogenCombustionMSL "Hydrogen combustion in piston"
+    import Chemical;
+    extends Modelica.Icons.Example;
+
+    parameter Modelica.Units.SI.Volume V=0.001 "Initial volume";
+   // parameter Modelica.SIunits.Pressure p=100000 "Initial pressure";
+    parameter Modelica.Units.SI.Temperature T=298.15
+      "Initial temperature";
+
+    parameter Modelica.Units.SI.Area A=0.01 "Cross area of cylinder";
+
+    //p*V=n*R*T
+    // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
+    //   "Initial amount of substances in sulution";
+                     // AmbientPressure=p)
+    //  volume_start=V,
+
+    inner DropOfCommons dropOfCommons         annotation (Placement(transformation(extent={{52,64},{72,84}})));
+    Chemical.Solution idealGasMSL(
+      SurfaceArea=A,
+      useMechanicPorts=true,
+      useThermalPort=true,
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL") annotation (Placement(transformation(extent={{-100,-52},{0,48}})));
+    Chemical.Boundaries.Substance H2_gas1(
+      useFore=true,
+      useSolution=true,
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL",
+      substanceData=Chemical.Substances.IdealGasesMSL.H2(),
+      use_mass_start=false,
+      amountOfSubstance_start=26) annotation (Placement(transformation(extent={{-88,-28},{-68,-8}})));
+    Chemical.Boundaries.Substance O2_gas1(
+      useFore=true,
+      useSolution=true,
+      substanceData=Chemical.Substances.IdealGasesMSL.O2(),
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL",
+      use_mass_start=false,
+      amountOfSubstance_start=13) annotation (Placement(transformation(extent={{-92,8},{-72,28}})));
+    Chemical.Boundaries.Substance H2O_gas1(
+      useSolution=true,
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL",
+      use_mass_start=false,
+      amountOfSubstance_start=1,
+      useRear=true) annotation (Placement(transformation(extent={{-26,-10},{-6,10}})));
+    Chemical.Processes.Reaction reaction1(
+      redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL",
+      p={2},
+      s={1,2},
+      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsData={Chemical.Substances.IdealGasesMSL.H2O()},
+      processData=Chemical.Interfaces.IdealGasMSL.SubstanceDataParameters(),
+      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
+      nS=2,
+      nP=1) annotation (Placement(transformation(extent={{-60,-10},{-40,10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring1(c=1e6)
+                                                                     annotation (
+        Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=90,
+          origin={-50,62})));
+    Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor1(G=200000)
+      annotation (Placement(transformation(extent={{-86,-82},{-66,-62}})));
+    Modelica.Thermal.HeatTransfer.Sources.FixedTemperature coolerTemperature1(T=298.15)
+      annotation (Placement(transformation(extent={{-10,-82},{-30,-62}})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed2
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}},
+          rotation=180,
+          origin={-50,76})));
+    Modelica.Mechanics.Translational.Components.Fixed fixed3
+      annotation (Placement(transformation(extent={{-60,-68},{-40,-48}})));
+  equation
+    connect(H2_gas1.solution, idealGasMSL.solution) annotation (Line(points={{-84,-28},{-20,-28},{-20,-51}}, color={127,127,0}));
+    connect(O2_gas1.solution, idealGasMSL.solution) annotation (Line(points={{-88,8},{-92,8},{-92,-28},{-20,-28},{-20,-51}}, color={127,127,0}));
+    connect(H2O_gas1.solution, idealGasMSL.solution) annotation (Line(points={{-22,-10},{-22,-28},{-20,-28},{-20,-51}}, color={127,127,0}));
+    connect(idealGasMSL.surfaceFlange, spring1.flange_a) annotation (Line(points={{-50,48},{-50,52}}, color={0,127,0}));
+    connect(idealGasMSL.heatPort, thermalConductor1.port_a) annotation (Line(points={{-80,-53},{-80,-58},{-98,-58},{-98,-72},{-86,-72}}, color={191,0,0}));
+    connect(thermalConductor1.port_b, coolerTemperature1.port) annotation (Line(points={{-66,-72},{-30,-72}}, color={191,0,0}));
+    connect(fixed2.flange, spring1.flange_b) annotation (Line(points={{-50,76},{-50,72}}, color={0,127,0}));
+    connect(idealGasMSL.bottom, fixed3.flange) annotation (Line(points={{-50,-53},{-50,-58}}, color={0,127,0}));
+    connect(O2_gas1.fore, reaction1.substrates[1])
+      annotation (Line(
+        points={{-72,18},{-66,18},{-66,-0.25},{-60,-0.25}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H2_gas1.fore, reaction1.substrates[2])
+      annotation (Line(
+        points={{-68,-18},{-66,-18},{-66,0.25},{-60,0.25}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(reaction1.products[1], H2O_gas1.rear) annotation (Line(
+        points={{-40,0},{-26,0}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation ( experiment(StopTime=0.00082, __Dymola_Algorithm="Dassl"),
+                                         Documentation(info="<html>
+<p>The gaseous reaction of hydrogen combustion: </p>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p align=\"center\"><b>2 H<sub>2</sub> + O<sub>2</sub> &lt;-&gt; 2 H<sub>2</sub>O</b></p></td>
+<td><p>(1)</p></td>
+</tr>
+</table>
+<p><br>This reaction generates a large amount of energy which can be used for mechanical or thermal purposes. </p>
+<p>Building this model using the Chemical library components is easy. First, we drag and drop the library class &lsquo;Components.Solution&rsquo; into the diagram of our new model, labeled &lsquo;idealGas&rsquo; in Figure 4. In parameter dialog of this solution we check &ldquo;useThermalPorts&rdquo; and &ldquo;useMechanicsPorts&rdquo; to enable the thermal and mechanical interface. In the same dialog we need to set the area of the piston (e.g., 1 dm<sup>2</sup>), where the pressure provides the force of the green mechanical port of the uppermost side. The next parameter is the ambient external pressure surrounding the system (e.g., 1 bar). All three chemical substances of the reaction (1) can be added by dragging and dropping the library class &lsquo;Components.Substance&rsquo;. Because this model uses gases, the state of matter must be changed to some gas, such as the ideal gas prepared as &lsquo;Interfaces.IdealGas&rsquo;. The substance data must be selected to define the appropriate substances such as &lsquo;Hydrogen_gas&rsquo;, &lsquo;.Oxygen_gas&rsquo; and &lsquo;.Water_gas&rsquo; in package &lsquo;Examples.Substances&rsquo;. In addition, the initial amounts of substances can be prepared for the ideal solution of hydrogen and oxygen gases at a ratio 2:1 to attain the chemical equation above, with the expectation that at the end of the burning process, only water vapor would be presented. Therefore, the initial values of H<sub>2</sub> particles could be set to 26 mmol and of O<sub>2</sub> particles as 13 mmol. All substances must be connected with the &lsquo;idealGas&rsquo; using the blue colored solution port situated on the bottom side of each substance and solution. Then, the chemical reaction is inserted into the diagram of this model as library class &lsquo;Components.Reaction&rsquo;, and it is set to two substrates (nS=2) with stoichiometry s={2,1} and one product with stoichiometry p={2} to represent the reaction (3). The substances are then connected using violet colored substance connectors with appropriate indexes: H<sub>2</sub> to substrates[1], O<sub>2</sub> to substrates[2] and H<sub>2</sub>O to products[1]. At this point, the model is prepared to simulate the conditions of an unconnected heat port and an unconnected mechanical port. This simulation reaches the theoretical ideal of thermally isolated (zero heat flow from/to the solution) and isobaric (zero force generated on piston) conditions. </p>
+<p><br><img src=\"modelica://Chemical/Resources/Images/Examples/HydrogenBurning.png\"/></p>
+<p><font style=\"color: #222222; \">Mueller, M. A., Kim, T. J., Yetter, R. A., &amp; Dryer, F. L. (1999). Flow reactor studies and kinetic modeling of the H2/O2 reaction.&nbsp;<i>International Journal of Chemical Kinetics</i>,&nbsp;<i>31</i>(2), 113-125.</font></p>
+<p><br>However, in the real world, there is always some thermal energy flow from the solution, and this cooling process can be connected using the thermal connector of the Modelica Standard Library 3.2.1. For example, the simple thermal conductor of thermal conductance 2W/K at a constant temperature environment of 25&deg;C is represented in the model. The mechanical power of the engine can be connected to the robust mechanical model. However, in our example we selected only a very strong mechanical spring with a spring constant of 10<sup>6</sup> N/m to stop the motion of the piston in order to generate the pressure. This standard spring component is situated above the solution in the model diagram. The results of this experiment are shown in Figure 1. </p>
+</html>"),
+      Diagram(coordinateSystem(extent={{-120,-100},{120,100}})));
+  end HydrogenCombustionMSL;
 
   model WaterVaporization "Evaporation of water"
     import Chemical;
@@ -1130,13 +1270,15 @@ extends Modelica.Icons.ExamplesPackage;
 
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
     Chemical.Boundaries.Substance P(
-        useSolution=true,
       useRear=true,
       useSolution=true,
       mass_start=1e-8,
-      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
+      amountOfSubstance_start=1e-8,
+      initAmount=Chemical.Utilities.Types.InitializationUndirectedSubstance.none)
+                                    annotation (Placement(transformation(extent={{72,-12},{92,8}})));
 
     Chemical.Boundaries.Substance S(
+      useFore=true,
         useSolution=true,use_mass_start=false, amountOfSubstance_start=100) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
 
     parameter Modelica.Units.SI.AmountOfSubstance tE=1
@@ -1152,11 +1294,13 @@ extends Modelica.Icons.ExamplesPackage;
       "Maximal molar flow";
 
     Chemical.Boundaries.Substance ES(
+      useFore=true,
         useSolution=true,
       useRear=true,
       mass_start=tE/2,
       amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
     Chemical.Boundaries.Substance E(
+      useFore=true,
         useSolution=true,
       useRear=true,
       mass_start=tE/2,
@@ -1169,15 +1313,18 @@ extends Modelica.Icons.ExamplesPackage;
       nS=2) annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
 
     Processes.ForwardReaction   chemicalReaction1(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=1e-6,
       k_forward=k_cat,
       productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
           Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
       nS=1,
-      nP=2) annotation (Placement(transformation(extent={{24,-12},{44,8}})));
+      nP=2) annotation (Placement(transformation(extent={{28,-10},{48,10}})));
 
-    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
-      annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
+    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(),
+      useSolution=true,                                                                mass_start=1)
+      annotation (Placement(transformation(extent={{44,-80},{64,-60}})));
     inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
   equation
     //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
@@ -1193,20 +1340,20 @@ extends Modelica.Icons.ExamplesPackage;
     connect(P.solution, solution.solution) annotation (Line(
         points={{76,-12},{76,-98},{60,-98}},
         color={127,127,0}));
-    connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-            46,-80},{46,-98},{60,-98}}, color={127,127,0}));
+    connect(liquidWater.solution, solution.solution) annotation (Line(points={{48,-80},{48,-98},{60,-98}},
+                                        color={127,127,0}));
     connect(ES.fore, chemicalReaction1.substrates[1]) annotation (Line(
-        points={{12,0},{16,0},{16,-2},{24,-2}},
+        points={{12,0},{28,0}},
         color={158,66,200},
         thickness=0.5));
     connect(chemicalReaction1.products[1], P.rear)
       annotation (Line(
-        points={{44,-2.25},{58,-2.25},{58,-2},{72,-2}},
+        points={{48,-0.25},{58,-0.25},{58,-2},{72,-2}},
         color={200,66,175},
         thickness=0.5));
     connect(chemicalReaction1.products[2], E.rear)
       annotation (Line(
-        points={{44,-1.75},{60,-1.75},{60,46},{10,46}},
+        points={{48,0.25},{60,0.25},{60,46},{10,46}},
         color={200,66,175},
         thickness=0.5));
     connect(chemicalReaction.products[1], ES.rear) annotation (Line(
@@ -1574,12 +1721,14 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
 
     Chemical.Boundaries.Substance Pb(
+      useFore=true,
         useSolution=true,
       substanceData=Chemical.Substances.Lead_solid(),
       use_mass_start=false,
       amountOfSubstance_start=50) annotation (Placement(transformation(extent={{52,-66},{32,-46}})));
 
     Chemical.Boundaries.Substance HSO4(
+      useFore=true,
         useSolution=true,
       substanceData=Chemical.Substances.HydrogenSulfate_aqueous(),
       use_mass_start=false,
@@ -1596,25 +1745,25 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start(displayUnit="mol") = 0.001,
       useRear=true) annotation (Placement(transformation(extent={{52,-30},{32,-10}})));
     Chemical.Boundaries.Substance H(
+      useFore=true,
         useSolution=true,
       use_mass_start=false,
       amountOfSubstance_start=1,
       useRear=true) annotation (Placement(transformation(extent={{0,-42},{-20,-22}})));
     Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
       annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
-    Chemical.Processes.FastReactionWithSolutions
-                                electrodeReaction(
+    Chemical.Processes.Reaction electrodeReaction(
       s={1,1,3,2},
       p={1,2},
       productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
       productsData={Chemical.Substances.LeadSulfate_solid(),Chemical.Substances.Water_liquid()},
+      solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort,
       nP=2,
       nS=4)    annotation (Placement(transformation(
           extent={{-10,10},{10,-10}},
           rotation=90,
           origin={-34,-14})));
-    Chemical.Processes.FastReactionWithSolutions
-                                electrodeReaction1(
+    Chemical.Processes.Reaction electrodeReaction1(
       p={1,1,2},
       productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
       productsData={Chemical.Substances.LeadSulfate_solid(),Chemical.Substances.Proton_aqueous(),Chemical.Substances.Electrone_solid()},
@@ -1622,10 +1771,11 @@ extends Modelica.Icons.ExamplesPackage;
       nS=2)      annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=90,
-          origin={18,-14})));
+          origin={20,-14})));
 
     Chemical.Boundaries.ElectronSource electrone1 annotation (Placement(transformation(extent={{-78,-38},{-58,-18}})));
     Chemical.Boundaries.Substance PbO2(
+      useFore=true,
         useSolution=true,
       substanceData=Chemical.Substances.LeadDioxide_solid(),
       use_mass_start=false,
@@ -1648,7 +1798,8 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{62,64},{82,84}})));
     inner DropOfCommons dropOfCommons(L=1e-5)
                                            annotation (Placement(transformation(extent={{70,-80},{90,-60}})));
-    Chemical.Topology.SplitterT1 splitterT1 annotation (Placement(transformation(
+    Chemical.Topology.JunctionRFF splitterT1
+                                            annotation (Placement(transformation(
           extent={{-10,-10},{10,10}},
           rotation=90,
           origin={-26,-48})));
@@ -1706,16 +1857,16 @@ extends Modelica.Icons.ExamplesPackage;
     connect(electron.pin, voltageSensor.n) annotation (Line(points={{44,29.8},{44,56},{12,56},{12,82},{-12,82}}, color={0,0,255}));
     connect(electrodeReaction1.products[1], PbSO4_.rear)
       annotation (Line(
-        points={{18.3333,-4},{68,-4},{68,-20},{52,-20}},
+        points={{20.3333,-4},{66,-4},{66,-20},{52,-20}},
         color={200,66,175},
         thickness=0.5));
     connect(electrodeReaction1.products[2], H.rear) annotation (Line(
-        points={{18,-4},{8,-4},{8,-32},{0,-32}},
+        points={{20,-4},{8,-4},{8,-32},{0,-32}},
         color={200,66,175},
         thickness=0.5));
     connect(electrodeReaction1.products[3], electron.rear)
       annotation (Line(
-        points={{17.6667,-4},{17.6667,20},{34,20}},
+        points={{19.6667,-4},{19.6667,20},{34,20}},
         color={200,66,175},
         thickness=0.5));
     connect(HSO4.fore, splitterT1.rear) annotation (Line(
@@ -1724,7 +1875,7 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(Pb.fore, electrodeReaction1.substrates[1])
       annotation (Line(
-        points={{32,-56},{18.25,-56},{18.25,-24}},
+        points={{32,-56},{20.25,-56},{20.25,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(PbO2.fore, electrodeReaction.substrates[1])
@@ -1739,7 +1890,7 @@ extends Modelica.Icons.ExamplesPackage;
         thickness=0.5));
     connect(splitterT1.foreB, electrodeReaction1.substrates[2])
       annotation (Line(
-        points={{-16,-48},{4,-48},{4,-44},{17.75,-44},{17.75,-24}},
+        points={{-16,-48},{4,-48},{4,-44},{19.75,-44},{19.75,-24}},
         color={158,66,200},
         thickness=0.5));
     connect(cathode.solution, electrodeReaction.productSolution[1])
@@ -1749,7 +1900,7 @@ extends Modelica.Icons.ExamplesPackage;
     connect(anode.solution, electrodeReaction1.productSolution[1])
       annotation (Line(points={{53.2,-72.92},{53.2,-38},{54,-38},{54,-2},{22,-2},{22,-4},{22.3333,-4}}, color={127,127,0}));
     connect(solution1.solution, electrodeReaction1.productSolution[2])
-      annotation (Line(points={{-3.6,-79},{-3.6,-84},{20,-84},{20,0},{22,0},{22,-4}}, color={127,127,0}));
+      annotation (Line(points={{-3.6,-79},{-3.6,-84},{14,-84},{14,0},{16,0},{16,-4}}, color={127,127,0}));
     connect(anode.solution, electrodeReaction1.productSolution[3])
       annotation (Line(points={{53.2,-72.92},{53.2,-36},{54,-36},{54,0},{22,0},{22,-4},{21.6667,-4}}, color={127,127,0}));
     connect(H.fore, electrodeReaction.substrates[3])
@@ -5286,4 +5437,167 @@ extends Modelica.Icons.ExamplesPackage;
       Diagram(coordinateSystem(preserveAspectRatio=false)),
       experiment(StopTime=300, __Dymola_Algorithm="Dassl"));
   end PKPD;
+
+  model EnzymeKinetics2 "Basic enzyme kinetics"
+    import Chemical;
+
+    extends Modelica.Icons.Example;
+
+    Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
+
+    //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
+    Chemical.Boundaries.Substance P(
+      useRear=true,
+      useSolution=true,
+      mass_start=1e-8,
+      amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
+
+    parameter Modelica.Units.SI.AmountOfSubstance tE=1
+      "Total amount of enzyme";
+       parameter Real k_cat(
+      unit="mol/s",
+      displayUnit="mol/min")=1
+      "Forward rate of second reaction";
+    constant Modelica.Units.SI.Concentration Km=0.1
+      "Michaelis constant = substrate concentration at rate of half Vmax";
+
+    parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
+      "Maximal molar flow";
+
+    Chemical.Boundaries.Substance ES(
+      substanceData=Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km)),
+      useFore=true,
+        useSolution=true,
+      useRear=false,
+      mass_start=tE/2,
+      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
+    Chemical.Boundaries.Substance E(
+      useFore=false,
+        useSolution=true,
+      useRear=true,
+      mass_start=tE/2,
+      amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{10,36},{-10,56}})));
+
+    Processes.ForwardReaction   chemicalReaction1(
+      n_flow_0=1e-6,
+      k_forward=k_cat,
+      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
+          Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
+      nS=1,
+      nP=2) annotation (Placement(transformation(extent={{28,-10},{48,10}})));
+
+    Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(),
+      useSolution=true,                                                                mass_start=1)
+      annotation (Placement(transformation(extent={{44,-80},{64,-60}})));
+    inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
+  equation
+    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+    connect(E.solution, solution.solution) annotation (Line(
+        points={{6,36},{-8,36},{-8,-98},{60,-98}},
+        color={127,127,0}));
+    connect(ES.solution, solution.solution)
+      annotation (Line(points={{-4,-10},{-4,-98},{60,-98}},         color={127,127,0}));
+
+    connect(P.solution, solution.solution) annotation (Line(
+        points={{76,-12},{76,-98},{60,-98}},
+        color={127,127,0}));
+    connect(liquidWater.solution, solution.solution) annotation (Line(points={{48,-80},{48,-98},{60,-98}},
+                                        color={127,127,0}));
+    connect(ES.fore, chemicalReaction1.substrates[1]) annotation (Line(
+        points={{12,0},{28,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(chemicalReaction1.products[1], P.rear)
+      annotation (Line(
+        points={{48,-0.25},{58,-0.25},{58,-2},{72,-2}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(chemicalReaction1.products[2], E.rear)
+      annotation (Line(
+        points={{48,0.25},{60,0.25},{60,46},{10,46}},
+        color={200,66,175},
+        thickness=0.5));
+        annotation ( Documentation(revisions="<html>
+<p><i>2015-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
+<p>S = Km .. the amount of substrate is Km</p>
+<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
+<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
+<p>x(Km) = Km/MM</p>
+<p>x(tE) = tE/MM</p>
+<p>xS = S/MM = Km/MM</p>
+<p><br>The new kinetics of the system defined as:</p>
+<p>uS&deg; = DfG(S) = 0</p>
+<p>uE&deg; = DfG(E) = 0</p>
+<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
+<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>uP&deg; = DfG(P) </p>
+<p><br>r = Vmax/2</p>
+<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
+<p>because xES=xE this time</p>
+<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
+<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
+<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
+<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
+<p><br>where</p>
+<p>AmountOfSolution = MM = 55.508 (for water)</p>
+<p>Tau = 1 s (just to be physical unit correct)</p>
+<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
+<h4>The maximum of the new enzyme kinetics</h4>
+<p>The enzymatic rate must have a maximum near of Vmax. </p>
+<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The proof:</p>
+<p>We want to sutisfied the following inequality:</p>
+<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
+<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
+<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
+<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
+<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
+<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
+</html>"),
+      experiment(StopTime=5000, __Dymola_Algorithm="Dassl"),
+      __Dymola_experimentSetupOutput);
+  end EnzymeKinetics2;
+
+  package EquilibriaDefinitions
+    model H2_decease
+
+      parameter Definition H(data=Modelica.Media.IdealGases.Common.SingleGasesData.H, z=0);
+
+      parameter Definition H2(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0);
+
+      parameter Definition Reaction = H2 - 2*H;
+
+      Definition H2_restored = 2*H + Reaction;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+
+    end H2_decease;
+
+    model H2O_formation
+
+
+      parameter Definition H2(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0);
+
+      parameter Definition O2(data=Modelica.Media.IdealGases.Common.SingleGasesData.O2, z=0);
+
+      parameter Definition H2O(data=Modelica.Media.IdealGases.Common.SingleGasesData.H2O, z=0);
+
+      parameter Definition Reaction = H2O - H2 - 0.5*O2;
+
+      Definition H2O_restored = H2 + 0.5*O2 + Reaction;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+
+    end H2O_formation;
+  end EquilibriaDefinitions;
 end Examples;

@@ -7,7 +7,7 @@ package Processes "Undirected process package"
 
     import Chemical.Utilities.Types.SolutionChoice;
 
-    replaceable function uLoss = Chemical.Processes.Internal.Kinetics.classicPotentialLoss
+    replaceable function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss
       constrainedby
         Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
@@ -134,357 +134,6 @@ package Processes "Undirected process package"
   end Reaction;
   extends Modelica.Icons.Package;
 
-  model ForwardReaction "Chemical Reaction"
-    extends Internal.PartialReactionWithProductsDefinition;
-    extends Chemical.Interfaces.ConditionalKinetics
-                                          (k_forward=1);
-
-  equation
-
-    rr = kf * Sx_fore;
-
-    if nP>0 then
-       der(products[1].state_forwards.u).*TC = products[1].r;
-    end if;
-
-    annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Rectangle(
-            extent={{-100,-30},{100,30}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name"),
-          Polygon(
-            points={{-60,2},{-60,0},{54,0},{54,0},{18,10},{18,2},{-60,2}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{-60,-2},{-60,0},{54,0},{54,0},{18,-10},{18,-2},{-60,-2}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid)}),
-      Documentation(revisions="<html>
-<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
-<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
-<td><p>dissociation constant</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
-<td><p>molar Gibb&apos;s energy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
-<td><p>molar enthalpy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
-<td><p>molar entropy of the reaction</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>A<sub>i</sub></p></td>
-<td><p>i-th substance</p></td>
-</tr>
-<tr>
-<td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>K</p></td>
-<td><p>dissociation constant (activity based)</p></td>
-</tr>
-<tr>
-<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
-<td><p>activity of the substance A</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub></p></td>
-<td><p>activity coefficient of the substance A</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i</sub></p></td>
-<td><p>mole fraction of the substance A</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
-<td><p>molar enthalpy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
-<td><p>molar Gibbs energy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
-<td><p>molar entropy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by reaction</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-  end ForwardReaction;
-
-  model FastReaction "Chemical Reaction"
-    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
-
-    parameter Real kC = 1;
-
-
-  equation
-
-    rr = kC * du_fore;
-    if nS>0 then
-      rr = -kC * du_rear;
-    end if;
-
-    annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Rectangle(
-            extent={{-100,-30},{100,30}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name"),
-          Polygon(
-            points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid)}),
-      Documentation(revisions="<html>
-<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
-<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
-<td><p>dissociation constant</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
-<td><p>molar Gibb&apos;s energy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
-<td><p>molar enthalpy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
-<td><p>molar entropy of the reaction</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>A<sub>i</sub></p></td>
-<td><p>i-th substance</p></td>
-</tr>
-<tr>
-<td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>K</p></td>
-<td><p>dissociation constant (activity based)</p></td>
-</tr>
-<tr>
-<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
-<td><p>activity of the substance A</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub></p></td>
-<td><p>activity coefficient of the substance A</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i</sub></p></td>
-<td><p>mole fraction of the substance A</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
-<td><p>molar enthalpy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
-<td><p>molar Gibbs energy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
-<td><p>molar entropy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by reaction</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-  end FastReaction;
-
-  model FastReactionWithSolutions "Chemical Reaction"
-    extends Internal.PartialReaction;
-
-    parameter stateOfMatter.SubstanceDataParameters productsSubstanceData[nP]
-     annotation (choicesAllMatching = true);
-
-    parameter Real kC = 1;
-
-    Interfaces.SolutionPort productSolution[nP] annotation (Placement(transformation(extent={{90,-50},{110,-30}}), iconTransformation(extent={{90,-50},{110,-30}})));
-  equation
-
-    rr = kC * du_fore;
-    if nS>0 then
-      rr = -kC * du_rear;
-    end if;
-
-    products.definition = productsSubstanceData;
-
-    for i in 1:nP loop
-      products[i].solution.T = productSolution[i].T;
-      products[i].solution.p = productSolution[i].p;
-      products[i].solution.v = productSolution[i].v;
-      products[i].solution.n = productSolution[i].n;
-      products[i].solution.m = productSolution[i].m;
-      products[i].solution.V = productSolution[i].V;
-      products[i].solution.G = productSolution[i].G;
-      products[i].solution.Q = productSolution[i].Q;
-      products[i].solution.I = productSolution[i].I;
-
-      productSolution[i].dH = 0;
-      productSolution[i].i = 0;
-      productSolution[i].Qj = 0;
-      productSolution[i].Ij = 0;
-      productSolution[i].nj = 0;
-      productSolution[i].mj = 0;
-      productSolution[i].Vj = 0;
-      productSolution[i].Gj = 0;
-      productSolution[i].dV = 0;
-    end for;
-
-    annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-            100,100}}),   graphics={
-          Rectangle(
-            extent={{-100,-30},{100,30}},
-            lineColor={0,0,127},
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Text(
-            extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
-          textString="%name"),
-          Polygon(
-            points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-            points={{54,-8},{54,-6},{-60,-6},{-60,-6},{-24,-16},{-24,-8},{54,-8}},
-            lineColor={0,0,0},
-            fillColor={0,0,0},
-            fillPattern=FillPattern.Solid)}),
-      Documentation(revisions="<html>
-<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
-<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
-<td><p>dissociation constant</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
-<td><p>molar Gibb&apos;s energy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
-<td><p>molar enthalpy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
-<td><p>molar entropy of the reaction</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>A<sub>i</sub></p></td>
-<td><p>i-th substance</p></td>
-</tr>
-<tr>
-<td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>K</p></td>
-<td><p>dissociation constant (activity based)</p></td>
-</tr>
-<tr>
-<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
-<td><p>activity of the substance A</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub></p></td>
-<td><p>activity coefficient of the substance A</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i</sub></p></td>
-<td><p>mole fraction of the substance A</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
-<td><p>molar enthalpy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
-<td><p>molar Gibbs energy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
-<td><p>molar entropy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by reaction</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-  end FastReactionWithSolutions;
-
   model Diffusion "Solute diffusion"
     extends Icons.Diffusion;
     extends Chemical.Interfaces.SISO(redeclare package stateOfMatterRear = stateOfMatter, redeclare package stateOfMatterFore = stateOfMatter);
@@ -497,17 +146,17 @@ package Processes "Undirected process package"
     replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
       Interfaces.StateOfMatter "Substance model of inlet"
       annotation (choices(
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOfMatter =
           Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterIn =
+        choice(redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     replaceable function uLoss =
-        Internal.Kinetics.pleaseSelectPotentialLoss
+        Chemical.Processes.Internal.Kinetics.generalPotentialLoss
       constrainedby
         Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
@@ -524,7 +173,7 @@ package Processes "Undirected process package"
     du_rear = -uLoss(n_flow,kf,x_fore,rear.solution);
     du_fore = -uLoss(-n_flow,kf,x_rear,fore.solution);
 
-     annotation (                 Documentation(revisions="<html>
+     annotation ( Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p>Diffusion of the substance as equilibration of electro-chemical potentials.</p>
@@ -532,16 +181,148 @@ package Processes "Undirected process package"
   end Diffusion;
 
   model GasSolubility "Henry's law of gas solubility into liquid."
-
     extends Icons.GasSolubility;
-    extends Interfaces.PartialGasToLiquid;
-    extends Interfaces.ConditionalKinetics(k_forward=1);
+  //  extends Interfaces.PartialGasToLiquid;
+  //  extends Interfaces.ConditionalKinetics(k_forward=1);
 
+    extends Chemical.Interfaces.SISO(redeclare package stateOfMatterRear = rearState, redeclare package stateOfMatterFore = foreState);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
+
+    import Chemical.Utilities.Types.SolutionChoice;
+
+
+
+    import Chemical.Utilities.Types.ProductsDefinitionChoice;
+
+     parameter ProductsDefinitionChoice productFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters
+                                                                                                         "Choice of products definition"
+        annotation(HideResult=true, Dialog(group="Conditional inputs"));
+
+     parameter foreState.SubstanceDataParameters productData "Product definitions"
+        annotation (choicesAllMatching = true, Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromParameter)));
+
+     parameter foreState.SubstanceDataParameters processData = foreState.processData(K,dH,dCp,dVs)
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+        annotation (Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessEnergies)));
+
+
+    parameter Real K=1 "Process dissociation constant at 25°C,1bar"
+     annotation (HideResult=true, Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+    parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+    parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+    parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+
+
+
+
+    replaceable package rearState = Chemical.Interfaces.IdealGas constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
+      annotation (choices(
+        choice(redeclare package rearState =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package rearState =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package rearState =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package rearState =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    replaceable package foreState = Interfaces.Incompressible constrainedby
+      Interfaces.StateOfMatter "Substance model of inlet"
+      annotation (choices(
+        choice(redeclare package foreState =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package foreState =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package foreState =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package foreState =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+
+    replaceable function uLoss =
+        Chemical.Processes.Internal.Kinetics.generalPotentialLoss
+      constrainedby
+        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+      annotation(choicesAllMatching=true, Documentation(info="<html>
+    <p>Electro-chemical potential loss function used in the diffusion.</p>
+    </html>"));
+
+
+  protected
+    foreState.SubstanceData definitionFromProcess;
+   /*  if rearState.StateName == "Incompressible" then
+       foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIncompressible(rear.definition)},{productData})
+   elseif rearState.StateName == "IdealGas" then
+       foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGas(rear.definition)},{productData})
+   elseif rearState.StateName == "IdealGasMSL" then
+       foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGasMSL(rear.definition)},{productData})
+   elseif rearState.StateName == "IdealGasShomate" then
+       foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGasShomate(rear.definition)},{productData})
+   else productData;
+*/
   equation
+  /*
+   if rearState.StateName == "Incompressible" then
+      definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIncompressible(rear.definition)},{productData});
+   elseif rearState.StateName == "IdealGas" then
+      definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGas(rear.definition)},{productData});
+   elseif rearState.StateName == "IdealGasMSL" then
+      definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGasMSL(rear.definition)},{productData});
+   elseif rearState.StateName == "IdealGasShomate" then
+      definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.substrateFromIdealGasShomate(rear.definition)},{productData});
+   end if;
 
-    n_flow = kf * x_in * ( 1 -  exp(-duRT));
+*/
+     if rearState.StateName == "Incompressible" then
+        definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.SubstanceData(rear.definition)},{productData});
+     elseif rearState.StateName == "IdealGas" then
+        definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.SubstanceData(rear.definition)},{productData});
+     elseif rearState.StateName == "IdealGasMSL" then
+        definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.SubstanceData(rear.definition)},{productData});
+     elseif rearState.StateName == "IdealGasShomate" then
+        definitionFromProcess = foreState.firstProductDefinition({1},{1},processData,{foreState.SubstanceData(rear.definition)},{productData});
+     end if;
 
-    annotation (Documentation(revisions="<html>
+    if (productFrom == ProductsDefinitionChoice.fromParameter) then
+      fore.definition = productData;
+    else
+        fore.definition = definitionFromProcess;
+       // fore.definition = cast(rearState.StateName,dIncompressible,dIdealGas,dIdealGasMSL,dIdealGasShomate);
+        /*
+    if StateName == "Incompressible" then
+      data := foreState.firstProductDefinition({1},{1},processData,{dIncompressible},{productData});
+    elseif StateName == "IdealGas" then
+      data := foreState.firstProductDefinition({1},{1},processData,{dIdealGas},{productData});
+    elseif StateName == "IdealGasMSL" then
+      data := foreState.firstProductDefinition({1},{1},processData,{dIdealGasMSL},{productData});
+    elseif StateName == "IdealGasShomate" then
+      data := foreState.firstProductDefinition({1},{1},processData,{dIdealGasShomate},{productData});
+    end if;
+      */
+
+
+
+    end if;
+
+
+
+    fore.solution = solutionState;
+    connect(rear.solution,inputSubstrateSolution);
+
+
+    du_rear = -uLoss(n_flow,kf,x_fore,rear.solution);
+    du_fore = -uLoss(-n_flow,kf,x_rear,fore.solution);
+
+    annotation (
+     Documentation(revisions="<html>
 <p><i>2009-2015 </i></p>
 <p><i>by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
@@ -888,6 +669,138 @@ package Processes "Undirected process package"
           origin={69,2},
           rotation=90)}));
   end Membrane;
+
+  model ForwardReaction "Chemical Reaction"
+    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.fromParameter else SolutionChoice.fromSubstrate);
+    extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
+
+
+    import Chemical.Utilities.Types.SolutionChoice;
+
+    Real u(stateSelect=StateSelect.prefer),ru(start=0);
+
+  equation
+
+    //chemical kinetics
+    du_fore = -uLoss(rr,kf,Sx_fore,solutionState);
+  /*  if nS>0 then
+    du_rear = -uLoss(-rr,Kx*kf,Px_rear,solutionState);
+  end if;
+  rr = kf * Sx_fore;
+  */
+
+    der(u).*TC = ru;
+    if nP>0 then
+       products[1].state_forwards.u=u;
+       ru = products[1].r;
+    else
+       ru=0;
+    end if;
+
+
+    //chemical solution and its propagation
+    connect(substrates[1].solution,inputSubstrateSolution);
+    if nS>0 then
+      products.solution = fill(solutionState,nP);
+    end if;
+
+
+
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+            100,100}}),   graphics={
+          Rectangle(
+            extent={{-100,-30},{100,30}},
+            lineColor={0,0,127},
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid),
+          Text(
+            extent={{-100,-72},{100,-40}},
+            lineColor={128,0,255},
+          textString="%name"),
+          Polygon(
+            points={{-60,2},{-60,0},{54,0},{54,0},{18,10},{18,2},{-60,2}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid),
+          Polygon(
+            points={{-60,-2},{-60,0},{54,0},{54,0},{18,-10},{18,-2},{-60,-2}},
+            lineColor={0,0,0},
+            fillColor={0,0,0},
+            fillPattern=FillPattern.Solid)}),
+      Documentation(revisions="<html>
+<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
+<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
+<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
+<td><p>dissociation constant</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
+<td><p>molar Gibb&apos;s energy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
+<td><p>molar enthalpy of the reaction</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
+<td><p>molar entropy of the reaction</p></td>
+</tr>
+</table>
+<h4><span style=\"color:#008000\">Notations</span></h4>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
+<td><p>A<sub>i</sub></p></td>
+<td><p>i-th substance</p></td>
+</tr>
+<tr>
+<td><p>v<sub>i</sub></p></td>
+<td><p>stochiometric coefficients of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>K</p></td>
+<td><p>dissociation constant (activity based)</p></td>
+</tr>
+<tr>
+<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
+<td><p>activity of the substance A</p></td>
+</tr>
+<tr>
+<td><p>f<sub>i</sub></p></td>
+<td><p>activity coefficient of the substance A</p></td>
+</tr>
+<tr>
+<td><p>x<sub>i</sub></p></td>
+<td><p>mole fraction of the substance A</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
+<td><p>molar enthalpy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
+<td><p>molar Gibbs energy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
+<td><p>molar entropy of formation of i-th substance</p></td>
+</tr>
+<tr>
+<td><p>&Delta;<sub>r</sub>&omega;</p></td>
+<td><p>change of number of microstates of particles by reaction</p></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</table>
+</html>"));
+  end ForwardReaction;
 
   model Pump "Prescribed sunstance molar flow"
     extends Interfaces.PartialChangeSolution;
@@ -1847,22 +1760,6 @@ Choices for initialization of a state h.
     end PartialSwitchSolution;
 
     package Kinetics
-      function pleaseSelectPotentialLoss "Please select chemical potential loss function"
-        extends partialPotentialLoss;
-
-      algorithm
-        assert(false, "Please select potential loss function");
-
-        potentialLoss :=0;
-
-        annotation (Documentation(info="<html>
-<p>
-Potential loss function without actual equations with an always failing assert to
-output a meaningful error, when the user forgot to select a function. This should
-be used as a default.
-</p>
-</html>"));
-      end pleaseSelectPotentialLoss;
 
       partial function partialPotentialLoss "Interface for potential loss functions"
         extends Modelica.Icons.Function;
@@ -1880,7 +1777,7 @@ be used as a default.
 </html>"));
       end partialPotentialLoss;
 
-      function classicPotentialLoss "Classical potential loss function"
+      function generalPotentialLoss "General potential loss function trough forward/backward rate coefficient"
         extends partialPotentialLoss;
 
        // input Real kf(unit="Pa.s/kg") = 1 "Forward rate coeeficient"
@@ -1901,7 +1798,7 @@ And K = kf/kb = xB/xA is a dissociation coefficient of the chemical process.
 </p>
 </html>"));
 
-      end classicPotentialLoss;
+      end generalPotentialLoss;
 
       function fastPotentialLoss "Fast potential loss function"
         extends partialPotentialLoss;
@@ -1999,7 +1896,7 @@ du := n_flow/kC;
       Chemical.Processes.Reaction reaction(
         solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
-        redeclare function uLoss = Chemical.Processes.Internal.Kinetics.classicPotentialLoss,
+        redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,14},{10,34}})));
       Chemical.Boundaries.Substance substance(useFore=true,
@@ -2879,11 +2776,11 @@ Medium model for the test. Can be anything.
       Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
       Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
       Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
-            Chemical.Processes.Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
+            Chemical.Processes.Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
       Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
       Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
       Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter, redeclare function uLoss =
-            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
+            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
       Boundaries.Substance s3(
         useFore=true,
         useSolution=true,
@@ -2893,7 +2790,7 @@ Medium model for the test. Can be anything.
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
       Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
-            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
+            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
       Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
       Boundaries.Substance s4(
@@ -2905,7 +2802,7 @@ Medium model for the test. Can be anything.
         useSolution=false,
         mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
       Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
-            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
+            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
       Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
       Boundaries.Substance
                 solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{194,24},{214,44}})));
@@ -2918,7 +2815,7 @@ Medium model for the test. Can be anything.
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));
       Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
-            Internal.Kinetics.classicPotentialLoss) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
+            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
       Solution solution2 annotation (Placement(transformation(extent={{12,-122},{220,-12}})));
     equation
       connect(s2.fore, d2.rear) annotation (Line(

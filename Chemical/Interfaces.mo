@@ -151,6 +151,8 @@ package Interfaces "Chemical interfaces"
 
   partial package StateOfMatter "Abstract package for all state of matters"
 
+
+
    replaceable partial record SubstanceDataParameters
       "Definition data of the chemical substance as parameters"
 
@@ -169,6 +171,8 @@ package Interfaces "Chemical interfaces"
     replaceable connector OutputSubstanceData
 
     end OutputSubstanceData;
+
+
 
     replaceable partial model BaseProperties "Base properties of the substance"
 
@@ -412,6 +416,8 @@ package Interfaces "Chemical interfaces"
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end BaseProperties;
 
+
+
    replaceable function processData
      "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
         extends Modelica.Icons.Function;
@@ -434,6 +440,35 @@ package Interfaces "Chemical interfaces"
     output SubstanceData firstProductDefinition "Definition of the first product in process";
    end firstProductDefinition;
 
+  /*
+ replaceable function substrateFromIncompressible
+    "Cast substrate definition from Incompressible (but the phase remains Incompressinble) - use only for firstProductDefinition, where phase shift will be included"
+     extends Modelica.Icons.Function;
+     input Chemical.Interfaces.Incompressible.SubstanceData dataIncompressible "Substance definition as Incompressible";
+     output SubstanceData data "Casted substrate definition";
+ end substrateFromIncompressible;
+
+  replaceable function substrateFromIdealGas
+    "Cast substrate definition from IdealGas (but the phase remains IdealGas) - use only for firstProductDefinition, where phase shift will be included"
+     extends Modelica.Icons.Function;
+     input Chemical.Interfaces.IdealGas.SubstanceData dataIdealGas "Substance definition as IdealGas";
+     output SubstanceData data "Casted substrate definition";
+  end substrateFromIdealGas;
+
+  replaceable function substrateFromIdealGasMSL
+    "Cast substrate definition from IdealGas (but the phase remains IdealGasMSL) - use only for firstProductDefinition, where phase shift will be included"
+     extends Modelica.Icons.Function;
+     input Chemical.Interfaces.IdealGasMSL.SubstanceData dataIdealGasMSL "Substance definition as IdealGasMSL";
+     output SubstanceData data "Casted substrate definition";
+  end substrateFromIdealGasMSL;
+
+  replaceable function substrateFromIdealGasShomate
+    "Cast substrate definition from IdealGas (but the phase remains IdealGasShomate) - use only for firstProductDefinition, where phase shift will be included"
+     extends Modelica.Icons.Function;
+     input Chemical.Interfaces.IdealGasShomate.SubstanceData dataIdealGasShomate "Substance definition as IdealGasShomate";
+     output SubstanceData data "Casted substrate definition";
+  end substrateFromIdealGasShomate;
+*/
 
    replaceable function activityCoefficient
     "Return activity coefficient of the substance in the solution"
@@ -880,6 +915,7 @@ end solution_temperature_;
   package Incompressible "Incompressible as basic state of matter"
     extends StateOfMatter;
 
+    constant String StateName="Incompressible"; //type checking
     constant Modelica.Units.SI.Temperature T0=298.15;
     constant Modelica.Units.SI.Pressure p0=100000;
 
@@ -913,7 +949,7 @@ end solution_temperature_;
         "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
       parameter Modelica.Units.SI.SpecificVolume Vs(displayUnit="dm3/kg") = 0.001
-        "Specific volumt of the pure substance (default 1L/kg)";
+        "Specific volume of the pure substance (default 1L/kg)";
 
       //      parameter Modelica.SIunits.MolarHeatCapacity Cv = Cp
       //      "Molar heat capacity of the substance at constant volume";
@@ -924,7 +960,7 @@ end solution_temperature_;
 </html>"));
     end SubstanceDataParameters;
 
-    redeclare record extends SubstanceData "Base substance data"
+    redeclare operator record extends SubstanceData "Base substance data"
 
       Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa") "Molar weight of the substance";
 
@@ -944,18 +980,212 @@ end solution_temperature_;
 
       Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
-      Modelica.Units.SI.SpecificVolume Vs(displayUnit="dm3/kg") "Specific volumt of the pure substance (default 1L/kg)";
+      Modelica.Units.SI.SpecificVolume Vs(displayUnit="dm3/kg") "Specific volume of the pure substance (default 1L/kg)";
 
-     // Modelica.Units.SI.Density density(displayUnit="kg/dm3") "Density of the pure substance (default density of water at 25degC)";
+      // Modelica.Units.SI.Density density(displayUnit="kg/dm3") "Density of the pure substance (default density of water at 25degC)";
 
+      encapsulated operator 'constructor'
+        import Modelica.Units.SI.MolarMass;
+        import SD = Chemical.Interfaces.Incompressible.SubstanceData;
+        import IdealGasSD = Chemical.Interfaces.IdealGas.SubstanceData;
+        import IdealGasMSLSD = Chemical.Interfaces.IdealGasMSL.SubstanceData;
+        import IdealGasShomateSD = Chemical.Interfaces.IdealGasShomate.SubstanceData;
+        import ReferenceEnthalpy = Modelica.Media.Interfaces.Choices.ReferenceEnthalpy;
+        import Modelica.Media.IdealGases.Common.Functions.h_T;
+        import Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral;
+        import Chemical.Interfaces.IdealGasMSL.molarEntropyPure;
+        import Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp;
+        import Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral;
+        import Chemical.Interfaces.IdealGasShomate.molarEntropyPure;
+        import Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp;
+
+        function fromReal
+          input Real MolarWeight=1 "Molar weight of the substance";
+          input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+          input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+          input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+          input Real gamma=1 "Activity coefficient of the substance";
+          input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+          input Real SelfClustering=0 "Pure substance is making clusters (weak bonds between molecules)";
+          input Real SelfClustering_dH=0 "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";
+          input Real SelfClustering_dS=0 "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+          input Real Vs=0.001 "Specific volume of the pure substance (default 1L/kg)";
+          output SD data=SD(
+                    MolarWeight=MolarWeight,
+                    z=z,
+                    DfG=DfG,
+                    DfH=DfH,
+                    gamma=gamma,
+                    Cp=Cp,
+                    SelfClustering=SelfClustering,
+                    SelfClustering_dH=SelfClustering_dH,
+                    SelfClustering_dS=SelfClustering_dS,
+                    Vs=Vs);
+        algorithm
+          annotation (Inline=true);
+        end fromReal;
+
+        function fromIncompressible
+          input SD dataIncompressible;
+          output SD data=dataIncompressible;
+        algorithm
+          annotation (Inline=true);
+        end fromIncompressible;
+
+        function fromIdealGas
+          input IdealGasSD dataIdealGas;
+          output SD data=SD(
+                    MolarWeight=dataIdealGas.MolarWeight,
+                    z=dataIdealGas.z,
+                    DfG=dataIdealGas.DfG,
+                    DfH=dataIdealGas.DfH,
+                    gamma=1,
+                    Cp=dataIdealGas.Cp,
+                    SelfClustering=0,
+                    SelfClustering_dH=0,
+                    SelfClustering_dS=0,
+                    Vs=1);
+          //TODO check specific volume - Vs
+        algorithm
+          annotation (Inline=true);
+
+        end fromIdealGas;
+
+
+        function fromIdealGasMSL
+              input IdealGasMSLSD dataIdealGasMSL;
+              output SD data=SD(
+                        MolarWeight=dataIdealGasMSL.data.MM,
+                        z=dataIdealGasMSL.z,
+                        DfG=Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(
+                          dataIdealGasMSL,
+                          298.15,
+                          100000,
+                          0,
+                          0) - 298.15*Chemical.Interfaces.IdealGasMSL.molarEntropyPure(
+                          dataIdealGasMSL,
+                          298.15,
+                          100000,
+                          0,
+                          0),
+                        DfH=Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(
+                          dataIdealGasMSL,
+                          298.15,
+                          100000,
+                          0,
+                          0),
+                        gamma=1,
+                        Cp=Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp(
+                          dataIdealGasMSL,
+                          298.15,
+                          100000,
+                          0,
+                          0),
+                        SelfClustering=0,
+                        SelfClustering_dH=0,
+                        SelfClustering_dS=0,
+                        Vs=1);
+              //TODO check specific volume - Vs
+        algorithm
+              annotation (Inline=true);
+        end fromIdealGasMSL;
+
+
+        /*
+  function fromIdealGasMSL
+    input IdealGasMSLSD dataIdealGasMSL;
+    output SD data;
+    //TODO check specific volume - Vs
+  protected 
+    Real DfH,DfS,Cp;
+  algorithm 
+
+    DfH := Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(
+          dataIdealGasMSL,
+          298.15,
+          100000,
+          0,
+          0);
+
+    DfS := Chemical.Interfaces.IdealGasMSL.molarEntropyPure(
+          dataIdealGasMSL,
+          298.15,
+          100000,
+          0,
+          0);
+
+    Cp := Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp(
+          dataIdealGasMSL,
+          298.15,
+          100000,
+          0,
+          0);
+
+    data := SD(
+              MolarWeight=dataIdealGasMSL.data.MM,
+              z=dataIdealGasMSL.z,
+              DfG=DfH - 298.15*DfS,
+              DfH=DfH,
+              gamma=1,
+              Cp=Cp,
+              SelfClustering=0,
+              SelfClustering_dH=0,
+              SelfClustering_dS=0,
+              Vs=1);
+   // annotation (Inline=true);
+  end fromIdealGasMSL;
+
+*/
+        function fromIdealGasShomate
+          input IdealGasShomateSD dataIdealGasShomate;
+          output SD data=SD(
+                    MolarWeight=dataIdealGasShomate.MolarWeight,
+                    z=dataIdealGasShomate.z,
+                    DfG=Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(
+                      dataIdealGasShomate,
+                      298.15,
+                      100000,
+                      0,
+                      0) - 298.15*Chemical.Interfaces.IdealGasShomate.molarEntropyPure(
+                      dataIdealGasShomate,
+                      298.15,
+                      100000,
+                      0,
+                      0),
+                    DfH=Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(
+                      dataIdealGasShomate,
+                      298.15,
+                      100000,
+                      0,
+                      0),
+                    gamma=1,
+                    Cp=Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(
+                      dataIdealGasShomate,
+                      298.15,
+                      100000,
+                      0,
+                      0),
+                    SelfClustering=0,
+                    SelfClustering_dH=0,
+                    SelfClustering_dS=0,
+                    Vs=1);
+          //TODO check specific volume - Vs
+        algorithm
+          annotation (Inline=true);
+        end fromIdealGasShomate;
+
+
+      end 'constructor';
       annotation (preferredView="info", Documentation(revisions="<html>
 <p><i>2015-2025</i></p>
 <p>Marek Mateják </p>
 </html>"));
     end SubstanceData;
 
+
     redeclare connector InputSubstanceData = input SubstanceData;
     redeclare connector OutputSubstanceData = output SubstanceData;
+
 
     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
     end BaseProperties;
@@ -992,6 +1222,79 @@ end solution_temperature_;
          Vs = ((p[2:end]*productsData.Vs) - (s*substratesData.Vs) - processData.Vs)/p[1]);
     end firstProductDefinition;
 
+
+
+
+   //  redeclare function extends substrateFromIncompressible
+   //   "Cast substrate definition from Incompressible (but the phase remains Incompressinble) - use only for firstProductDefinition, where phase shift will be included"
+   //  algorithm
+   //    data := dataIncompressible;
+        /*SubstanceData(
+       MolarWeight = dataIncompressible.MolarWeight,
+       z = dataIncompressible.z,
+       DfG = dataIncompressible.DfG,
+       DfH = dataIncompressible.DfH,
+       gamma = dataIncompressible.gamma,
+       Cp = dataIncompressible.Cp,
+       SelfClustering = dataIncompressible.SelfClustering,
+       SelfClustering_dH = dataIncompressible.SelfClustering_dH,
+       SelfClustering_dS = dataIncompressible.SelfClustering_dS,
+       Vs = dataIncompressible.Vs);*/
+  //   end substrateFromIncompressible;
+  /*
+  redeclare function extends substrateFromIdealGas
+    "Cast substrate definition from IdealGas (but the state remains in IdealGas) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIdealGas.MolarWeight,
+       z = dataIdealGas.z,
+       DfG = dataIdealGas.DfG,
+       DfH = dataIdealGas.DfH,
+       gamma = 1,
+       Cp = dataIdealGas.Cp,
+       SelfClustering = 0,
+       SelfClustering_dH = 0,
+       SelfClustering_dS = 0,
+       Vs = 1);
+       //TODO check specific volume - Vs
+  end substrateFromIdealGas;
+
+  redeclare function extends substrateFromIdealGasMSL
+    "Cast substrate definition from IdealGasMSL (but the phase remains IdealGasMSL) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIdealGasMSL.data.MM,
+       z = dataIdealGasMSL.z,
+       DfG = Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(dataIdealGasMSL) - T0*Chemical.Interfaces.IdealGasMSL.molarEntropyPure(dataIdealGasMSL),
+       DfH = Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(dataIdealGasMSL),
+       gamma = 1,
+       Cp = Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp(dataIdealGasMSL),
+       SelfClustering = 0,
+       SelfClustering_dH = 0,
+       SelfClustering_dS = 0,
+       Vs = 1);
+       //TODO check specific volume - Vs
+  end substrateFromIdealGasMSL;
+
+  redeclare function extends substrateFromIdealGasShomate
+    "Cast substrate definition from IdealGasShomate (but the phase remains IdealGasShomate) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIdealGasShomate.MolarWeight,
+       z = dataIdealGasShomate.z,
+       DfG = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(dataIdealGasShomate) - T0*Chemical.Interfaces.IdealGasShomate.molarEntropyPure(dataIdealGasShomate),
+       DfH = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(dataIdealGasShomate),
+       gamma = 1,
+       Cp = Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(dataIdealGasShomate),
+       SelfClustering = 0,
+       SelfClustering_dH = 0,
+       SelfClustering_dS = 0,
+       Vs = 1);
+       //TODO check specific volume - Vs
+       end 
+       IdealGasShomate;
+
+*/
 
     redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -1323,6 +1626,10 @@ end solution_temperature_;
   package IdealGas "Ideal gas with constant heat capacity"
      extends StateOfMatter;
 
+    constant String StateName="IdealGas"; //type checking
+    constant Modelica.Units.SI.Temperature T0=298.15;
+    constant Modelica.Units.SI.Pressure p0=100000;
+
      redeclare record extends SubstanceDataParameters "Base substance data"
 
       parameter Modelica.Units.SI.MolarMass MolarWeight(displayUnit="kDa")=1 "Molar weight of the substance";
@@ -1342,12 +1649,6 @@ end solution_temperature_;
       parameter Modelica.Units.SI.MolarHeatCapacity Cp=1
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
-      parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
-
-      parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
-      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
-      parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
-      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
 
       annotation ( preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
@@ -1373,14 +1674,126 @@ end solution_temperature_;
       Modelica.Units.SI.MolarHeatCapacity Cp
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
-      Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
+       encapsulated operator 'constructor'
+             import Modelica.Units.SI.MolarMass;
+             import SD = Chemical.Interfaces.IdealGas.SubstanceData;
+             import IncompressibleSD = Chemical.Interfaces.Incompressible.SubstanceData;
+             import IdealGasMSLSD = Chemical.Interfaces.IdealGasMSL.SubstanceData;
+             import IdealGasShomateSD = Chemical.Interfaces.IdealGasShomate.SubstanceData;
+             import Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral;
+             import Chemical.Interfaces.IdealGasMSL.molarEntropyPure;
+             import Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp;
+             import Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral;
+             import Chemical.Interfaces.IdealGasShomate.molarEntropyPure;
+             import Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp;
 
-      Modelica.Units.SI.ChemicalPotential SelfClustering_dH
-      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+             function fromReal
+               input Real MolarWeight=1 "Molar weight of the substance";
+               input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
+               input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+               input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
+               input Real gamma=1 "Activity coefficient of the substance";
+               input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+               output SD data=SD(
+                         MolarWeight=MolarWeight,
+                         z=z,
+                         DfG=DfG,
+                         DfH=DfH,
+                         gamma=gamma,
+                         Cp=Cp);
+             algorithm
+               annotation (Inline=true);
+             end fromReal;
 
-      Modelica.Units.SI.MolarEntropy SelfClustering_dS
-      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+             function fromIncompressible
+               input IncompressibleSD dataIncompressible;
+               output SD data=SD(
+                         MolarWeight=dataIncompressible.MolarWeight,
+                         z=dataIncompressible.z,
+                         DfG=dataIncompressible.DfG,
+                         DfH=dataIncompressible.DfH,
+                         gamma=dataIncompressible.gamma,
+                         Cp=dataIncompressible.Cp);
+             algorithm
+               annotation (Inline=true);
+             end fromIncompressible;
 
+             function fromIdealGas
+               input SD dataIdealGas;
+               output SD data=dataIdealGas;
+             algorithm
+               annotation (Inline=true);
+             end fromIdealGas;
+
+             function fromIdealGasMSL
+               input IdealGasMSLSD dataIdealGasMSL;
+               output SD data=SD(
+                         MolarWeight=dataIdealGasMSL.data.MM,
+                         z=dataIdealGasMSL.z,
+                         DfG=Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(
+                           dataIdealGasMSL,
+                           298.15,
+                           100000,
+                           0,
+                           0) - 298.15*Chemical.Interfaces.IdealGasMSL.molarEntropyPure(
+                           dataIdealGasMSL,
+                           298.15,
+                           100000,
+                           0,
+                           0),
+                         DfH=Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(
+                           dataIdealGasMSL,
+                           298.15,
+                           100000,
+                           0,
+                           0),
+                         gamma=1,
+                         Cp=Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp(
+                           dataIdealGasMSL,
+                           298.15,
+                           100000,
+                           0,
+                           0));
+             algorithm
+               annotation (Inline=true);
+             end fromIdealGasMSL;
+
+
+             function fromIdealGasShomate
+               input IdealGasShomateSD dataIdealGasShomate;
+               output SD data=SD(
+                         MolarWeight=dataIdealGasShomate.MolarWeight,
+                         z=dataIdealGasShomate.z,
+                         DfG=Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(
+                           dataIdealGasShomate,
+                           298.15,
+                           100000,
+                           0,
+                           0) - 298.15*Chemical.Interfaces.IdealGasShomate.molarEntropyPure(
+                           dataIdealGasShomate,
+                           298.15,
+                           100000,
+                           0,
+                           0),
+                         DfH=Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(
+                           dataIdealGasShomate,
+                           298.15,
+                           100000,
+                           0,
+                           0),
+                         gamma=1,
+                         Cp=Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(
+                           dataIdealGasShomate,
+                           298.15,
+                           100000,
+                           0,
+                           0));
+             algorithm
+               annotation (Inline=true);
+             end fromIdealGasShomate;
+
+
+       end 'constructor';
       annotation ( preferredView = "info", Documentation(revisions="<html>
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1392,6 +1805,76 @@ end solution_temperature_;
 
      redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
      end BaseProperties;
+
+     redeclare function extends processData
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+     algorithm
+      processData :=  SubstanceDataParameters(
+        MolarWeight = 0,
+        z = 0,
+        DfG = -Modelica.Constants.R*T0*log(K),
+        DfH = dH,
+        gamma = 1,
+        Cp = dCp);
+     end processData;
+
+    redeclare function extends firstProductDefinition
+       "Return formation definition of the first product of chemical process"
+    algorithm
+       firstProductDefinition :=  SubstanceDataParameters(
+         MolarWeight = ((p[2:end]*productsData.MolarWeight) - (s*substratesData.MolarWeight))/p[1],
+         z = ((p[2:end]*productsData.z) - (s*substratesData.z))/p[1],
+         DfG = ((p[2:end]*productsData.DfG) - (s*substratesData.DfG) - processData.DfG)/p[1],
+         DfH = ((p[2:end]*productsData.DfH) - (s*substratesData.DfH) - processData.DfH)/p[1],
+         gamma = 1,
+         Cp = ((p[2:end]*productsData.Cp) - (s*substratesData.Cp) - processData.Cp)/p[1]);
+    end firstProductDefinition;
+
+  /*
+  redeclare function extends substrateFromIncompressible
+    "Cast substrate definition from Incompressible (but the phase remains Incompressinble) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIncompressible.MolarWeight,
+       z = dataIncompressible.z,
+       DfG = dataIncompressible.DfG,
+       DfH = dataIncompressible.DfH,
+       gamma = 1,
+       Cp = dataIncompressible.Cp);
+  end substrateFromIncompressible;
+
+  redeclare function extends substrateFromIdealGas
+    "Cast substrate definition from IdealGas (but the state remains in IdealGas) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data := dataIdealGas;
+  end substrateFromIdealGas;
+
+  redeclare function extends substrateFromIdealGasMSL
+    "Cast substrate definition from IdealGasMSL (but the phase remains IdealGasMSL) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIdealGasMSL.data.MM,
+       z = dataIdealGasMSL.z,
+       DfG = Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(dataIdealGasMSL) - T0*Chemical.Interfaces.IdealGasMSL.molarEntropyPure(dataIdealGasMSL),
+       DfH = Chemical.Interfaces.IdealGasMSL.molarEnthalpyElectroneutral(dataIdealGasMSL),
+       gamma = 1,
+       Cp = Chemical.Interfaces.IdealGasMSL.molarHeatCapacityCp(dataIdealGasMSL));
+  end substrateFromIdealGasMSL;
+
+  redeclare function extends substrateFromIdealGasShomate
+    "Cast substrate definition from IdealGasShomate (but the phase remains IdealGasShomate) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data :=  SubstanceData(
+       MolarWeight = dataIdealGasShomate.MolarWeight,
+       z = dataIdealGasShomate.z,
+       DfG = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(dataIdealGasShomate) - T0*Chemical.Interfaces.IdealGasShomate.molarEntropyPure(dataIdealGasShomate),
+       DfH = Chemical.Interfaces.IdealGasShomate.molarEnthalpyElectroneutral(dataIdealGasShomate),
+       gamma = 1,
+       Cp = Chemical.Interfaces.IdealGasShomate.molarHeatCapacityCp(dataIdealGasShomate));
+  end substrateFromIdealGasShomate;
+
+*/
+
 
    redeclare function extends activityCoefficient
     "Return activity coefficient of the substance in the solution"
@@ -1480,11 +1963,15 @@ end solution_temperature_;
   package IdealGasMSL "Ideal gas from Modelica Standard Library 3.2"
     extends StateOfMatter;
 
+    constant String StateName="IdealGasMSL"; //type checking
+    constant Modelica.Units.SI.Temperature T0=298.15;
+    constant Modelica.Units.SI.Pressure p0=100000;
+
     redeclare record SubstanceDataParameters
 
       parameter Modelica.Media.IdealGases.Common.DataRecord data=Modelica.Media.IdealGases.Common.SingleGasesData.N2 "Definition of the substance";
 
-    parameter Modelica.Units.SI.ChargeNumberOfIon z=0
+      parameter Modelica.Units.SI.ChargeNumberOfIon z=0
       "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
     end SubstanceDataParameters;
@@ -1503,6 +1990,58 @@ end solution_temperature_;
 
     redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
     end BaseProperties;
+
+
+    redeclare function extends processData
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+    algorithm
+      assert(false, "Recalculation of IdealGasMSL from process parameters is not supported!");
+
+    end processData;
+
+    redeclare function extends firstProductDefinition
+       "Return formation definition of the first product of chemical process"
+    algorithm
+       firstProductDefinition :=  SubstanceDataParameters(
+        data = Modelica.Media.IdealGases.Common.DataRecord(
+           name = "Product defiuned by process",
+           MM = ((p[2:end]*productsData.data.MM) - (s*substratesData.data.MM))/p[1],
+           Hf = ((p[2:end]*productsData.data.Hf) - (s*substratesData.data.Hf) - processData.data.Hf)/p[1],
+           H0 = ((p[2:end]*productsData.data.H0) - (s*substratesData.data.H0) - processData.data.H0)/p[1],
+           Tlimit = s*substratesData.data.Tlimit/(s*ones(size(s,1))),
+           alow = {((p[2:end]*productsData.data.alow[i]) - (s*substratesData.data.alow[i]) - processData.data.alow[i])/p[1] for i in 1:7},
+           blow = {((p[2:end]*productsData.data.blow[i]) - (s*substratesData.data.blow[i]) - processData.data.blow[i])/p[1] for i in 1:2},
+           ahigh = {((p[2:end]*productsData.data.ahigh[i]) - (s*substratesData.data.ahigh[i]) - processData.data.ahigh[i])/p[1] for i in 1:7},
+           bhigh = {((p[2:end]*productsData.data.bhigh[i]) - (s*substratesData.data.bhigh[i]) - processData.data.bhigh[i])/p[1] for i in 1:2},
+           R_s = s*substratesData.data.R_s/(s*ones(size(s,1)))),
+        z = ((p[2:end]*productsData.z) - (s*substratesData.z))/p[1]);
+    end firstProductDefinition;
+
+    /*
+  redeclare function extends substrateFromIncompressible
+    "Cast substrate definition from Incompressible (but the phase remains Incompressinble) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     assert(false,"Chemical.Interfaces.IdealMSL.substrateFromIncompressible is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+  end substrateFromIncompressible;
+
+  redeclare function extends substrateFromIdealGas
+    "Cast substrate definition from IdealGas (but the state remains in IdealGas) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     assert(false,"Chemical.Interfaces.IdealMSL.substrateFromIdealGas is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+  end substrateFromIdealGas;
+
+  redeclare function extends substrateFromIdealGasMSL
+    "Cast substrate definition from IdealGasMSL (but the phase remains IdealGasMSL) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     data := dataIdealGasMSL;
+  end substrateFromIdealGasMSL;
+
+  redeclare function extends substrateFromIdealGasShomate
+    "Cast substrate definition from IdealGasShomate (but the phase remains IdealGasShomate) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+    assert(false,"Chemical.Interfaces.IdealMSL.substrateFromIdealGasShomate is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+  end substrateFromIdealGasShomate;
+*/
 
     redeclare function extends activityCoefficient
       "Return activity coefficient of the substance in the solution"
@@ -1638,6 +2177,10 @@ end solution_temperature_;
   package IdealGasShomate "Ideal gas based on Shomate equations"
      extends StateOfMatter;
 
+   constant String StateName="IdealGasShomate"; //type checking
+   constant Modelica.Units.SI.Temperature T0=298.15;
+   constant Modelica.Units.SI.Pressure p0=100000;
+
    redeclare record extends SubstanceDataParameters
      "Base substance data based on Shomate equations http://old.vscht.cz/fch/cz/pomucky/fchab/Shomate.html"
 
@@ -1657,14 +2200,14 @@ end solution_temperature_;
 
     parameter Modelica.Units.SI.MolarHeatCapacity Cp=1
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
+   /*
+ parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
 
-    parameter Boolean SelfClustering = false "Pure substance is making clusters (weak bonds between molecules)";
-
-    parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
-      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
-    parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
-      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
-
+ parameter Modelica.Units.SI.ChemicalPotential SelfClustering_dH=0
+   "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+ parameter Modelica.Units.SI.MolarEntropy SelfClustering_dS=0
+   "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+*/
         parameter Real B(unit="J.mol-1")=0 "Shomate parameter B";
         parameter Real C(unit="J.mol-1")=0 "Shomate parameter C";
         parameter Real D(unit="J.K.mol-1")=0 "Shomate parameter D";
@@ -1701,14 +2244,14 @@ end solution_temperature_;
     Modelica.Units.SI.MolarHeatCapacity Cp
       "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
 
+   /*
+ Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
 
-    Boolean SelfClustering "Pure substance is making clusters (weak bonds between molecules)";
-
-    Modelica.Units.SI.ChemicalPotential SelfClustering_dH
-      "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
-    Modelica.Units.SI.MolarEntropy SelfClustering_dS
-      "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
-
+ Modelica.Units.SI.ChemicalPotential SelfClustering_dH
+   "Enthalpy of bond between two molecules of substance at 25degC, 1 bar";                                                                    //-20000
+ Modelica.Units.SI.MolarEntropy SelfClustering_dS
+   "Entropy of bond between twoo molecules of substance at 25degC, 1 bar";
+*/
      Real B(unit="J.mol-1") "Shomate parameter B";
      Real C(unit="J.mol-1") "Shomate parameter C";
      Real D(unit="J.K.mol-1") "Shomate parameter D";
@@ -1729,6 +2272,33 @@ end solution_temperature_;
 
    redeclare replaceable model extends BaseProperties "Base properties of incompressible substance"
    end BaseProperties;
+
+   /*
+   redeclare function extends substrateFromIncompressible
+    "Cast substrate definition from Incompressible (but the phase remains Incompressinble) - use only for firstProductDefinition, where phase shift will be included"
+   algorithm 
+     assert(false,"Chemical.Interfaces.IdealGasShomate.substrateFromIncompressible is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+   end substrateFromIncompressible;
+
+  redeclare function extends substrateFromIdealGas
+    "Cast substrate definition from IdealGas (but the state remains in IdealGas) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+     assert(false,"Chemical.Interfaces.IdealGasShomate.substrateFromIdealGas is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+  end substrateFromIdealGas;
+
+  redeclare function extends substrateFromIdealGasMSL
+    "Cast substrate definition from IdealGasMSL (but the phase remains IdealGasMSL) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+    assert(false,"Chemical.Interfaces.IdealGasShomate.substrateFromIdealGasMSL is not implemented yet! If you need this please contect me at marek@matfyz.cz or github.");
+  end substrateFromIdealGasMSL;
+
+  redeclare function extends substrateFromIdealGasShomate
+    "Cast substrate definition from IdealGasShomate (but the phase remains IdealGasShomate) - use only for firstProductDefinition, where phase shift will be included"
+  algorithm 
+    data := dataIdealGasShomate;
+  end substrateFromIdealGasShomate;
+*/
+
 
    redeclare function extends activityCoefficient
     "Return activity coefficient of the substance in the solution"
@@ -2341,27 +2911,31 @@ end solution_temperature_;
         choice(redeclare package stateOfMatterFore =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (Dialog(tab="Advanced"));
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (HideResult=true, Dialog(tab="Advanced"));
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
-      annotation(Dialog(tab="Advanced"));
+      annotation(HideResult=true, Dialog(tab="Advanced"));
     parameter InitializationMethods initN_flow = Chemical.Utilities.Types.InitializationMethods.none "Initialization method for n_flow"
-      annotation(Dialog(tab= "Initialization"));
+      annotation(HideResult=true, Dialog(tab= "Initialization"));
     parameter Modelica.Units.SI.MolarFlowRate n_flow_0=0 "Initial value for n_flow"
-      annotation (Dialog(tab="Initialization", enable=(initM_flow == InitializationMethods.state)));
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.state)));
     parameter Chemical.Utilities.Units.MolarFlowAcceleration n_acceleration_0=0 "Initial value for der(n_flow)"
-      annotation (Dialog(tab="Initialization", enable=(initM_flow == InitializationMethods.derivative)));
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.derivative)));
 
-    Chemical.Interfaces.Fore fore(
-      redeclare package stateOfMatter = stateOfMatterFore,
-      state_forwards(u=u_fore_out,h=h_fore_out))
-      annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
     Chemical.Interfaces.Rear rear(
       redeclare package stateOfMatter = stateOfMatterRear,
       state_rearwards(u=u_rear_out,h=h_rear_out))
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
+    Chemical.Interfaces.Fore fore(
+      redeclare package stateOfMatter = stateOfMatterFore,
+      state_forwards(u=u_fore_out,h=h_fore_out))
+      annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+
+
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect)=rear.n_flow;
+
+  protected
 
     // delta potential computation
     Modelica.Units.SI.ChemicalPotential du_fore;
@@ -2372,7 +2946,7 @@ end solution_temperature_;
   Modelica.Units.SI.Molality b_in, b_out;
   Modelica.Units.SI.MassFraction X_in, X_out;
 */
-  protected
+
     outer Chemical.DropOfCommons dropOfCommons;
 
     Chemical.Interfaces.InputSubstanceState state_rear_in "Input substance state in forwards direction";

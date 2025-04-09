@@ -7563,7 +7563,7 @@ package Substances "Definitions of substances"
       DfH=0,
       DfG=0,
       Cp=0,
-      density=1e20);
+      Vs=1e-20);
 
       annotation (preferredView = "info", Documentation(info="<html><p>http://physics.nist.gov/cgi-bin/cuu/Value?mme, To solve standard electo-chemical cell potentials</p></html>"));
   end Electrone_solid;
@@ -7755,7 +7755,7 @@ package Substances "Definitions of substances"
       z=-1,
       DfH=-885750,
       DfG=-752870,
-      density=1800);
+      Vs=1/1800);
 
       annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf</p></html>"));
   end HydrogenSulfate_aqueous;
@@ -7922,7 +7922,7 @@ package Substances "Definitions of substances"
       DfH=-276980,
       DfG=-174180,
       Cp=112.4,
-      density=789);
+      Vs=1/789);
 
       annotation (preferredView = "info", Documentation(info="<html><p>http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)</p></html>"));
   end Ethanol_liquid;
