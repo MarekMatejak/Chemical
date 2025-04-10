@@ -55,6 +55,7 @@ operator record Definition "Definition of a chemical substance or a chemical pro
     input Definition d1;
     input Definition d2;
     output Definition result " = d1 + d2";
+
   algorithm
     result :=Definition(
         data=DataRecord(
@@ -63,11 +64,11 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           Hf=d1.data.Hf + d2.data.Hf,
           H0=d1.data.H0 + d2.data.H0,
           Tlimit=d1.data.Tlimit,
-          alow=(((1/d1.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d1.data.alow)  .+  (((1/d2.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d2.data.alow),
-          blow=(((1/d1.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d1.data.blow)  .+  (((1/d2.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d2.data.blow),
-          ahigh=(((1/d1.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d1.data.ahigh)  .+  (((1/d2.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d2.data.ahigh),
-          bhigh=(((1/d1.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d1.data.bhigh)  .+  (((1/d2.data.R_s)*(R/(d1.data.MM + d2.data.MM))) .* d2.data.bhigh),
-          R_s=R/(d1.data.MM + d2.data.MM)),
+          alow=(((d1.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d1.data.alow)  .+  (((d2.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d2.data.alow),
+          blow=(((d1.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d1.data.blow)  .+  (((d2.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d2.data.blow),
+          ahigh=(((d1.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d1.data.ahigh)  .+  (((d2.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d2.data.ahigh),
+          bhigh=(((d1.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d1.data.bhigh)  .+  (((d2.data.R_s)/(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)) .* d2.data.bhigh),
+          R_s=(if (d1.data.MM + d2.data.MM) > 0 then R/(d1.data.MM + d2.data.MM) else R)),
         z=d1.z + d2.z);
         annotation (Inline=true);
   end '+';
@@ -87,10 +88,10 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           Hf=-d.data.Hf,
           H0=-d.data.H0,
           Tlimit=d.data.Tlimit,
-          alow=(((1/d.data.R_s)*(R/(d.data.MM))) .* d.data.alow),
-          blow=(((1/d.data.R_s)*(R/(d.data.MM))) .* d.data.blow),
-          ahigh=(((1/d.data.R_s)*(R/(d.data.MM))) .* d.data.ahigh),
-          bhigh=(((1/d.data.R_s)*(R/(d.data.MM))) .* d.data.bhigh),
+          alow=(((d.data.R_s)/(R/(d.data.MM))) .* d.data.alow),
+          blow=(((d.data.R_s)/(R/(d.data.MM))) .* d.data.blow),
+          ahigh=(((d.data.R_s)/(R/(d.data.MM))) .* d.data.ahigh),
+          bhigh=(((d.data.R_s)/(R/(d.data.MM))) .* d.data.bhigh),
           R_s=R/(-d.data.MM)),
         z= -d.z);
         annotation (Inline=true);
@@ -108,10 +109,10 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           Hf=d1.data.Hf - d2.data.Hf,
           H0=d1.data.H0 - d2.data.H0,
           Tlimit=d1.data.Tlimit,
-          alow=(((1/d1.data.R_s)*(R)) .* d1.data.alow)  .-  (((1/d2.data.R_s)*(R)) .* d2.data.alow),
-          blow=(((1/d1.data.R_s)*(R)) .* d1.data.blow)  .-  (((1/d2.data.R_s)*(R)) .* d2.data.blow),
-          ahigh=(((1/d1.data.R_s)*(R)) .* d1.data.ahigh)  .-  (((1/d2.data.R_s)*(R)) .* d2.data.ahigh),
-          bhigh=(((1/d1.data.R_s)*(R)) .* d1.data.bhigh)  .-  (((1/d2.data.R_s)*(R)) .* d2.data.bhigh),
+          alow=(((d1.data.R_s)/(R)) .* d1.data.alow)  .-  (((d2.data.R_s)/(R)) .* d2.data.alow),
+          blow=(((d1.data.R_s)/(R)) .* d1.data.blow)  .-  (((d2.data.R_s)/(R)) .* d2.data.blow),
+          ahigh=(((d1.data.R_s)/(R)) .* d1.data.ahigh)  .-  (((d2.data.R_s)/(R)) .* d2.data.ahigh),
+          bhigh=(((d1.data.R_s)/(R)) .* d1.data.bhigh)  .-  (((d2.data.R_s)/(R)) .* d2.data.bhigh),
           R_s=R),
         z=d1.z - d2.z);
         annotation (Inline=true);
@@ -135,10 +136,10 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           Hf=n*d.data.Hf,
           H0=n*d.data.H0,
           Tlimit=d.data.Tlimit,
-          alow=((1/d.data.R_s)*(R/d.data.MM)) .* d.data.alow,
-          blow=((1/d.data.R_s)*(R/d.data.MM)) .* d.data.blow,
-          ahigh=((1/d.data.R_s)*(R/d.data.MM)) .* d.data.ahigh,
-          bhigh=((1/d.data.R_s)*(R/d.data.MM)) .* d.data.bhigh,
+          alow=((n*d.data.R_s)/(R/(n*d.data.MM))) .* d.data.alow,
+          blow=((n*d.data.R_s)/(R/(n*d.data.MM))) .* d.data.blow,
+          ahigh=((n*d.data.R_s)/(R/(n*d.data.MM))) .* d.data.ahigh,
+          bhigh=((n*d.data.R_s)/(R/(n*d.data.MM))) .* d.data.bhigh,
           R_s=R/(n*d.data.MM)),
         z=n*d.z);
         annotation (Inline=true);
@@ -156,11 +157,11 @@ operator record Definition "Definition of a chemical substance or a chemical pro
           Hf=n*d.data.Hf,
           H0=n*d.data.H0,
           Tlimit=d[1].data.Tlimit,
-          alow={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.alow[j] for i in 1:size(n,1)}) for j in 1:7},
-          blow={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.blow[j] for i in 1:size(n,1)}) for j in 1:2},
-          ahigh={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.ahigh[j] for i in 1:size(n,1)}) for j in 1:7},
-          bhigh={sum({(n[i]*R/(d[i].data.R_s*(n*d.data.MM))) * d[i].data.bhigh[j] for i in 1:size(n,1)}) for j in 1:2},
-          R_s=R/(n*d.data.MM)),
+          alow={sum({(n[i]*(d[i].data.R_s/(if (n*d.data.MM)>0 then R/(n*d.data.MM) else R))) * d[i].data.alow[j] for i in 1:size(n,1)}) for j in 1:7},
+          blow={sum({(n[i]*(d[i].data.R_s/(if (n*d.data.MM)>0 then R/(n*d.data.MM) else R))) * d[i].data.blow[j] for i in 1:size(n,1)}) for j in 1:2},
+          ahigh={sum({(n[i]*(d[i].data.R_s/(if (n*d.data.MM)>0 then R/(n*d.data.MM) else R))) * d[i].data.ahigh[j] for i in 1:size(n,1)}) for j in 1:7},
+          bhigh={sum({(n[i]*(d[i].data.R_s/(if (n*d.data.MM)>0 then R/(n*d.data.MM) else R))) * d[i].data.bhigh[j] for i in 1:size(n,1)}) for j in 1:2},
+          R_s=(if (n*d.data.MM)>0 then R/(n*d.data.MM) else R)),
         z=n*d.z);
         annotation (Inline=true);
   end vector;
