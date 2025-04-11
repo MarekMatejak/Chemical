@@ -1519,7 +1519,8 @@ package Onedirectional
       Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-      parameter Interfaces.Incompressible.SubstanceDataParameters substanceData = Chemical.Substances.Electrone_solid() "Definition of the substance";
+      parameter Interfaces.Incompressible.SubstanceDataParameters substanceData = Chemical.SubstancesOld.Electrone_solid()
+                                                                                                                        "Definition of the substance";
 
       Real r_out, h;
 
@@ -4041,7 +4042,7 @@ equation
       Modelica.Mechanics.Translational.Components.Fixed fixed1
         annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
       Chemical.Boundaries.Substance liquidWater(
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
         mass_start=1) annotation (Placement(transformation(extent={{22,-28},{42,-8}})));
       inner Modelica.Fluid.System system(T_ambient=298.15)
@@ -4074,14 +4075,14 @@ equation
         annotation (Placement(transformation(extent={{-86,-76},{-66,-56}})));
       Chemical.Boundaries.Substance Ethanol(
         redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-        substanceData=Chemical.Substances.Ethanol_liquid(),
+        substanceData=Chemical.SubstancesOld.Ethanol_liquid(),
         use_mass_start=true,
         mass_start=(55.508/2)*0.04607) annotation (Placement(transformation(extent={{18,-8},{38,12}})));
 
       Modelica.Mechanics.Translational.Components.Fixed fixed1
         annotation (Placement(transformation(extent={{-28,-94},{-8,-74}})));
       Chemical.Boundaries.Substance liquidWater(
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
         mass_start=1/2) annotation (Placement(transformation(extent={{-50,-8},{-30,12}})));
       inner Modelica.Fluid.System system(T_ambient=298.15)
@@ -4143,10 +4144,10 @@ equation
       //    "Heat flow to environment to reach constant temperature";
       Modelica.Units.SI.Temperature t
         "Temperature if the solution is ideally thermal isolated from environment";
-      Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{20,4},{40,24}})));
       Chemical.Boundaries.Substance H2O1(
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
         mass_start=1,
         initAmount=Chemical.Utilities.Types.InitializationMethods.state,
@@ -4245,11 +4246,11 @@ equation
       //  volume_start=V,
       Chemical.Boundaries.Substance H2_gas(
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-        substanceData=Chemical.Substances.Hydrogen_gas(),
+        substanceData=Chemical.SubstancesOld.Hydrogen_gas(),
         use_mass_start=false,
         amountOfSubstance_start=26) annotation (Placement(transformation(extent={{-98,-26},{-78,-6}})));
       Chemical.Boundaries.Substance O2_gas(
-        substanceData=Chemical.Substances.Oxygen_gas(),
+        substanceData=Chemical.SubstancesOld.Oxygen_gas(),
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
         use_mass_start=false,
         amountOfSubstance_start=13) annotation (Placement(transformation(extent={{-100,10},{-80,30}})));
@@ -4262,7 +4263,7 @@ equation
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas",
         p={2},
         s={1,2},
-        productsSubstanceData={Chemical.Substances.Water_gas()},
+        productsSubstanceData={Chemical.SubstancesOld.Water_gas()},
         nS=2,
         nP=1) annotation (Placement(transformation(extent={{-68,-8},{-48,12}})));
       Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
@@ -4368,18 +4369,18 @@ equation
         annotation (Placement(transformation(extent={{56,60},{76,80}})));
       Chemical.Boundaries.Substance otherSubstances(
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
-        substanceData=Chemical.Substances.Oxygen_gas(),
+        substanceData=Chemical.SubstancesOld.Oxygen_gas(),
         use_mass_start=false,
         amountOfSubstance_start=1) annotation (Placement(transformation(extent={{2,28},{22,48}})));
     Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(
         G=1e6) annotation (Placement(transformation(extent={{44,-12},{64,8}})));
-      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
       inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
         annotation (Placement(transformation(extent={{72,-74},{92,-54}})));
       Chemical.Processes.GasVolatility gasVolatility(
         redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.Water_gas(),
+        substanceDataOut=Chemical.SubstancesOld.Water_gas(),
         k_forward=10,
         redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas")
         annotation (Placement(transformation(
@@ -4463,7 +4464,7 @@ equation
       Modelica.Blocks.Sources.ContinuousClock clock(offset=1*T_start)
         annotation (Placement(transformation(extent={{62,36},{82,56}})));
       Chemical.Boundaries.Substance otherSubstances(
-        substanceData=Chemical.Substances.Oxygen_gas(),
+        substanceData=Chemical.SubstancesOld.Oxygen_gas(),
         redeclare package stateOfMatter = Chemical.Interfaces.IdealGas,
         use_mass_start=false,
         amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-4,36},{16,56}})));
@@ -4472,12 +4473,12 @@ equation
         BasePressure=600,
         useThermalPort=true) annotation (Placement(transformation(extent={{-50,-100},{42,-10}})));
       Chemical.Boundaries.Substance H2O_solid(
-        substanceData=Chemical.Substances.Water_IceIh(),
+        substanceData=Chemical.SubstancesOld.Water_IceIh(),
         use_mass_start=false,
         amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{10,-52},{-10,-32}})));
       Chemical.Processes.GasVolatility gasVolatility(
         redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.Water_gas(),
+        substanceDataOut=Chemical.SubstancesOld.Water_gas(),
         redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas",
         k_forward=1) annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
@@ -4541,9 +4542,9 @@ equation
                                        //(amountOfSolution_start=39.7)
       Chemical.Processes.GasSolubility CO2_dissolutionP(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.CarbonDioxide_aqueous(),
-                                                        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
-        annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
+        substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
+        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+        k_forward=1) annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
       //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
       Chemical.Boundaries.Substance CO2_25(
         use_mass_start=false,
@@ -4552,11 +4553,11 @@ equation
 
       Chemical.Processes.GasSolubility O2_dissolutionP(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.Oxygen_aqueous(),
-                                                       redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
-        annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
+        substanceDataOut=Chemical.SubstancesOld.Oxygen_aqueous(),
+        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+        k_forward=1) annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
 
-      Chemical.Boundaries.ExternalIdealGas O2_g_25(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      Chemical.Boundaries.ExternalIdealGas O2_g_25(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
         annotation (Placement(transformation(extent={{-114,74},{-94,94}})));
       Chemical.Boundaries.Substance O2_25(
         use_mass_start=false,
@@ -4565,12 +4566,12 @@ equation
 
       Chemical.Processes.GasSolubility CO2_dissolutionE(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.CarbonDioxide_aqueous(),
-                                                        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
-        annotation (Placement(transformation(extent={{-24,40},{-4,60}})));
+        substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
+        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+        k_forward=1) annotation (Placement(transformation(extent={{-24,40},{-4,60}})));
 
-      Chemical.Boundaries.ExternalIdealGas CO2_g_25(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
-        annotation (Placement(transformation(extent={{-154,74},{-134,94}})));
+      Chemical.Boundaries.ExternalIdealGas CO2_g_25(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") =
+          5332.8954966) annotation (Placement(transformation(extent={{-154,74},{-134,94}})));
 
       Chemical.Boundaries.Substance CO2_37(
         use_mass_start=false,
@@ -4579,26 +4580,26 @@ equation
 
       Chemical.Processes.GasSolubility O2_dissolutionE_NIST(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.Oxygen_aqueous(),
-                                                            redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas", k_forward=1)
-        annotation (Placement(transformation(extent={{18,42},{38,62}})));
+        substanceDataOut=Chemical.SubstancesOld.Oxygen_aqueous(),
+        redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
+        k_forward=1) annotation (Placement(transformation(extent={{18,42},{38,62}})));
       Chemical.Boundaries.Substance O2_37(
         use_mass_start=false,
         amountOfSubstance_start(displayUnit="mmol") = 0.0001,
         useInlet=true) "Free dissolved O2 in water at 37degC" annotation (Placement(transformation(extent={{18,-34},{-2,-14}})));
 
-      Chemical.Boundaries.Substance water_25(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance water_25(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{-100,-68},{-80,-48}})));
-      Chemical.Boundaries.Substance water_37(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance water_37(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{8,-70},{28,-50}})));
-      Chemical.Boundaries.ExternalIdealGas CO2_g_37(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
-        annotation (Placement(transformation(extent={{-44,68},{-24,88}})));
-      Chemical.Boundaries.ExternalIdealGas O2_g_37(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      Chemical.Boundaries.ExternalIdealGas CO2_g_37(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") =
+          5332.8954966) annotation (Placement(transformation(extent={{-44,68},{-24,88}})));
+      Chemical.Boundaries.ExternalIdealGas O2_g_37(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
         annotation (Placement(transformation(extent={{-6,68},{14,88}})));
       Solution water_solution_37degC1(temperature_start=273.15) annotation (Placement(transformation(extent={{66,-80},{160,12}})));
       Chemical.Processes.GasSolubility CO2_dissolutionE1(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.CarbonDioxide_aqueous(),
+        substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
         redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
         k_forward=1) annotation (Placement(transformation(extent={{92,44},{112,64}})));
       Chemical.Boundaries.Substance CO2_0(
@@ -4608,7 +4609,7 @@ equation
 
       Chemical.Processes.GasSolubility O2_dissolutionE_NIST1(
         redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas",
-        substanceDataOut=Chemical.Substances.Oxygen_aqueous(),
+        substanceDataOut=Chemical.SubstancesOld.Oxygen_aqueous(),
         redeclare package stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas",
         k_forward=1) annotation (Placement(transformation(extent={{134,42},{154,62}})));
       Chemical.Boundaries.Substance O2_0(
@@ -4616,11 +4617,11 @@ equation
         amountOfSubstance_start(displayUnit="mmol") = 0.0001,
         useInlet=true) "Free dissolved O2 in water at 0degC" annotation (Placement(transformation(extent={{136,-34},{116,-14}})));
 
-      Chemical.Boundaries.Substance water_0(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance water_0(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{126,-70},{146,-50}})));
-      Chemical.Boundaries.ExternalIdealGas CO2_g_0(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      Chemical.Boundaries.ExternalIdealGas CO2_g_0(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
         annotation (Placement(transformation(extent={{74,68},{94,88}})));
-      Chemical.Boundaries.ExternalIdealGas O2_g_0(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      Chemical.Boundaries.ExternalIdealGas O2_g_0(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure(displayUnit="mmHg") = 12665.626804425)
         annotation (Placement(transformation(extent={{112,68},{132,88}})));
       inner Modelica.Fluid.System system(p_ambient=100000)
         annotation (Placement(transformation(extent={{-70,-98},{-50,-78}})));
@@ -4776,8 +4777,7 @@ equation
       Chemical.Solution red_cells annotation (Placement(transformation(extent={{8,-78},{102,14}})));
                                        //(amountOfSolution_start=39.7)
       Chemical.Processes.GasSolubility CO2_dissolutionP(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.CarbonDioxide_aqueous())
-                                                        annotation (Placement(transformation(extent={{-78,44},{-58,64}})));
+            Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-78,44},{-58,64}})));
       //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
       Chemical.Boundaries.Substance CO2_unbound_plasma(
         use_mass_start=false,
@@ -4785,9 +4785,9 @@ equation
         useInlet=true) "Free dissolved CO2 in blood plasma" annotation (Placement(transformation(extent={{-70,-26},{-90,-6}})));
 
       Chemical.Processes.GasSolubility O2_dissolutionP(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.Oxygen_aqueous())      annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
+            Chemical.SubstancesOld.Oxygen_aqueous()) annotation (Placement(transformation(extent={{-34,44},{-14,64}})));
 
-      Chemical.Boundaries.ExternalIdealGas O2_g_n1(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=12665.626804425)
+      Chemical.Boundaries.ExternalIdealGas O2_g_n1(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure=12665.626804425)
         annotation (Placement(transformation(extent={{22,78},{42,98}})));
       Chemical.Boundaries.Substance O2_unbound_plasma(
         use_mass_start=false,
@@ -4795,11 +4795,10 @@ equation
         useInlet=true) "Free dissolved O2 in blood plasma" annotation (Placement(transformation(extent={{-30,-28},{-50,-8}})));
 
       Chemical.Processes.GasSolubility CO2_dissolutionE(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.CarbonDioxide_aqueous())
-                                                        annotation (Placement(transformation(extent={{36,44},{56,64}})));
+            Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{36,44},{56,64}})));
 
-      Chemical.Boundaries.ExternalIdealGas CO2_g_n2(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
-        annotation (Placement(transformation(extent={{-58,78},{-38,98}})));
+      Chemical.Boundaries.ExternalIdealGas CO2_g_n2(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") =
+          5332.8954966) annotation (Placement(transformation(extent={{-58,78},{-38,98}})));
 
       Chemical.Boundaries.Substance CO2_unbound_erythrocyte(
         use_mass_start=false,
@@ -4807,17 +4806,17 @@ equation
         useInlet=true) "Free dissolved CO2 in red cells" annotation (Placement(transformation(extent={{38,-34},{18,-14}})));
 
       Chemical.Processes.GasSolubility O2_dissolutionE_NIST(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.Oxygen_aqueous())           annotation (Placement(transformation(extent={{78,44},{98,64}})));
+            Chemical.SubstancesOld.Oxygen_aqueous()) annotation (Placement(transformation(extent={{78,44},{98,64}})));
       Chemical.Boundaries.Substance O2_unbound_erythrocyte_NIST(
         use_mass_start=false,
         amountOfSubstance_start(displayUnit="mmol") = 0.0001,
         useInlet=true) "Free dissolved O2 in red cells" annotation (Placement(transformation(extent={{78,-32},{58,-12}})));
 
       Chemical.Boundaries.Substance water_plasma(
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
         mass_start=0.82) annotation (Placement(transformation(extent={{-40,-66},{-20,-46}})));
-      Chemical.Boundaries.Substance water_erythrocyte(substanceData=Chemical.Substances.Water_liquid(), mass_start=0.66)
+      Chemical.Boundaries.Substance water_erythrocyte(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=0.66)
         annotation (Placement(transformation(extent={{72,-68},{92,-48}})));
       inner Modelica.Fluid.System system(p_ambient(displayUnit="mmHg")=
           101325.0144354, T_ambient=310.15)
@@ -4962,7 +4961,7 @@ equation
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{24,-12},{44,8}})));
 
-      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
       inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
     equation
@@ -5075,9 +5074,9 @@ equation
       Chemical.Processes.Reaction reaction(
         s={2,4},
         p={2,1,4},
-        productsSubstanceData={Chemical.Substances.Hydrogen_aqueous(),Chemical.Substances.Oxygen_aqueous(),Chemical.Substances.Electrone_solid()},
+        productsSubstanceData={Chemical.SubstancesOld.Hydrogen_aqueous(),Chemical.SubstancesOld.Oxygen_aqueous(),Chemical.SubstancesOld.Electrone_solid()},
         nS=2,
-        nP=3)      annotation (Placement(transformation(
+        nP=3) annotation (Placement(transformation(
             extent={{11,11},{-11,-11}},
             rotation=180,
             origin={-31,-29})));
@@ -5096,7 +5095,7 @@ equation
             Chemical.Interfaces.IdealGas)                                                   annotation (Placement(transformation(extent={{-40,-16},{50,26}})));
       Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
         annotation (Placement(transformation(extent={{18,38},{-2,58}})));
-      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{0,-74},{-20,-54}})));
       Modelica.Electrical.Analog.Basic.Ground ground annotation (Placement(transformation(extent={{36,26},{56,46}})));
       Chemical.Boundaries.Substance O2_aq(
@@ -5106,9 +5105,9 @@ equation
         use_mass_start=false,             amountOfSubstance_start(displayUnit="mmol") = 1e-05,
         useInlet=true)                                                                         annotation (Placement(transformation(extent={{28,-72},{48,-52}})));
       Chemical.Processes.GasVolatility H2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.Hydrogen_gas()) annotation (Placement(transformation(extent={{64,-12},{44,8}})));
+            Chemical.SubstancesOld.Hydrogen_gas()) annotation (Placement(transformation(extent={{64,-12},{44,8}})));
       Chemical.Processes.GasVolatility O2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-            Chemical.Substances.Oxygen_gas()) annotation (Placement(transformation(extent={{-38,-18},{-18,2}})));
+            Chemical.SubstancesOld.Oxygen_gas()) annotation (Placement(transformation(extent={{-38,-18},{-18,2}})));
     equation
     connect(electrone1.pin,voltageSensor. p) annotation (Line(
         points={{-74,-14.2},{-92,-14.2},{-92,48},{-74,48},{-74,80},{-42,80}},
@@ -5213,30 +5212,28 @@ equation
         amountOfSubstance_start=12.39) annotation (Placement(transformation(extent={{-14,-26},{6,-6}})));
 
       Chemical.Boundaries.Substance AgCl(
-        substanceData=Chemical.Substances.SilverChloride_solid(),
+        substanceData=Chemical.SubstancesOld.SilverChloride_solid(),
         use_mass_start=false,
         amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{-76,4},{-56,24}})));
 
       Chemical.Boundaries.Substance H(
-        substanceData=Chemical.Substances.Proton_aqueous(),
+        substanceData=Chemical.SubstancesOld.Proton_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start=12.39) annotation (Placement(transformation(extent={{10,-26},{30,-6}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
         annotation (Placement(transformation(extent={{-6,64},{14,84}})));
-      Chemical.Processes.FastReaction
-                                  electrodeReaction(
+      Chemical.Processes.FastReaction electrodeReaction(
         s={2,2},
-        productsSubstanceData={Chemical.Substances.Hydrogen_aqueous()},
+        productsSubstanceData={Chemical.SubstancesOld.Hydrogen_aqueous()},
         nS=2,
         nP=1) annotation (Placement(transformation(
             extent={{10,10},{-10,-10}},
             rotation=270,
             origin={52,6})));
-      Chemical.Processes.FastReaction
-                                  electrodeReaction1(
-        productsSubstanceData={Chemical.Substances.Silver_solid(),Chemical.Substances.Chloride_aqueous()},
-                                                     nP=2, nS=2)
-        annotation (Placement(transformation(
+      Chemical.Processes.FastReaction electrodeReaction1(
+        productsSubstanceData={Chemical.SubstancesOld.Silver_solid(),Chemical.SubstancesOld.Chloride_aqueous()},
+        nP=2,
+        nS=2) annotation (Placement(transformation(
             extent={{10,10},{-10,-10}},
             rotation=90,
             origin={-40,0})));
@@ -5247,7 +5244,7 @@ equation
                                   //(substanceData=Chemical.Examples.Substances.Electrone_solid())
     Modelica.Electrical.Analog.Basic.Ground ground
       annotation (Placement(transformation(extent={{84,-84},{104,-64}})));
-      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{-6,-54},{14,-34}})));
       inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{-80,-82},{-60,-62}})));
       Chemical.Processes.Membrane membrane annotation (Placement(transformation(extent={{-40,-44},{-20,-24}})));
@@ -5346,12 +5343,12 @@ equation
       Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-26,-80},{2,20}})));
 
       Chemical.Boundaries.Substance Pb(
-        substanceData=Chemical.Substances.Lead_solid(),
+        substanceData=Chemical.SubstancesOld.Lead_solid(),
         use_mass_start=false,
         amountOfSubstance_start=50) annotation (Placement(transformation(extent={{52,-66},{32,-46}})));
 
       Chemical.Boundaries.Substance HSO4(
-        substanceData=Chemical.Substances.HydrogenSulfate_aqueous(),
+        substanceData=Chemical.SubstancesOld.HydrogenSulfate_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start=1) annotation (Placement(transformation(extent={{4,-70},{-16,-50}})));
       Chemical.Boundaries.Substance PbSO4_(
@@ -5364,29 +5361,27 @@ equation
         useInlet=true) annotation (Placement(transformation(extent={{0,-42},{-20,-22}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
         annotation (Placement(transformation(extent={{-32,72},{-12,92}})));
-      Chemical.Processes.FastReactionWithSolutions
-                                  electrodeReaction(
+      Chemical.Processes.FastReactionWithSolutions electrodeReaction(
         s={1,1,3,2},
         p={1,2},
-        productsSubstanceData={Chemical.Substances.LeadSulfate_solid(),Chemical.Substances.Water_liquid()},
+        productsSubstanceData={Chemical.SubstancesOld.LeadSulfate_solid(),Chemical.SubstancesOld.Water_liquid()},
         nP=2,
-        nS=4)    annotation (Placement(transformation(
+        nS=4) annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
             rotation=90,
             origin={-34,-14})));
-      Chemical.Processes.FastReactionWithSolutions
-                                  electrodeReaction1(
+      Chemical.Processes.FastReactionWithSolutions electrodeReaction1(
         p={1,1,2},
-        productsSubstanceData={Chemical.Substances.LeadSulfate_solid(),Chemical.Substances.Proton_aqueous(),Chemical.Substances.Electrone_solid()},
+        productsSubstanceData={Chemical.SubstancesOld.LeadSulfate_solid(),Chemical.SubstancesOld.Proton_aqueous(),Chemical.SubstancesOld.Electrone_solid()},
         nP=3,
-        nS=2)      annotation (Placement(transformation(
+        nS=2) annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=90,
             origin={18,-14})));
 
       Chemical.Boundaries.ElectronSource electrone1 annotation (Placement(transformation(extent={{-78,-38},{-58,-18}})));
       Chemical.Boundaries.Substance PbO2(
-        substanceData=Chemical.Substances.LeadDioxide_solid(),
+        substanceData=Chemical.SubstancesOld.LeadDioxide_solid(),
         use_mass_start=false,
         amountOfSubstance_start=50) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-60,-58})));
       Chemical.Boundaries.Substance H2O(
@@ -5567,13 +5562,13 @@ equation
           amountOfSubstance_start=1e-7,
           useInlet=true) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={30,26})));
 
-        Chemical.Boundaries.Substance H2O(mass_start=1, substanceData=Chemical.Substances.Water_liquid())
+        Chemical.Boundaries.Substance H2O(mass_start=1, substanceData=Chemical.SubstancesOld.Water_liquid())
           annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-30,46})));
         Chemical.Processes.Reaction waterDissociation(
           s={2},
-          productsSubstanceData={Chemical.Substances.Hydronium_aqueous(),Chemical.Substances.Hydroxide_aqueous()},
+          productsSubstanceData={Chemical.SubstancesOld.Hydronium_aqueous(),Chemical.SubstancesOld.Hydroxide_aqueous()},
           nS=1,
-          nP=2)  annotation (Placement(transformation(extent={{-12,36},{8,56}})));
+          nP=2) annotation (Placement(transformation(extent={{-12,36},{8,56}})));
               Real pH, pH3O;
         Chemical.Boundaries.Substance H_(
           use_mass_start=false,
@@ -5585,10 +5580,10 @@ equation
           amountOfSubstance_start=1e-7,
           useInlet=true) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-76})));
 
-        Chemical.Boundaries.Substance H2O_(mass_start=1, substanceData=Chemical.Substances.Water_liquid())
+        Chemical.Boundaries.Substance H2O_(mass_start=1, substanceData=Chemical.SubstancesOld.Water_liquid())
           annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-32,-56})));
         Chemical.Processes.Reaction waterDissociation_(
-          productsSubstanceData={Chemical.Substances.Proton_aqueous(),Chemical.Substances.Hydroxide_aqueous()},
+          productsSubstanceData={Chemical.SubstancesOld.Proton_aqueous(),Chemical.SubstancesOld.Hydroxide_aqueous()},
           nS=1,
           nP=2) annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
 
@@ -5664,15 +5659,14 @@ equation
           amountOfSubstance_start(displayUnit="mmol") = 1e-08,
           useInlet=true) annotation (Placement(transformation(extent={{-16,-4},{4,16}})));
 
-        Chemical.Processes.FastReaction
-                                    HendersonHasselbalch(
+        Chemical.Processes.FastReaction HendersonHasselbalch(
           TC=dropOfCommons.L,
-          productsSubstanceData={Chemical.Substances.Bicarbonate_aqueous(),Chemical.Substances.Proton_aqueous()},
+          productsSubstanceData={Chemical.SubstancesOld.Bicarbonate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
           kC=1e-4,
           nS=2,
-          nP=2)                   "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-46,-6},{-26,14}})));
-        Chemical.Boundaries.ExternalIdealGas CO2_gas(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") = 5332.8954966)
-          annotation (Placement(transformation(
+          nP=2) "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-46,-6},{-26,14}})));
+        Chemical.Boundaries.ExternalIdealGas CO2_gas(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure(displayUnit="mmHg") =
+            5332.8954966) annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=270,
               origin={-76,82})));
@@ -5685,14 +5679,14 @@ equation
         displayUnit="(mmol/l)/kPa at 25degC") = 0.81805576878885)*/
         Real pH;
 
-        Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{-82,-60},{-62,-40}})));
         inner Modelica.Fluid.System system(T_ambient=310.15)
           annotation (Placement(transformation(extent={{48,64},{68,84}})));
 
         inner Chemical.DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{66,12},{86,32}})));
         Chemical.Processes.GasSolubility gasSolubility(redeclare package stateIn = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
-              Chemical.Substances.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-70,42},{-50,62}})));
+              Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-70,42},{-50,62}})));
       equation
         pH = -log10( H.substance.a);
 
@@ -5764,10 +5758,9 @@ equation
           amountOfSubstance_start=10^(-7.4)) "hydrogen ions activity" annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={16,-10})));
 
         Chemical.Boundaries.Substance H3PO4(
-          substanceData=Chemical.Substances.PhosphoricAcid_aqueous(),
+          substanceData=Chemical.SubstancesOld.PhosphoricAcid_aqueous(),
           use_mass_start=false,
-          amountOfSubstance_start(displayUnit="mol") = 1e-4)
-                                         annotation (Placement(transformation(extent={{-92,-58},{-72,-38}})));
+          amountOfSubstance_start(displayUnit="mol") = 1e-4) annotation (Placement(transformation(extent={{-92,-58},{-72,-38}})));
         Chemical.Boundaries.Substance H2PO4(
           use_mass_start=false,
           useInlet=true,
@@ -5784,21 +5777,18 @@ equation
           initAmount=Chemical.Utilities.Types.InitializationMethods.state,
           amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{78,-72},{98,-52}})));
 
-        Chemical.Processes.FastReaction
-                                    chemicalReaction(
-          productsSubstanceData={Chemical.Substances.DihydrogenPhosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        Chemical.Processes.FastReaction chemicalReaction(
+          productsSubstanceData={Chemical.SubstancesOld.DihydrogenPhosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
           kC=KC,
           nP=2,
           nS=1) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-64,-58},{-44,-38}})));
-        Chemical.Processes.FastReaction
-                                    chemicalReaction1(
-          productsSubstanceData={Chemical.Substances.HydrogenPhosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        Chemical.Processes.FastReaction chemicalReaction1(
+          productsSubstanceData={Chemical.SubstancesOld.HydrogenPhosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
           kC=KC,
           nS=1,
           nP=2) "10^(-6.66 + 3)" annotation (Placement(transformation(extent={{-14,-58},{6,-38}})));
-        Chemical.Processes.FastReaction
-                                    chemicalReaction2(
-          productsSubstanceData={Chemical.Substances.Phosphate_aqueous(),Chemical.Substances.Proton_aqueous()},
+        Chemical.Processes.FastReaction chemicalReaction2(
+          productsSubstanceData={Chemical.SubstancesOld.Phosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
           kC=1e-8,
           nS=1,
           nP=2) "10^(-11.78 + 3)" annotation (Placement(transformation(extent={{44,-58},{64,-38}})));
@@ -5881,9 +5871,9 @@ equation
           BufferValue=3) annotation (Placement(transformation(extent={{-50,4},{-30,24}})));
 
         Chemical.Solution simpleSolution annotation (Placement(transformation(extent={{-104,-100},{96,100}})));
-        Chemical.Boundaries.ExternalMoleFraction externalMoleFraction(substanceData=Chemical.Substances.Proton_aqueous(), MoleFraction=10^(-7.1))
+        Chemical.Boundaries.ExternalMoleFraction externalMoleFraction(substanceData=Chemical.SubstancesOld.Proton_aqueous(), MoleFraction=10^(-7.1))
           annotation (Placement(transformation(extent={{0,-46},{20,-26}})));
-        Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance liquidWater(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{40,-80},{60,-60}})));
         Chemical.Processes.Diffusion process annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -5923,23 +5913,23 @@ equation
           useInlet=true) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={18,24})));
 
         Chemical.Boundaries.ExternalIdealGas CO2_gas(
-          substanceData=Chemical.Substances.CarbonDioxide_gas(),
+          substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(),
           PartialPressure(displayUnit="mmHg") = 5332.8954966,
           usePartialPressureInput=true) annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=180,
               origin={-20,90})));
-        Chemical.Processes.GasSolubility gasSolubility(initN_flow=Chemical.Utilities.Types.InitializationMethods.state, n_flow_0=0,
-          substanceDataOut=Chemical.Substances.CarbonDioxide_aqueous())
-          annotation (Placement(transformation(extent={{-72,56},{-52,76}})));
+        Chemical.Processes.GasSolubility gasSolubility(
+          initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+          n_flow_0=0,
+          substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-72,56},{-52,76}})));
 
         Chemical.Boundaries.Substance H2O(
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           use_mass_start=false,
-          amountOfSubstance_start=51.6159)
-                                     annotation (Placement(transformation(extent={{-28,14},{-48,34}})));
+          amountOfSubstance_start=51.6159) annotation (Placement(transformation(extent={{-28,14},{-48,34}})));
         Chemical.Boundaries.Substance Cl(
-          substanceData=Chemical.Substances.Chloride_aqueous(),
+          substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.103) annotation (Placement(transformation(extent={{70,20},{50,40}})));
 
@@ -5955,7 +5945,7 @@ equation
                   //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         Chemical.Boundaries.Buffer H(
           useInlet=true,
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           BufferValue=0.0077,
           a_start=10^(-7.4)) "buffer value 7.7 mmol/L for plasma is from (O. Siggaard-Andersen 1995)"
           annotation (Placement(transformation(extent={{34,40},{52,58}})));
@@ -5988,7 +5978,7 @@ equation
               //References={"to reach plasma density 1024 kg/m3 and plasma volume 1 liter"},
         Chemical.Boundaries.Buffer H_E(
           useInlet=true,
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           BufferValue=0.063,
           a_start=10^(-7.2)) annotation (Placement(transformation(extent={{14,-52},{32,-34}})));
 
@@ -6018,9 +6008,9 @@ equation
         Chemical.Processes.Reaction HendersonHasselbalch1(
           initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
           n_flow_0=0,
-          productsSubstanceData={Chemical.Substances.Bicarbonate_blood(),Chemical.Substances.Proton_aqueous()},
+          productsSubstanceData={Chemical.SubstancesOld.Bicarbonate_blood(),Chemical.SubstancesOld.Proton_aqueous()},
           nS=2,
-          nP=1)          "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-24,-58},{-4,-38}})));
+          nP=1) "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-24,-58},{-4,-38}})));
         Chemical.Processes.Membrane ProtonExchanger(initN_flow=Chemical.Utilities.Types.InitializationMethods.state)
           annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
@@ -6040,11 +6030,8 @@ equation
               extent={{-10,-10},{10,10}},
               rotation=270,
               origin={-86,-18})));
-        Chemical.Processes.FastGasSolubility       gasSolubilitySubstance(substanceDataOut=Chemical.Substances.CarbonDioxide_aqueous(),
-                                                                          redeclare
-            package                                                                         stateOfMatterIn =
-              Chemical.Interfaces.IdealGas                                                                                                 "Ideal Gas")
-                                                                          annotation (Placement(transformation(extent={{-110,58},{-90,78}})));
+        Chemical.Processes.FastGasSolubility gasSolubilitySubstance(substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(), redeclare package
+            stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas") annotation (Placement(transformation(extent={{-110,58},{-90,78}})));
       equation
         pH_p = -log10(H.substance.a);
         pH_e = -log10(H_E.substance.a);
@@ -6205,15 +6192,15 @@ equation
 
         Chemical.Boundaries.Substance HCO3(
           useInlet=true,
-          substanceData=Chemical.Substances.Bicarbonate_blood(),
+          substanceData=Chemical.SubstancesOld.Bicarbonate_blood(),
           use_mass_start=false,
           amountOfSubstance_start=0.024) annotation (Placement(transformation(extent={{10,-10},{-10,10}}, origin={-18,30})));
 
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=51.8*0.994648/55.508)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=51.8*0.994648/55.508)
           annotation (Placement(transformation(extent={{-146,44},{-166,64}})));
         Chemical.Boundaries.Substance HCO3_E(
           useInlet=true,
-          substanceData=Chemical.Substances.Bicarbonate_blood(),
+          substanceData=Chemical.SubstancesOld.Bicarbonate_blood(),
           use_mass_start=false,
           amountOfSubstance_start=0.0116) annotation (Placement(transformation(extent={{-28,-38},{-8,-18}})));
         Chemical.Boundaries.Substance H2O_E(
@@ -6222,11 +6209,11 @@ equation
           useInlet=true) annotation (Placement(transformation(extent={{-164,-38},{-144,-18}})));
         Chemical.Boundaries.Substance Cl_E(
           useInlet=true,
-          substanceData=Chemical.Substances.Chloride_aqueous(),
+          substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.0499) annotation (Placement(transformation(extent={{22,-36},{42,-16}})));
         Chemical.Boundaries.Substance Cl(
-          substanceData=Chemical.Substances.Chloride_aqueous(),
+          substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.103) annotation (Placement(transformation(extent={{-4,20},{16,40}})));
         Chemical.Boundaries.Substance albumin(
@@ -6268,11 +6255,11 @@ equation
               origin={140,0})));
         Chemical.Boundaries.Substance Lac_E(
           useInlet=true,
-          substanceData=Chemical.Substances.Chloride_aqueous(),
+          substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.00062) annotation (Placement(transformation(extent={{76,-38},{56,-18}})));
         Chemical.Boundaries.Substance Lac(
-          substanceData=Chemical.Substances.Chloride_aqueous(),
+          substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.00131) annotation (Placement(transformation(extent={{56,20},{76,40}})));
         Chemical.Processes.Membrane MCT_ "Monocarboxylate transporters"
@@ -6282,7 +6269,7 @@ equation
               origin={80,0})));
         Chemical.Boundaries.Substance H(
           useInlet=true,
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=10^(-7.4)) "H+ in plasma" annotation (Placement(transformation(extent={{50,20},{30,40}})));
         Chemical.Processes.Membrane MCT "Monocarboxylate transporters"
@@ -6291,7 +6278,7 @@ equation
               rotation=270,
               origin={52,0})));
         Chemical.Boundaries.Substance CO2(
-          substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
+          substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.00167) "free dissolved unbound CO2" annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
         Chemical.Boundaries.Substance CO2_E(
@@ -6303,7 +6290,7 @@ equation
               rotation=270,
               origin={-38,2})));
         Chemical.Boundaries.Substance O2(
-          substanceData=Chemical.Substances.Oxygen_aqueous(),
+          substanceData=Chemical.SubstancesOld.Oxygen_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.000167) "free dissolved undound oxygen" annotation (Placement(transformation(extent={{96,20},{116,40}})));
         Chemical.Processes.Membrane freeO2 annotation (Placement(transformation(
@@ -6312,27 +6299,27 @@ equation
               origin={118,0})));
         Chemical.Boundaries.Substance O2_E(
           useInlet=true,
-          substanceData=Chemical.Substances.Oxygen_aqueous(),
+          substanceData=Chemical.SubstancesOld.Oxygen_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.000125) "free dissolved undound O2" annotation (Placement(transformation(extent={{116,-38},{96,-18}})));
         Chemical.Boundaries.Substance K(
-          substanceData=Chemical.Substances.Potassium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Potassium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.004) annotation (Placement(transformation(extent={{-100,20},{-120,40}})));
         Chemical.Boundaries.Substance Na(
-          substanceData=Chemical.Substances.Sodium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Sodium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.138) annotation (Placement(transformation(extent={{-124,20},{-144,40}})));
         Chemical.Boundaries.Substance Na_E(
-          substanceData=Chemical.Substances.Sodium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Sodium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.007) annotation (Placement(transformation(extent={{-118,-38},{-138,-18}})));
         Chemical.Boundaries.Substance K_E(
-          substanceData=Chemical.Substances.Potassium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Potassium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.096) annotation (Placement(transformation(extent={{-112,-38},{-92,-18}})));
         Chemical.Boundaries.Substance H2PO4_E(
-          substanceData=Chemical.Substances.DihydrogenPhosphate_aqueous(),
+          substanceData=Chemical.SubstancesOld.DihydrogenPhosphate_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.000175) annotation (Placement(transformation(extent={{-84,-38},{-64,-18}})));
         Chemical.Boundaries.Substance ADP_E(
@@ -6349,7 +6336,7 @@ equation
             //References={"http://www.wiley.com/college/pratt/0471393878/student/review/thermodynamics/7_relationship.html"}
 
         Chemical.Boundaries.Substance HPO4_E(
-          substanceData=Chemical.Substances.HydrogenPhosphate_aqueous(),
+          substanceData=Chemical.SubstancesOld.HydrogenPhosphate_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.000495) annotation (Placement(transformation(extent={{-84,-62},{-64,-42}})));
         Chemical.Boundaries.Substance globulins(
@@ -6360,11 +6347,11 @@ equation
           use_mass_start=false,
           amountOfSubstance_start=0.00082) annotation (Placement(transformation(extent={{150,76},{130,96}})));
         Chemical.Boundaries.Substance Ca(
-          substanceData=Chemical.Substances.Calcium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Calcium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.00175) "Ca2+" annotation (Placement(transformation(extent={{-78,20},{-98,40}})));
         Chemical.Boundaries.Substance Mg(
-          substanceData=Chemical.Substances.Magnesium_aqueous(),
+          substanceData=Chemical.SubstancesOld.Magnesium_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=0.00108) "Mg2+" annotation (Placement(transformation(extent={{-112,-84},{-92,-64}})));
         Chemical.Boundaries.Substance DPG(
@@ -6602,9 +6589,9 @@ equation
         model NaKATPase
           Solution ICF(ElectricGround=false) annotation (Placement(transformation(extent={{-100,-100},{-20,98}})));
           Solution ECF annotation (Placement(transformation(extent={{28,-100},{100,100}})));
-          Chemical.Boundaries.Substance water_ICF(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+          Chemical.Boundaries.Substance water_ICF(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
             annotation (Placement(transformation(extent={{-82,70},{-62,90}})));
-          Chemical.Boundaries.Substance water_EFC(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+          Chemical.Boundaries.Substance water_EFC(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
             annotation (Placement(transformation(extent={{58,56},{38,76}})));
           Chemical.Processes.Reaction NaKATPase(
             nS=4,
@@ -6616,45 +6603,45 @@ equation
                 origin={0,8})));
           Chemical.Boundaries.Substance Na_ICF(
             amountOfSubstance_start(displayUnit="mmol") = 0.01,
-            substanceData=Chemical.Substances.Sodium_aqueous(),
+            substanceData=Chemical.SubstancesOld.Sodium_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{-72,18},{-52,38}})));
           Chemical.Boundaries.Substance K_ICF(
             useInlet=true,
             amountOfSubstance_start(displayUnit="mmol") = 0.14,
-            substanceData=Chemical.Substances.Potassium_aqueous(),
+            substanceData=Chemical.SubstancesOld.Potassium_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{-56,-18},{-76,2}})));
           Chemical.Boundaries.Substance ATP4_ICF(
             amountOfSubstance_start(displayUnit="mmol") = 0.0038,
-            substanceData=Chemical.Substances.ATP4_aqueous(),
+            substanceData=Chemical.SubstancesOld.ATP4_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{-72,42},{-52,62}})));
           Chemical.Boundaries.Substance Na_ECF(
             useInlet=true,
             amountOfSubstance_start(displayUnit="mmol") = 0.14,
-            substanceData=Chemical.Substances.Sodium_aqueous(),
+            substanceData=Chemical.SubstancesOld.Sodium_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{42,-18},{62,2}})));
           Chemical.Boundaries.Substance K_ECF(
             amountOfSubstance_start(displayUnit="mmol") = 0.005,
-            substanceData=Chemical.Substances.Potassium_aqueous(),
+            substanceData=Chemical.SubstancesOld.Potassium_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{58,28},{38,48}})));
           Chemical.Boundaries.Substance ADP3(
             useInlet=true,
-            substanceData=Chemical.Substances.ADP3_aqueous(),
+            substanceData=Chemical.SubstancesOld.ADP3_aqueous(),
             use_mass_start=false,
             amountOfSubstance_start=0.005/150) annotation (Placement(transformation(extent={{-56,-42},{-76,-22}})));
           Chemical.Boundaries.Substance H2PO4_ICF(
             useInlet=true,
             amountOfSubstance_start(displayUnit="mmol") = 0.036,
-            substanceData=Chemical.Substances.DihydrogenPhosphate_aqueous(),
+            substanceData=Chemical.SubstancesOld.DihydrogenPhosphate_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{-56,-68},{-76,-48}})));
           inner Modelica.Fluid.System system(T_ambient=310.15)
             annotation (Placement(transformation(extent={{-6,-90},{14,-70}})));
           Chemical.Boundaries.Substance Cl_ICF(
             amountOfSubstance_start(displayUnit="mmol") = 0.0987,
-            substanceData=Chemical.Substances.Chloride_aqueous(),
+            substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{-82,-92},{-62,-72}})));
           Chemical.Boundaries.Substance Cl_ECF(
             amountOfSubstance_start(displayUnit="mmol") = 0.145,
-            substanceData=Chemical.Substances.Chloride_aqueous(),
+            substanceData=Chemical.SubstancesOld.Chloride_aqueous(),
             use_mass_start=false) annotation (Placement(transformation(extent={{50,-72},{70,-52}})));
         equation
           connect(water_ICF.solution, ICF.solution) annotation (Line(points={{-78,70},
@@ -6736,9 +6723,9 @@ equation
           each use_mass_start=false,
           each amountOfSubstance_start=0.00033) "protonated acid groups" annotation (Placement(transformation(extent={{-58,-2},{-78,18}})));
 
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={62,-68})));
-        Chemical.Boundaries.ExternalMoleFraction H(substanceData=Chemical.Substances.Proton_aqueous(), MoleFraction=10^(-7.4))
+        Chemical.Boundaries.ExternalMoleFraction H(substanceData=Chemical.SubstancesOld.Proton_aqueous(), MoleFraction=10^(-7.4))
           annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=180,
@@ -6807,11 +6794,11 @@ equation
           each use_mass_start=false,
           each amountOfSubstance_start=0.00033) "protonated acid groups" annotation (Placement(transformation(extent={{-78,-2},{-58,18}})));
 
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={62,-68})));
         Chemical.Boundaries.ExternalMoleFraction H(
           useInlet=true,
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           MoleFraction=10^(-7.4)) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=180,
@@ -6880,9 +6867,9 @@ equation
           each use_mass_start=false,
           each amountOfSubstance_start=0.00033) "protonated acid groups" annotation (Placement(transformation(extent={{-58,-2},{-78,18}})));
 
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={62,-68})));
-        Chemical.Boundaries.ExternalMoleFraction H(substanceData=Chemical.Substances.Proton_aqueous(), MoleFraction=10^(-7.4))
+        Chemical.Boundaries.ExternalMoleFraction H(substanceData=Chemical.SubstancesOld.Proton_aqueous(), MoleFraction=10^(-7.4))
           annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
               rotation=180,
@@ -7128,7 +7115,7 @@ equation
               origin={-82,78})));
         Chemical.Boundaries.ExternalIdealGas O2_in_air(
           usePartialPressureInput=true,
-          substanceData=Chemical.Substances.Oxygen_gas(),
+          substanceData=Chemical.SubstancesOld.Oxygen_gas(),
           PartialPressure(displayUnit="kPa") = 3733)
           annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -7138,7 +7125,7 @@ equation
         Chemical.Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-92,0},{-72,20}})));
 
         Real sO2;
-        Chemical.Boundaries.Substance substance(substanceData=Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance substance(substanceData=SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{66,-20},{86,0}})));
         Chemical.Topology.SplitterT2 splitterT2 annotation (Placement(transformation(extent={{58,42},{38,62}})));
         TopologyToProcess.JunctionT2 junctionT2 annotation (Placement(transformation(extent={{-18,102},{2,82}})));
@@ -7507,7 +7494,7 @@ equation
         Chemical.Processes.GasSolubility partialPressure1 annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
 
         Real sO2 "Hemoglobin oxygen saturation";
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{32,-92},{52,-72}})));
         Chemical.Topology.SplitterT2 sT2[4] annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -7735,7 +7722,7 @@ equation
         Chemical.Processes.GasSolubility partialPressure1 annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-14,62})));
 
         Real sO2 "Hemoglobin oxygen saturation";
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{32,-92},{52,-72}})));
         Chemical.Topology.SplitterT2 sT2[4] annotation (Placement(transformation(
               extent={{-10,-10},{10,10}},
@@ -7864,11 +7851,10 @@ equation
 
       Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-30,-96},{56,-30}})));
 
-      Chemical.Boundaries.ExternalIdealGas H2(
-        substanceData=Chemical.Substances.Hydrogen_gas(), PartialPressure=100000)
-                                annotation (Placement(transformation(extent={{44,32},{24,52}})));
+      Chemical.Boundaries.ExternalIdealGas H2(substanceData=Chemical.SubstancesOld.Hydrogen_gas(), PartialPressure=100000)
+        annotation (Placement(transformation(extent={{44,32},{24,52}})));
       Chemical.Boundaries.Substance H(
-        substanceData=Chemical.Substances.Proton_aqueous(),
+        substanceData=Chemical.SubstancesOld.Proton_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-4,-58},{16,-38}})));
       Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -7897,9 +7883,9 @@ equation
       annotation (Placement(transformation(extent={{62,54},{82,74}})));
       Chemical.Boundaries.Substance H2O(
         useInlet=true,
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         mass_start=1) annotation (Placement(transformation(extent={{-6,-82},{14,-62}})));
-      Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
+      Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure=100000)
         annotation (Placement(transformation(extent={{-4,36},{-24,56}})));
       Solution gases(BasePressure(displayUnit="kPa") = 100000) annotation (Placement(transformation(extent={{-42,22},{60,58}})));
       Chemical.Topology.SplitterT1 splitterT1 annotation (Placement(transformation(
@@ -7908,12 +7894,12 @@ equation
             origin={20,6})));
       Chemical.Boundaries.Substance O2_aq(
         useInlet=true,
-        substanceData=Chemical.Substances.Oxygen_aqueous(),
+        substanceData=Chemical.SubstancesOld.Oxygen_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start(displayUnit="mmol") = 0.0001) annotation (Placement(transformation(extent={{-28,-62},{-8,-42}})));
       Chemical.Boundaries.Substance H2_aq(
         useInlet=true,
-        substanceData=Chemical.Substances.Hydrogen_aqueous(),
+        substanceData=Chemical.SubstancesOld.Hydrogen_aqueous(),
         use_mass_start=false,
         amountOfSubstance_start(displayUnit="mmol") = 1e-05) annotation (Placement(transformation(extent={{24,-76},{44,-56}})));
       Chemical.Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-36,-22},{-16,-2}})));
@@ -8029,7 +8015,7 @@ equation
         Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
         Chemical.Boundaries.Substance CH3COOH(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.AceticAcid_aqueous(),
+          substanceData=Chemical.SubstancesOld.AceticAcid_aqueous(),
           mass_start=0.001) "Acetic acid" annotation (Placement(transformation(extent={{-72,30},{-52,50}})));
         Chemical.Boundaries.Substance CH4(
           use_mass_start=false,
@@ -8043,10 +8029,10 @@ equation
           mass_start=0.001) annotation (Placement(transformation(extent={{56,10},{76,30}})));
         Chemical.Boundaries.Substance Water(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           mass_start=1) annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
         Chemical.Processes.Reaction reaction(
-          productsSubstanceData={Chemical.Substances.Methan_aqueous(),Chemical.Substances.CarbonDioxide_aqueous()},
+          productsSubstanceData={Chemical.SubstancesOld.Methan_aqueous(),Chemical.SubstancesOld.CarbonDioxide_aqueous()},
           nS=1,
           nP=2) "Acetoclastic (heterotrophic) methanogenesis" annotation (Placement(transformation(extent={{-18,32},{2,52}})));
         inner DropOfCommons dropOfCommons(L=10) annotation (Placement(transformation(extent={{-40,-26},{-20,-6}})));
@@ -8087,7 +8073,7 @@ equation
           mass_start=0.001) "Methan" annotation (Placement(transformation(extent={{32,72},{52,92}})));
         Chemical.Boundaries.Substance CO2(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
+          substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
           mass_start=0.001) annotation (Placement(transformation(extent={{-68,40},{-48,60}})));
         Chemical.Boundaries.Substance H2O(
           use_mass_start=false,
@@ -8097,12 +8083,12 @@ equation
         Chemical.Processes.Reaction reaction(
           s={4,1},
           p={1,2},
-          productsSubstanceData={Chemical.Substances.Methan_aqueous(),Chemical.Substances.Water_liquid()},
+          productsSubstanceData={Chemical.SubstancesOld.Methan_aqueous(),Chemical.SubstancesOld.Water_liquid()},
           nS=2,
           nP=2) "Hydrogenotrophic (autotrophic) methanogenesis" annotation (Placement(transformation(extent={{-18,50},{2,70}})));
         Chemical.Boundaries.Substance H2(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.Hydrogen_aqueous(),
+          substanceData=Chemical.SubstancesOld.Hydrogen_aqueous(),
           mass_start=0.001) annotation (Placement(transformation(extent={{-74,66},{-54,86}})));
         inner DropOfCommons dropOfCommons(L=1e12) annotation (Placement(transformation(extent={{-64,-56},{-44,-36}})));
       equation
@@ -8152,13 +8138,13 @@ equation
 
         Chemical.Boundaries.ExternalIdealGas CH4(
           useInlet=true,
-          substanceData=Chemical.Substances.Methan_gas(),
+          substanceData=Chemical.SubstancesOld.Methan_gas(),
           PartialPressure=100000) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=0,
               origin={34,44})));
         Chemical.Boundaries.Substance H(
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-16,-28},{4,-8}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -8188,11 +8174,11 @@ equation
         annotation (Placement(transformation(extent={{46,52},{66,72}})));
         Chemical.Boundaries.Substance H2O(
           useInlet=true,
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           mass_start=1) annotation (Placement(transformation(extent={{-6,-80},{14,-60}})));
-        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{-6,32},{-26,52}})));
-        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{20,36},{0,56}})));
         Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
           annotation (Placement(transformation(extent={{-80,78},{-60,98}})));
@@ -8314,7 +8300,7 @@ equation
         Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-90,-90},{92,14}})));
 
         Chemical.Boundaries.Substance H(
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-84,-14},{-64,6}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -8343,18 +8329,18 @@ equation
         annotation (Placement(transformation(extent={{22,54},{42,74}})));
         Chemical.Boundaries.Substance H2O(
           useInlet=true,
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           mass_start=1) annotation (Placement(transformation(extent={{68,-28},{48,-8}})));
-        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{14,40},{-6,60}})));
         Chemical.Boundaries.Substance CH4(
           useInlet=true,
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.Methan_aqueous(),
+          substanceData=Chemical.SubstancesOld.Methan_aqueous(),
           mass_start=0.001) "Methan" annotation (Placement(transformation(extent={{54,-64},{74,-44}})));
         Chemical.Boundaries.Substance CO2(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
+          substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
           mass_start=0.1) annotation (Placement(transformation(extent={{-72,-76},{-52,-56}})));
         Chemical.Processes.Reaction reaction(
           s={4,1},
@@ -8364,7 +8350,7 @@ equation
         Chemical.Boundaries.Substance H2(
           useInlet=true,
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.Hydrogen_aqueous(),
+          substanceData=Chemical.SubstancesOld.Hydrogen_aqueous(),
           mass_start=5e-11) annotation (Placement(transformation(extent={{-76,-44},{-56,-24}})));
         Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
           annotation (Placement(transformation(extent={{-72,84},{-52,104}})));
@@ -8498,7 +8484,7 @@ equation
         Chemical.Solution solution1(ElectricGround=false) annotation (Placement(transformation(extent={{-90,-90},{92,14}})));
 
         Chemical.Boundaries.Substance H(
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=1e-4) annotation (Placement(transformation(extent={{-84,-14},{-64,6}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -8518,19 +8504,19 @@ equation
                                     //(substanceData=Chemical.Examples.Substances.Electrone_solid())
       Modelica.Electrical.Analog.Basic.Ground ground
         annotation (Placement(transformation(extent={{22,54},{42,74}})));
-        Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+        Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
           annotation (Placement(transformation(extent={{78,-28},{58,-8}})));
         Chemical.Boundaries.ExternalIdealGas O2_(
-          substanceData=Chemical.Substances.Oxygen_gas(),
+          substanceData=Chemical.SubstancesOld.Oxygen_gas(),
           PartialPressure=100000,
           TotalPressure=100000) annotation (Placement(transformation(extent={{0,36},{-20,56}})));
         Chemical.Boundaries.Substance AcAc(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.AceticAcid_aqueous(),
+          substanceData=Chemical.SubstancesOld.AceticAcid_aqueous(),
           mass_start=0.001) "Acetic Acid" annotation (Placement(transformation(extent={{60,-60},{40,-40}})));
         Chemical.Boundaries.Substance CO2(
           redeclare package stateOfMatter = Chemical.Interfaces.Incompressible,
-          substanceData=Chemical.Substances.CarbonDioxide_aqueous(),
+          substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous(),
           mass_start=1) annotation (Placement(transformation(extent={{-10,-34},{10,-14}})));
         Chemical.Processes.Reaction reaction(
           s={2,8,8},
@@ -8620,13 +8606,13 @@ equation
 
         Chemical.Boundaries.ExternalIdealGas CH4(
           useInlet=true,
-          substanceData=Chemical.Substances.Methan_gas(),
+          substanceData=Chemical.SubstancesOld.Methan_gas(),
           PartialPressure=100000) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=0,
               origin={34,44})));
         Chemical.Boundaries.Substance H(
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-16,-28},{4,-8}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -8656,11 +8642,11 @@ equation
         annotation (Placement(transformation(extent={{46,52},{66,72}})));
         Chemical.Boundaries.Substance H2O(
           useInlet=true,
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           mass_start=1) annotation (Placement(transformation(extent={{-6,-80},{14,-60}})));
-        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.Substances.Oxygen_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas O2_(substanceData=Chemical.SubstancesOld.Oxygen_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{-6,32},{-26,52}})));
-        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{20,36},{0,56}})));
         Chemical.Topology.SplitterT1 splitterT1
           annotation (Placement(transformation(
@@ -8765,14 +8751,14 @@ equation
 
         Chemical.Boundaries.ExternalIdealGas CH4(
           useInlet=true,
-          substanceData=Chemical.Substances.Methan_gas(),
+          substanceData=Chemical.SubstancesOld.Methan_gas(),
           PartialPressure=100000) annotation (Placement(transformation(
               extent={{10,-10},{-10,10}},
               rotation=0,
               origin={34,44})));
         Chemical.Boundaries.Substance H(
           useInlet=true,
-          substanceData=Chemical.Substances.Proton_aqueous(),
+          substanceData=Chemical.SubstancesOld.Proton_aqueous(),
           use_mass_start=false,
           amountOfSubstance_start=1e-7) annotation (Placement(transformation(extent={{-16,-28},{4,-8}})));
         Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
@@ -8802,10 +8788,10 @@ equation
         annotation (Placement(transformation(extent={{-112,62},{-92,82}})));
         Chemical.Boundaries.Substance H2O(
           useInlet=true,
-          substanceData=Chemical.Substances.Water_liquid(),
+          substanceData=Chemical.SubstancesOld.Water_liquid(),
           mass_start=1) annotation (Placement(transformation(extent={{14,-80},{-6,-60}})));
         Chemical.Boundaries.Substance O2_(useInlet=true) annotation (Placement(transformation(extent={{-26,32},{-6,52}})));
-        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.Substances.CarbonDioxide_gas(), PartialPressure=100000)
+        Chemical.Boundaries.ExternalIdealGas CO2(substanceData=Chemical.SubstancesOld.CarbonDioxide_gas(), PartialPressure=100000)
           annotation (Placement(transformation(extent={{20,36},{0,56}})));
         Modelica.Electrical.Analog.Sources.ConstantVoltage constantVoltage(V=12)
           annotation (Placement(transformation(extent={{-80,78},{-60,98}})));

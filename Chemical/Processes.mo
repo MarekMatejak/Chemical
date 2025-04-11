@@ -1828,7 +1828,7 @@ du := n_flow/kC;
     model TestFlowResistance "Test for the undirected flow resistance"
       extends Modelica.Icons.Example;
 
-      Chemical.Boundaries.BoundaryRear boundary_rear(substanceData=Chemical.Substances.Water_liquid(), u0_par=100000)
+      Chemical.Boundaries.BoundaryRear boundary_rear(substanceData=Chemical.SubstancesOld.Water_liquid(), u0_par=100000)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1840,7 +1840,7 @@ du := n_flow/kC;
         offset=140000,
         startTime=5)
         annotation (Placement(transformation(extent={{60,-6},{48,6}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(substanceData=Chemical.Substances.Water_liquid(), potentialFromInput=true)
+      Chemical.Boundaries.BoundaryRear boundary_rear1(substanceData=Chemical.SubstancesOld.Water_liquid(), potentialFromInput=true)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1848,11 +1848,11 @@ du := n_flow/kC;
       Chemical.Boundaries.BoundaryFore boundary_fore1(potentialFromInput=false, u0_par=100000)
         annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
       Reaction reaction(
-        productsSubstanceData={Chemical.Substances.Water_liquid()},
+        productsSubstanceData={Chemical.SubstancesOld.Water_liquid()},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
       Reaction reaction1(
-        productsSubstanceData={Chemical.Substances.Water_liquid()},
+        productsSubstanceData={Chemical.SubstancesOld.Water_liquid()},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,-48},{12,-28}})));
     equation
@@ -2151,9 +2151,9 @@ du := n_flow/kC;
       //    "Heat flow to environment to reach constant temperature";
       Modelica.Units.SI.Temperature t
         "Temperature if the solution is ideally thermal isolated from environment";
-      Chemical.Boundaries.Substance H2O(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{20,4},{40,24}})));
-      Chemical.Boundaries.Substance H2O1(substanceData=Chemical.Substances.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.Substance H2O1(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{20,-94},{40,-74}})));
       Modelica.Mechanics.Translational.Components.Fixed fixed1
         annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
@@ -2671,7 +2671,7 @@ Medium model for the test. Can be anything.
 
       Chemical.Boundaries.Substance liquidWater(
         useSolution=true,
-        substanceData=Chemical.Substances.Water_liquid(),
+        substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
         mass_start=1) annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
       inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
