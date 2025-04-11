@@ -7538,7 +7538,7 @@ package SubstancesOld "Definitions of substances"
 
   record CarbonDioxide_aqueous "CO2(aq)"
    extends Chemical.Interfaces.Incompressible.SubstanceDataParameters(
-      gamma=1.17385,
+     // gamma=1.17385,
       MolarWeight=0.044,
       DfH=-412900,
       DfG=-386200);

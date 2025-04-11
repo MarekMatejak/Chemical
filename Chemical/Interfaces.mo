@@ -2,19 +2,6 @@ within Chemical;
 package Interfaces "Chemical interfaces"
   connector Fore "Undirected connector outputting the forward state"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
@@ -22,7 +9,7 @@ package Interfaces "Chemical interfaces"
     Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
 
     Chemical.Interfaces.OutputSolutionState solution "State of solution";
-    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+    Chemical.Interfaces.OutputDefinition definition "Definition of substance";
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
             extent={{-80,80},{80,-80}},
             lineColor={158,66,200},
@@ -44,19 +31,6 @@ package Interfaces "Chemical interfaces"
 
   connector Rear "Undirected connector outputting the rearward state"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
@@ -64,7 +38,7 @@ package Interfaces "Chemical interfaces"
     Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
 
     Chemical.Interfaces.InputSolutionState solution "State of solution";
-    stateOfMatter.InputSubstanceData definition "Definition of substance";
+    Chemical.Interfaces.InputDefinition definition "Definition of substance";
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
             extent={{-80,80},{80,-80}},
@@ -83,6 +57,7 @@ package Interfaces "Chemical interfaces"
 <u>At positive molarflow, Rear is a input.</u>
 </html>"));
   end Rear;
+
   extends Modelica.Icons.InterfacesPackage;
 
 operator record DataRecord "Coefficient data record for chemical definitions based on NASA source"
@@ -110,6 +85,7 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
     import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
     import DataRecord=Chemical.Interfaces.DataRecord;
     import PhaseType=Chemical.Interfaces.PhaseType;
+      import Modelica;
     constant Real R=1.380649e-23*6.02214076e23;
     constant Real T0=298.15 "Base temperature";
     constant Real p0=100000 "Base pressure";
@@ -127,10 +103,10 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
                   Hf=mdata.Hf*mdata.MM,
                   H0=mdata.H0*mdata.MM,
                   Tlimit=mdata.Tlimit,
-                  alow=(mdata.R_s/R) * mdata.alow,
-                  blow=(mdata.R_s/R) * mdata.blow,
-                  ahigh=(mdata.R_s/R) * mdata.ahigh,
-                  bhigh=(mdata.R_s/R) * mdata.bhigh,
+                  alow=(mdata.R_s*mdata.MM/R) * mdata.alow,
+                  blow=(mdata.R_s*mdata.MM/R) * mdata.blow,
+                  ahigh=(mdata.R_s*mdata.MM/R) * mdata.ahigh,
+                  bhigh=(mdata.R_s*mdata.MM/R) * mdata.bhigh,
                   z=z,
                   Vm=Vm,
                   phase=phase
@@ -203,122 +179,6 @@ gases also differentiable at Tlimit.
 </html>"));
 end DataRecord;
 
-operator record DataRecordParameters "Coefficient data record for chemical definitions based on NASA source"
-  extends Modelica.Icons.Record;
-  //String Name "Name of ideal gas";
-  parameter Modelica.Units.SI.MolarMass MM "Molar mass";
-  parameter Modelica.Units.SI.MolarEnthalpy Hf "Enthalpy of formation at 298.15K, 1bar";
-  parameter Modelica.Units.SI.MolarEnthalpy H0 "H0(298.15K, 1bar) - H0(0K, 1bar)";
-  parameter Modelica.Units.SI.Temperature Tlimit "Temperature limit between low and high data sets";
-  parameter Real alow[7] "Low temperature coefficients a at 298.15K, 1bar";
-  parameter Real blow[2] "Low temperature constants b at 298.15K, 1bar";
-  parameter Real ahigh[7] "High temperature coefficients a at 298.15K, 1bar";
-  parameter Real bhigh[2] "High temperature constants b at 298.15K, 1bar";
-
-  parameter Modelica.Units.SI.ChargeNumberOfIon z
-  "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
-
-  parameter Chemical.Interfaces.PhaseType phase "State of matter";
-  parameter Modelica.Units.SI.MolarVolume Vm "Molar volume at 298.15K, 1bar";
-
- // Modelica.Units.SI.ActivityCoefficient gamma=1 "Activity coefficient of the substance";
-
-   encapsulated operator 'constructor'
-    import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-    import DataRecord=Chemical.Interfaces.DataRecordParameters;
-    import PhaseType=Chemical.Interfaces.PhaseType;
-    constant Real R=1.380649e-23*6.02214076e23;
-    constant Real T0=298.15 "Base temperature";
-    constant Real p0=100000 "Base pressure";
-
-     function fromModelicaDataRecord
-      input ModelicaDataRecord mdata "Mass based data record";
-      input Real z=0 "Charge number";
-      input PhaseType phase=PhaseType.Gas "State of matter";
-      input Real Vm=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001 "Molar volume";
-      //  input Real gamma=1 "Activity coefficient";
-
-      output DataRecord result(
-         //         Name=mdata.name,
-                  MM=mdata.MM,
-                  Hf=mdata.Hf*mdata.MM,
-                  H0=mdata.H0*mdata.MM,
-                  Tlimit=mdata.Tlimit,
-                  alow=(mdata.R_s/R) * mdata.alow,
-                  blow=(mdata.R_s/R) * mdata.blow,
-                  ahigh=(mdata.R_s/R) * mdata.ahigh,
-                  bhigh=(mdata.R_s/R) * mdata.bhigh,
-                  z=z,
-                  Vm=Vm,
-                  phase=phase
-                  //,gamma=gamma
-)                   "Molar based data record";
-     algorithm
-      annotation (Inline=true);
-     end fromModelicaDataRecord;
-
-    function fromValues
-      //    input String Name;
-      input Real MM;
-      input Real Hf;
-      input Real H0;
-      input Real Tlimit;
-      input Real alow[7];
-      input Real blow[2];
-      input Real ahigh[7];
-      input Real bhigh[2];
-      input Real z=0 "Charge number";
-      input PhaseType phase=PhaseType.Incompressible "State of matter";
-      input Real Vm=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001 "Molar volume";
-      //      input Real gamma=1 "Activity coefficient";
-
-      output DataRecord result(
-      //    Name = Name,
-          MM = MM,
-          Hf = Hf,
-          H0 = H0,
-          Tlimit = Tlimit,
-          alow = alow,
-          blow = blow,
-          ahigh = ahigh,
-          bhigh = bhigh,
-          z = z,
-          Vm = Vm,
-          phase=phase
-          //,gamma = gamma
-);
-    algorithm
-      annotation (Inline=true);
-    end fromValues;
-
-   end 'constructor';
-  annotation (Documentation(info="<html>
-<p>
-This data record contains the coefficients for the
-ideal gas equations according to:
-</p>
-<blockquote>
-  <p>McBride B.J., Zehe M.J., and Gordon S. (2002): <strong>NASA Glenn Coefficients
-  for Calculating Thermodynamic Properties of Individual Species</strong>. NASA
-  report TP-2002-211556</p>
-</blockquote>
-<p>
-The equations have the following structure:
-</p>
-<div><img src=\"modelica://Modelica/Resources/Images/Media/IdealGases/Common/singleEquations.png\"></div>
-<p>
-The polynomials for h(T) and s0(T) are derived via integration from the one for cp(T)  and contain the integration constants b1, b2 that define the reference specific enthalpy and entropy. For entropy differences the reference pressure p0 is arbitrary, but not for absolute entropies. It is chosen as 1 standard atmosphere (101325 Pa).
-</p>
-<p>
-For most gases, the region of validity is from 200 K to 6000 K.
-The equations are split into two regions that are separated
-by Tlimit (usually 1000 K). In both regions the gas is described
-by the data above. The two branches are continuous and in most
-gases also differentiable at Tlimit.
-</p>
-</html>"));
-end DataRecordParameters;
-
   operator record SubstanceDefinition "Definition of a substance"
     //extends Chemical.Definition;
     Chemical.Interfaces.DataRecord data "Data record of the substance or process";
@@ -346,7 +206,7 @@ end DataRecordParameters;
         input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001 "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default 1L/mol)";
+        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default 1L/mol)";
         // input Real gamma=1 "Activity coefficient of the substance";
         output Definition result(
                   data=DataRecord(
@@ -355,9 +215,9 @@ end DataRecordParameters;
                     H0=DfH - T0*Cp,
                     Tlimit=1000,
                     alow={0,0,Cp/R,0,0,0,0},
-                    blow={DfH/R,(DfH-DfG)/(R*T0)},
+                    blow={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
                     ahigh={0,0,Cp/R,0,0,0,0},
-                    bhigh={DfH/R,(DfH-DfG)/(R*T0)},
+                    bhigh={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
                     z=z,
                     phase=phase,
                     Vm=Vm)
@@ -371,182 +231,794 @@ end DataRecordParameters;
 
   end SubstanceDefinition;
 
-  operator record SubstanceDefinitionParameters "Definition of a chemical substance or a chemical process"
+  package Properties "Calculation of chemical properties from definition and solution state"
 
-    parameter Chemical.Interfaces.DataRecordParameters data "Data record of the substance or process";
+    constant Real R=1.380649e-23*6.02214076e23;
+    constant Real T0=298.15 "Base temperature";
+    constant Real p0=100000 "Base pressure";
 
-    encapsulated operator 'constructor'
-      import Definition=Chemical.Interfaces.SubstanceDefinitionParameters;
-      import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-      import DataRecord=Chemical.Interfaces.DataRecord;
-      import PhaseType=Chemical.Interfaces.PhaseType;
-      constant Real R=1.380649e-23*6.02214076e23;
-      constant Real T0=298.15 "Base temperature";
-      constant Real p0=100000 "Base pressure";
+    model BaseProperties "Base properties of the substance"
 
-      function fromDataRecord
-        input DataRecord data "Mass based data record";
-        output Definition result(data=data) "Molar based data record";
+      parameter Boolean FixedDefinition "definition==definitionParam";
+
+      parameter Definition definitionParam "used only if FixedDefinition to help initialization";
+
+      parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
+      parameter Boolean SolutionObserverOnly = false "True if substance does not affect the solution";
+
+      Interfaces.InputDefinition definition "Definition of the substance";
+
+      Interfaces.InputSolutionState solutionState "State of the solution";
+
+      InputAmountOfSubstance amountOfBaseMolecules
+        "Amount of base molecules inside all clusters in compartment";
+
+      InputMolarFlowRate n_flow "Molar change of the substance";
+
+      InputHeatFlowRate h_flow "Substance enthaply change";
+
+      Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
+
+      Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+        "Molar concentration of particles";
+
+      Modelica.Units.SI.MassConcentration M(displayUnit="mg/l")
+            "Mass concentration";
+
+      Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
+            "Molality";
+
+      Modelica.Units.SI.MassFraction X "Mass fraction";
+
+      Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
+
+      Modelica.Units.SI.ActivityOfSolute a
+      "Activity of the substance (mole-fraction based)";
+
+      Modelica.Units.SI.ActivityCoefficient gamma
+      "Activity coefficient of the substance";
+
+      Modelica.Units.SI.ChargeNumberOfIon z "Charge number of ion";
+
+      Modelica.Units.SI.MolarEnthalpy h
+      "Molar enthalpy of the substance";
+
+      Modelica.Units.SI.MolarEnthalpy hPure
+      "Molar enthalpy of the pure substance";
+
+      Modelica.Units.SI.MolarEntropy sPure
+      "Molar entropy of the pure substance";
+
+      Modelica.Units.SI.ChemicalPotential u0
+      "Chemical potential of the pure substance";
+
+      Modelica.Units.SI.ChemicalPotential uPure
+      "Electro-Chemical potential of the pure substance";
+
+      Modelica.Units.SI.MolarVolume Vm
+      "Molar volume of the substance";
+
+      Modelica.Units.SI.MolarMass MM
+      "Molar mass of the substance";
+
+      Modelica.Units.SI.MolarVolume VmPure
+      "Molar volume of the pure substance";
+
+      Modelica.Units.SI.MolarVolume VmExcess
+      "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+
+     // Local connector definition, used for equation balancing check
+
+      connector InputMolarFlowRate = input Modelica.Units.SI.MolarFlowRate
+        "Molar flow rate as input signal connector";
+      connector InputHeatFlowRate = input Modelica.Units.SI.HeatFlowRate
+        "Heat flow rate as input signal connector";
+
+      connector InputSubstanceData = input Definition
+        "Substance definition as input signal connector";
+      connector InputTemperature = input Modelica.Units.SI.Temperature
+        "Temperature as input signal connector";
+      connector InputPressure = input Modelica.Units.SI.Pressure
+        "Pressure as input signal connector";
+      connector InputElectricPotential = input
+          Modelica.Units.SI.ElectricPotential
+        "Electric potential as input signal connector";
+      connector InputMoleFraction = input Modelica.Units.SI.MoleFraction
+        "Mole fraction as input signal connector";
+      connector InputAmountOfSubstance = input
+          Modelica.Units.SI.AmountOfSubstance
+        "Amount of substance as input signal connector";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+           m_start*specificAmountOfFreeBaseMolecule(
+                                       definitionParam,
+                                       Chemical.Interfaces.SolutionStateParameters(
+                                       T=system.T_ambient,
+                                       p=system.p_ambient)))
+        "Amount of free molecules not included inside any clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+           m_start*specificAmountOfParticles(
+                                       definitionParam,
+                                       Chemical.Interfaces.SolutionStateParameters(
+                                       T=system.T_ambient,
+                                       p=system.p_ambient)))
+        "Amount of particles/clusters in compartment";
+
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*solutionState.T))
+        "Dissociation constant of hydrogen bond between base molecules";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          selfClusteringBondEnthalpy(definition)
+        - solutionState.T * selfClusteringBondEntropy(definition)
+        "Gibbs energy of hydrogen bond between H2O molecules";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBonds
+        "Amount of hydrogen bonds between molecules in compartment";
+
+      outer Modelica.Fluid.System system "System wide properties";
+
+      Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
+
+    equation
+     // assert(x > 0, "Molar fraction must be positive");
+
+     gamma = activityCoefficient(definition,solutionState);
+     z = chargeNumberOfIon(definition,solutionState);
+
+     MM = 1/specificAmountOfParticles(definition,solutionState);
+     h = molarEnthalpy(definition,solutionState);
+     sPure = molarEntropyPure(definition,solutionState);
+     hPure = uPure + solutionState.T*sPure;
+     u0 = chemicalPotentialPure(definition,solutionState);
+     uPure = electroChemicalPotentialPure(definition,solutionState);
+     Vm = molarVolume(definition,solutionState);
+     VmPure = molarVolumePure(definition,solutionState);
+     VmExcess = molarVolumeExcess(definition,solutionState);
+     //  molarHeatCapacityCp = smolarHeatCapacityCp(definition,solutionState);
+
+     //activity of the substance
+     a = gamma*x;
+
+     //electro-chemical potential of the substance in the solution
+     u = chemicalPotentialPure(definition,solutionState)
+       + (Modelica.Constants.R*solutionState.T)*log(a)
+       + z*Modelica.Constants.F*solutionState.v;
+
+      // during initialization it does not take value from parameter definition if not useInlet,
+      // so instead of just "selfClustering(definition)" it must be written
+      if (FixedDefinition and selfClustering(definitionParam)) or selfClustering(definition) then
+
+        //Liquid cluster theory - equilibrium:
+        //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
+        //amountOfParticles/solutionState.n = x/(1-K*x);                //sum(x[i])
+        //amountOfBaseMolecules/solutionState.n = x/((1-K*x)^2);            //sum(i*x[i])
+        //amountOfHydrogenBonds/solutionState.n = x*x*K/((1-K*x)^2);   //sum((i-1)*x[i])
+
+        amountOfParticles*(1 - SelfClustering_K*x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
+        x = ((2*SelfClustering_K+solutionState.n/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*solutionState.n/amountOfBaseMolecules)+(solutionState.n/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfBonds = amountOfBaseMolecules*x*SelfClustering_K;
+
+        //TODO: may be the volume of the same number of free water molecules is different as volume of the same number of water molecules in cluster ..
+        //TODO: more precise calculation of other properties
+
+       //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
+       //enthalpy = h*amountOfBaseMolecules + amountOfAdditionalBonds*bondEnthalpy;
+        dH = der(h)*
+          amountOfBaseMolecules + n_flow*h - h_flow +
+          selfClusteringBondEnthalpy(definition)*der(amountOfBonds)
+                        "heat transfer from other substances in solution [J/s]";
+
+        Gj =amountOfBaseMolecules*u + amountOfBonds*SelfClustering_dG
+                        "Gibbs energy of the substance";
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfBonds = 0;
+
+        //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
+        //enthalpy = h*amountOfBaseMolecules;
+        dH =  der(h)*amountOfBaseMolecules + n_flow*h - h_flow
+                  "heat transfer from other substances in solution [J/s]";
+
+        Gj = amountOfBaseMolecules*u "Gibbs energy of the substance [J]";
+
+      end if;
+
+      x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
+
+      c = amountOfParticles/solutionState.V "concentration [mol/m3]";
+
+      M = amountOfParticles*molarMassOfBaseMolecule(definition)/solutionState.V "mass concentration [kg/m3]";
+
+      b = amountOfParticles/solutionState.m "molality [mol/kg]";
+
+      X  = amountOfParticles*molarMassOfBaseMolecule(definition)/solutionState.m "mass fraction [kg/kg]";
+
+      if SolutionObserverOnly then
+        i = 0;
+        dV = 0;
+        nj = 0;
+        mj = 0;
+        Vj = 0;
+        Qj = 0;
+        Ij = 0;
+      else
+      //solution flows
+        i = Modelica.Constants.F*z*n_flow +
+          Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
+        dV = Vm*n_flow + der(Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
+
+      //extensive properties
+        nj = amountOfParticles;
+        mj = amountOfBaseMolecules*molarMassOfBaseMolecule(definition);
+        Vj = amountOfBaseMolecules*Vm;
+        Qj = Modelica.Constants.F*amountOfBaseMolecules*z;
+        Ij = (1/2)*(amountOfBaseMolecules*z^2);
+      end if;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end BaseProperties;
+
+   function processData
+     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+        extends Modelica.Icons.Function;
+    input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
+    input Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar";
+    input Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar";
+    input Modelica.Units.SI.MolarVolume dVm=0 "Process molar volume change at 25°C,1bar";
+    input Interfaces.PhaseType phase=Interfaces.PhaseType.Incompressible "State of matter";
+    output Definition processData "Data record of process changes";
+   algorithm
+       processData :=  Definition(
+         MM = 0,
+         z = 0,
+         DfG = -Modelica.Constants.R*T0*log(K),
+         DfH = dH,
+         Cp = dCp,
+         Vm = dVm,
+         phase = phase);
+         //Name="processData",
+
+   end processData;
+
+   function firstProductDefinition
+       "Return formation definition of the first product of chemical process"
+        extends Modelica.Icons.Function;
+    //input
+    input Modelica.Units.SI.StoichiometricNumber s[:] "Stoichiometric reaction coefficient for substrates [nS]";
+    input Modelica.Units.SI.StoichiometricNumber p[:] "Stoichiometric reaction coefficient for products [nP]";
+    input Definition process "Data record of process changes";
+    input Definition substrates[:] "Substrates definitions [nS]";
+    input Definition products[:] "Other products definitions [nP-1]";
+    output Definition firstProductDefinition "Definition of the first product in process";
+   algorithm
+        firstProductDefinition := (1/p[1]) * (p[2:end]*products - s*substrates - process);
+         /*Definition(
+       MM = ((p[2:end]*products.data.MM) - (s*substrates.MolarWeight))/p[1],
+       z = ((p[2:end]*products.z) - (s*substrates.z))/p[1],
+       DfG = ((p[2:end]*products.DfG) - (s*substrates.DfG) - process.DfG)/p[1],
+       DfH = ((p[2:end]*products.DfH) - (s*substrates.DfH) - process.DfH)/p[1],
+       gamma = 1,
+       Cp = ((p[2:end]*products.Cp) - (s*substrates.Cp) - process.Cp)/p[1],
+       SelfClustering = 0,
+       SelfClustering_dH = 0,
+       SelfClustering_dS = 0,
+       Vs = ((p[2:end]*products.Vs) - (s*substrates.Vs) - process.Vs)/p[1]);*/
+   end firstProductDefinition;
+
+   function activityCoefficient
+    "Return activity coefficient of the substance in the solution"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      output Real activityCoefficient "Activity Coefficient";
+   algorithm
+       activityCoefficient := 1;
+   end activityCoefficient;
+
+   function chargeNumberOfIon
+    "Return charge number of the substance in the solution"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      output Modelica.Units.SI.ChargeNumberOfIon chargeNumberOfIon
+      "Charge number of ion";
+   algorithm
+       chargeNumberOfIon := definition.data.z;
+   end chargeNumberOfIon;
+
+   function molarEnthalpyElectroneutral
+    "Molar enthalpy of the substance in electroneutral solution"
+      extends Modelica.Icons.Function;
+      import Modelica.Math;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpyElectroneutral
+      "Molar enthalpy";
+   algorithm
+       //Molar enthalpy:
+       // - temperature and pressure shift: to reach internal energy change by added heat (at constant amount of substance) dU = n*(dH-d(p*Vm)) = n*(dH - dp*Vm)
+       //   where molar heat capacity at constant volume is Cv = dU/(n*dT) = dH/dT - (dp/dT)*Vm. As a result dH = dT*Cv - dp*Vm for incompressible substances.
+
+       molarEnthalpyElectroneutral := smooth(0,(if solution.T < definition.data.Tlimit then R*((-definition.data.alow[1] + solution.T*(definition.data.blow[1] +
+       definition.data.alow[2]*Math.log(solution.T) + solution.T*(1.*definition.data.alow[3] + solution.T*(0.5*definition.data.alow[4] +
+       solution.T*(1/3*definition.data.alow[5] + solution.T*(0.25*definition.data.alow[6] + 0.2*definition.data.alow[7]*solution.T))))))
+       /solution.T) else R*((-definition.data.ahigh[1] + solution.T*(definition.data.bhigh[1] + definition.data.ahigh[2]*
+       Math.log(solution.T) + solution.T*(1.*definition.data.ahigh[3] + solution.T*(0.5*definition.data.ahigh[4] + solution.T*(1/3*definition.data.ahigh[5] +
+       solution.T*(0.25*definition.data.ahigh[6] + 0.2*definition.data.ahigh[7]*solution.T))))))/solution.T)));
+
+       /*
+    smooth(0,(if T < data.Tlimit then data.R_s*((-data.alow[1] + T*(data.blow[1] + 
+    data.alow[2]*Math.log(T) + T*(1.*data.alow[3] + T*(0.5*data.
+    alow[4] + T*(1/3*data.alow[5] + T*(0.25*data.alow[6] + 0.2*data.alow[7]*T))))))
+    /T) else data.R_s*((-data.ahigh[1] + T*(data.bhigh[1] + data.ahigh[2]*
+    Math.log(T) + T*(1.*data.ahigh[3] + T*(0.5*data.ahigh[4] + T*(1/3*data.
+    ahigh[5] + T*(0.25*data.ahigh[6] + 0.2*data.ahigh[7]*T))))))/T)) + 
+    (if exclEnthForm then -data.Hf else 0.0) + (if (refChoice
+     == Choices.ReferenceEnthalpy.ZeroAt0K) then data.H0 else 0.0) + (if 
+    refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 
+    0.0));
+    */
+       //(if   exclEnthForm then -definition.data.Hf else 0.0) +
+       //(if (refChoice == Choices.ReferenceEnthalpy.ZeroAt0K) then definition.data.H0 else 0.0) +
+       //(if refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 0.0))
+
+        /*substanceData.DfH + (solution.T - 298.15)*
+      substanceData.Cp;*/
+       //   - (p - 100000) * molarVolumePure(substanceData,solution.T,p,v,I);
+   end molarEnthalpyElectroneutral;
+
+   function molarEnthalpy
+    "Molar enthalpy of the substance with electric potential dependence"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      output Modelica.Units.SI.MolarEnthalpy molarEnthalpy "Molar enthalpy";
+   algorithm
+      molarEnthalpy := molarEnthalpyElectroneutral(definition,solution) +
+           Modelica.Constants.F*chargeNumberOfIon(definition,solution)*solution.v;
+      annotation (Inline=true, smoothOrder=2);
+   end molarEnthalpy;
+
+   function molarEntropyPure
+    "Molar entropy of the pure substance"
+      extends Modelica.Icons.Function;
+      import Modelica.Math;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+
+    output Modelica.Units.SI.MolarEntropy molarEntropyPure
+      "Molar entropy of the pure substance";
+
+   algorithm
+       //molarEntropyPure := ((substanceData.DfH - substanceData.DfG)/298.15)
+       //+ substanceData.Cv*log(solution.T/298.15);
+
+       //Molar entropy shift:
+       // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = solution.T*dS (small amount of added heat energy)
+       // - pressure shift: with constant molar volume at constant temperature Vm*dP = -solution.T*dS (small amount of work)
+       molarEntropyPure := (if solution.T < definition.data.Tlimit then R*(definition.data.blow[2] - 0.5*definition.data.alow[
+       1]/(solution.T*solution.T) - definition.data.alow[2]/solution.T + definition.data.alow[3]*Math.log(solution.T) + solution.T*(
+       definition.data.alow[4] + solution.T*(0.5*definition.data.alow[5] + solution.T*(1/3*definition.data.alow[6] + 0.25*definition.data.alow[
+       7]*solution.T)))) else R*(definition.data.bhigh[2] - 0.5*definition.data.ahigh[1]/(solution.T*solution.T) - definition.data.
+       ahigh[2]/solution.T + definition.data.ahigh[3]*Math.log(solution.T) + solution.T*(definition.data.ahigh[4]
+        + solution.T*(0.5*definition.data.ahigh[5] + solution.T*(1/3*definition.data.ahigh[6] + 0.25*definition.data.ahigh[7]*solution.T)))))
+        + (if definition.data.phase==Interfaces.PhaseType.Gas then -R*log(solution.p/100000)
+           else -(molarVolumePure(definition,solution)/solution.T)*(solution.p - 100000));
+
+
+       //For example at triple point of water should be solution.T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
+       //As definition.data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
+       //At solution.T=298K, p=1bar, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-119 J/mol/K
+
+   end molarEntropyPure;
+
+    function molarEntropy "Molar entropy of the substance in the solution"
+          extends Modelica.Icons.Function;
+      input Modelica.Units.SI.ChemicalPotential u
+      "Electro-chemical potential of the substance";
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+
+      output Modelica.Units.SI.MolarEntropy molarEntropy "Molar entropy";
+    algorithm
+        molarEntropy :=  (u - molarEnthalpy(definition,solution))/solution.T;
+    end molarEntropy;
+
+   function chemicalPotentialPure "Chemical potential of the pure substance"
+      extends Modelica.Icons.Function;
+    input Definition definition "Definition of substance";
+    input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.ChemicalPotential chemicalPotentialPure
+      "Base chemical potential";
+   algorithm
+       chemicalPotentialPure :=  molarEnthalpyElectroneutral(definition,solution) - solution.T*molarEntropyPure(definition,solution);
+   end chemicalPotentialPure;
+
+   function electroChemicalPotentialPure
+    "Electro-chemical potential of the pure substance"
+      extends Modelica.Icons.Function;
+    input Definition definition "Definition of substance";
+    input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.ChemicalPotential
+      electroChemicalPotentialPure "Base electro-chemical potential";
+   algorithm
+    electroChemicalPotentialPure := chemicalPotentialPure(
+         definition,
+         solution) + Modelica.Constants.F*chargeNumberOfIon(definition,solution)*solution.v;
+   end electroChemicalPotentialPure;
+
+   function molarVolumePure "Molar volume of the pure substance"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
+   algorithm
+     molarVolumePure := (if definition.data.phase==Interfaces.PhaseType.Gas then R*solution.T/solution.p else definition.data.Vm);
+     //ideal gas
+   end molarVolumePure;
+
+   function molarVolumeExcess
+    "Excess molar volume of the substance in the solution"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.MolarVolume molarVolumeExcess
+      "Excess molar volume of the substance in the solution";
+   algorithm
+      molarVolumeExcess := molarVolumePure(definition,solution)*
+         log(activityCoefficient(definition,solution)); //zero if activityCoefficient==1
+      annotation (Inline=true, smoothOrder=2);
+   end molarVolumeExcess;
+
+   function molarVolume "Molar volume of the substance"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Interfaces.SolutionState solution "Chemical solution state";
+
+    output Modelica.Units.SI.MolarVolume molarVolume "Molar volume";
+   algorithm
+    molarVolume :=molarVolumePure(
+         definition,
+         solution) + molarVolumeExcess(
+         definition,
+         solution);
+      annotation (Inline=true, smoothOrder=2);
+   end molarVolume;
+
+   function molarHeatCapacityCp
+    "Molar heat capacity at constant pressure"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.MolarHeatCapacity molarHeatCapacityCp
+      "Molar heat capacity at constant pressure";
+   algorithm
+     molarHeatCapacityCp := smooth(0,if solution.T < definition.data.Tlimit then R*(1/(solution.T*solution.T)*(definition.data.alow[1] + solution.T*(
+       definition.data.alow[2] + solution.T*(1.*definition.data.alow[3] + solution.T*(definition.data.alow[4] + solution.T*(definition.data.alow[5] + solution.T
+       *(definition.data.alow[6] + definition.data.alow[7]*solution.T))))))) else R*(1/(solution.T*solution.T)*(definition.data.ahigh[1]
+        + solution.T*(definition.data.ahigh[2] + solution.T*(1.*definition.data.ahigh[3] + solution.T*(definition.data.ahigh[4] + solution.T*(definition.data.
+       ahigh[5] + solution.T*(definition.data.ahigh[6] + definition.data.ahigh[7]*solution.T))))))));
+   end molarHeatCapacityCp;
+
+   function molarMassOfBaseMolecule
+      "Molar mass of base molecule of the substance"
+      extends Modelica.Icons.Function;
+      input Definition definition "Data record of substance";
+    output Modelica.Units.SI.MolarMass molarMass "Molar mass";
+   algorithm
+     molarMass := definition.data.MM;
+   end molarMassOfBaseMolecule;
+
+   function selfClustering "returns true if substance molecules are joining together to clusters"
+       extends Modelica.Icons.Function;
+          input Definition definition "Data record of substance";
+          output Boolean selfClustering;
+   algorithm
+     selfClustering:=false;
+   end selfClustering;
+
+   function selfClusteringBondEnthalpy
+    "Enthalpy of joining two base molecules of the substance together to cluster"
+       extends Modelica.Icons.Function;
+          input Definition definition "Data record of substance";
+    output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
+   algorithm
+     selfClusteringEnthalpy:=0;
+   end selfClusteringBondEnthalpy;
+
+   function selfClusteringBondEntropy
+    "Entropy of joining two base molecules of the substance together to cluster"
+       extends Modelica.Icons.Function;
+          input Definition definition "Data record of substance";
+    output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
+   algorithm
+     selfClusteringEntropy:=0;
+   end selfClusteringBondEntropy;
+
+   function selfClusteringBondVolume
+       extends Modelica.Icons.Function;
+          input Definition definition "Data record of substance";
+    output Modelica.Units.SI.MolarVolume selfClusteringBondVolume;
+   algorithm
+     selfClusteringBondVolume:=0;
+   end selfClusteringBondVolume;
+
+   function selfClusteringBondHeatCapacityCp
+      extends Modelica.Icons.Function;
+          input Definition definition "Data record of substance";
+    output Modelica.Units.SI.MolarHeatCapacity selfClusteringBondHeatCapacityCp;
+   algorithm
+     selfClusteringBondHeatCapacityCp:=0;
+   end selfClusteringBondHeatCapacityCp;
+
+    function specificAmountOfParticles
+      "Amount of particles per mass of the substance"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance";
+      input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
+      output Real specificAmountOfSubstance(unit="mol/kg")
+        "Amount of substance particles per its mass";
+    algorithm
+      specificAmountOfSubstance := 1/molarMassOfBaseMolecule(definition);
+      annotation (Inline=true, smoothOrder=2);
+    end specificAmountOfParticles;
+
+    function specificAmountOfFreeBaseMolecule
+      "Amount of substance free base molecule per mass of the substance"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      input Modelica.Units.SI.Mass mass=1 "Mass of substance";
+      input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
+      output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
+        "Amount of substance free base molecule per substance mass";
+    algorithm
+      specificAmountOfFreeBaseMolecule := 1/molarMassOfBaseMolecule(definition);
+      annotation (Inline=true, smoothOrder=2);
+    end specificAmountOfFreeBaseMolecule;
+
+   function specificEnthalpy
+     "Specific molar enthalpy of the substance with electric potential dependence"
+      extends Modelica.Icons.Function;
+    input Definition definition "Definition of substance";
+    input Interfaces.SolutionState solution "Chemical solution state";
+
+    output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
+      "Specific enthalpy";
+
+   algorithm
+
+     specificEnthalpy := molarEnthalpy(
+       definition,
+       solution)/
+       molarMassOfBaseMolecule(definition);
+   end specificEnthalpy;
+
+   function specificVolume "Specific volume of the substance"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Interfaces.SolutionState solution "Chemical solution state";
+
+    output Modelica.Units.SI.SpecificVolume specificVolume "Specific volume";
+
+   algorithm
+
+    specificVolume := molarVolume(
+         definition,
+         solution) /
+       molarMassOfBaseMolecule(definition);
+   end specificVolume;
+
+    function specificHeatCapacityCp
+    "Specific heat capacity at constant pressure"
+      extends Modelica.Icons.Function;
+      input Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+    output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
+      "Specific heat capacity at constant pressure";
+
+    algorithm
+
+    specificHeatCapacityCp := molarHeatCapacityCp(
+         definition,
+         solution) /
+       molarMassOfBaseMolecule(definition);
+    end specificHeatCapacityCp;
+
+   function temperature
+    "Temperature of the substance from its enthalpy"
+      extends Modelica.Icons.Function;
+     input Definition definition "Definition of substance";
+     input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
+
+     input Modelica.Units.SI.Pressure p=100000 "Pressure";
+     input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+     input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
+
+    output Modelica.Units.SI.Temperature T "Temperature";
+
+   protected
+      function f_nonlinear "Solve h(data,T) for T with given h (use only indirectly via temperature_phX)"
+        extends Modelica.Math.Nonlinear.Interfaces.partialScalarFunction;
+        input Interfaces.DataRecord data "Ideal gas data";
+        input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
       algorithm
-        annotation (Inline=true);
-      end fromDataRecord;
+        y := H_T(data=data, T=u) - h;
+      end f_nonlinear;
+   algorithm
+      T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
+        function f_nonlinear(data=definition.data, h=h), 200, 6000);
+   end temperature;
 
-      function fromFormationEnergies
-        //    input String Name="Substance or process name";
-        input Real MM=1 "Molar mass of the substance";
-        input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
-        input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (298.15, 1bar)";
-        input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
-        input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
-        input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001 "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default 1L/mol)";
-        // input Real gamma=1 "Activity coefficient of the substance";
-        output Definition result(
-                  data=DataRecord(
-                    MM=MM,
-                    Hf=DfH,
-                    H0=DfH - T0*Cp,
-                    Tlimit=1000,
-                    alow={0,0,Cp/R,0,0,0,0},
-                    blow={DfH/R,(DfH-DfG)/(R*T0)},
-                    ahigh={0,0,Cp/R,0,0,0,0},
-                    bhigh={DfH/R,(DfH-DfG)/(R*T0)},
-                    z=z,
-                    phase=phase,
-                    Vm=Vm)
-                //    Name=Name,
-                    //,gamma=gamma
-);
-      algorithm
-        annotation (Inline=true);
-      end fromFormationEnergies;
-    end 'constructor';
+   function solution_temperature
+    "Temperature of the solution from specific enthalpy and mass fractions of substances"
+       extends Modelica.Icons.Function;
+      input Definition definition[:] "Definition of substances";
+    input Modelica.Units.SI.MolarEnthalpy h
+      "Molar enthalpy of solution";
+    input Modelica.Units.SI.MoleFraction x[:]
+      "Mole fractions of substances";
 
-    encapsulated operator function '+'
-      import Definition=Chemical.Interfaces.SubstanceDefinitionParameters;
-      import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
-      input Definition d1;
-      input Definition d2;
-      output Definition result " = d1 + d2";
+    input Modelica.Units.SI.Pressure p=100000 "Pressure";
+    input Modelica.Units.SI.ElectricPotential v=0
+      "Electric potential of the substance";
+    input Modelica.Units.SI.MoleFraction I=0
+      "Ionic strengh (mole fraction based)";
 
-    algorithm
-      result :=Definition(
-          data=DataRecord(
-            MM=d1.data.MM + d2.data.MM,
-            Hf=d1.data.Hf + d2.data.Hf,
-            H0=d1.data.H0 + d2.data.H0,
-            Tlimit=d1.data.Tlimit,
-            alow=d1.data.alow .+ d2.data.alow,
-            blow=d1.data.blow .+ d2.data.blow,
-            ahigh=d1.data.ahigh .+ d2.data.ahigh,
-            bhigh=d1.data.bhigh .+ d2.data.bhigh,
-            z=d1.data.z + d2.data.z,
-            phase=d1.data.phase,
-            Vm=d1.data.Vm + d2.data.Vm));
-           // Name="d1+d2",
-          annotation (Inline=true);
-    end '+';
+    output Modelica.Units.SI.Temperature T "Temperature";
 
-    encapsulated operator '-'
-      import Definition=Chemical.Interfaces.SubstanceDefinitionParameters;
-      import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
-     function negate
-       input Definition d;
-       output Definition result " = - d";
-     algorithm
-       result :=Definition(
-          data=DataRecord(
-            MM=-d.data.MM,
-            Hf=-d.data.Hf,
-            H0=-d.data.H0,
-            Tlimit=d.data.Tlimit,
-            alow=(-1) .* d.data.alow,
-            blow=(-1) .* d.data.blow,
-            ahigh=(-1) .* d.data.ahigh,
-            bhigh=(-1) .* d.data.bhigh,
-            z= -d.data.z,
-            phase = d.data.phase,
-            Vm= -d.data.Vm));
-          //  Name="-d",
-          annotation (Inline=true);
-     end negate;
+   protected
+       Definition solutionDefinition=x*definition;
 
-     function substract
-      input Definition d1;
-      input Definition d2;
-      output Definition result " = d1 - d2";
-     algorithm
-      result :=Definition(
-          data=DataRecord(
-            MM=d1.data.MM - d2.data.MM,
-            Hf=d1.data.Hf - d2.data.Hf,
-            H0=d1.data.H0 - d2.data.H0,
-            Tlimit=d1.data.Tlimit,
-            alow=d1.data.alow   .-  d2.data.alow,
-            blow=d1.data.blow   .-  d2.data.blow,
-            ahigh=d1.data.ahigh .-  d2.data.ahigh,
-            bhigh=d1.data.bhigh .-  d2.data.bhigh,
-            z=d1.data.z - d2.data.z,
-            phase=d1.data.phase,
-            Vm=d1.data.Vm - d2.data.Vm));
-        //    Name="d1-d2",
-          annotation (Inline=true);
-     end substract;
-    end '-';
+   algorithm
+       T :=temperature(
+           solutionDefinition,
+           h,
+           p,
+           v,
+           I);
+   end solution_temperature;
 
-    encapsulated operator '*'
-      import Definition=Chemical.Interfaces.SubstanceDefinitionParameters;
-      import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
+   function density
+        "Return density of the substance in the solution"
+          extends Modelica.Icons.Function;
+    input Definition definition "Definition of substance";
+    input Interfaces.SolutionState solution "Chemical solution state";
 
-    function scalar
-      input Real n=1 "Stoichiometric coefficient";
-      input Definition d;
-      output Definition result " = n * d";
-    algorithm
-      result :=Definition(
-          data=DataRecord(
-            MM=n * d.data.MM,
-            Hf=n * d.data.Hf,
-            H0=n * d.data.H0,
-            Tlimit=d.data.Tlimit,
-            alow=n * d.data.alow,
-            blow=n * d.data.blow,
-            ahigh=n * d.data.ahigh,
-            bhigh=n * d.data.bhigh,
-            z=n * d.data.z,
-            phase=d.data.phase,
-            Vm=n * d.data.Vm));
-        //    Name="n*d",
-          annotation (Inline=true);
-    end scalar;
+    output Modelica.Units.SI.Density density "Density";
 
-    function vector
-      input Real[:] n "Stoichiometric coefficients";
-      input Definition[:] d;
-      output Definition result " = n * d";
-    algorithm
-      result :=Definition(
-          data=DataRecord(
-            MM=n * d.data.MM,
-            Hf=n * d.data.Hf,
-            H0=n * d.data.H0,
-            Tlimit=d[1].data.Tlimit,
-            alow= {sum({(n[i] * d[i].data.alow[j])  for i in 1:size(n,1)}) for j in 1:7},
-            blow= {sum({(n[i] * d[i].data.blow[j])  for i in 1:size(n,1)}) for j in 1:2},
-            ahigh={sum({(n[i] * d[i].data.ahigh[j]) for i in 1:size(n,1)}) for j in 1:7},
-            bhigh={sum({(n[i] * d[i].data.bhigh[j]) for i in 1:size(n,1)}) for j in 1:2},
-            z=n*d.data.z,
-            phase=d[1].data.phase,
-            Vm=n*d.data.Vm));
-       //    Name="n*d",
-          annotation (Inline=true);
-    end vector;
-    end '*';
+   algorithm
+     density :=
+       if definition.data.phase==Interfaces.PhaseType.Gas then
+             (definition.data.MM*solution.p)/(R*solution.T)
+       else definition.data.MM/definition.data.Vm;
 
-  end SubstanceDefinitionParameters;
+   end density;
+
+   function H_T "Molar enthalpy of the substance in electroneutral solution"
+      extends Modelica.Icons.Function;
+      import Modelica.Math;
+      input Interfaces.DataRecord data "Data record of the substance";
+      input Modelica.Units.SI.Temperature T "Temperature";
+
+      output Modelica.Units.SI.MolarEnthalpy H "Molar enthalpy";
+   algorithm
+       H :=
+       smooth(0,(if T < data.Tlimit then R*((-data.alow[1] + T*(data.blow[1] +
+       data.alow[2]*Math.log(T) + T*(1.*data.alow[3] + T*(0.5*data.alow[4] +
+       T*(1/3*data.alow[5] + T*(0.25*data.alow[6] + 0.2*data.alow[7]*T))))))
+       /T) else R*((-data.ahigh[1] + T*(data.bhigh[1] + data.ahigh[2]*
+       Math.log(T) + T*(1.*data.ahigh[3] + T*(0.5*data.ahigh[4] + T*(1/3*data.ahigh[5] +
+       T*(0.25*data.ahigh[6] + 0.2*data.ahigh[7]*T))))))/T)) +
+       data.H0);
+       //(if   exclEnthForm then -data.Hf else 0.0) +
+       //(if (refChoice == Choices.ReferenceEnthalpy.ZeroAt0K) then data.H0 else 0.0) +
+       //(if refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 0.0))
+
+   end H_T;
+    annotation (Documentation(revisions="<html>
+<p><i>2015-2016</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+  end Properties;
+
+  connector ForeOld "Undirected connector outputting the forward state"
+
+    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
+    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
+
+    Chemical.Interfaces.OutputSubstanceState state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
+
+    Chemical.Interfaces.OutputSolutionState solution "State of solution";
+    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
+            extent={{-80,80},{80,-80}},
+            lineColor={158,66,200},
+            lineThickness=0.5,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid), Ellipse(
+            extent={{-40,40},{40,-40}},
+            lineColor={194,138,221},
+            lineThickness=0.5,
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid)}),
+                              Diagram(coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
+<u>At positive molarflow, Fore is a output. </u>
+</html>"));
+
+  end ForeOld;
+
+  connector RearOld "Undirected connector outputting the rearward state"
+
+    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
+      Chemical.Interfaces.StateOfMatter
+    "Substance model to translate data into substance properties"
+      annotation (choices(
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.Incompressible  "Incompressible"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGas        "Ideal Gas"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
+        choice(redeclare package stateOfMatter =
+          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
+    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
+    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
+
+    Chemical.Interfaces.InputSubstanceState state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
+
+    Chemical.Interfaces.InputSolutionState solution "State of solution";
+    stateOfMatter.InputSubstanceData definition "Definition of substance";
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
+            extent={{-80,80},{80,-80}},
+            lineColor={158,66,200},
+            lineThickness=0.5,
+            fillColor={194,138,221},
+            fillPattern=FillPattern.Solid), Ellipse(
+            extent={{-40,40},{40,-40}},
+            lineColor={194,138,221},
+            lineThickness=0.5,
+            fillColor={255,255,255},
+            fillPattern=FillPattern.Solid)}),
+                              Diagram(coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
+<u>At positive molarflow, Rear is a input.</u>
+</html>"));
+  end RearOld;
 
  replaceable record SubstanceState "Set that defines a state of substance"
   extends Modelica.Icons.Record;
@@ -2023,12 +2495,14 @@ end solution_temperature_;
       //Molar entropy shift:
       // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = T*dS (small amount of added heat energy)
       // - pressure shift: with constant molar volume at constant temperature Vm*dP = -T*dS (small amount of work)
-      molarEntropyPure := substanceData.Cp*log(T/298.15) - (molarVolumePure(
+      molarEntropyPure := substanceData.Cp*log(T/298.15)
+                                + ((substanceData.DfH - substanceData.DfG)/298.15)
+                                                         - (molarVolumePure(
           substanceData,
           T,
           p,
           v,
-          I)/T)*(p - 100000) + ((substanceData.DfH - substanceData.DfG)/298.15);
+          I)/T)*(p - 100000);
 
       //For example at triple point of water should be T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
       //As data: http://www1.lsbu.ac.uk/water/water_phase_diagram.html
@@ -3616,14 +4090,10 @@ end solution_temperature_;
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.derivative)));
 
 
-    Chemical.Interfaces.Rear rear(
-      redeclare package stateOfMatter = stateOfMatterRear,
-      state_rearwards(u=u_rear_out,h=h_rear_out))
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatterRear, state_rearwards(u=u_rear_out, h=h_rear_out))
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
-    Chemical.Interfaces.Fore fore(
-      redeclare package stateOfMatter = stateOfMatterFore,
-      state_forwards(u=u_fore_out,h=h_fore_out))
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatterFore, state_forwards(u=u_fore_out, h=h_fore_out))
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
 

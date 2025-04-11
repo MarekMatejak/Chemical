@@ -24,9 +24,9 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of molar flow rate"
       annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rears[N](redeclare package stateOfMatter = stateOfMatter) "Rear ports"
+    Chemical.Interfaces.RearOld rears[N](redeclare package stateOfMatter = stateOfMatter) "Rear ports"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore fores[M](redeclare package stateOfMatter = stateOfMatter) "Fore ports"
+    Chemical.Interfaces.ForeOld fores[M](redeclare package stateOfMatter = stateOfMatter) "Fore ports"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={100,0})));
 
     Modelica.Units.SI.ChemicalPotential u_mix "mixing u assuming positive molarFlow";
@@ -140,7 +140,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
           stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -203,7 +203,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
           stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-40,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={40,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
     ConnectInletFore connectInletFore(redeclare package stateOfMatter =
           stateOfMatter, final L=L/2)
@@ -264,7 +264,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
     parameter Boolean useDefaultStateAsRear = false "Use Default Medium states as state_rearwards";
 
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
     Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
           stateOfMatter)
@@ -347,7 +347,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
     parameter Boolean useDefaultStateAsRear = false "Use Default Medium states as state_rearwards";
 
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-40,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
     Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
           stateOfMatter)
@@ -428,9 +428,9 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 */
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Fore fore_a(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore_a(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Fore fore_b(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore_b(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -479,9 +479,9 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rear_a(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear_a(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Rear rear_b(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear_b(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -526,11 +526,11 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Fore foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=2,
@@ -610,11 +610,11 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Fore foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=2,
@@ -692,11 +692,11 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.Rear rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Rear rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=1,
@@ -781,11 +781,11 @@ Junction with a rear and two fores in a lying T shape.
       final L=L,
       redeclare package stateOfMatter=stateOfMatter)
       annotation (Placement(transformation(extent={{30,-10},{50,10}})));
-    Chemical.Interfaces.Rear rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-    Chemical.Interfaces.Rear rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
 
   protected
@@ -856,13 +856,13 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Fore foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.Fore foreC(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreC(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=3,
@@ -951,13 +951,13 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear reara(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld reara(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Rear rearb(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearb(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Fore foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.Fore foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=2,
@@ -1050,13 +1050,13 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear reara(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld reara(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Rear rearb(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearb(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-    Chemical.Interfaces.Fore foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Fore foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=2,
@@ -1151,9 +1151,9 @@ Junction with a rear and two fores in a lying T shape.
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Rear rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=1,
@@ -1162,9 +1162,9 @@ Junction with a rear and two fores in a lying T shape.
       final L=L,
       redeclare package stateOfMatter=stateOfMatter)
       annotation (Placement(transformation(extent={{0,-10},{20,10}})));
-    Chemical.Interfaces.Rear rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.Rear rearC(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rearC(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
 
   protected
@@ -1251,7 +1251,7 @@ Junction with a rear and two fores in a lying T shape.
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-20,-120},{20,-80}}), iconTransformation(extent={{-20,-120},{20,-80}})));
     Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
           stateOfMatter)

@@ -1492,7 +1492,7 @@ Choices for initialization of a state h.
 
       Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
 
-      Chemical.Interfaces.Rear substrates[nS](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
+      Chemical.Interfaces.RearOld substrates[nS](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={-100,0}), iconTransformation(
@@ -1500,7 +1500,7 @@ Choices for initialization of a state h.
             rotation=180,
             origin={-100,0})));
 
-      Chemical.Interfaces.Fore products[nP](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
+      Chemical.Interfaces.ForeOld products[nP](redeclare package stateOfMatter = stateOfMatter) annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={100,0}), iconTransformation(
@@ -1899,12 +1899,14 @@ du := n_flow/kC;
         redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,14},{10,34}})));
-      Chemical.Boundaries.Substance substance(useFore=true,
+      Chemical.Boundaries.SubstanceOld substance(
+        useFore=true,
         use_mass_start=false,
-        amountOfSubstance_start=0.9)                        annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
-      Chemical.Boundaries.Substance substance1(useRear=true,
+        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
+      Chemical.Boundaries.SubstanceOld substance1(
+        useRear=true,
         use_mass_start=false,
-        amountOfSubstance_start=0.1)                         annotation (Placement(transformation(extent={{48,12},{68,32}})));
+        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
       inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
     equation
       connect(substance.fore, reaction.substrates[1]) annotation (Line(
@@ -1930,7 +1932,7 @@ du := n_flow/kC;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-      Chemical.Boundaries.Substance A(
+      Chemical.Boundaries.SubstanceOld A(
         useRear=false,
         useFore=true,
         useSolution=true,
@@ -1942,7 +1944,7 @@ du := n_flow/kC;
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-      Chemical.Boundaries.Substance B(
+      Chemical.Boundaries.SubstanceOld B(
         useRear=true,
         useSolution=true,
         use_mass_start=false,
@@ -1989,7 +1991,7 @@ du := n_flow/kC;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-      Chemical.Boundaries.Substance A(
+      Chemical.Boundaries.SubstanceOld A(
         useFore=true,
         useSolution=true,
         substanceData(MolarWeight=1),
@@ -1999,13 +2001,13 @@ du := n_flow/kC;
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(MolarWeight=2, DfG=-R*T_25degC*log(Kx))},
         nS=2,
         nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
-      Chemical.Boundaries.Substance B(
+      Chemical.Boundaries.SubstanceOld B(
         useFore=true,
         useSolution=true,
         substanceData(MolarWeight=1),
         use_mass_start=false,
         amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-      Chemical.Boundaries.Substance C(
+      Chemical.Boundaries.SubstanceOld C(
         useRear=true,
         useSolution=true,
         use_mass_start=false,
@@ -2057,16 +2059,16 @@ du := n_flow/kC;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
-      Chemical.Boundaries.Substance A(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
+      Chemical.Boundaries.SubstanceOld A(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
       Chemical.Processes.Reaction reaction2_1(
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx)),
             Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx))},
         nS=2,
         nP=2) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
-      Chemical.Boundaries.Substance B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-      Chemical.Boundaries.Substance C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
+      Chemical.Boundaries.SubstanceOld B(use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
+      Chemical.Boundaries.SubstanceOld C(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
 
-      Chemical.Boundaries.Substance D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
+      Chemical.Boundaries.SubstanceOld D(amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
       inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,56},{72,76}})));
     equation
       connect(A.solution, solution.solution) annotation (Line(
@@ -2115,7 +2117,7 @@ du := n_flow/kC;
 
       Chemical.Solution thermal_isolated_solution(useMechanicPorts=true, ConstantTemperature=false)
         annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
-      Chemical.Boundaries.Substance A(
+      Chemical.Boundaries.SubstanceOld A(
         useFore=true,
         useSolution=true,
         use_mass_start=false,
@@ -2124,7 +2126,7 @@ du := n_flow/kC;
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
-      Chemical.Boundaries.Substance B(
+      Chemical.Boundaries.SubstanceOld B(
         useRear=true,
         useSolution=true,
         use_mass_start=false,
@@ -2132,7 +2134,7 @@ du := n_flow/kC;
 
       Chemical.Solution solution_at_constant_temperature(useMechanicPorts=true, useThermalPort=true)
         annotation (Placement(transformation(extent={{-100,0},{98,94}})));
-      Chemical.Boundaries.Substance A1(
+      Chemical.Boundaries.SubstanceOld A1(
         useFore=true,
         useSolution=true,
         use_mass_start=false,
@@ -2141,7 +2143,7 @@ du := n_flow/kC;
         productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,40},{12,60}})));
-      Chemical.Boundaries.Substance B1(
+      Chemical.Boundaries.SubstanceOld B1(
         useRear=true,
         useSolution=true,
         use_mass_start=false,
@@ -2151,9 +2153,9 @@ du := n_flow/kC;
       //    "Heat flow to environment to reach constant temperature";
       Modelica.Units.SI.Temperature t
         "Temperature if the solution is ideally thermal isolated from environment";
-      Chemical.Boundaries.Substance H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.SubstanceOld H2O(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{20,4},{40,24}})));
-      Chemical.Boundaries.Substance H2O1(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
+      Chemical.Boundaries.SubstanceOld H2O1(substanceData=Chemical.SubstancesOld.Water_liquid(), mass_start=1)
         annotation (Placement(transformation(extent={{20,-94},{40,-74}})));
       Modelica.Mechanics.Translational.Components.Fixed fixed1
         annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
@@ -2619,13 +2621,13 @@ Medium model for the test. Can be anything.
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
 
       //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-      Chemical.Boundaries.Substance P(
+      Chemical.Boundaries.SubstanceOld P(
         useRear=true,
         useSolution=true,
         use_mass_start=false,
         amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
 
-      Chemical.Boundaries.Substance S(
+      Chemical.Boundaries.SubstanceOld S(
         useFore=true,
         useSolution=true,
         use_mass_start=false,
@@ -2643,14 +2645,14 @@ Medium model for the test. Can be anything.
       parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
         "Maximal molar flow";
 
-      Chemical.Boundaries.Substance ES(
+      Chemical.Boundaries.SubstanceOld ES(
         useRear=true,
         useFore=true,
         useSolution=true,
         initAmount=Chemical.Utilities.Types.InitializationMethods.state,
         use_mass_start=false,
         amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
-      Chemical.Boundaries.Substance E(
+      Chemical.Boundaries.SubstanceOld E(
         useRear=true,
         useFore=true,
         useSolution=true,
@@ -2669,7 +2671,7 @@ Medium model for the test. Can be anything.
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{24,-8},{44,12}})));
 
-      Chemical.Boundaries.Substance liquidWater(
+      Chemical.Boundaries.SubstanceOld liquidWater(
         useSolution=true,
         substanceData=Chemical.SubstancesOld.Water_liquid(),
         use_mass_start=true,
@@ -2773,19 +2775,19 @@ Medium model for the test. Can be anything.
     model Diffusion
       extends Modelica.Icons.Example;
 
-      Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
-      Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
+      Boundaries.SubstanceOld s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
+      Boundaries.SubstanceOld p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
       Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
             Chemical.Processes.Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
-      Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
-      Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
+      Boundaries.SubstanceOld s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
+      Boundaries.SubstanceOld p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
       Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
-      Boundaries.Substance s3(
+      Boundaries.SubstanceOld s3(
         useFore=true,
         useSolution=true,
         mass_start=0.6) annotation (Placement(transformation(extent={{-170,-54},{-150,-34}})));
-      Boundaries.Substance p3(
+      Boundaries.SubstanceOld p3(
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
@@ -2793,24 +2795,23 @@ Medium model for the test. Can be anything.
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
       Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
-      Boundaries.Substance s4(
+      Boundaries.SubstanceOld s4(
         useFore=true,
         useSolution=false,
         mass_start=0.6) annotation (Placement(transformation(extent={{78,64},{98,84}})));
-      Boundaries.Substance p4(
+      Boundaries.SubstanceOld p4(
         useRear=true,
         useSolution=false,
         mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
       Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
       Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
-      Boundaries.Substance
-                solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{194,24},{214,44}})));
-      Boundaries.Substance s5(
+      Boundaries.SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{194,24},{214,44}})));
+      Boundaries.SubstanceOld s5(
         useFore=true,
         useSolution=true,
         mass_start=0.6) annotation (Placement(transformation(extent={{64,-54},{84,-34}})));
-      Boundaries.Substance p5(
+      Boundaries.SubstanceOld p5(
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));

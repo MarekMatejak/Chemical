@@ -2,9 +2,113 @@ within Chemical;
 package Boundaries "Boundary models for undirected chemical simulation"
   extends Modelica.Icons.SourcesPackage;
 
-  model Substance "Substance in solution"
+  model Substance "Substance"
     extends Icons.Substance;
     extends Internal.PartialSubstance(
+      useFore=false,
+      useSolution=false,
+      useRear=false,
+      m_start=if use_mass_start then mass_start else
+       amountOfSubstance_start*Chemical.Interfaces.Properties.molarMassOfBaseMolecule(substanceDefinition));
+
+    import Chemical.Utilities.Types.InitializationUndirectedSubstance;
+
+    parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
+      annotation (HideResult=true, Evaluate=true, choices(checkBox=true));
+
+    parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+      annotation (HideResult=true, Dialog(group="Initialization", enable=use_mass_start));
+  //    HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or (not use_mass_start)
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    "Initial amount of substance base molecules"
+      annotation (HideResult=true, Dialog(group="Initialization", enable=(not use_mass_start)));
+      //HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or use_mass_start,
+
+    Modelica.Units.SI.Mass mass=n*molarMassOfBaseMolecule "Mass";
+
+    parameter InitializationUndirectedSubstance initAmount = Chemical.Utilities.Types.InitializationUndirectedSubstance.state "Initialization"
+      annotation(HideResult=true, Dialog(tab="Initialization"));
+
+    parameter Modelica.Units.SI.MolarFlowRate change_start=1
+    "Initial molar change of substance base molecules"
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(initAmount == InitializationUndirectedSubstance.derivative)));
+      //HideResult=not (initAmount==Chemical.Utilities.Types.InitializationUndirectedSubstance.derivative),
+  protected
+
+    Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = Chemical.Interfaces.Properties.molarMassOfBaseMolecule(substanceDefinitionVar);
+
+    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start))
+    "Natural logarithm of the amount of base molecules in solution";
+
+    Real logm(stateSelect=StateSelect.prefer, start=log(mass_start))
+    "Natural logarithm of the substance mass in solution";
+
+  initial equation
+
+    if initAmount == InitializationUndirectedSubstance.steadyStateForwards then
+      substance.u = state_in_rear.u;
+    elseif initAmount == InitializationUndirectedSubstance.steadyStateRearwards then
+      substance.u = state_in_fore.u;
+    elseif initAmount == InitializationUndirectedSubstance.state and not use_mass_start then
+      logn=log(amountOfSubstance_start);
+    elseif initAmount == InitializationUndirectedSubstance.state and use_mass_start then
+      logm=log(mass_start);
+    elseif initAmount == InitializationUndirectedSubstance.derivative then
+      n_flow = change_start;
+    end if;
+
+  equation
+
+    //The main accumulation equation is "der(n)=n_flow"
+    // However, the numerical solvers can handle it during equilibration of chemical potential in form of log(n) much better. :-)
+    if use_mass_start then
+      der(logm) = (n_flow/n) "accumulation of m=exp(logm) [kg]";
+    else
+      der(logn) = (n_flow/n) "accumulation of n=exp(logn) [mol]";
+    end if;
+    //der(n) = n_flow;
+    n = exp(logn);
+    n = exp(logm)*1/molarMassOfBaseMolecule;
+
+       annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+              {100,100}}), graphics={Text(
+            extent={{-84,22},{92,64}},
+            lineColor={128,0,255},
+            textString="%name")}), Documentation(revisions="<html>
+<p>2009-2025 by Marek Matejak, Ph.D. </p>
+</html>",   info="<html>
+<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solutionState. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+  end Substance;
+
+  model SubstanceOld "Substance in solution"
+    extends Icons.Substance;
+    extends Internal.PartialSubstanceOld
+                                     (
       useFore=false,
       useSolution=false,
       useRear=false,
@@ -103,12 +207,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
 <p>DfS .. free entropy of formation of the substance </p>
 <p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
-  end Substance;
+  end SubstanceOld;
 
   model ElectronSource "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.Fore fore(
+    Chemical.Interfaces.ForeOld fore(
       r=r_out,
       n_flow=n_flow,
       state_forwards(u=u, h=h),
@@ -212,7 +316,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model ElectronSink "Electron transfer to an electric circuit"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.Rear rear(n_flow=n_flow) "Chemical electron inlet"
+    Chemical.Interfaces.RearOld rear(n_flow=n_flow) "Chemical electron inlet"
       annotation (Placement(transformation(extent={{110,-10},{90,10}}), iconTransformation(extent={{110,-10},{90,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
@@ -307,7 +411,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ElectronSink;
 
   model ExternalSubstance "Constant source of molar concentration"
-    extends Internal.PartialSubstance(
+    extends Internal.PartialSubstanceOld
+                                     (
       m_start=1,
       substance(SolutionObserverOnly=true));
 
@@ -394,7 +499,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ExternalSubstance;
 
   model ExternalGas "Gas substance with defined partial pressure"
-    extends Internal.PartialSubstance(
+    extends Internal.PartialSubstanceOld
+                                     (
       redeclare package stateOfMatter = gasModel "Ideal Gas from MSL",
       m_start=1,
       substance(SolutionObserverOnly=true));
@@ -508,7 +614,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.ChemicalPotential u_start=0 "Initial electro-chemical potential";
 
-    Chemical.Interfaces.Fore fore "Forwards port" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Chemical.Interfaces.ForeOld fore "Forwards port" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
   protected
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
@@ -563,7 +669,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         choice(redeclare package stateOfMatter =
           Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
@@ -769,7 +875,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       annotation (Placement(transformation(extent={{-40,40},{0,80}}), iconTransformation(extent={{-40,40},{0,80}})));
     Modelica.Blocks.Interfaces.RealInput h0_var(unit="J/mol")  if  enthalpyFromInput "Enthalpy input connector"
       annotation (Placement(transformation(extent={{-40,-40},{0,0}}), iconTransformation(extent={{-40,-20},{0,20}})));
-    Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
+    Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
@@ -885,7 +991,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     Modelica.Blocks.Interfaces.RealInput h0_var(unit = "J/mol") if enthalpyFromInput "Enthalpy input connector"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, rotation=180, origin={20,-20}),
         iconTransformation(extent={{-20,-20},{20,20}}, rotation=180, origin={20,0})));
-    Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-80,-20},{-120,20}})));
 
   protected
@@ -968,24 +1074,24 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       BoundaryRear boundaryRear(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
         annotation (Placement(transformation(extent={{-76,14},{-56,34}})));
-      Substance substance(
+      SubstanceOld substance(
         useRear=true,
         useFore=false,
 
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{26,12},{46,32}})));
-      Substance substance2(
+      SubstanceOld substance2(
         useRear=false,
         useFore=true,
         useSolution=true,
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
       BoundaryFore boundaryFore annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
-      Substance substance1(
+      SubstanceOld substance1(
         useRear=false,
         useFore=true,
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
       BoundaryRear boundaryRear1(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
         annotation (Placement(transformation(extent={{-78,42},{-58,62}})));
-      Substance substance3(
+      SubstanceOld substance3(
         useRear=true,
         useFore=true,
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-28,42},{-8,62}})));
@@ -993,7 +1099,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
                                 annotation (Placement(transformation(extent={{30,42},{50,62}})));
       BoundaryRear boundaryRear2(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
         annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
-      Substance substance4(
+      SubstanceOld substance4(
         useRear=true,
         useFore=false,
 
@@ -1001,7 +1107,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
       BoundaryRear boundaryRear3(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
         annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
-      Substance substance5(
+      SubstanceOld substance5(
         useRear=true,
         useFore=true,
         useSolution=true,
@@ -1012,8 +1118,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={44,82})));
-      Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-78},{86,-58}})));
-      Substance substance6(substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-96,70},{-76,90}})));
+      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-78},{86,-58}})));
+      SubstanceOld substance6(substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-96,70},{-76,90}})));
     equation
       connect(boundaryRear.fore, substance.rear) annotation (Line(
           points={{-56,24},{-16,24},{-16,22},{26,22}},
@@ -1150,7 +1256,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         redeclare package stateOfMatter = gasModel,
         substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
         solutionFromInput=false) annotation (Placement(transformation(extent={{-74,14},{-54,34}})));
-      Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{70,-82},{90,-62}})));
+      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{70,-82},{90,-62}})));
     equation
       connect(externalSubstance2.fore, boundaryFore.rear) annotation (Line(
           points={{-48,-16},{36,-16}},
@@ -1278,7 +1384,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         redeclare package stateOfMatter = gasModel,
         substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
         solutionFromInput=false) annotation (Placement(transformation(extent={{-74,14},{-54,34}})));
-      Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-76},{86,-56}})));
+      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-76},{86,-56}})));
     equation
       connect(externalGas2.fore, boundaryFore.rear) annotation (Line(
           points={{-48,-16},{36,-16}},
@@ -1458,6 +1564,17 @@ package Boundaries "Boundary models for undirected chemical simulation"
 <u><br>Owner: <a href=\"mailto:marek@matfyz.cz\">Marek Matejak</a></u>
 </html>"));
     end TestBoundaries;
+
+    model CompareSubstancesProperties
+      Substance O2_new(substanceDefinition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-76,0},{-56,20}})));
+      Substance CO2_new(substanceDefinition=Chemical.Substances.Aqueous.CO2) annotation (Placement(transformation(extent={{-76,-36},{-56,-16}})));
+      Substance Ag_new(substanceDefinition=Chemical.Substances.Solid.Ag) annotation (Placement(transformation(extent={{-76,-74},{-56,-54}})));
+      SubstanceOld O2_old(redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL", substanceData=
+            Chemical.SubstancesOld.IdealGasesMSL.O2()) annotation (Placement(transformation(extent={{-6,-2},{14,18}})));
+      SubstanceOld CO2_aq_old(substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-12,-36},{8,-16}})));
+      SubstanceOld Ag_old(substanceData=Chemical.SubstancesOld.Silver_solid()) annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end CompareSubstancesProperties;
     annotation (Documentation(info="<html>
 <u>Tests for the boundaries package.</u>
 </html>"));
@@ -1467,6 +1584,193 @@ package Boundaries "Boundary models for undirected chemical simulation"
   extends Modelica.Icons.InternalPackage;
 
     partial model PartialBoundary
+
+
+      parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition    "Definition of the substance"
+        annotation (choicesAllMatching = true, Dialog(enable = not useRear));
+
+      outer Modelica.Fluid.System system "System wide properties";
+
+      parameter Boolean useRear = false "Use rearwards conector?"
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+      parameter Boolean useFore = true "Use forwards connector?"
+          annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
+       annotation(HideResult=true, Dialog(tab = "Advanced"));
+
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
+        annotation(HideResult=true, Dialog(tab="Advanced"));
+
+      Chemical.Interfaces.Rear rear(
+        n_flow=n_flow_rear,
+        r=r_rear_port,
+        state_rearwards=state_out,
+        solution=solutionState) if useRear annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
+
+      Chemical.Interfaces.Fore fore(
+        n_flow=n_flow_fore,
+        r=r_fore_port,
+        state_forwards=state_out,
+        solution=solutionState,
+        definition=substanceDefinitionVar) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+
+    //  stateOfMatter.substanceDefinition substanceDefinitionVar;
+
+    protected
+
+      Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
+      Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
+
+      Modelica.Units.SI.AmountOfSubstance n
+        "Amount of base molecules inside all clusters in compartment";
+
+      parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
+      outer Chemical.DropOfCommons dropOfCommons;
+
+      Chemical.Interfaces.InputDefinition substanceDefinitionVar;//substanceDefinition;
+      Chemical.Interfaces.SolutionState solutionState;
+
+       //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
+      Modelica.Units.SI.ChemicalPotential r_rear_intern=Chemical.Utilities.Internal.regStep(
+                n_flow_rear,
+                state_out.u - state_in_rear.u,
+                0,
+                n_flow_reg);
+      Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Utilities.Internal.regStep(
+                n_flow_fore,
+                state_out.u - state_in_fore.u,
+                0,
+                n_flow_reg);
+      // dont regstep variables that are only in der(state), to increase accuracy
+      Modelica.Units.SI.EnthalpyFlowRate h_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else state_out.h)*n_flow_rear;
+      Modelica.Units.SI.EnthalpyFlowRate h_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else state_out.h)*n_flow_fore;
+
+      Modelica.Units.SI.ChemicalPotential r_rear_port;
+      Modelica.Units.SI.ChemicalPotential r_fore_port;
+      Modelica.Units.SI.MolarFlowRate n_flow_rear;
+      Modelica.Units.SI.MolarFlowRate n_flow_fore;
+
+      Chemical.Interfaces.InputSubstanceState state_in_rear;
+      Chemical.Interfaces.InputSubstanceState state_in_fore;
+      Chemical.Interfaces.SubstanceState state_out;
+
+    equation
+
+      der(n_flow_rear)*L = r_rear_port - r_rear_intern;
+      der(n_flow_fore)*L = r_fore_port - r_fore_intern;
+
+     // connect(rear.definition, substanceDefinition);
+      connect(rear.definition, substanceDefinitionVar);
+     // substanceDefinitionVar = substanceDefinition;
+      connect(state_in_rear,rear.state_forwards);
+      connect(state_in_fore,fore.state_rearwards);
+
+      if not useRear then
+        r_rear_port = 0;
+        n_flow_rear = 0;
+        state_in_rear.h = 0;
+        substanceDefinitionVar = substanceDefinition;
+      end if;
+
+      if not useFore then
+        r_fore_port = 0;
+        n_flow_fore = 0;
+        state_in_fore.h = 0;
+      end if;
+
+      n_flow = n_flow_rear + n_flow_fore;
+      h_flow = h_flow_rear + h_flow_fore;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end PartialBoundary;
+
+    partial model PartialSubstance
+      extends PartialBoundary;
+
+      Chemical.Interfaces.Properties.BaseProperties substance(
+       definition=substanceDefinitionVar,
+       solutionState=solutionState,
+       FixedDefinition=not useRear,
+       definitionParam=substanceDefinition,
+       amountOfBaseMolecules=n,
+       m_start=m_start,
+       n_flow=n_flow,
+       h_flow=h_flow);
+
+    parameter Boolean useSolution = false "Use solution connector?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+      parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+        annotation (HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear));
+
+      Chemical.Interfaces.SolutionPort solution(
+          T=solutionPortState.T,
+          p=solutionPortState.p,
+          v=solutionPortState.v,
+          n=solutionPortState.n,
+          m=solutionPortState.m,
+          V=solutionPortState.V,
+          G=solutionPortState.G,
+          Q=solutionPortState.Q,
+          I=solutionPortState.I,
+          i=substance.i,
+          dH=substance.dH,
+          dV=substance.dV,
+          nj=substance.nj,
+          mj=substance.mj,
+          Vj=substance.Vj,
+          Gj=substance.Gj,
+          Qj=substance.Qj,
+          Ij=substance.Ij)
+            if useSolution "To connect substance with solution, where is pressented"
+        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+
+        Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
+            "Concentration";
+        Modelica.Units.SI.MassConcentration M(displayUnit="g/l")
+            "Mass concentration";
+        Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
+            "Molality";
+
+        Modelica.Units.SI.MoleFraction x "Mole fraction";
+        Modelica.Units.SI.MassFraction X "Mass fraction";
+
+    protected
+
+         Chemical.Interfaces.SolutionState solutionPortState;
+
+    equation
+      c = substance.c;
+      b = substance.b;
+      M = substance.M;
+      x = substance.x;
+      X = substance.X;
+
+      state_out.u = substance.u;
+      state_out.h = substance.h;
+
+      if (useSolution and not useRear) or (not useSolution) then
+        solutionState=solutionPortState;
+      end if;
+
+      if not useSolution and not useRear then
+        solutionState.T=solutionParam.T "Temperature of the solution";
+        solutionState.p=solutionParam.p "Pressure of the solution";
+        solutionState.v=solutionParam.v "Electric potential in the solution";
+        solutionState.n=solutionParam.n "Amount of the solution";
+        solutionState.m=solutionParam.m "Mass of the solution";
+        solutionState.V=solutionParam.V "Volume of the solution";
+        solutionState.G=solutionParam.G "Free Gibbs energy of the solution";
+        solutionState.Q=solutionParam.Q "Electric charge of the solution";
+        solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
+      end if;
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end PartialSubstance;
+
+    partial model PartialBoundaryOld
 
       replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
         Chemical.Interfaces.StateOfMatter
@@ -1497,7 +1801,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation(HideResult=true, Dialog(tab="Advanced"));
 
-      Chemical.Interfaces.Rear rear(
+      Chemical.Interfaces.RearOld rear(
         redeclare package stateOfMatter = stateOfMatter,
         n_flow=n_flow_rear,
         r=r_rear_port,
@@ -1505,7 +1809,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         solution=solutionState) if useRear
         annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
-      Chemical.Interfaces.Fore fore(
+      Chemical.Interfaces.ForeOld fore(
         redeclare package stateOfMatter = stateOfMatter,
         n_flow=n_flow_fore,
         r=r_fore_port,
@@ -1523,8 +1827,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       Modelica.Units.SI.AmountOfSubstance n
         "Amount of base molecules inside all clusters in compartment";
-
-
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
@@ -1585,10 +1887,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
       h_flow = h_flow_rear + h_flow_fore;
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-    end PartialBoundary;
+    end PartialBoundaryOld;
 
-    partial model PartialSubstance
-      extends PartialBoundary;
+    partial model PartialSubstanceOld
+      extends PartialBoundaryOld;
 
       stateOfMatter.BaseProperties substance(
        substanceDataVar=substanceDataVar,
@@ -1638,13 +1940,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
         Modelica.Units.SI.MoleFraction x "Mole fraction";
         Modelica.Units.SI.MassFraction X "Mass fraction";
 
-
     protected
 
          Chemical.Interfaces.SolutionState solutionPortState;
-
-
-
 
     equation
       c = substance.c;
@@ -1673,7 +1971,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       end if;
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-    end PartialSubstance;
+    end PartialSubstanceOld;
 
     partial model PartialTerminalRear
 
@@ -1691,7 +1989,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           choice(redeclare package stateOfMatter =
             Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-      Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
+      Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
         annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
       stateOfMatter.BaseProperties substance(
@@ -1807,7 +2105,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model Substance2 "Substance in solution"
     extends Icons.Substance;
-    extends Internal.PartialSubstance(
+    extends Internal.PartialSubstanceOld
+                                     (
       useFore=false,
       useSolution=false,
       useRear=false,
