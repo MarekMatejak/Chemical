@@ -5589,40 +5589,79 @@ extends Modelica.Icons.ExamplesPackage;
 
   package EquilibriaDefinitions
     model H2_decease
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
 
-      parameter Definition H(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H, z=0));
+      parameter Chemical.Interfaces.Definition H(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H, z=0));
 
-      parameter Definition H2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0));
+      parameter Chemical.Interfaces.Definition H2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0));
 
-      parameter Definition Reaction = H2 - 2*H;
+      parameter Chemical.Interfaces.Definition Reaction=H2 - 2*H;
 
-      Definition H2_restored = 2*H + Reaction;
+      Chemical.Interfaces.Definition H2_restored=2*H + Reaction;
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
 
     end H2_decease;
 
     model H2O_formation
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
 
 
-      parameter Definition H2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0));
+      parameter Chemical.Interfaces.Definition H2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2, z=0));
 
-      parameter Definition O2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.O2, z=0));
+      parameter Chemical.Interfaces.Definition O2(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.O2, z=0));
 
-      parameter Definition H2O(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2O, z=0));
+      parameter Chemical.Interfaces.Definition H2O(data=Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.H2O, z=0));
 
-      Definition Reaction = H2O - H2 - 0.5*O2;
-      Definition H2O_restored = H2 + 0.5*O2 + Reaction;
+      Chemical.Interfaces.Definition Reaction=H2O - H2 - 0.5*O2;
+      Chemical.Interfaces.Definition H2O_restored=H2 + 0.5*O2 + Reaction;
 
 
       parameter Real v[:] = {1,-1,-0.5};
-      parameter Definition S[:] = {H2O,H2,O2};
+      parameter Chemical.Interfaces.Definition S[:]={H2O,H2,O2};
 
-      Definition ReactionByArrays = v*S;
-      Definition H2O_restoredByArrays = {1,0.5,1}*{H2,O2,ReactionByArrays};
+      Chemical.Interfaces.Definition ReactionByArrays=v*S;
+      Chemical.Interfaces.Definition H2O_restoredByArrays={1,0.5,1}*{H2,O2,ReactionByArrays};
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
 
     end H2O_formation;
   end EquilibriaDefinitions;
+
+  model Definitions
+    import Chemical.Substances.Gas;
+    import Chemical.Interfaces.Definition;
+    import Chemical.Interfaces.Properties;
+    import Chemical.Interfaces;
+
+
+    parameter Definition H2 = Gas.H2;
+    parameter Definition O2 = Gas.O2;
+    parameter Definition H2O = Gas.H2O;
+
+    Definition Reaction = H2O - H2 - 0.5*O2;
+
+    Interfaces.SolutionState solution(
+        T = 273.15+time,
+        p = 100000,
+        n=1, m=1, V=1,
+        v=0, G=0, Q=0, I=0);
+
+    Properties.BaseProcessProperties reactionProperties(
+      definition=Reaction,
+      solutionState=solution);
+
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+  end Definitions;
 end Examples;

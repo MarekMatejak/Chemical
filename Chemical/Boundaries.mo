@@ -1689,15 +1689,15 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialSubstance
       extends PartialBoundary;
 
-      Chemical.Interfaces.Properties.BaseProperties substance(
-       definition=substanceDefinitionVar,
-       solutionState=solutionState,
-       FixedDefinition=not useRear,
-       definitionParam=substanceDefinition,
-       amountOfBaseMolecules=n,
-       m_start=m_start,
-       n_flow=n_flow,
-       h_flow=h_flow);
+      Chemical.Interfaces.Properties.BaseSubstanceProperties substance(
+        definition=substanceDefinitionVar,
+        solutionState=solutionState,
+        FixedDefinition=not useRear,
+        definitionParam=substanceDefinition,
+        amountOfBaseMolecules=n,
+        m_start=m_start,
+        n_flow=n_flow,
+        h_flow=h_flow);
 
     parameter Boolean useSolution = false "Use solution connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));

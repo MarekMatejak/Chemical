@@ -1,7 +1,7 @@
 within Chemical;
 package Substances "Definitions of some substances"
   package Gas
-   constant Chemical.Interfaces.SubstanceDefinition Ag = Chemical.Interfaces.SubstanceDefinition(data=Chemical.Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.Ag)) "Ag(g)";
+   constant Chemical.Interfaces.SubstanceDefinition Ag = Chemical.Interfaces.SubstanceDefinition(data=Chemical.Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData. Ag)) "Ag(g)";
 
    constant Chemical.Interfaces.SubstanceDefinition Agplus = Chemical.Interfaces.SubstanceDefinition(data=Chemical.Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.Agplus, z=1)) "Ag+(g)";
 
@@ -2493,7 +2493,7 @@ package Substances "Definitions of some substances"
       DfG=-237190,
       DfH=-285840,
       Cp=75.3,
-      phase=Chemical.Interfaces.PhaseType.Incompressible,
+      phase=Chemical.Interfaces.Phase.Incompressible,
       Vm=0.001*0.018015)
         "H2O(l) without clustering";
 
@@ -2544,41 +2544,41 @@ package Substances "Definitions of some substances"
        // http://www.vias.org/genchem/standard_enthalpies_table.html
        // http://www.update.uu.se/~jolkkonen/pdf/CRC_TD.pdf
 
-    constant Chemical.Interfaces.SubstanceDefinition AgCl=Chemical.Interfaces.SubstanceDefinition(MM=0.14332,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition AgCl=Chemical.Interfaces.SubstanceDefinition(MM=0.14332,phase=Chemical.Interfaces.Phase.Incompressible,
         z=0,
         DfH=-127030,
         DfG=-109720,
         Cp=50.8) "AgCl(s)";
 
-    constant Chemical.Interfaces.SubstanceDefinition eminus=Chemical.Interfaces.SubstanceDefinition(MM=5.4857990946e-7,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition eminus=Chemical.Interfaces.SubstanceDefinition(MM=5.4857990946e-7,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=0,
         DfG=0,
         Cp=0,
         Vm=1e-27) "e-(s)";
 
-    constant Chemical.Interfaces.SubstanceDefinition Glu=Chemical.Interfaces.SubstanceDefinition(MM=0.1806,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition Glu=Chemical.Interfaces.SubstanceDefinition(MM=0.1806,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-1274500,
         DfG=-1274500 - 298.15*(-1220.66)) "Glu(s)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition Water_IceIh=Chemical.Interfaces.SubstanceDefinition(MM=0.018015,phase=Chemical.Interfaces.PhaseType.Incompressible,DfH=-292639,
+    constant Chemical.Interfaces.SubstanceDefinition Water_IceIh=Chemical.Interfaces.SubstanceDefinition(MM=0.018015,phase=Chemical.Interfaces.Phase.Incompressible,    DfH=-292639,
         DfG=-236590,
         Cp=37.77) "H2O(s) - Ice I h";
     //  http://www1.lsbu.ac.uk/water/water_properties.html#pot;
 
-    constant Chemical.Interfaces.SubstanceDefinition Pb=Chemical.Interfaces.SubstanceDefinition(MM=0.2072,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition Pb=Chemical.Interfaces.SubstanceDefinition(MM=0.2072,phase=Chemical.Interfaces.Phase.Incompressible,
         z=0,
         DfH=0,
         DfG=0,
         Cp=26.4) "Pb(s)";
 
-    constant Chemical.Interfaces.SubstanceDefinition PbO2=Chemical.Interfaces.SubstanceDefinition(MM=0.2391988,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition PbO2=Chemical.Interfaces.SubstanceDefinition(MM=0.2391988,phase=Chemical.Interfaces.Phase.Incompressible,
          z=0,
          DfH=-276600,
          DfG=-219000,
          Cp=64.6) "PbO2(s)";
 
-     constant Chemical.Interfaces.SubstanceDefinition PbSO4=Chemical.Interfaces.SubstanceDefinition(MM=0.30326,phase=Chemical.Interfaces.PhaseType.Incompressible,
+     constant Chemical.Interfaces.SubstanceDefinition PbSO4=Chemical.Interfaces.SubstanceDefinition(MM=0.30326,phase=Chemical.Interfaces.Phase.Incompressible,
          z=0,
          DfH=-918400,
          DfG=-811200,
@@ -2586,178 +2586,178 @@ package Substances "Definitions of some substances"
   end Solid;
 
   package Aqueous
-    constant Chemical.Interfaces.SubstanceDefinition Agplus=Chemical.Interfaces.SubstanceDefinition(MM=0.1078682,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition Agplus=Chemical.Interfaces.SubstanceDefinition(MM=0.1078682,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=105900,
         DfG=77100) "Ag+(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition Caplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.0401,phase=Chemical.Interfaces.PhaseType.Incompressible,z=2,
+    constant Chemical.Interfaces.SubstanceDefinition Caplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.0401,phase=Chemical.Interfaces.Phase.Incompressible,    z=2,
         DfH=-542960,
         DfG=-542960 - 298.15*(33.67)) "Ca++(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition Clminus=Chemical.Interfaces.SubstanceDefinition(MM=0.03545,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition Clminus=Chemical.Interfaces.SubstanceDefinition(MM=0.03545,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=-167460,
         DfG=-131170) "Cl-(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition CO=Chemical.Interfaces.SubstanceDefinition(MM=0.02801,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition CO=Chemical.Interfaces.SubstanceDefinition(MM=0.02801,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-276900,
         DfG=-110200) "CO(aq)";
   //  Calculated from gas phase using Henry's coefficient from http://webbook.nist.gov/cgi/cbook.cgi?ID=C630080&Mask=10;
 
-    constant Chemical.Interfaces.SubstanceDefinition CO2=Chemical.Interfaces.SubstanceDefinition(MM=0.044,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition CO2=Chemical.Interfaces.SubstanceDefinition(MM=0.044,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-412900,
         DfG=-386200) "CO2(aq)";
    //  http://www.vias.org/genchem/standard_enthalpies_table.html
 
-    constant Chemical.Interfaces.SubstanceDefinition CO3minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.06001,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-2,
+    constant Chemical.Interfaces.SubstanceDefinition CO3minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.06001,phase=Chemical.Interfaces.Phase.Incompressible,    z=-2,
         DfH=-676300,
         DfG=-676300 - 298.15*(-497.065)) "CO3--(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition Feplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.05585,phase=Chemical.Interfaces.PhaseType.Incompressible,z=2,
+    constant Chemical.Interfaces.SubstanceDefinition Feplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.05585,phase=Chemical.Interfaces.Phase.Incompressible,    z=2,
         DfH=-87860,
         DfG=-87860 - 298.15*(-9.93)) "Fe++(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition Feplus3=Chemical.Interfaces.SubstanceDefinition(MM=0.05585,phase=Chemical.Interfaces.PhaseType.Incompressible,z=3,
+    constant Chemical.Interfaces.SubstanceDefinition Feplus3=Chemical.Interfaces.SubstanceDefinition(MM=0.05585,phase=Chemical.Interfaces.Phase.Incompressible,    z=3,
         DfH=-47700,
         DfG=-47700 - 298.15*(-124.77)) "Fe+++(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition H2CO3=Chemical.Interfaces.SubstanceDefinition(MM=0.062027,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition H2CO3=Chemical.Interfaces.SubstanceDefinition(MM=0.062027,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-699700,
         DfG=-699700 - 298.15*(-256.582)) "H2CO3(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition H2PO4minus=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition H2PO4minus=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=-1302480,
         DfG=-1302480 - 298.15*(-561.395)) "H2PO4-(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition H3Oplus=Chemical.Interfaces.SubstanceDefinition(MM=0.019022,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition H3Oplus=Chemical.Interfaces.SubstanceDefinition(MM=0.019022,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=-285840,
         DfG=-285840 - 298.15*(-163.17)) "H3O+(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition H3PO4=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition H3PO4=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-1288000,
         DfG=-1288000 - 298.15*(-496.4)) "H3PO4(aq)";
   //  https://en.wikipedia.org/wiki/Phosphoric_acid, https://www.researchgate.net/publication/6600409_Standard_thermodynamic_properties_of_H3PO4%28aq%29_over_a_wide_range_of_temperatures_and_pressures;
 
-    constant Chemical.Interfaces.SubstanceDefinition Hplus=Chemical.Interfaces.SubstanceDefinition(MM=0.001007,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition Hplus=Chemical.Interfaces.SubstanceDefinition(MM=0.001007,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=0,
         DfG=0) "H+(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition HCO3minus=Chemical.Interfaces.SubstanceDefinition(MM=0.06102,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition HCO3minus=Chemical.Interfaces.SubstanceDefinition(MM=0.06102,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=-691100,
         DfG=-691100 - 298.15*(-348.82)) "HCO3-(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition HPO4minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-2,
+    constant Chemical.Interfaces.SubstanceDefinition HPO4minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.Phase.Incompressible,    z=-2,
         DfH=-1298700,
         DfG=-1298700 - 298.15*(-686.232)) "HPO4--(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition HSO4minus=Chemical.Interfaces.SubstanceDefinition(MM=0.097,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition HSO4minus=Chemical.Interfaces.SubstanceDefinition(MM=0.097,phase=Chemical.Interfaces.Phase.Incompressible,
         z=-1,
         DfH=-885750,
         DfG=-752870,
         Vm=(1/1800)*0.097) "HSO4-(aq)";
 
-    constant Chemical.Interfaces.SubstanceDefinition Kplus=Chemical.Interfaces.SubstanceDefinition(MM=0.0391,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition Kplus=Chemical.Interfaces.SubstanceDefinition(MM=0.0391,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=-251200,
         DfG=-251200 - 298.15*(103.97)) "K+(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition Mgplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.0243,phase=Chemical.Interfaces.PhaseType.Incompressible,z=2,
+    constant Chemical.Interfaces.SubstanceDefinition Mgplus2=Chemical.Interfaces.SubstanceDefinition(MM=0.0243,phase=Chemical.Interfaces.Phase.Incompressible,    z=2,
         DfH=-461960,
         DfG=-461960 - 298.15*(-19.99)) "Mg++(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition Naplus=Chemical.Interfaces.SubstanceDefinition(MM=0.02299,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition Naplus=Chemical.Interfaces.SubstanceDefinition(MM=0.02299,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=-239660,
         DfG=-239660 - 298.15*(74.49)) "Na+(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition NH4plus=Chemical.Interfaces.SubstanceDefinition(MM=0.01804,phase=Chemical.Interfaces.PhaseType.Incompressible,z=1,
+    constant Chemical.Interfaces.SubstanceDefinition NH4plus=Chemical.Interfaces.SubstanceDefinition(MM=0.01804,phase=Chemical.Interfaces.Phase.Incompressible,    z=1,
         DfH=-132800,
         DfG=-132800 - 298.15*(-178.77)) "NH4+(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition O2=Chemical.Interfaces.SubstanceDefinition(MM=0.032,phase=Chemical.Interfaces.PhaseType.Incompressible,
+    constant Chemical.Interfaces.SubstanceDefinition O2=Chemical.Interfaces.SubstanceDefinition(MM=0.032,phase=Chemical.Interfaces.Phase.Incompressible,
         DfH=-11700,
         DfG=16320) "O2(aq)";
   //  http://webserver.dmt.upm.es/~isidoro/dat1/Heat%20of%20solution%20data.pdf, https://books.google.cz/books?id=dr-VBAAAQBAJ&pg=PA156&lpg=PA156&dq=Gibbs+energy+of+formation++%22O2(aq)%22&source=bl&ots=09N5CxY7OD&sig=hbsTXQvX59vXBqHUjFVVIZQpHCA&hl=cs&sa=X&ei=sDQtVaeUMMaRsAHpzYHgAg&redir_esc=y#v=onepage&q=Gibbs%20energy%20of%20formation%20%20%22O2(aq)%22&f=false;
 
-    constant Chemical.Interfaces.SubstanceDefinition OHminus=Chemical.Interfaces.SubstanceDefinition(MM=0.017006,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition OHminus=Chemical.Interfaces.SubstanceDefinition(MM=0.017006,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=-229940,
         DfG=-157300) "OH-(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition PO4minus3=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-3,
+    constant Chemical.Interfaces.SubstanceDefinition PO4minus3=Chemical.Interfaces.SubstanceDefinition(MM=0.095,phase=Chemical.Interfaces.Phase.Incompressible,    z=-3,
         DfH=-1284070,
         DfG=-1284070 - 298.15*(-866.946)) "PO4---(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition SO4minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.09607,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-2,
+    constant Chemical.Interfaces.SubstanceDefinition SO4minus2=Chemical.Interfaces.SubstanceDefinition(MM=0.09607,phase=Chemical.Interfaces.Phase.Incompressible,    z=-2,
         DfH=-907500,
         DfG=-907500 - 298.15*(-555.123)) "SO4--(aq)";
   //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf;
 
-    constant Chemical.Interfaces.SubstanceDefinition Urea=Chemical.Interfaces.SubstanceDefinition(MM=0.06006,phase=Chemical.Interfaces.PhaseType.Incompressible,z=0,
+    constant Chemical.Interfaces.SubstanceDefinition Urea=Chemical.Interfaces.SubstanceDefinition(MM=0.06006,phase=Chemical.Interfaces.Phase.Incompressible,    z=0,
         DfH=-333189,
         DfG=-197150) "Urea(aq)";
   //  https://en.wikipedia.org/wiki/Urea;
 
-    constant Chemical.Interfaces.SubstanceDefinition Glb=Chemical.Interfaces.SubstanceDefinition(MM=66.5,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-4,
+    constant Chemical.Interfaces.SubstanceDefinition Glb=Chemical.Interfaces.SubstanceDefinition(MM=66.5,phase=Chemical.Interfaces.Phase.Incompressible,    z=-4,
         DfH=0,
         DfG=0) "Glb(aq)";
   //  https://en.wikipedia.org/wiki/Human_serum_albumin;
 
-    constant Chemical.Interfaces.SubstanceDefinition Alb=Chemical.Interfaces.SubstanceDefinition(MM=66.5,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-11.4,
+    constant Chemical.Interfaces.SubstanceDefinition Alb=Chemical.Interfaces.SubstanceDefinition(MM=66.5,phase=Chemical.Interfaces.Phase.Incompressible,    z=-11.4,
         DfH=0,
         DfG=0) "Alb(aq)";
   //  https://en.wikipedia.org/wiki/Human_serum_albumin;
 
-    constant Chemical.Interfaces.SubstanceDefinition ADP3=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-3,
+    constant Chemical.Interfaces.SubstanceDefinition ADP3=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.Phase.Incompressible,    z=-3,
         DfH=0,
         DfG=0) "ADP3(aq)";
   //  relative - designed only for ATP hydrolysis example;
 
-    constant Chemical.Interfaces.SubstanceDefinition ATPminus4=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-4,
+    constant Chemical.Interfaces.SubstanceDefinition ATPminus4=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.Phase.Incompressible,    z=-4,
         DfH=-1.0263e+6,
         DfG=-882161) "ATP^4-(aq)";
   //  relative - designed only for ATP hydrolysis example;
 
-    constant Chemical.Interfaces.SubstanceDefinition ATPminus3=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-4,
+    constant Chemical.Interfaces.SubstanceDefinition ATPminus3=Chemical.Interfaces.SubstanceDefinition(MM=0.427201,phase=Chemical.Interfaces.Phase.Incompressible,    z=-4,
         DfH=-1.0263e+6,
         DfG=-919245) "ATP^3-(aq)";
   //  relative - designed only for ATP hydrolysis example;
 
-    constant Chemical.Interfaces.SubstanceDefinition CH4=Chemical.Interfaces.SubstanceDefinition(MM=0.01604246,phase=Chemical.Interfaces.PhaseType.Incompressible,z=0,
+    constant Chemical.Interfaces.SubstanceDefinition CH4=Chemical.Interfaces.SubstanceDefinition(MM=0.01604246,phase=Chemical.Interfaces.Phase.Incompressible,    z=0,
         DfH=-88151,
         DfG=-34504) "CH4(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C74828&Mask=10#Solubility;
 
-    constant Chemical.Interfaces.SubstanceDefinition CH3COOH=Chemical.Interfaces.SubstanceDefinition(MM=0.060052,phase=Chemical.Interfaces.PhaseType.Incompressible,z=0,
+    constant Chemical.Interfaces.SubstanceDefinition CH3COOH=Chemical.Interfaces.SubstanceDefinition(MM=0.060052,phase=Chemical.Interfaces.Phase.Incompressible,    z=0,
         DfH=-488453,
         DfG=-399600) "CH3COOH(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition CH3COOminus=Chemical.Interfaces.SubstanceDefinition(MM=0.059052,phase=Chemical.Interfaces.PhaseType.Incompressible,z=-1,
+    constant Chemical.Interfaces.SubstanceDefinition CH3COOminus=Chemical.Interfaces.SubstanceDefinition(MM=0.059052,phase=Chemical.Interfaces.Phase.Incompressible,    z=-1,
         DfH=-488871,
         DfG=-372500) "CH3COO-(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html;
 
-    constant Chemical.Interfaces.SubstanceDefinition H2=Chemical.Interfaces.SubstanceDefinition(MM=0.00201588,phase=Chemical.Interfaces.PhaseType.Incompressible,z=0,
+    constant Chemical.Interfaces.SubstanceDefinition H2=Chemical.Interfaces.SubstanceDefinition(MM=0.00201588,phase=Chemical.Interfaces.Phase.Incompressible,    z=0,
         DfH=-4157,
         DfG=17740) "H2(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C1333740&Mask=10#Solubility;
 
-    constant Chemical.Interfaces.SubstanceDefinition C2H5OH=Chemical.Interfaces.SubstanceDefinition(MM=0.04607,phase=Chemical.Interfaces.PhaseType.Incompressible,z=0,
+    constant Chemical.Interfaces.SubstanceDefinition C2H5OH=Chemical.Interfaces.SubstanceDefinition(MM=0.04607,phase=Chemical.Interfaces.Phase.Incompressible,    z=0,
         DfH=-290276,
         DfG=-181607) "C2H5OH(aq)";
   //  http://www.vias.org/genchem/standard_enthalpies_table.html, https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI&Mask=10#Solubility;
