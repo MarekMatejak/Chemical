@@ -2774,4 +2774,14 @@ package Substances "Definitions of some substances"
 
   end Aqueous;
 
+  constant Chemical.Interfaces.SubstanceDefinition Unknown=Chemical.Interfaces.SubstanceDefinition(
+      MM=0.018015,
+      DfH=-285830,
+      DfG=-227230,
+      Cp=75.3,
+      phase=Chemical.Interfaces.Phase.Incompressible,
+      SelfClustering=true,
+      SelfClustering_dH=-81.6348,
+      SelfClustering_dS=32.845554) "Unknown";
+
 end Substances;

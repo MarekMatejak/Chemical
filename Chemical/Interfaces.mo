@@ -4096,10 +4096,7 @@ end solution_temperature_;
   end SolutionPort;
 
   model Total "Summation of all extensible properties per substance"
-    replaceable package stateOfMatter =
-        Chemical.Interfaces.StateOfMatter constrainedby StateOfMatter
-    "Substance model to translate data into substance properties"
-       annotation (choicesAllMatching = true);
+
 
     SolutionPort solution
       annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
@@ -4195,19 +4192,6 @@ end solution_temperature_;
   partial model PartialSolution
     "Base chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
 
-   replaceable package stateOfMatter =
-        Incompressible
-      constrainedby StateOfMatter
-    "Substance model to translate data into substance properties"
-        annotation (choices(
-            choice(redeclare package stateOfMatter =
-              Chemical.Interfaces.Incompressible  "Incompressible"),
-            choice(redeclare package stateOfMatter =
-              Chemical.Interfaces.IdealGas        "Ideal Gas"),
-            choice(redeclare package stateOfMatter =
-              Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-            choice(redeclare package stateOfMatter =
-              Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     outer Modelica.Fluid.System system "System wide properties";
 
@@ -4224,8 +4208,7 @@ end solution_temperature_;
   Modelica.Units.SI.Mass mass(stateSelect=StateSelect.prefer)
     "Current mass of the solution";
 
-    Total total(redeclare package stateOfMatter =
-          stateOfMatter, ElectricGround=ElectricGround)
+    Total total(ElectricGround=ElectricGround)
       annotation (Placement(transformation(extent={{74,-96},{94,-76}})));
 
   protected

@@ -212,7 +212,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model ElectronSource "Electron transfer from the solution to electric circuit"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.ForeOld fore(
+    Chemical.Interfaces.Fore fore(
       r=r_out,
       n_flow=n_flow,
       state_forwards(u=u, h=h),
@@ -226,7 +226,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         Q=solution.Q,
         I=solution.I,
         G=solution.G),
-      definition=substanceData) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      definition(data=definition.data)) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -244,8 +244,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-    parameter Chemical.Interfaces.Incompressible.SubstanceDataParameters substanceData=Chemical.SubstancesOld.Electrone_solid()
-                                                                                                                             "Definition of the substance";
+    parameter Chemical.Interfaces.SubstanceDefinition definition=Chemical.Substances.Solid.eminus                 "Definition of the substance";
 
     Real r_out, h;
 
@@ -273,7 +272,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     //electric
     pin.v = electricPotential;
-    pin.i + substanceData.z*Modelica.Constants.F*n_flow + solution.i = 0;
+    pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
 
     /*
   These equations :
@@ -283,14 +282,14 @@ package Boundaries "Boundary models for undirected chemical simulation"
     temperature,
     pressure,
     electricPotential,
-    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + substanceData.z*Modelica.Constants.F*electricPotential;
+    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + definition.data.z*Modelica.Constants.F*electricPotential;
   uRT = u/(Modelica.Constants.R*temperature);
   h = Interfaces.Incompressible.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
   
   ... are simplified as:
   */
-    u = substanceData.z*Modelica.Constants.F*electricPotential;
-    h = substanceData.z*Modelica.Constants.F*electricPotential;
+    u = definition.data.z*Modelica.Constants.F*electricPotential;
+    h = definition.data.z*Modelica.Constants.F*electricPotential;
 
     // Bounsaries.Source - u adaptation
     der(u)*L = r_out;
@@ -316,7 +315,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model ElectronSink "Electron transfer to an electric circuit"
     extends Icons.ElectronTransfer;
 
-    Chemical.Interfaces.RearOld rear(n_flow=n_flow) "Chemical electron inlet"
+    Chemical.Interfaces.Rear rear(n_flow=n_flow) "Chemical electron inlet"
       annotation (Placement(transformation(extent={{110,-10},{90,10}}), iconTransformation(extent={{110,-10},{90,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
@@ -341,8 +340,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   protected
 
-    parameter Chemical.Interfaces.Incompressible.SubstanceData substanceData = Chemical.SubstancesOld.Electrone_solid()
-                                                                                                                     "Definition of the substance";
+    parameter Chemical.Interfaces.SubstanceDefinition definition = Chemical.Substances.Solid.eminus               "Definition of the substance";
 
     outer Chemical.DropOfCommons dropOfCommons;
 
@@ -365,7 +363,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     //electric
     pin.v = electricPotential;
-    pin.i + substanceData.z*Modelica.Constants.F*n_flow + solution.i = 0;
+    pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
 
     /*
   These equations :
@@ -375,12 +373,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
     temperature,
     pressure,
     electricPotential,
-    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + substanceData.z*Modelica.Constants.F*electricPotential;
+    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + definition.data.z*Modelica.Constants.F*electricPotential;
   uRT = u/(Modelica.Constants.R*temperature);
   
   ... are simplified as:
   */
-    u = substanceData.z*Modelica.Constants.F*electricPotential;
+    u = definition.data.z*Modelica.Constants.F*electricPotential;
 
     //solution changes
     solution.dH = 0;
@@ -411,8 +409,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ElectronSink;
 
   model ExternalSubstance "Constant source of molar concentration"
-    extends Internal.PartialSubstanceOld
-                                     (
+    extends Internal.PartialSubstance(
       m_start=1,
       substance(SolutionObserverOnly=true));
 
@@ -443,11 +440,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
     if quantity == Chemical.Boundaries.Internal.Types.ConcentrationQuantities.c_molpm3 then
       value =  1*(substance.x * solutionState.n)/solutionState.V;
     elseif quantity == Chemical.Boundaries.Internal.Types.ConcentrationQuantities.X_kgpkg then
-      value = 1*((substance.x * solutionState.n)/solutionState.m)/stateOfMatter.specificAmountOfParticles(substanceDataVar,
-     solutionState.T,
-     solutionState.p,
-     solutionState.v,
-     solutionState.I);
+      value = 1*((substance.x * solutionState.n)/solutionState.m)/Chemical.Interfaces.Properties.specificAmountOfParticles(substanceDefinitionVar,
+     solutionState);
     elseif quantity == Chemical.Boundaries.Internal.Types.ConcentrationQuantities.b_molpkg then
       value = 1* (substance.x * solutionState.n)/solutionState.m;
     elseif quantity == Chemical.Boundaries.Internal.Types.ConcentrationQuantities.x_molpmol then
@@ -499,26 +493,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ExternalSubstance;
 
   model ExternalGas "Gas substance with defined partial pressure"
-    extends Internal.PartialSubstanceOld
-                                     (
-      redeclare package stateOfMatter = gasModel "Ideal Gas from MSL",
+    extends Internal.PartialSubstance(
       m_start=1,
       substance(SolutionObserverOnly=true));
 
-     replaceable package gasModel = Chemical.Interfaces.IdealGasMSL constrainedby
-      Chemical.Interfaces.StateOfMatter "Gas substance model"
-      annotation (choices(
-        choice(redeclare package gasModel =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package gasModel =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package gasModel =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-  /*
-   parameter gasModel.SubstanceDataParameters substanceData
- "Definition of the substance"
-    annotation (choicesAllMatching = true, Dialog(enable=not useRear));
-*/
+
     parameter Boolean usePartialPressureInput = false
     "=true, if fixed partial pressure is from input instead of parameter"
     annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
@@ -591,30 +570,20 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ExternalGas;
 
   model TerminalInflow "Molar pump of substance to system"
-    extends Chemical.Interfaces.PartialSolutionSensor                  (useSolutionFromRear=false);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
     extends Chemical.Interfaces.ConditionalSubstanceFlow(useSubstanceFlowInput=false);
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+    import Chemical.Utilities.Types.SolutionChoice;
 
   //  parameter Chemical.Interfaces.SolutionStateParameters solutionState;
-    parameter stateOfMatter.SubstanceDataParameters substanceData
+    parameter Interfaces.SubstanceDefinition definition = Chemical.Substances.Unknown
    "Definition of the substance"
       annotation (choicesAllMatching = true);
 
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.ChemicalPotential u_start=0 "Initial electro-chemical potential";
 
-    Chemical.Interfaces.ForeOld fore "Forwards port" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Chemical.Interfaces.Fore fore "Forwards port" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
   protected
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
@@ -623,14 +592,14 @@ package Boundaries "Boundary models for undirected chemical simulation"
     u = u_start;
 
   equation
-    fore.definition = substanceData;
+    fore.definition.data = definition.data;
     fore.solution = solutionState;
 
     fore.n_flow = -q;
 
     TC * der(u) = fore.r;
     fore.state_forwards.u = u;
-    fore.state_forwards.h = stateOfMatter.molarEnthalpy(substanceData,solutionState.T);
+    fore.state_forwards.h = Chemical.Interfaces.Properties.molarEnthalpy(definition,solutionState);
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
               100,100}}), graphics={
@@ -657,19 +626,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   //  extends Chemical.Undirected.Boundaries.Internal.PartialTerminalRear;
     extends Chemical.Interfaces.ConditionalSubstanceFlow;
 
-   replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
+     Chemical.Interfaces.Rear rear "The substance"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
     parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
@@ -685,7 +642,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     TC * der(u) = rear.r;
     rear.state_rearwards.u = u;
-    rear.state_rearwards.h = rear.stateOfMatter.molarEnthalpy(rear.definition,rear.solution.T);
+    rear.state_rearwards.h = Chemical.Interfaces.Properties.molarEnthalpy(rear.definition,rear.solution);
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -838,22 +795,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model BoundaryRear "Generic Boundary model (may act as source or sink)"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Interfaces.SolutionStateParameters solutionState
       annotation (Dialog(enable=not solutionFromInput));
-    parameter stateOfMatter.SubstanceDataParameters substanceData
+    parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition = Chemical.Substances.Unknown
    "Definition of the substance"
       annotation (choicesAllMatching = true);
 
@@ -875,7 +820,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       annotation (Placement(transformation(extent={{-40,40},{0,80}}), iconTransformation(extent={{-40,40},{0,80}})));
     Modelica.Blocks.Interfaces.RealInput h0_var(unit="J/mol")  if  enthalpyFromInput "Enthalpy input connector"
       annotation (Placement(transformation(extent={{-40,-40},{0,0}}), iconTransformation(extent={{-40,-20},{0,20}})));
-    Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Interfaces.Fore fore
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
   protected
@@ -919,7 +864,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     fore.state_forwards = Chemical.Interfaces.SubstanceState(u=u0,h=h0);
     fore.solution=s;
-    fore.definition=substanceData;
+    fore.definition.data=substanceDefinition.data;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -961,19 +906,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model BoundaryFore "Generic Boundary model (may act as source or sink)"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
     parameter Boolean potentialFromInput = false "Use input connector for potential?";
     parameter Boolean enthalpyFromInput = false "Use input connector for molar enthalpy";
 
@@ -991,7 +923,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     Modelica.Blocks.Interfaces.RealInput h0_var(unit = "J/mol") if enthalpyFromInput "Enthalpy input connector"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, rotation=180, origin={20,-20}),
         iconTransformation(extent={{-20,-20},{20,20}}, rotation=180, origin={20,0})));
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-80,-20},{-120,20}})));
 
   protected
@@ -1019,7 +951,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     der(rear.n_flow)*L = rear.r-r;
 
     //if port.n_flow > 0 -> it is sink (r=u_set-u_in) else it is source (r=0)
-    r =.Chemical.Utilities.Internal.regStep(
+    r = Chemical.Utilities.Internal.regStep(
         rear.n_flow,
         u0 - u_forwards,
         0,
@@ -1072,54 +1004,56 @@ package Boundaries "Boundary models for undirected chemical simulation"
        extends Modelica.Icons.Example;
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
 
-      BoundaryRear boundaryRear(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
+      BoundaryRear boundaryRear(substanceDefinition=Chemical.Substances.Liquid.H2O, solutionFromInput=false)
         annotation (Placement(transformation(extent={{-76,14},{-56,34}})));
-      SubstanceOld substance(
+      Substance substance(
         useRear=true,
         useFore=false,
 
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{26,12},{46,32}})));
-      SubstanceOld substance2(
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{26,12},{46,32}})));
+      Substance substance2(
         useRear=false,
         useFore=true,
         useSolution=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
       BoundaryFore boundaryFore annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
-      SubstanceOld substance1(
+      Substance substance1(
         useRear=false,
         useFore=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
-      BoundaryRear boundaryRear1(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
+      BoundaryRear boundaryRear1(substanceDefinition=Chemical.Substances.Liquid.H2O, solutionFromInput=false)
         annotation (Placement(transformation(extent={{-78,42},{-58,62}})));
-      SubstanceOld substance3(
+      Substance substance3(
         useRear=true,
         useFore=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-28,42},{-8,62}})));
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-28,42},{-8,62}})));
       BoundaryFore boundaryFore2
                                 annotation (Placement(transformation(extent={{30,42},{50,62}})));
-      BoundaryRear boundaryRear2(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
+      BoundaryRear boundaryRear2(substanceDefinition=Chemical.Substances.Liquid.H2O, solutionFromInput=false)
         annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
-      SubstanceOld substance4(
+      Substance substance4(
         useRear=true,
         useFore=false,
 
         useSolution=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
-      BoundaryRear boundaryRear3(substanceData=Chemical.SubstancesOld.Water_liquid(), solutionFromInput=false)
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
+      BoundaryRear boundaryRear3(substanceDefinition=Chemical.Substances.Liquid.H2O, solutionFromInput=false)
         annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
-      SubstanceOld substance5(
+      Substance substance5(
         useRear=true,
         useFore=true,
         useSolution=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
+        substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
       BoundaryFore boundaryFore3
                                 annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
       BoundaryFore boundaryFore1 annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={44,82})));
-      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-78},{86,-58}})));
-      SubstanceOld substance6(substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-96,70},{-76,90}})));
+      Substance solvent(
+        substanceDefinition=Chemical.Substances.Liquid.H2O,
+                        useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-78},{86,-58}})));
+      Substance substance6(substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-96,70},{-76,90}})));
     equation
       connect(boundaryRear.fore, substance.rear) annotation (Line(
           points={{-56,24},{-16,24},{-16,22},{26,22}},
@@ -1170,25 +1104,14 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     model TestExternalSubstance
        extends Modelica.Icons.Example;
-      Chemical.Solution solution(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL                                                        "Ideal Gas from MSL")
-                                 annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
+      Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
 
-      replaceable package gasModel = Chemical.Interfaces.IdealGasMSL constrainedby
-        Chemical.Interfaces.StateOfMatter "Gas substance model"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+
 
       ExternalSubstance
                 externalSubstance1(
         useRear=true,
         useFore=false,
-        redeclare package stateOfMatter = gasModel,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.c_molpm3,
         FixedValue=1)     annotation (Placement(transformation(extent={{24,14},{44,34}})));
 
@@ -1196,67 +1119,58 @@ package Boundaries "Boundary models for undirected chemical simulation"
         useRear=false,
         useFore=true,
         useSolution=true,
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.p_mmHg,
         FixedValue=10) annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
 
-      BoundaryFore boundaryFore(redeclare package stateOfMatter = gasModel)
-                                annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
+      BoundaryFore boundaryFore annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
       ExternalSubstance externalIdealGas(
         useRear=false,
         useFore=true,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.c_molpm3,
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         FixedValue=15) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
-      BoundaryFore boundaryFore1(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore1
                                 annotation (Placement(transformation(extent={{32,72},{52,92}})));
       BoundaryRear boundaryRear1(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-76,42},{-56,62}})));
       ExternalSubstance
                 externalSubstance(
         useRear=true,
-        useFore=true,       redeclare package stateOfMatter = gasModel,
+        useFore=true,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.c_molpm3,
         FixedValue=10)    annotation (Placement(transformation(extent={{-26,42},{-6,62}})));
 
-      BoundaryFore boundaryFore2(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore2
                                 annotation (Placement(transformation(extent={{30,42},{50,62}})));
       BoundaryRear boundaryRear2(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
       ExternalSubstance
                 externalSubstance4(
         useRear=true,        useFore=false,
         useSolution=true,
-        redeclare package stateOfMatter = gasModel,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.p_mmHg,
         FixedValue=1)     annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
 
       BoundaryRear boundaryRear3(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
       ExternalSubstance
                 externalSubstance3(
         useRear=true,
         useFore=true,
         useSolution=true,
-        redeclare package stateOfMatter = gasModel,
         quantity=Chemical.Boundaries.Internal.Types.ConcentrationQuantities.p_mmHg,
         FixedValue=1)     annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
 
-      BoundaryFore boundaryFore3(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore3
                                 annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
       BoundaryRear boundaryRear4(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Liquid.Ethanol,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-74,14},{-54,34}})));
-      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{70,-82},{90,-62}})));
+      Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{70,-82},{90,-62}})));
     equation
       connect(externalSubstance2.fore, boundaryFore.rear) annotation (Line(
           points={{-48,-16},{36,-16}},
@@ -1306,85 +1220,66 @@ package Boundaries "Boundary models for undirected chemical simulation"
     end TestExternalSubstance;
 
     model TestExternalGas
+      import Chemical;
        extends Modelica.Icons.Example;
-      Chemical.Solution solution(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL                                                        "Ideal Gas from MSL")
-                                 annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
-
-      replaceable package gasModel = Chemical.Interfaces.IdealGasMSL constrainedby
-        Chemical.Interfaces.StateOfMatter "Gas substance model"
-        annotation (choices(
-          choice(redeclare package gasModel =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package gasModel =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package gasModel =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
+      Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,6}})));
 
       ExternalGas
                 externalGas1(
         useRear=true,
         useFore=false,
-        redeclare package gasModel = gasModel,
-                       PartialPressure(displayUnit="mmHg") = 133.322387415)
+        PartialPressure(displayUnit="mmHg") = 133.322387415)
                           annotation (Placement(transformation(extent={{24,14},{44,34}})));
       ExternalGas externalGas2(
         useRear=false,
         useFore=true,
         useSolution=true,
-        redeclare package gasModel = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         PartialPressure(displayUnit="mmHg") = 1333.22387415) annotation (Placement(transformation(extent={{-68,-26},{-48,-6}})));
-      BoundaryFore boundaryFore(redeclare package stateOfMatter = gasModel)
-                                annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
+      BoundaryFore boundaryFore annotation (Placement(transformation(extent={{36,-26},{56,-6}})));
       ExternalGas externalIdealGas(
         useRear=false,
         useFore=true,
-        redeclare package gasModel = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.Air,
         PartialPressure(displayUnit="mmHg") = 1999.835811225) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
-      BoundaryFore boundaryFore1(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore1
                                 annotation (Placement(transformation(extent={{32,72},{52,92}})));
       BoundaryRear boundaryRear1(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-76,42},{-56,62}})));
       ExternalGas
                 externalGas(
         useRear=true,
-        useFore=true,       redeclare package gasModel = gasModel,                 PartialPressure(displayUnit="mmHg") = 1333.22387415)
+        useFore=true,
+        PartialPressure(displayUnit="mmHg") = 1333.22387415)
                           annotation (Placement(transformation(extent={{-24,42},{-4,62}})));
-      BoundaryFore boundaryFore2(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore2
                                 annotation (Placement(transformation(extent={{30,42},{50,62}})));
       BoundaryRear boundaryRear2(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-66,-82},{-46,-62}})));
       ExternalGas
                 externalGas4(
         useRear=true,        useFore=false,
         useSolution=true,
-        redeclare package gasModel = gasModel,
         PartialPressure(displayUnit="mmHg") = 133.322387415)
                           annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
       BoundaryRear boundaryRear3(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
       ExternalGas
                 externalGas3(
         useRear=true,
         useFore=true,
         useSolution=true,
-        redeclare package gasModel = gasModel,       PartialPressure(displayUnit="mmHg") = 133.322387415)
+        PartialPressure(displayUnit="mmHg") = 133.322387415)
                           annotation (Placement(transformation(extent={{-18,-54},{2,-34}})));
-      BoundaryFore boundaryFore3(redeclare package stateOfMatter = gasModel)
+      BoundaryFore boundaryFore3
                                 annotation (Placement(transformation(extent={{40,-54},{60,-34}})));
       BoundaryRear boundaryRear4(
-        redeclare package stateOfMatter = gasModel,
-        substanceData=Chemical.SubstancesOld.IdealGasesMSL.H2O(),
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         solutionFromInput=false) annotation (Placement(transformation(extent={{-74,14},{-54,34}})));
-      SubstanceOld solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-76},{86,-56}})));
+      Chemical.Boundaries.Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{66,-76},{86,-56}})));
     equation
       connect(externalGas2.fore, boundaryFore.rear) annotation (Line(
           points={{-48,-16},{36,-16}},
@@ -1494,7 +1389,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         startTime=5)
         annotation (Placement(transformation(extent={{64,-56},{52,-44}})));
       BoundaryRear boundary_rear3(
-        substanceData=Chemical.SubstancesOld.Water_liquid(),
+        substanceDefinition=Chemical.Substances.Liquid.H2O,
         solutionFromInput=true,
         potentialFromInput=true,
         u0_par=100000) annotation (Placement(transformation(
@@ -1508,9 +1403,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
         annotation (Placement(transformation(extent={{-10,-90},{2,-78}})));
       Solution solution annotation (Placement(transformation(extent={{-98,-98},{102,0}})));
       TerminalOutflow terminalOutflow annotation (Placement(transformation(extent={{32,20},{52,40}})));
-      TerminalInflow terminalInflow(useSolution=false) annotation (Placement(transformation(extent={{-48,50},{-28,70}})));
+      TerminalInflow terminalInflow                    annotation (Placement(transformation(extent={{-48,50},{-28,70}})));
       TerminalOutflow terminalOutflow1(SubstanceFlow=0) annotation (Placement(transformation(extent={{66,-86},{86,-66}})));
-      TerminalInflow terminalInflow1 annotation (Placement(transformation(extent={{-48,-54},{-28,-34}})));
+      TerminalInflow terminalInflow1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort)
+                                     annotation (Placement(transformation(extent={{-48,-54},{-28,-34}})));
     equation
       connect(step.y, boundary_fore.u0_var)
         annotation (Line(points={{49.4,82},{42,82},{42,88},{34,88}},
@@ -1566,15 +1462,21 @@ package Boundaries "Boundary models for undirected chemical simulation"
     end TestBoundaries;
 
     model CompareSubstancesProperties
+      import Chemical;
+      import Chemical;
+      import Chemical;
+      import Chemical;
       Substance O2_new(substanceDefinition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-74,62},{-54,82}})));
       Substance CO2_new(substanceDefinition=Chemical.Substances.Aqueous.CO2) annotation (Placement(transformation(extent={{-74,26},{-54,46}})));
       Substance Ag_new(substanceDefinition=Chemical.Substances.Solid.Ag) annotation (Placement(transformation(extent={{-74,-12},{-54,8}})));
-      SubstanceOld O2_old(redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL", substanceData=
+      Chemical.Boundaries.Substance O2_old(redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL", substanceData=
             Chemical.SubstancesOld.IdealGasesMSL.O2()) annotation (Placement(transformation(extent={{-4,60},{16,80}})));
-      SubstanceOld CO2_aq_old(substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-10,26},{10,46}})));
-      SubstanceOld Ag_old(substanceData=Chemical.SubstancesOld.Silver_solid()) annotation (Placement(transformation(extent={{-12,-12},{8,8}})));
+      Chemical.Boundaries.Substance CO2_aq_old(substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous())
+        annotation (Placement(transformation(extent={{-10,26},{10,46}})));
+      Chemical.Boundaries.Substance Ag_old(substanceData=Chemical.SubstancesOld.Silver_solid()) annotation (Placement(transformation(extent={{-12,-12},{8,8}})));
       Substance H2O_new(substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-70,-50},{-50,-30}})));
-      SubstanceOld H2O_old(substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-6,-50},{14,-30}})));
+      Chemical.Boundaries.Substance H2O_old(substanceData=Chemical.SubstancesOld.Water_liquid())
+        annotation (Placement(transformation(extent={{-6,-50},{14,-30}})));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end CompareSubstancesProperties;
     annotation (Documentation(info="<html>
@@ -1588,7 +1490,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialBoundary
 
 
-      parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition    "Definition of the substance"
+      parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition=Chemical.Substances.Unknown    "Definition of the substance"
         annotation (choicesAllMatching = true, Dialog(enable = not useRear));
 
       outer Modelica.Fluid.System system "System wide properties";
@@ -1985,26 +1887,16 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
      outer Modelica.Fluid.System system "System wide properties";
 
-     replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-      Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter) "The substance"
+      Chemical.Interfaces.Rear rear "The substance"
         annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-      stateOfMatter.BaseProperties substance(
+      Chemical.Interfaces.Properties.BaseSubstanceProperties substance(
         SolutionObserverOnly=true,
-        substanceDataVar=rear.definition,
+        definitionParam=Chemical.Substances.Liquid.H2O,
+        definition(data=rear.definition.data, SelfClustering=false, SelfClustering_dH=0, SelfClustering_dS=0),
         solutionState=rear.solution,
-        FixedSubstanceData=false,
+        FixedDefinition=false,
         m_start=1,
         n_flow=0,
         h_flow=0);
@@ -2023,7 +1915,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       TC * der(u) = rear.r;
       rear.state_rearwards.u = u;
-      rear.state_rearwards.h = rear.stateOfMatter.molarEnthalpy(rear.definition,rear.solution.T);
+      rear.state_rearwards.h = Chemical.Interfaces.Properties.molarEnthalpy(rear.definition,rear.solution);
 
      annotation (
        Documentation(revisions="<html>
