@@ -1566,13 +1566,15 @@ package Boundaries "Boundary models for undirected chemical simulation"
     end TestBoundaries;
 
     model CompareSubstancesProperties
-      Substance O2_new(substanceDefinition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-76,0},{-56,20}})));
-      Substance CO2_new(substanceDefinition=Chemical.Substances.Aqueous.CO2) annotation (Placement(transformation(extent={{-76,-36},{-56,-16}})));
-      Substance Ag_new(substanceDefinition=Chemical.Substances.Solid.Ag) annotation (Placement(transformation(extent={{-76,-74},{-56,-54}})));
+      Substance O2_new(substanceDefinition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-74,62},{-54,82}})));
+      Substance CO2_new(substanceDefinition=Chemical.Substances.Aqueous.CO2) annotation (Placement(transformation(extent={{-74,26},{-54,46}})));
+      Substance Ag_new(substanceDefinition=Chemical.Substances.Solid.Ag) annotation (Placement(transformation(extent={{-74,-12},{-54,8}})));
       SubstanceOld O2_old(redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL", substanceData=
-            Chemical.SubstancesOld.IdealGasesMSL.O2()) annotation (Placement(transformation(extent={{-6,-2},{14,18}})));
-      SubstanceOld CO2_aq_old(substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-12,-36},{8,-16}})));
-      SubstanceOld Ag_old(substanceData=Chemical.SubstancesOld.Silver_solid()) annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
+            Chemical.SubstancesOld.IdealGasesMSL.O2()) annotation (Placement(transformation(extent={{-4,60},{16,80}})));
+      SubstanceOld CO2_aq_old(substanceData=Chemical.SubstancesOld.CarbonDioxide_aqueous()) annotation (Placement(transformation(extent={{-10,26},{10,46}})));
+      SubstanceOld Ag_old(substanceData=Chemical.SubstancesOld.Silver_solid()) annotation (Placement(transformation(extent={{-12,-12},{8,8}})));
+      Substance H2O_new(substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{-70,-50},{-50,-30}})));
+      SubstanceOld H2O_old(substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-6,-50},{14,-30}})));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end CompareSubstancesProperties;
     annotation (Documentation(info="<html>
@@ -1613,7 +1615,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         r=r_fore_port,
         state_forwards=state_out,
         solution=solutionState,
-        definition=substanceDefinitionVar) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+        definition(data=substanceDefinitionVar.data)) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
     //  stateOfMatter.substanceDefinition substanceDefinitionVar;
 
@@ -1629,7 +1631,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       outer Chemical.DropOfCommons dropOfCommons;
 
-      Chemical.Interfaces.InputDefinition substanceDefinitionVar;//substanceDefinition;
+      Chemical.Interfaces.SubstanceDefinition substanceDefinitionVar;//substanceDefinition;
+      Chemical.Interfaces.InputDefinition definitionVar;//substanceDefinition;
       Chemical.Interfaces.SolutionState solutionState;
 
        //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
@@ -1662,7 +1665,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       der(n_flow_fore)*L = r_fore_port - r_fore_intern;
 
      // connect(rear.definition, substanceDefinition);
-      connect(rear.definition, substanceDefinitionVar);
+      connect(rear.definition, definitionVar);
      // substanceDefinitionVar = substanceDefinition;
       connect(state_in_rear,rear.state_forwards);
       connect(state_in_fore,fore.state_rearwards);
@@ -1672,6 +1675,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
         n_flow_rear = 0;
         state_in_rear.h = 0;
         substanceDefinitionVar = substanceDefinition;
+      else
+        substanceDefinitionVar.data = definitionVar.data;
+        substanceDefinitionVar.SelfClustering=false;
+        substanceDefinitionVar.SelfClustering_dH=0;
+        substanceDefinitionVar.SelfClustering_dS=0;
       end if;
 
       if not useFore then

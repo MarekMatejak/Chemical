@@ -66,6 +66,8 @@ package Interfaces "Chemical interfaces"
 
     Chemical.Interfaces.DataRecord data "Data record of the substance or process";
 
+
+
     encapsulated operator 'constructor'
       import Definition=Chemical.Interfaces.Definition;
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
@@ -234,7 +236,12 @@ package Interfaces "Chemical interfaces"
 
   operator record SubstanceDefinition "Definition of a substance"
     //extends Chemical.Definition; //the inheritance of constructors is not supported in sufficient form in Modelica 3.6
-    Chemical.Interfaces.DataRecord data "Data record of the substance or process";
+    Chemical.Interfaces.DataRecord data "Data record of the base substance";
+
+    Boolean SelfClustering "default=false If true then the base molecules are binding together into clusters";
+    Modelica.Units.SI.MolarEnthalpy SelfClustering_dH "Enthalpy of bond between two base molecules of substance at 25degC, 1 bar";
+    Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between two base molecules of substance at 25degC, 1 bar";
+
     encapsulated operator 'constructor'
       import Definition=Chemical.Interfaces.SubstanceDefinition;
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
@@ -244,10 +251,16 @@ package Interfaces "Chemical interfaces"
       constant Real T0=298.15 "Base temperature";
       constant Real p0=100000 "Base pressure";
 
-
       function fromDataRecord
         input DataRecord data "Mass based data record";
-        output Definition result(data=data) "Molar based data record";
+        input Boolean SelfClustering = false;
+        input Real SelfClustering_dH = 0;
+        input Real SelfClustering_dS = 0;
+        output Definition result(
+                  data=data,
+                  SelfClustering=SelfClustering,
+                  SelfClustering_dH=SelfClustering_dH,
+                  SelfClustering_dS=SelfClustering_dS) "Molar based data record";
       algorithm
         annotation (Inline=true);
       end fromDataRecord;
@@ -259,8 +272,11 @@ package Interfaces "Chemical interfaces"
         input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default 1L/mol)";
+        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
         input Real gamma=1 "Activity coefficient of the substance";
+        input Boolean SelfClustering = false;
+        input Real SelfClustering_dH = 0;
+        input Real SelfClustering_dS = 0;
         output Definition result(
                   data=DataRecord(
                     MM=MM,
@@ -273,7 +289,10 @@ package Interfaces "Chemical interfaces"
                     z=z,
                     phase=phase,
                     VmBase=Vm/(1+log(gamma)),
-                    VmExcess=Vm*log(gamma)/(1+log(gamma))));
+                    VmExcess=Vm*log(gamma)/(1+log(gamma))),
+                  SelfClustering=SelfClustering,
+                  SelfClustering_dH=SelfClustering_dH,
+                  SelfClustering_dS=SelfClustering_dS);
       algorithm
         annotation (Inline=true);
       end fromFormationEnergies;
@@ -312,13 +331,13 @@ To change its behavior it is necessary to modify Property functions.
 
       parameter Boolean FixedDefinition "definition==definitionParam";
 
-      parameter Chemical.Interfaces.Definition definitionParam "used only if FixedDefinition to help initialization";
+      parameter Chemical.Interfaces.SubstanceDefinition definitionParam "used only if FixedDefinition to help initialization";
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
       parameter Boolean SolutionObserverOnly = false "True if substance does not affect the solution";
 
-      Interfaces.InputDefinition definition "Definition of the substance";
+      Interfaces.InputSubstanceDefinition definition "Definition of the substance";
 
       Interfaces.InputSolutionState solutionState "State of the solution";
 
@@ -329,10 +348,10 @@ To change its behavior it is necessary to modify Property functions.
 
       InputHeatFlowRate h_flow "Substance enthaply change";
 
-      Modelica.Units.SI.MoleFraction x "Mole fraction of the substance";
+      Modelica.Units.SI.MoleFraction x "Mole fraction of the base molecule of the substance";
 
       Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
-        "Molar concentration of particles";
+            "Molar concentration of particles";
 
       Modelica.Units.SI.MassConcentration M(displayUnit="mg/l")
             "Mass concentration";
@@ -340,7 +359,8 @@ To change its behavior it is necessary to modify Property functions.
       Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
             "Molality";
 
-      Modelica.Units.SI.MassFraction X "Mass fraction";
+      Modelica.Units.SI.MassFraction X
+            "Mass fraction";
 
       Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
 
@@ -378,6 +398,10 @@ To change its behavior it is necessary to modify Property functions.
 
       Modelica.Units.SI.MolarVolume VmExcess
       "Molar volume excess of the substance in solution (typically it is negative as can be negative)";
+
+      Modelica.Units.SI.SpecificVolume Vs "Specific volume";
+
+      Modelica.Units.SI.Density rho "Density";
 
      // Local connector definition, used for equation balancing check
 
@@ -446,7 +470,7 @@ To change its behavior it is necessary to modify Property functions.
      u0 = chemicalPotentialPure(definition,solutionState);
      uPure = electroChemicalPotentialPure(definition,solutionState);
      Vm = molarVolume(definition,solutionState);
-     VmPure = molarVolumePure(definition,solutionState);
+     VmPure =Chemical.Interfaces.Properties.molarVolumeBase(definition, solutionState);
      VmExcess = molarVolumeExcess(definition,solutionState);
      //  molarHeatCapacityCp = smolarHeatCapacityCp(definition,solutionState);
 
@@ -503,15 +527,19 @@ To change its behavior it is necessary to modify Property functions.
 
       end if;
 
-      x = amountOfFreeMolecule/solutionState.n "mole fraction [mol/mol]";
+      x = amountOfFreeMolecule/solutionState.n "mole fraction of base molecule [mol/mol]";
 
       c = amountOfParticles/solutionState.V "concentration [mol/m3]";
 
-      M = amountOfParticles*molarMassOfBaseMolecule(definition)/solutionState.V "mass concentration [kg/m3]";
+      M = (amountOfParticles/specificAmountOfParticles(definition,solutionState))/solutionState.V "mass concentration [kg/m3]";
 
       b = amountOfParticles/solutionState.m "molality [mol/kg]";
 
-      X  = amountOfParticles*molarMassOfBaseMolecule(definition)/solutionState.m "mass fraction [kg/kg]";
+      X  = (amountOfParticles/specificAmountOfParticles(definition,solutionState))/solutionState.m "mass fraction [kg/kg]";
+
+      Vs = specificVolume(definition,solutionState);
+
+      rho = density(definition,solutionState);
 
       if SolutionObserverOnly then
         i = 0;
@@ -537,6 +565,44 @@ To change its behavior it is necessary to modify Property functions.
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
     end BaseSubstanceProperties;
+
+    model BaseProcessProperties "Base properties of the chemical process"
+      import Chemical;
+
+      Interfaces.InputDefinition definition "Definition of the process";
+
+      Interfaces.InputSolutionState solutionState "State of the solution";
+
+      Modelica.Units.SI.ChemicalPotential dG "Gibbs energy change during the process";
+
+      Modelica.Units.SI.MolarEnthalpy dH "Molar enthalpy change during the process";
+
+      Modelica.Units.SI.MolarEntropy dS "Molar entropy change during the process";
+
+      Modelica.Units.SI.MolarHeatCapacity dCp "Molar heat capacity change during the process";
+
+      Modelica.Units.SI.MolarVolume dVm "Molar volume change during the process";
+
+      Modelica.Units.SI.MolarVolume dVmExcess "Molar volume excess change during the process";
+
+
+      outer Modelica.Fluid.System system "System wide properties";
+
+
+    equation
+     assert(abs(definition.data.MM) < Modelica.Constants.eps, "Process should not change the mass");
+     assert(abs(chargeNumberOfIon(definition,solutionState)) < Modelica.Constants.eps, "Process should not change the charge");
+
+     dH = molarEnthalpy(definition,solutionState);
+     dG = chemicalPotentialPure(definition,solutionState);
+     dG = dH - solutionState.T*dS;//  dS = molarEntropy(definition,dG,solutionState);
+
+     dCp = molarHeatCapacityCp(definition,solutionState);
+     dVm = molarVolume(definition,solutionState);
+     dVmExcess = molarVolumeExcess(definition,solutionState);
+
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+    end BaseProcessProperties;
 
    function processData
      "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
@@ -635,25 +701,7 @@ To change its behavior it is necessary to modify Property functions.
        Math.log(solution.T) + solution.T*(1.*definition.data.ahigh[3] + solution.T*(0.5*definition.data.ahigh[4] + solution.T*(1/3*definition.data.ahigh[5] +
        solution.T*(0.25*definition.data.ahigh[6] + 0.2*definition.data.ahigh[7]*solution.T))))))/solution.T)));
 
-       /*
-    smooth(0,(if T < data.Tlimit then data.R_s*((-data.alow[1] + T*(data.blow[1] + 
-    data.alow[2]*Math.log(T) + T*(1.*data.alow[3] + T*(0.5*data.
-    alow[4] + T*(1/3*data.alow[5] + T*(0.25*data.alow[6] + 0.2*data.alow[7]*T))))))
-    /T) else data.R_s*((-data.ahigh[1] + T*(data.bhigh[1] + data.ahigh[2]*
-    Math.log(T) + T*(1.*data.ahigh[3] + T*(0.5*data.ahigh[4] + T*(1/3*data.
-    ahigh[5] + T*(0.25*data.ahigh[6] + 0.2*data.ahigh[7]*T))))))/T)) + 
-    (if exclEnthForm then -data.Hf else 0.0) + (if (refChoice
-     == Choices.ReferenceEnthalpy.ZeroAt0K) then data.H0 else 0.0) + (if 
-    refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 
-    0.0));
-    */
-       //(if   exclEnthForm then -definition.data.Hf else 0.0) +
-       //(if (refChoice == Choices.ReferenceEnthalpy.ZeroAt0K) then definition.data.H0 else 0.0) +
-       //(if refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 0.0))
 
-        /*substanceData.DfH + (solution.T - 298.15)*
-      substanceData.Cp;*/
-       //   - (p - 100000) * molarVolumePure(substanceData,solution.T,p,v,I);
    end molarEnthalpyElectroneutral;
 
    function molarEnthalpy
@@ -687,12 +735,13 @@ To change its behavior it is necessary to modify Property functions.
        //Molar entropy shift:
        // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = solution.T*dS (small amount of added heat energy)
        // - pressure shift: with constant molar volume at constant temperature Vm*dP = -solution.T*dS (small amount of work)
-       molarEntropyPure :=(if solution.T < Tlimit then R*(definition.data.blow[2] - 0.5*definition.data.alow[1]/(solution.T*solution.T) -
-       definition.data.alow[2]/solution.T + definition.data.alow[3]*Math.log(solution.T) + solution.T*(definition.data.alow[4] + solution.T*(0.5*definition.data.alow[
-       5] + solution.T*(1/3*definition.data.alow[6] + 0.25*definition.data.alow[7]*solution.T)))) else R*(definition.data.bhigh[2] - 0.5*definition.data.ahigh[1]/(
-       solution.T*solution.T) - definition.data.ahigh[2]/solution.T + definition.data.ahigh[3]*Math.log(solution.T) + solution.T*(definition.data.ahigh[4] +
-       solution.T*(0.5*definition.data.ahigh[5] + solution.T*(1/3*definition.data.ahigh[6] + 0.25*definition.data.ahigh[7]*solution.T))))) + (if definition.data.phase
-        == Chemical.Interfaces.Phase.Gas then -R*log(solution.p/100000) else -(molarVolumePure(definition, solution)/solution.T)*(solution.p - 100000));
+       molarEntropyPure :=(if solution.T < Tlimit then R*(definition.data.blow[2] - 0.5*definition.data.alow[1]/(solution.T*solution.T) - definition.data.alow[
+        2]/solution.T + definition.data.alow[3]*Math.log(solution.T) + solution.T*(definition.data.alow[4] + solution.T*(0.5*definition.data.alow[5] + solution.T
+        *(1/3*definition.data.alow[6] + 0.25*definition.data.alow[7]*solution.T)))) else R*(definition.data.bhigh[2] - 0.5*definition.data.ahigh[1]/(solution.T
+        *solution.T) - definition.data.ahigh[2]/solution.T + definition.data.ahigh[3]*Math.log(solution.T) + solution.T*(definition.data.ahigh[4] + solution.T*
+        (0.5*definition.data.ahigh[5] + solution.T*(1/3*definition.data.ahigh[6] + 0.25*definition.data.ahigh[7]*solution.T))))) + (if definition.data.phase
+         == Chemical.Interfaces.Phase.Gas then -R*log(solution.p/100000) else -(Chemical.Interfaces.Properties.molarVolumeBase(definition, solution)/solution.T)
+        *(solution.p - 100000));
 
 
        //For example at triple point of water should be solution.T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
@@ -739,28 +788,29 @@ To change its behavior it is necessary to modify Property functions.
          solution) + Modelica.Constants.F*chargeNumberOfIon(definition,solution)*solution.v;
    end electroChemicalPotentialPure;
 
-   function molarVolumePure "Molar volume of the pure substance"
+   function molarVolumeBase "Base molar volume of the substance"
      import Chemical;
       extends Modelica.Icons.Function;
      input Chemical.Interfaces.Definition definition "Definition of substance";
      input Interfaces.SolutionState solution "Chemical solution state";
     output Modelica.Units.SI.MolarVolume molarVolumePure "Molar volume";
    algorithm
-     molarVolumePure :=(if definition.data.phase == Chemical.Interfaces.Phase.Gas then R*solution.T/solution.p else definition.data.VmBase+definition.data.VmExcess);
-     //ideal gas
-   end molarVolumePure;
+     molarVolumePure :=(if definition.data.phase == Chemical.Interfaces.Phase.Gas then R*solution.T/solution.p else definition.data.VmBase);
+
+   end molarVolumeBase;
 
    function molarVolumeExcess
     "Excess molar volume of the substance in the solution"
-      import Chemical;
+     import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+     input Chemical.Interfaces.Definition definition "Definition of substance";
      input Interfaces.SolutionState solution "Chemical solution state";
     output Modelica.Units.SI.MolarVolume molarVolumeExcess
       "Excess molar volume of the substance in the solution";
    algorithm
-      molarVolumeExcess := molarVolumePure(definition,solution)*
-         log(activityCoefficient(definition,solution)); //zero if activityCoefficient==1
+     //zero if activityCoefficient==1
+      molarVolumeExcess :=(if definition.data.phase == Chemical.Interfaces.Phase.Gas then 0 else definition.data.VmExcess);
+
       annotation (Inline=true, smoothOrder=2);
    end molarVolumeExcess;
 
@@ -772,11 +822,7 @@ To change its behavior it is necessary to modify Property functions.
 
     output Modelica.Units.SI.MolarVolume molarVolume "Molar volume";
    algorithm
-    molarVolume :=molarVolumePure(
-         definition,
-         solution) + molarVolumeExcess(
-         definition,
-         solution);
+    molarVolume :=Chemical.Interfaces.Properties.molarVolumeBase(definition, solution) + molarVolumeExcess(definition, solution);
       annotation (Inline=true, smoothOrder=2);
    end molarVolume;
 
@@ -807,38 +853,38 @@ To change its behavior it is necessary to modify Property functions.
    end molarMassOfBaseMolecule;
 
    function selfClustering "returns true if substance molecules are joining together to clusters"
-      import Chemical;
+     import Chemical;
        extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Data record of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
           output Boolean selfClustering;
    algorithm
-     selfClustering:=false;
+     selfClustering:=definition.SelfClustering;
    end selfClustering;
 
    function selfClusteringBondEnthalpy
     "Enthalpy of joining two base molecules of the substance together to cluster"
-      import Chemical;
+     import Chemical;
        extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Data record of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
     output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
    algorithm
-     selfClusteringEnthalpy:=0;
+     selfClusteringEnthalpy:=definition.SelfClustering_dH;
    end selfClusteringBondEnthalpy;
 
    function selfClusteringBondEntropy
     "Entropy of joining two base molecules of the substance together to cluster"
-      import Chemical;
+     import Chemical;
        extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Data record of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
     output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
    algorithm
-     selfClusteringEntropy:=0;
+     selfClusteringEntropy:=definition.SelfClustering_dS;
    end selfClusteringBondEntropy;
 
    function selfClusteringBondVolume
-      import Chemical;
+     import Chemical;
        extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Data record of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
     output Modelica.Units.SI.MolarVolume selfClusteringBondVolume;
    algorithm
      selfClusteringBondVolume:=0;
@@ -857,14 +903,41 @@ To change its behavior it is necessary to modify Property functions.
       "Amount of particles per mass of the substance"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
       input Modelica.Units.SI.Mass mass=1 "Mass of substance";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfSubstance(unit="mol/kg")
         "Amount of substance particles per its mass";
+
+    protected
+      Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+      Real SelfClustering_K;
+      Real amountOfBaseMolecules,amountOfFreeMolecule,amountOfParticles;
+      Real x;
     algorithm
-      specificAmountOfSubstance := 1/molarMassOfBaseMolecule(definition);
+      if not selfClustering(definition) then
+        specificAmountOfSubstance := 1/molarMassOfBaseMolecule(definition);
+      else
+        SelfClustering_dG :=selfClusteringBondEnthalpy(definition) - solution.T*
+          selfClusteringBondEntropy(definition);
+
+        SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T));
+
+        amountOfBaseMolecules:=mass/molarMassOfBaseMolecule(definition);
+        x:=((2*SelfClustering_K+nSolution/amountOfBaseMolecules) -
+         sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+
+         (nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfFreeMolecule := x*nSolution;
+
+        amountOfParticles := amountOfFreeMolecule/(1 - SelfClustering_K*x);
+
+        specificAmountOfSubstance := amountOfParticles/mass;
+
+        //specificAmountOfSubstance := 1/((SelfClustering_K + 1)*definition.MolarWeight);
+      end if;
+
       annotation (Inline=true, smoothOrder=2);
     end specificAmountOfParticles;
 
@@ -872,73 +945,126 @@ To change its behavior it is necessary to modify Property functions.
       "Amount of substance free base molecule per mass of the substance"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
       input Modelica.Units.SI.Mass mass=1 "Mass of substance";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
       output Real specificAmountOfFreeBaseMolecule(unit="mol/kg")
         "Amount of substance free base molecule per substance mass";
+
+    protected
+      Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+      Real SelfClustering_K,amountOfBaseMolecules,x;
     algorithm
-      specificAmountOfFreeBaseMolecule := 1/molarMassOfBaseMolecule(definition);
+      if not selfClustering(definition) then
+        specificAmountOfFreeBaseMolecule := 1/molarMassOfBaseMolecule(definition);
+      else
+        SelfClustering_dG :=selfClusteringBondEnthalpy(definition) - solution.T*
+          selfClusteringBondEntropy(definition);
+
+        SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T));
+
+        amountOfBaseMolecules:=mass/molarMassOfBaseMolecule(definition);
+        x:=((2*SelfClustering_K+nSolution/amountOfBaseMolecules) -
+         sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+
+         (nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        specificAmountOfFreeBaseMolecule := (x*nSolution)/mass;
+
+      end if;
       annotation (Inline=true, smoothOrder=2);
     end specificAmountOfFreeBaseMolecule;
 
    function specificEnthalpy
      "Specific molar enthalpy of the substance with electric potential dependence"
-      import Chemical;
+     import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
     input Interfaces.SolutionState solution "Chemical solution state";
 
     output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
       "Specific enthalpy";
 
+   protected
+     Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+     Real SelfClustering_K;
    algorithm
+     if selfClustering(definition) then
+       SelfClustering_dG := selfClusteringBondEnthalpy(definition) - solution.T*
+         selfClusteringBondEntropy(definition);
+       SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T));
+     end if;
 
-     specificEnthalpy := molarEnthalpy(
-       definition,
-       solution)/
-       molarMassOfBaseMolecule(definition);
+     specificEnthalpy := (molarEnthalpy(definition,solution) +
+       (if selfClustering(definition) then
+       selfClusteringBondEnthalpy(definition)*SelfClustering_K/(
+       SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(definition);
+
+   /*algorithm 
+
+  specificEnthalpy := molarEnthalpy(
+    definition,
+    solution)/
+    molarMassOfBaseMolecule(definition);*/
    end specificEnthalpy;
 
    function specificVolume "Specific volume of the substance"
-      import Chemical;
+     import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+     input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
      input Interfaces.SolutionState solution "Chemical solution state";
 
     output Modelica.Units.SI.SpecificVolume specificVolume "Specific volume";
 
+   protected
+     Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+     Real SelfClustering_K;
    algorithm
+     if selfClustering(definition) then
+       SelfClustering_dG := selfClusteringBondEnthalpy(definition) - solution.T*
+         selfClusteringBondEntropy(definition);
+       SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T));
+     end if;
 
-    specificVolume := molarVolume(
-         definition,
-         solution) /
-       molarMassOfBaseMolecule(definition);
+     specificVolume := (molarVolume(definition,solution) +
+     (if selfClustering(definition) then
+       selfClusteringBondVolume(definition)*SelfClustering_K/(
+       SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(definition);
+
    end specificVolume;
 
     function specificHeatCapacityCp
     "Specific heat capacity at constant pressure"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
     output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
       "Specific heat capacity at constant pressure";
-
+    protected
+      Modelica.Units.SI.MolarEnergy SelfClustering_dG;
+      Real SelfClustering_K;
     algorithm
+      if selfClustering(definition) then
+        SelfClustering_dG := selfClusteringBondEnthalpy(definition) - solution.T*
+          selfClusteringBondEntropy(definition);
+        SelfClustering_K := exp(-SelfClustering_dG/(Modelica.Constants.R*solution.T));
+      end if;
 
-    specificHeatCapacityCp := molarHeatCapacityCp(
-         definition,
-         solution) /
-       molarMassOfBaseMolecule(definition);
+      specificHeatCapacityCp := (molarHeatCapacityCp(
+          definition,solution) + (if selfClustering(definition) then
+        selfClusteringBondHeatCapacityCp(definition)*SelfClustering_K/(
+        SelfClustering_K + 1) else 0))/molarMassOfBaseMolecule(definition);
+
+        //TODO: + selfClusteringBondEnthalpy * der(K/(K + 1))/der(solution.T) .. if (selfClusteringBondHeatCapacityCp!=0)
+
     end specificHeatCapacityCp;
 
    function temperature
     "Temperature of the substance from its enthalpy"
-      import Chemical;
+     import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.Definition definition "Definition of substance";
+     input Chemical.Interfaces.Definition definition "Definition of substance";
      input Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy";
 
      input Modelica.Units.SI.Pressure p=100000 "Pressure";
@@ -959,7 +1085,21 @@ To change its behavior it is necessary to modify Property functions.
       end f_nonlinear;
    algorithm
       T := Modelica.Math.Nonlinear.solveOneNonlinearEquation(
-        function f_nonlinear(data=definition.data, h=h), 200, 6000);
+      function f_nonlinear(data=definition.data, h=h), 200, 6000);
+
+   /*protected 
+  Modelica.Units.SI.SpecificEnthalpy baseSpecificEnthalpy;
+algorithm 
+
+  baseSpecificEnthalpy := specificEnthalpy(
+      definition,
+      298.15,
+      p,
+      v,
+      I);
+
+  T := 298.15 + (h - baseSpecificEnthalpy)/specificHeatCapacityCp(
+  substanceData); */
    end temperature;
 
    function solution_temperature
@@ -1028,44 +1168,6 @@ To change its behavior it is necessary to modify Property functions.
        //(if refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 0.0))
 
    end H_T;
-
-    model BaseProcessProperties "Base properties of the chemical process"
-      import Chemical;
-
-      Interfaces.InputDefinition definition "Definition of the process";
-
-      Interfaces.InputSolutionState solutionState "State of the solution";
-
-      Modelica.Units.SI.ChemicalPotential dG "Gibbs energy change during the process";
-
-      Modelica.Units.SI.MolarEnthalpy dH "Molar enthalpy change during the process";
-
-      Modelica.Units.SI.MolarEntropy dS "Molar entropy change during the process";
-
-      Modelica.Units.SI.MolarHeatCapacity dCp "Molar heat capacity change during the process";
-
-      Modelica.Units.SI.MolarVolume dVm "Molar volume change during the process";
-
-      Modelica.Units.SI.MolarVolume dVmExcess "Molar volume excess change during the process";
-
-
-      outer Modelica.Fluid.System system "System wide properties";
-
-
-    equation
-     assert(abs(definition.data.MM) < Modelica.Constants.eps, "Process should not change the mass");
-     assert(abs(chargeNumberOfIon(definition,solutionState)) < Modelica.Constants.eps, "Process should not change the charge");
-
-     dH = molarEnthalpy(definition,solutionState);
-     dG = chemicalPotentialPure(definition,solutionState);
-     dG = dH - solutionState.T*dS;//  dS = molarEntropy(definition,dG,solutionState);
-
-     dCp = molarHeatCapacityCp(definition,solutionState);
-     dVm = molarVolume(definition,solutionState);
-     dVmExcess = molarVolumeExcess(definition,solutionState);
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-    end BaseProcessProperties;
     annotation (Documentation(revisions="<html>
 <p><i>2015-2016</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1290,18 +1392,39 @@ end DataRecord;
    Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
    Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
    Modelica.Units.SI.MoleFraction I "Mole fraction based ionic strength of the solution";
- /*
-  encapsulated operator 'constructor'
-    import Chemical.Interfaces.SolutionState;
-    import Chemical.Interfaces.SolutionPort;
-    function fromSolutionPort
-      input SolutionPort s;
-      output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
-    algorithm 
-      annotation(Inline = true);
-    end fromSolutionPort;
-  end 'constructor';
-*/
+
+   encapsulated operator 'constructor'
+     import Chemical.Interfaces.SolutionState;
+     import Chemical.Interfaces.SolutionPort;
+     import Chemical.Interfaces.Phase;
+     constant Real R=1.380649e-23*6.02214076e23;
+     constant Real T0=298.15 "Base temperature";
+     constant Real p0=100000 "Base pressure";
+
+     function fromValues
+       input Phase phase "Phase of the chemical solution";
+       input Real T=T0 "Temperature of the solution";
+       input Real p=p0 "Pressure of the solution";
+       input Real v=0 "Electric potential in the solution";
+       input Real n=1 "Amount of the solution";
+       input Real m=1 "Mass of the solution";
+       input Real V=if (phase==Phase.Gas) then n*R*T/p else 1 "Volume of the solution";
+       input Real G=0 "Free Gibbs energy of the solution";
+       input Real Q=0 "Electric charge of the solution";
+       input Real I=0 "Mole fraction based ionic strength of the solution";
+       output SolutionState result(T=T,p=p,v=v,n=n,m=m,V=V,G=G,Q=Q,I=I);
+     algorithm
+       annotation(Inline = true);
+     end fromValues;
+
+     function fromSolutionPort
+       input SolutionPort s;
+       output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
+     algorithm
+       annotation(Inline = true);
+     end fromSolutionPort;
+   end 'constructor';
+
    encapsulated operator function '=='
      import Chemical.Interfaces.SolutionState;
      input SolutionState s1;
@@ -1945,6 +2068,7 @@ end DataRecord;
         "Amount of substance free base molecule per substance mass";
     algorithm
       specificAmountOfFreeBaseMolecule := 1/molarMassOfBaseMolecule(substanceData);
+
       annotation (Inline=true, smoothOrder=2);
     end specificAmountOfFreeBaseMolecule;
 
