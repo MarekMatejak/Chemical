@@ -906,9 +906,9 @@ package Sensors "Sensors package for undirected chemical simulation"
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation (Dialog(tab="Advanced", group="Regularization"));
 
-      Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+      Chemical.Interfaces.Rear rear(redeclare package stateOfMatter = stateOfMatter)
         annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,-80})));
-      Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+      Chemical.Interfaces.Fore fore(redeclare package stateOfMatter = stateOfMatter)
         annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,-80})));
 
     /*  function regStepSt = Undirected.Internal.regStepState (

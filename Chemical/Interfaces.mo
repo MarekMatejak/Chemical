@@ -66,9 +66,12 @@ package Interfaces "Chemical interfaces"
 
     Chemical.Interfaces.DataRecord data "Data record of the substance or process";
 
+     Boolean SelfClustering "default=false If true then the base molecules are binding together into clusters";
+     Modelica.Units.SI.MolarEnthalpy SelfClustering_dH "Enthalpy of bond between two base molecules of substance at 25degC, 1 bar";
+     Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between two base molecules of substance at 25degC, 1 bar";
 
 
-    encapsulated operator 'constructor'
+   encapsulated operator 'constructor'
       import Definition=Chemical.Interfaces.Definition;
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
       import DataRecord=Chemical.Interfaces.DataRecord;
@@ -79,7 +82,14 @@ package Interfaces "Chemical interfaces"
 
       function fromDataRecord
         input DataRecord data "Mass based data record";
-        output Definition result(data=data) "Molar based data record";
+        input Boolean SelfClustering = false;
+        input Real SelfClustering_dH = 0;
+        input Real SelfClustering_dS = 0;
+        output Definition result(
+                  data=data,
+                  SelfClustering=SelfClustering,
+                  SelfClustering_dH=SelfClustering_dH,
+                  SelfClustering_dS=SelfClustering_dS) "Molar based data record";
       algorithm
         annotation (Inline=true);
       end fromDataRecord;
@@ -91,8 +101,11 @@ package Interfaces "Chemical interfaces"
         input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default 1L/mol)";
+        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
         input Real gamma=1 "Activity coefficient of the substance";
+        input Boolean SelfClustering = false;
+        input Real SelfClustering_dH = 0;
+        input Real SelfClustering_dS = 0;
         output Definition result(
                   data=DataRecord(
                     MM=MM,
@@ -105,11 +118,15 @@ package Interfaces "Chemical interfaces"
                     z=z,
                     phase=phase,
                     VmBase=Vm/(1+log(gamma)),
-                    VmExcess=Vm*log(gamma)/(1+log(gamma))));
+                    VmExcess=Vm*log(gamma)/(1+log(gamma))),
+                  SelfClustering=SelfClustering,
+                  SelfClustering_dH=SelfClustering_dH,
+                  SelfClustering_dS=SelfClustering_dS);
       algorithm
         annotation (Inline=true);
       end fromFormationEnergies;
-    end 'constructor';
+   end 'constructor';
+
 
     encapsulated operator function '+'
       import Definition=Chemical.Interfaces.Definition;
@@ -232,7 +249,7 @@ package Interfaces "Chemical interfaces"
 
   end Definition;
 
-  operator record SubstanceDefinition "Definition of a substance"
+  operator record DefinitionOld "Definition of a substance or product"
     //extends Chemical.Definition; //the inheritance of constructors is not supported in sufficient form in Modelica 3.6
     Chemical.Interfaces.DataRecord data "Data record of the base substance";
 
@@ -241,7 +258,7 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between two base molecules of substance at 25degC, 1 bar";
 
     encapsulated operator 'constructor'
-      import Definition=Chemical.Interfaces.SubstanceDefinition;
+      import Definition=Chemical.Interfaces.Definition;
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
       import DataRecord=Chemical.Interfaces.DataRecord;
       import PhaseType=Chemical.Interfaces.Phase;
@@ -295,7 +312,7 @@ package Interfaces "Chemical interfaces"
         annotation (Inline=true);
       end fromFormationEnergies;
     end 'constructor';
-  end SubstanceDefinition;
+  end DefinitionOld;
 
   type Phase                 = enumeration(
     Gas
@@ -329,7 +346,7 @@ To change its behavior it is necessary to modify Property functions.
 
       parameter Boolean FixedDefinition "definition==definitionParam";
 
-      parameter Chemical.Interfaces.SubstanceDefinition definitionParam "used only if FixedDefinition to help initialization";
+      parameter Chemical.Interfaces.Definition definitionParam "used only if FixedDefinition to help initialization";
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
@@ -637,7 +654,7 @@ To change its behavior it is necessary to modify Property functions.
     input Modelica.Units.SI.StoichiometricNumber p[:] "Stoichiometric reaction coefficient for products [nP]";
      input Chemical.Interfaces.Definition process "Data record of process changes";
      input Chemical.Interfaces.Definition substrates[:] "Substrates definitions [nS]";
-     input Chemical.Interfaces.SubstanceDefinition products[:] "Products definitions [nP]";
+      input Chemical.Interfaces.Definition products[:] "Products definitions [nP]";
      output Chemical.Interfaces.Definition firstProductDefinition "Definition of the first product in process";
    protected
      Chemical.Interfaces.Definition pd[size(products,1)-1];
@@ -858,7 +875,7 @@ To change its behavior it is necessary to modify Property functions.
    function selfClustering "returns true if substance molecules are joining together to clusters"
      import Chemical;
        extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
+      input Chemical.Interfaces.Definition definition "Data record of substance";
           output Boolean selfClustering;
    algorithm
      selfClustering:=definition.SelfClustering;
@@ -868,7 +885,7 @@ To change its behavior it is necessary to modify Property functions.
     "Enthalpy of joining two base molecules of the substance together to cluster"
      import Chemical;
        extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
+      input Chemical.Interfaces.Definition definition "Data record of substance";
     output Modelica.Units.SI.MolarEnthalpy selfClusteringEnthalpy;
    algorithm
      selfClusteringEnthalpy:=definition.SelfClustering_dH;
@@ -878,7 +895,7 @@ To change its behavior it is necessary to modify Property functions.
     "Entropy of joining two base molecules of the substance together to cluster"
      import Chemical;
        extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
+      input Chemical.Interfaces.Definition definition "Data record of substance";
     output Modelica.Units.SI.MolarEntropy selfClusteringEntropy;
    algorithm
      selfClusteringEntropy:=definition.SelfClustering_dS;
@@ -887,7 +904,7 @@ To change its behavior it is necessary to modify Property functions.
    function selfClusteringBondVolume
      import Chemical;
        extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Data record of substance";
+      input Chemical.Interfaces.Definition definition "Data record of substance";
     output Modelica.Units.SI.MolarVolume selfClusteringBondVolume;
    algorithm
      selfClusteringBondVolume:=0;
@@ -906,7 +923,7 @@ To change its behavior it is necessary to modify Property functions.
       "Amount of particles per mass of the substance"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
       input Modelica.Units.SI.Mass mass=1 "Mass of substance";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
@@ -948,7 +965,7 @@ To change its behavior it is necessary to modify Property functions.
       "Amount of substance free base molecule per mass of the substance"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
       input Modelica.Units.SI.Mass mass=1 "Mass of substance";
       input Modelica.Units.SI.AmountOfSubstance nSolution=1 "Amount of substances in solution";
@@ -982,7 +999,7 @@ To change its behavior it is necessary to modify Property functions.
      "Specific molar enthalpy of the substance with electric potential dependence"
      import Chemical;
       extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
     input Interfaces.SolutionState solution "Chemical solution state";
 
     output Modelica.Units.SI.SpecificEnthalpy specificEnthalpy
@@ -1014,7 +1031,7 @@ To change its behavior it is necessary to modify Property functions.
    function specificVolume "Specific volume of the substance"
      import Chemical;
       extends Modelica.Icons.Function;
-     input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
      input Interfaces.SolutionState solution "Chemical solution state";
 
     output Modelica.Units.SI.SpecificVolume specificVolume "Specific volume";
@@ -1040,7 +1057,7 @@ To change its behavior it is necessary to modify Property functions.
     "Specific heat capacity at constant pressure"
       import Chemical;
       extends Modelica.Icons.Function;
-      input Chemical.Interfaces.SubstanceDefinition definition "Definition of substance";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
       input Interfaces.SolutionState solution "Chemical solution state";
     output Modelica.Units.SI.SpecificHeatCapacity specificHeatCapacityCp
       "Specific heat capacity at constant pressure";
@@ -1291,90 +1308,6 @@ gases also differentiable at Tlimit.
 </html>"));
 end DataRecord;
 
-  connector ForeOld "Undirected connector outputting the forward state"
-
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
-    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
-
-    Chemical.Interfaces.OutputSubstanceState state_forwards "State of substance in forwards direction";
-    Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
-
-    Chemical.Interfaces.OutputSolutionState solution "State of solution";
-    stateOfMatter.OutputSubstanceData definition "Definition of substance";
-    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
-            extent={{-80,80},{80,-80}},
-            lineColor={158,66,200},
-            lineThickness=0.5,
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid), Ellipse(
-            extent={{-40,40},{40,-40}},
-            lineColor={194,138,221},
-            lineThickness=0.5,
-            fillColor={194,138,221},
-            fillPattern=FillPattern.Solid)}),
-                              Diagram(coordinateSystem(preserveAspectRatio=false)),
-      Documentation(info="<html>
-<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
-<u>At positive molarflow, Fore is a output. </u>
-</html>"));
-
-  end ForeOld;
-
-  connector RearOld "Undirected connector outputting the rearward state"
-
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
-    flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
-
-    Chemical.Interfaces.InputSubstanceState state_forwards "State of substance in forwards direction";
-    Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
-
-    Chemical.Interfaces.InputSolutionState solution "State of solution";
-    stateOfMatter.InputSubstanceData definition "Definition of substance";
-
-    annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
-            extent={{-80,80},{80,-80}},
-            lineColor={158,66,200},
-            lineThickness=0.5,
-            fillColor={194,138,221},
-            fillPattern=FillPattern.Solid), Ellipse(
-            extent={{-40,40},{40,-40}},
-            lineColor={194,138,221},
-            lineThickness=0.5,
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid)}),
-                              Diagram(coordinateSystem(preserveAspectRatio=false)),
-      Documentation(info="<html>
-<u>One of the two undirected connectors. The state information flows in both directions, forward and backward. </u>
-<u>At positive molarflow, Rear is a input.</u>
-</html>"));
-  end RearOld;
-
  replaceable record SubstanceState "Set that defines a state of substance"
   extends Modelica.Icons.Record;
 
@@ -1458,7 +1391,7 @@ end DataRecord;
 
   connector InputDefinition = input Chemical.Interfaces.Definition;
   connector InputSubstanceDefinition
-                            = input Chemical.Interfaces.SubstanceDefinition;
+                            = input Chemical.Interfaces.Definition;
   connector InputSubstanceState = input SubstanceState;
   connector InputSolutionState = input SolutionState;
   connector OutputDefinition = output Chemical.Interfaces.Definition;
@@ -4535,25 +4468,13 @@ end solution_temperature_;
 
   connector Inlet "Inlet"
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
     InputSubstanceState state "State of substance";
     InputSolutionState solution "State of solution";
-    stateOfMatter.InputSubstanceData definition "Definition of substance";
+    InputDefinition definition "Definition of substance";
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=true), graphics={
           Polygon(
@@ -4604,25 +4525,13 @@ end solution_temperature_;
 
   connector Outlet "Outlet providing substance and solution definition"
 
-    replaceable package stateOfMatter = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
     OutputSubstanceState state "State of substance in solution";
     OutputSolutionState solution "State of solution";
-    stateOfMatter.OutputSubstanceData definition "Definition of substance";
+    OutputDefinition definition "Definition of substance";
 
 
     annotation ( Icon(coordinateSystem(preserveAspectRatio=true), graphics={

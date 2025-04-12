@@ -122,7 +122,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         Q=solution.Q,
         I=solution.I,
         G=solution.G),
-      definition(data=definition.data)) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      definition=definition) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
@@ -140,7 +140,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-    parameter Chemical.Interfaces.SubstanceDefinition definition=Chemical.Substances.Solid.eminus                 "Definition of the substance";
+    parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.eminus "Definition of the substance";
 
     Real r_out, h;
 
@@ -236,7 +236,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   protected
 
-    parameter Chemical.Interfaces.SubstanceDefinition definition = Chemical.Substances.Solid.eminus               "Definition of the substance";
+    parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.eminus "Definition of the substance";
 
     outer Chemical.DropOfCommons dropOfCommons;
 
@@ -466,13 +466,14 @@ package Boundaries "Boundary models for undirected chemical simulation"
   end ExternalGas;
 
   model TerminalInflow "Molar pump of substance to system"
+
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
     extends Chemical.Interfaces.ConditionalSubstanceFlow(useSubstanceFlowInput=false);
 
     import Chemical.Utilities.Types.SolutionChoice;
 
   //  parameter Chemical.Interfaces.SolutionStateParameters solutionState;
-    parameter Interfaces.SubstanceDefinition definition = Chemical.Substances.Unknown
+    parameter Chemical.Interfaces.Definition definition = Chemical.Substances.Unknown
    "Definition of the substance"
       annotation (choicesAllMatching = true);
 
@@ -488,7 +489,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     u = u_start;
 
   equation
-    fore.definition.data = definition.data;
+    fore.definition = definition;
     fore.solution = solutionState;
 
     fore.n_flow = -q;
@@ -694,9 +695,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     parameter Chemical.Interfaces.SolutionStateParameters solutionState
       annotation (Dialog(enable=not solutionFromInput));
-    parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition = Chemical.Substances.Unknown
-   "Definition of the substance"
-      annotation (choicesAllMatching = true);
+    parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Unknown "Definition of the substance" annotation (choicesAllMatching=true);
 
     parameter Boolean solutionFromInput = false "Use input connector for solution?";
     parameter Boolean potentialFromInput = false "Use input connector for chemical potential";
@@ -760,7 +759,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     fore.state_forwards = Chemical.Interfaces.SubstanceState(u=u0,h=h0);
     fore.solution=s;
-    fore.definition.data=substanceDefinition.data;
+    fore.definition=substanceDefinition;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
           Rectangle(
@@ -1368,8 +1367,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialBoundary
 
 
-      parameter Chemical.Interfaces.SubstanceDefinition substanceDefinition=Chemical.Substances.Unknown    "Definition of the substance"
-        annotation (choicesAllMatching = true, Dialog(enable = not useRear));
+      parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Unknown "Definition of the substance"
+        annotation (choicesAllMatching=true, Dialog(enable=not useRear));
 
       outer Modelica.Fluid.System system "System wide properties";
 
@@ -1395,7 +1394,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         r=r_fore_port,
         state_forwards=state_out,
         solution=solutionState,
-        definition(data=substanceDefinitionVar.data)) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
+        definition=substanceDefinitionVar) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
     //  stateOfMatter.substanceDefinition substanceDefinitionVar;
 
@@ -1411,7 +1410,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       outer Chemical.DropOfCommons dropOfCommons;
 
-      Chemical.Interfaces.SubstanceDefinition substanceDefinitionVar;//substanceDefinition;
+      Chemical.Interfaces.Definition substanceDefinitionVar;         //substanceDefinition;
       Chemical.Interfaces.InputDefinition definitionVar;//substanceDefinition;
       Chemical.Interfaces.SolutionState solutionState;
 

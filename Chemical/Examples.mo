@@ -5691,18 +5691,14 @@ extends Modelica.Icons.ExamplesPackage;
     import Chemical.Interfaces.Phase;
 
 
-    parameter Definition H2(data = Gas.H2.data);
-    parameter Definition O2(data = Gas.O2.data);
-    parameter Definition H2O(data = Gas.H2O.data);
-
-    Definition Reaction = H2O - H2 - 0.5*O2;
+    Definition Reaction;
 
     SolutionState solution=SolutionState(phase=Phase.Gas, T = 273.15+1*time);
 
-    BaseProcessProperties reactionProperties(
-      definition=Reaction,
-      solutionState=solution);
+    BaseProcessProperties reactionProperties(definition=Reaction, solutionState=solution);
 
+  equation
+      Reaction = Gas.H2O - (Gas.H2 + 0.5*Gas.O2);
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
       experiment(StopTime=2000, __Dymola_Algorithm="Dassl"));

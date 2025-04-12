@@ -4,18 +4,6 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
   model JunctionMN "Generalized junction/splitter for undirected flow"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Integer N(min=0) = 1 "Number of rears";
     parameter Integer M(min=0) = 1 "Number of fors";
@@ -24,9 +12,9 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of molar flow rate"
       annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rears[N](redeclare package stateOfMatter = stateOfMatter) "Rear ports"
+    Chemical.Interfaces.Rear rears[N] "Rear ports"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld fores[M](redeclare package stateOfMatter = stateOfMatter) "Fore ports"
+    Chemical.Interfaces.Fore fores[M] "Fore ports"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={100,0})));
 
     Modelica.Units.SI.ChemicalPotential u_mix "mixing u assuming positive molarFlow";
@@ -121,26 +109,13 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
   model ConnectInletFore
     "Directed/undirected connector with input and fore"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Inlet inlet
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -184,32 +159,17 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
   model ConnectInletRear
     "Directed/undirected connector with input and rear"
 
-   replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Inlet inlet
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-40,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={40,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
-    ConnectInletFore connectInletFore(redeclare package stateOfMatter =
-          stateOfMatter, final L=L/2)
+    ConnectInletFore connectInletFore( final L=L/2)
       annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
-    ConnectRearRear connectRearRear(redeclare package stateOfMatter =
-          stateOfMatter, final L=L/2)
+    ConnectRearRear connectRearRear( final L=L/2)
       annotation (Placement(transformation(extent={{2,-10},{22,10}})));
 
   protected
@@ -248,26 +208,13 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
   model ConnectRearOutlet
     "Directed/undirected connector with rear and outlet"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
     parameter Boolean useDefaultStateAsRear = false "Use Default Medium states as state_rearwards";
 
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Outlet outlet
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
     Chemical.Interfaces.StateInput state_rear if not useDefaultStateAsRear
@@ -331,33 +278,18 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     extends
       Chemical.Topology.Internal.PartialSubstanceAndSolutionSource;
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
     parameter Boolean useDefaultStateAsRear = false "Use Default Medium states as state_rearwards";
 
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-40,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Outlet outlet
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={40,0}),
           iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
-    ConnectRearOutlet connectRearOutlet(redeclare package stateOfMatter =
-          stateOfMatter, final L=L/2, final useDefaultStateAsRear = useDefaultStateAsRear)
+    ConnectRearOutlet connectRearOutlet( final L=L/2, final useDefaultStateAsRear = useDefaultStateAsRear)
       annotation (Placement(transformation(extent={{0,-10},{20,10}})));
-    ConnectForeFore connectForeFore(redeclare package stateOfMatter =
-          stateOfMatter,
+    ConnectForeFore connectForeFore(
       substanceData=substanceData, solutionParam=solutionParam, useSolution=useSolution,
                          final L=L/2)
       annotation (Placement(transformation(extent={{-20,-10},{0,10}})));
@@ -413,24 +345,12 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
   model ConnectForeFore "Undirected connector with fore and fore"
     extends Chemical.Topology.Internal.PartialSubstanceAndSolutionSource;
-   /* replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby 
-    Chemical.Interfaces.StateOfMatter
-  "Substance model to translate data into substance properties"
-    annotation (choices(
-      choice(redeclare package stateOfMatter =
-        Chemical.Interfaces.Incompressible  "Incompressible"),
-      choice(redeclare package stateOfMatter =
-        Chemical.Interfaces.IdealGas        "Ideal Gas"),
-      choice(redeclare package stateOfMatter =
-        Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-      choice(redeclare package stateOfMatter =
-        Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-*/
+   /* */
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.ForeOld fore_a(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore_a
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.ForeOld fore_b(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore_b
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -464,24 +384,12 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
   model ConnectRearRear "Undirected connector with rear and rear"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rear_a(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear_a
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={-30,0})));
-    Chemical.Interfaces.RearOld rear_b(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear_b
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={30,0}), iconTransformation(extent={{-20,-20},{20,20}}, origin={30,0})));
 
   protected
@@ -510,34 +418,21 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
   model JunctionRFF "Junction with rear and two fores"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=2,
       final N=1,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
 
   protected
@@ -594,34 +489,21 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRFF2 "Junction with rear and two fores"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=2,
       final N=1,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
 
   protected
@@ -676,34 +558,21 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRRF "Junction with two rears and a fore"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+         parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=1,
       final N=2,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{30,-10},{50,10}})));
 
   protected
@@ -758,19 +627,7 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRRF2 "Junction with two rears and a fore"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+         parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
@@ -778,14 +635,13 @@ Junction with a rear and two fores in a lying T shape.
       final M=1,
       final N=2,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{30,-10},{50,10}})));
-    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
 
   protected
@@ -840,36 +696,23 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRFFF "Junction with a rear and three fores"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rear
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.ForeOld foreC(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreC
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=3,
       final N=1,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
 
   protected
@@ -935,36 +778,23 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRRFF "Junction with two rears and two fores"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld reara(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear reara
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.RearOld rearb(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearb
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
-    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
     JunctionMN junctionMN(
       final M=2,
       final N=2,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
   protected
@@ -1034,36 +864,23 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRRFF2 "Junction with two rears and two fores"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld reara(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear reara
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.RearOld rearb(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearb
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
-    Chemical.Interfaces.ForeOld foreA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.ForeOld foreB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore foreB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=2,
       final N=2,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{10,-10},{-10,10}},
           rotation=90,
           origin={0,10})));
@@ -1135,36 +952,23 @@ Junction with a rear and two fores in a lying T shape.
 
   model JunctionRRRF "Junction with tree rears and a fore"
 
-    replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
+        parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of each branch" annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.RearOld rearA(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearA
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,100})));
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={100,0})));
     JunctionMN junctionMN(
       final M=1,
       final N=3,
       final n_flow_reg=n_flow_reg,
-      final L=L,
-      redeclare package stateOfMatter=stateOfMatter)
+      final L=L)
       annotation (Placement(transformation(extent={{0,-10},{20,10}})));
-    Chemical.Interfaces.RearOld rearB(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearB
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={-100,0})));
-    Chemical.Interfaces.RearOld rearC(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Rear rearC
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, origin={0,-100})));
 
   protected
@@ -1230,18 +1034,6 @@ Junction with a rear and two fores in a lying T shape.
 
   model ConnectorInletOutletFore
 
-   replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-      Chemical.Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-      annotation (choices(
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatter =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarFlowRate n_flow_ref=dropOfCommons.n_flow_reg "Reference mass flow" annotation (Dialog(tab="Advanced"));
@@ -1251,45 +1043,37 @@ Junction with a rear and two fores in a lying T shape.
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold for small mass flows"
       annotation (Dialog(tab="Advanced"));
 
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatter)
+    Chemical.Interfaces.Fore fore
       annotation (Placement(transformation(extent={{-20,-120},{20,-80}}), iconTransformation(extent={{-20,-120},{20,-80}})));
-    Chemical.Interfaces.Inlet inlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Inlet inlet
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{
               -80,20}})));
-    Chemical.Interfaces.Outlet outlet(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Interfaces.Outlet outlet
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,
               20}})));
     Chemical.FlowControl.CheckValve checkValve(
-      redeclare package stateOfMatter = stateOfMatter,
       final L=L,
       final n_flow_ref=n_flow_ref,
       final u_ref=u_ref)
         annotation (Placement(transformation(extent={{-70,-10},{-50,10}})));
     Chemical.FlowControl.CheckValve checkValve1(
-      redeclare package stateOfMatter = stateOfMatter,
       final L=L,
       final n_flow_ref=n_flow_ref,
       final u_ref=u_ref)
         annotation (Placement(transformation(extent={{50,-10},{70,10}})));
     ConnectRearOutlet connectRearOutlet(
-      redeclare package stateOfMatter = stateOfMatter,
       final L=L,
       final useDefaultStateAsRear=false)
         annotation (Placement(transformation(extent={{20,-10},{40,10}})));
     ConnectInletFore connectInletFore(
-      redeclare package stateOfMatter = stateOfMatter,
       final L=L)
         annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
     JunctionRFF2 junctionRFF2_1(
-      redeclare package stateOfMatter = stateOfMatter,
       final assumeConstantDensity=assumeConstantDensity,
       final n_flow_reg=n_flow_reg,
       final L=L)
         annotation (Placement(transformation(extent={{-10,10},{10,-10}})));
-    Chemical.Sensors.SensorState sensorState(redeclare package stateOfMatter =
-          stateOfMatter)
+    Chemical.Sensors.SensorState sensorState
         annotation (Placement(transformation(extent={{-10,8},{10,28}})));
 
   protected
@@ -1387,34 +1171,28 @@ Junction with a rear and two fores in a lying T shape.
         annotation (Placement(transformation(extent={{-94,30},{-74,50}})));
       inner Chemical.DropOfCommons dropOfCommons(L=1e2) annotation (Placement(transformation(extent={{-134,-8},{-114,12}})));
       Chemical.Processes.FlowResistance flowResistance(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-46,50},{-26,70}})));
       Chemical.Processes.FlowResistance flowResistance1(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-46,10},{-26,30}})));
-      Chemical.Boundaries.Source source2(
-        redeclare package stateOfMatter = stateOfMatter, u0_par=2000000)
+      Chemical.Boundaries.Source source2( u0_par=2000000)
         annotation (Placement(transformation(extent={{0,50},{20,70}})));
-      Chemical.Boundaries.Source source3(
-        redeclare package stateOfMatter = stateOfMatter, u0_par=3500000)
+      Chemical.Boundaries.Source source3( u0_par=3500000)
         annotation (Placement(transformation(extent={{0,10},{20,30}})));
       Chemical.Processes.FlowResistance flowResistance4(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{26,10},{46,30}})));
       Chemical.Processes.FlowResistance flowResistance5(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
@@ -1424,105 +1202,85 @@ Junction with a rear and two fores in a lying T shape.
         assumeConstantDensity=false,
         L=2*dropOfCommons.L)
         annotation (Placement(transformation(extent={{94,30},{74,50}})));
-      Chemical.Boundaries.Sink sink4(
-        redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
+      Chemical.Boundaries.Sink sink4( u0_par=100000)
         annotation (Placement(transformation(extent={{140,30},{160,50}})));
-      Chemical.Boundaries.Source source6(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Source source6(
           u0_par=200000)
         annotation (Placement(transformation(extent={{-160,-50},{-140,-30}})));
-      Chemical.Boundaries.Sink sink6(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Sink sink6(
           u0_par=150000)
         annotation (Placement(transformation(extent={{-20,-30},{0,-10}})));
-      Chemical.Boundaries.Sink sink7(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Sink sink7(
           u0_par=100000)
         annotation (Placement(transformation(extent={{-20,-70},{0,-50}})));
-      ConnectInletFore connectInletFore1(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectInletFore connectInletFore1
         annotation (Placement(transformation(extent={{-118,-50},{-98,-30}})));
-      ConnectRearOutlet connectRearOutlet2(redeclare package stateOfMatter =
-            stateOfMatter,
+      ConnectRearOutlet connectRearOutlet2(
           useDefaultStateAsRear=true)
         annotation (Placement(transformation(extent={{-66,-30},{-46,-10}})));
-      ConnectRearOutlet connectRearOutlet3(redeclare package stateOfMatter =
-            stateOfMatter,
+      ConnectRearOutlet connectRearOutlet3(
           useDefaultStateAsRear=true)
         annotation (Placement(transformation(extent={{-66,-70},{-46,-50}})));
       Chemical.Processes.FlowResistance flowResistance8(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-46,-30},{-26,-10}})));
       Chemical.Processes.FlowResistance flowResistance9(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-46,-70},{-26,-50}})));
-      Chemical.Boundaries.Source source7(redeclare package stateOfMatter =
-            stateOfMatter,                                                                u0_par=2000000)
+      Chemical.Boundaries.Source source7(                                                                u0_par=2000000)
         annotation (Placement(transformation(extent={{0,-30},{20,-10}})));
-      Chemical.Boundaries.Source source8(redeclare package stateOfMatter =
-            stateOfMatter,                                                                u0_par=3500000)
+      Chemical.Boundaries.Source source8(                                                                u0_par=3500000)
         annotation (Placement(transformation(extent={{0,-70},{20,-50}})));
       Chemical.Processes.FlowResistance flowResistance10(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{26,-70},{46,-50}})));
       Chemical.Processes.FlowResistance flowResistance11(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{26,-30},{46,-10}})));
-      Chemical.Boundaries.Sink sink8(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Sink sink8(
           u0_par=100000)
         annotation (Placement(transformation(extent={{140,-50},{160,-30}})));
-      ConnectInletRear connectInletRear2(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectInletRear connectInletRear2
         annotation (Placement(transformation(extent={{46,-30},{66,-10}})));
-      ConnectInletRear connectInletRear3(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectInletRear connectInletRear3
         annotation (Placement(transformation(extent={{46,-70},{66,-50}})));
-      ConnectForeOutlet connectForeOutlet1(redeclare package stateOfMatter =
-            stateOfMatter,
+      ConnectForeOutlet connectForeOutlet1(
           useDefaultStateAsRear=true)
         annotation (Placement(transformation(extent={{98,-50},{118,-30}})));
-      JunctionMN junctionMN(redeclare package stateOfMatter = stateOfMatter,
+      JunctionMN junctionMN(
         M=2,
         N=1)
         annotation (Placement(transformation(extent={{-94,-50},{-74,-30}})));
-      JunctionMN junctionMN1(redeclare package stateOfMatter = stateOfMatter,
+      JunctionMN junctionMN1(
         M=2,
         N=1,
         assumeConstantDensity=false)
         annotation (Placement(transformation(extent={{94,-50},{74,-30}})));
       Chemical.Processes.FlowResistance flowResistance2(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-136,30},{-116,50}})));
       Chemical.Processes.FlowResistance flowResistance3(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
         redeclare function pLoss = pLoss)
         annotation (Placement(transformation(extent={{-136,-50},{-116,-30}})));
       Chemical.Processes.FlowResistance flowResistance6(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
@@ -1531,7 +1289,6 @@ Junction with a rear and two fores in a lying T shape.
             (k=1000))
         annotation (Placement(transformation(extent={{116,-50},{136,-30}})));
       Chemical.Processes.FlowResistance flowResistance7(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         r=0.1,
         l=1,
@@ -1685,51 +1442,43 @@ Junction with a rear and two fores in a lying T shape.
       ConnectForeFore connectForeFore(redeclare package Medium=Medium)
         annotation (Placement(transformation(extent={{-10,40},{10,60}})));
       Chemical.Boundaries.BoundaryRear boundary_rear(
-        redeclare package stateOfMatter = stateOfMatter,
         u0_par=100000,
         fore(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{-40,60},{-20,80}})));
-      Chemical.Boundaries.BoundaryFore boundary_fore(redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
+      Chemical.Boundaries.BoundaryFore boundary_fore( u0_par=100000)
         annotation (Placement(transformation(extent={{-20,40},{-40,60}})));
       Chemical.Boundaries.Source source(redeclare package Medium=Medium,
           u0_par=100000)
         annotation (Placement(transformation(extent={{-40,20},{-20,40}})));
-      ConnectInletFore connectInletFore(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectInletFore connectInletFore
         annotation (Placement(transformation(extent={{-10,20},{10,40}})));
       ConnectRearOutlet connectRearOutlet(redeclare package Medium=Medium, rear(n_flow(start=0, fixed=true)))
         annotation (Placement(transformation(extent={{-10,0},{10,20}})));
       Chemical.Boundaries.Sink sink(redeclare package Medium=Medium,
           potentialFromInput=true)
         annotation (Placement(transformation(extent={{20,0},{40,20}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(redeclare package stateOfMatter = stateOfMatter, potentialFromInput=true)
+      Chemical.Boundaries.BoundaryRear boundary_rear1( potentialFromInput=true)
         annotation (Placement(transformation(extent={{40,60},{20,80}})));
       Chemical.Boundaries.BoundaryFore boundary_fore1(
-        redeclare package stateOfMatter = stateOfMatter,
         potentialFromInput=true,
         rear(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{20,40},{40,60}})));
       Chemical.Boundaries.BoundaryFore boundary_fore2(
-        redeclare package stateOfMatter = stateOfMatter,
         potentialFromInput=true,
         rear(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{20,20},{40,40}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear2(redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
+      Chemical.Boundaries.BoundaryRear boundary_rear2( u0_par=100000)
         annotation (Placement(transformation(extent={{-40,0},{-20,20}})));
-      Chemical.Boundaries.Source source1(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Source source1(
         u0_par=100000,
         L=1.5*dropOfCommons.L,
         outlet(n_flow(start=0, fixed=true)))
         annotation (Placement(transformation(extent={{-40,100},{-20,120}})));
-      Chemical.Boundaries.Sink sink1(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Sink sink1(
         potentialFromInput=true,
         L=1.5*dropOfCommons.L)
         annotation (Placement(transformation(extent={{20,100},{40,120}})));
       Chemical.Boundaries.BoundaryRear boundary_rear3(
-        redeclare package stateOfMatter = stateOfMatter,
         u0_par=100000,
         L=1.5*dropOfCommons.L) annotation (Placement(transformation(extent={{-40,80},{-20,100}})));
       Chemical.Boundaries.BoundaryFore boundary_fore3(
-        redeclare package stateOfMatter = stateOfMatter,
         potentialFromInput=true,
         L=1.5*dropOfCommons.L,
         rear(n_flow(start=0, fixed=true))) annotation (Placement(transformation(extent={{20,80},{40,100}})));
@@ -1740,22 +1489,17 @@ Junction with a rear and two fores in a lying T shape.
         offset=0.5e5,
         startTime=1)
         annotation (Placement(transformation(extent={{82,50},{62,70}})));
-      Chemical.Boundaries.Source source2(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Source source2(
           u0_par=100000)
         annotation (Placement(transformation(extent={{-50,-40},{-30,-20}})));
-      ConnectInletFore connectInletFore1(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectInletFore connectInletFore1
         annotation (Placement(transformation(extent={{-30,-40},{-10,-20}})));
-      ConnectRearOutlet connectRearOutlet1(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectRearOutlet connectRearOutlet1
         annotation (Placement(transformation(extent={{10,-40},{30,-20}})));
-      Chemical.Boundaries.Sink sink2(redeclare package stateOfMatter =
-            stateOfMatter,
+      Chemical.Boundaries.Sink sink2(
           potentialFromInput=true)
         annotation (Placement(transformation(extent={{30,-40},{50,-20}})));
       Chemical.Processes.FlowResistance flowResistance(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         computeL=false,
         r=0.01,
@@ -1763,59 +1507,51 @@ Junction with a rear and two fores in a lying T shape.
         redeclare function pLoss = .Chemical.Processes.Internal.FlowResistance.laminarChemicalPotentialLoss)
         annotation (Placement(transformation(extent={{-10,-40},{10,-20}})));
       Chemical.Processes.FlowResistance flowResistance2(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         computeL=false,
         r=0.01,
         l=1,
         redeclare function pLoss = .Chemical.Processes.Internal.FlowResistance.laminarChemicalPotentialLoss)
         annotation (Placement(transformation(extent={{-10,-60},{10,-40}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear4(redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
+      Chemical.Boundaries.BoundaryRear boundary_rear4( u0_par=100000)
         annotation (Placement(transformation(extent={{-50,-60},{-30,-40}})));
-      Chemical.Boundaries.BoundaryFore boundary_fore4(redeclare package stateOfMatter = stateOfMatter, potentialFromInput=true)
+      Chemical.Boundaries.BoundaryFore boundary_fore4( potentialFromInput=true)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={40,-50})));
       Chemical.Boundaries.CreateState createState(
-        redeclare package stateOfMatter = stateOfMatter,
         PFromInput=true)
         annotation (Placement(transformation(extent={{38,-12},{32,-4}})));
-      ConnectorInletOutletFore connectorInletOutletFore(redeclare package stateOfMatter =
-            stateOfMatter)
+      ConnectorInletOutletFore connectorInletOutletFore
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={0,-68})));
-      Chemical.Boundaries.BoundaryFore boundary_fore5(redeclare package stateOfMatter = stateOfMatter, potentialFromInput=true)
+      Chemical.Boundaries.BoundaryFore boundary_fore5( potentialFromInput=true)
         annotation (Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
             origin={64,-90})));
-      Chemical.Boundaries.Source source3(redeclare package stateOfMatter =
-            stateOfMatter,                                                                u0_par=200000)
+      Chemical.Boundaries.Source source3(                                                                u0_par=200000)
         annotation (Placement(transformation(extent={{-80,-78},{-60,-58}})));
       Chemical.Boundaries.Sink sink3(
-        redeclare package stateOfMatter = stateOfMatter,
         potentialFromInput=false,
         u0_par=100000)
         annotation (Placement(transformation(extent={{54,-78},{74,-58}})));
       Chemical.Processes.FlowResistance flowResistance1(
-        redeclare package stateOfMatter = stateOfMatter,
         r(displayUnit="mm") = 0.005,
         l=5,
         redeclare function pLoss =
             Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss)
         annotation (Placement(transformation(extent={{-40,-78},{-20,-58}})));
-      Chemical.Processes.FlowResistance flowResistance3(
-        redeclare package stateOfMatter = stateOfMatter, initM_flow = Chemical.Utilities.Types.InitializationMethods.state,
+      Chemical.Processes.FlowResistance flowResistance3( initM_flow = Chemical.Utilities.Types.InitializationMethods.state,
         l=5,
         redeclare function pLoss =
             Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss,
         r(displayUnit="mm") = 0.005)
         annotation (Placement(transformation(extent={{20,-78},{40,-58}})));
       Chemical.Processes.FlowResistance flowResistance4(
-        redeclare package stateOfMatter = stateOfMatter,
         initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
         l=5,
         redeclare function pLoss = Chemical.Processes.Internal.FlowResistance.laminarTurbulentChemicalPotentialLoss,
@@ -1961,21 +1697,10 @@ Junction with a rear and two fores in a lying T shape.
   package Internal
     partial model PartialSubstanceAndSolutionSource
       "Substance properties for components, where the substance is connected with the solution"
+      import Chemical;
 
-     replaceable package stateOfMatter = Chemical.Interfaces.Incompressible constrainedby
-        Chemical.Interfaces.StateOfMatter
-      "Substance model to translate data into substance properties"
-        annotation (choices(
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.Incompressible  "Incompressible"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGas        "Ideal Gas"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-          choice(redeclare package stateOfMatter =
-            Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
 
-      parameter stateOfMatter.SubstanceDataParameters substanceData
+      parameter Chemical.Interfaces.Definition substanceData
      "Definition of the substance"
         annotation (choicesAllMatching = true, Dialog(enable=not useRear));
 

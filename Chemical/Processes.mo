@@ -185,8 +185,8 @@ package Processes "Undirected process package"
      parameter ProductsDefinitionChoice productFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters       "Choice of products definition"
         annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
-     parameter Chemical.Interfaces.SubstanceDefinition productData "Product definitions"
-        annotation (choicesAllMatching = true, Dialog(group="Process definition",enable=(productFrom == ProductsDefinitionChoice.fromParameter)));
+    parameter Chemical.Interfaces.Definition productData "Product definitions"
+      annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=(productFrom == ProductsDefinitionChoice.fromParameter)));
 
      parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.Properties.processData(K,dH,dCp,dVs)
      "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
@@ -1024,8 +1024,8 @@ Choices for initialization of a state h.
                                                                                                            "Choice of products definition"
           annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.SubstanceDefinition productsData[nP] = fill(Chemical.Substances.Unknown,nP) "Array of products definitions"
-       annotation (choicesAllMatching = true, Dialog(group="Process definition",enable=((productsFrom == ProductsDefinitionChoice.fromParameter) or (nP>1))));
+      parameter Chemical.Interfaces.Definition productsData[nP]=fill(Chemical.Substances.Unknown, nP) "Array of products definitions"
+        annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=((productsFrom == ProductsDefinitionChoice.fromParameter) or (nP > 1))));
 
 
       parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.Properties.processData(K,dH,dCp,dVs)
@@ -1054,14 +1054,14 @@ Choices for initialization of a state h.
       end if;
       if (nP>1) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
         for i in 1:nP-1 loop
-           products[i+1].definition.data = productsData[i].data;
+           products[i+1].definition = productsData[i];
         end for;
       end if;
+      for i in 1:nP loop
+            pd[i]=productsData[i];
+      end for;
       if (nP>0) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
         if (nP>1) then
-          for i in 1:nP loop
-            pd[i].data=productsData[i].data;
-          end for;
           products[1].definition =
              (1/p[1]) * (s*substrates.definition + processData - p[2:end]*pd[2:end]);
         else
@@ -1512,7 +1512,7 @@ du := n_flow/kC;
     model TestFlowResistance "Test for the undirected flow resistance"
       extends Modelica.Icons.Example;
 
-      Chemical.Boundaries.BoundaryRear boundary_rear(substanceData=Chemical.SubstancesOld.Water_liquid(), u0_par=100000)
+      Chemical.Boundaries.BoundaryRear boundary_rear(substanceDefinition=Chemical.Substances.Liquid.H2O, u0_par=100000)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1524,7 +1524,7 @@ du := n_flow/kC;
         offset=140000,
         startTime=5)
         annotation (Placement(transformation(extent={{60,-6},{48,6}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(substanceData=Chemical.SubstancesOld.Water_liquid(), potentialFromInput=true)
+      Chemical.Boundaries.BoundaryRear boundary_rear1(substanceDefinition=Chemical.Substances.Liquid.H2O, potentialFromInput=true)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1532,11 +1532,13 @@ du := n_flow/kC;
       Chemical.Boundaries.BoundaryFore boundary_fore1(potentialFromInput=false, u0_par=100000)
         annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
       Reaction reaction(
-        productsSubstanceData={Chemical.SubstancesOld.Water_liquid()},
+        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsData={Chemical.Substances.Liquid.H2O},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
       Reaction reaction1(
-        productsSubstanceData={Chemical.SubstancesOld.Water_liquid()},
+        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsData={Chemical.Substances.Liquid.H2O},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,-48},{12,-28}})));
     equation
@@ -1889,395 +1891,8 @@ du := n_flow/kC;
                 100}})));
     end ExothermicReaction;
 
-    model ConductionElement "Test for ConductionElement"
-      extends Modelica.Icons.Example;
-
-      replaceable package Medium =
-          Chemical.Media.myMedia.Incompressible.Examples.Glycol47                          constrainedby
-        Chemical.Media.myMedia.Interfaces.PartialMedium
-        "Medium Model"
-        annotation(choicesAllMatching=true, Documentation(info="<html>
-<u>
-Medium Model for the test. Be aware that the Component is mainly
-meant for liquids with low compressablility.
-</u>
-</html>"));
-
-      Chemical.Processes.ConductionElement conductionElement(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=-1,
-        V(displayUnit="l") = 0.001,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.T,
-        T_0=263.15) annotation (Placement(transformation(extent={{-10,60},{10,80}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,60},{40,80}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,60},{-20,80}})));
-      Modelica.Blocks.Sources.Step step(
-        height=2e2,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,60},{-50,80}})));
-      Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=373.15)
-        annotation (Placement(transformation(extent={{80,50},{60,70}})));
-      inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{60,-70},{80,-50}})));
-      Chemical.Processes.ConductionElement conductionElement1(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        V(displayUnit="l") = 0.001,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.h,
-        T_0=263.15,
-        h_0=1000,
-        neglectChemicalPotentialChanges=false) annotation (Placement(transformation(extent={{-10,30},{10,50}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore1(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,30},{40,50}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,30},{-20,50}})));
-      Modelica.Blocks.Sources.Ramp ramp(
-        height=2e2,
-        duration=0.001,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,30},{-50,50}})));
-      Chemical.Processes.ConductionElement conductionElement2(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=-1,
-        V(displayUnit="l") = 0.001,
-        enforce_global_energy_conservation=true,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.fore,
-        T_0=263.15) annotation (Placement(transformation(extent={{-10,0},{10,20}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore2(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,0},{40,20}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear2(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,0},{-20,20}})));
-      Modelica.Blocks.Sources.Step step1(
-        height=2e2,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,0},{-50,20}})));
-      Chemical.Processes.ConductionElement conductionElement3(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=-1,
-        V(displayUnit="l") = 0.001,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.rear,
-        T_0=263.15) annotation (Placement(transformation(extent={{-10,-30},{10,-10}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore3(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,-30},{40,-10}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear3(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,-30},{-20,-10}})));
-      Modelica.Blocks.Sources.Step step2(
-        height=2e2,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,-30},{-50,-10}})));
-      Chemical.Processes.ConductionElement conductionElement4(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=0,
-        V(displayUnit="l") = 0.001,
-        enforce_global_energy_conservation=true,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.port,
-        T_0=263.15) annotation (Placement(transformation(extent={{-10,-60},{10,-40}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore4(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,-60},{40,-40}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear4(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
-      Modelica.Blocks.Sources.Step step3(
-        height=2e2,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,-60},{-50,-40}})));
-      Chemical.Processes.ConductionElement conductionElement5(
-        redeclare package stateOfMatter = stateOfMatter,
-        L=0.2,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        n_flow_0=-1,
-        V(displayUnit="l") = 0.001,
-        A=35,
-        U=500,
-        init=Chemical.Processes.Internal.InitializationMethodsCondElement.port,
-        T_0=263.15) annotation (Placement(transformation(extent={{-10,-90},{10,-70}})));
-
-      Chemical.Boundaries.BoundaryFore boundary_fore5(
-        redeclare package stateOfMatter = stateOfMatter,
-        T0_par=328.15,
-        u0_par=100000) annotation (Placement(transformation(extent={{20,-90},{40,-70}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear5(
-        redeclare package stateOfMatter = stateOfMatter,
-        potentialFromInput=true,
-        T0_par=288.15) annotation (Placement(transformation(extent={{-40,-90},{-20,-70}})));
-      Modelica.Blocks.Sources.Step step4(
-        height=2e2,
-        offset=0.999e5,
-        startTime=0.33)
-        annotation (Placement(transformation(extent={{-70,-90},{-50,-70}})));
-    equation
-      connect(step.y, boundary_rear.u0_var) annotation (Line(points={{-49,70},{-40,70},{-40,76},{-32,76}},
-                                              color={0,0,127}));
-      connect(conductionElement.rear, boundary_rear.fore) annotation (Line(
-          points={{-10,70},{-20,70}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement.fore, boundary_fore.rear) annotation (Line(
-          points={{10,70},{20,70}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(ramp.y, boundary_rear1.u0_var) annotation (Line(points={{-49,40},{-40,40},{-40,46},{-32,46}},
-                                                                                            color={0,0,127}));
-      connect(conductionElement1.rear, boundary_rear1.fore)
-        annotation (Line(
-          points={{-10,40},{-20,40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement1.fore, boundary_fore1.rear) annotation (Line(
-          points={{10,40},{20,40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(step1.y, boundary_rear2.u0_var) annotation (Line(points={{-49,10},{-40,10},{-40,16},{-32,16}},
-                                                                                           color={0,0,127}));
-      connect(conductionElement2.rear, boundary_rear2.fore) annotation (Line(
-          points={{-10,10},{-20,10}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement2.fore, boundary_fore2.rear) annotation (Line(
-          points={{10,10},{20,10}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(step2.y, boundary_rear3.u0_var) annotation (Line(points={{-49,-20},{-40,-20},{-40,-14},{-32,-14}},
-                                                                                             color={0,0,127}));
-      connect(conductionElement3.rear, boundary_rear3.fore)
-        annotation (Line(
-          points={{-10,-20},{-20,-20}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement3.fore, boundary_fore3.rear) annotation (Line(
-          points={{10,-20},{20,-20}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(step3.y, boundary_rear4.u0_var) annotation (Line(points={{-49,-50},{-40,-50},{-40,-44},{-32,-44}},
-                                                                                             color={0,0,127}));
-      connect(conductionElement4.rear, boundary_rear4.fore)
-        annotation (Line(
-          points={{-10,-50},{-20,-50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement4.fore, boundary_fore4.rear) annotation (Line(
-          points={{10,-50},{20,-50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(step4.y, boundary_rear5.u0_var) annotation (Line(points={{-49,-80},{-40,-80},{-40,-74},{-32,-74}},
-                                                                                             color={0,0,127}));
-      connect(conductionElement5.rear, boundary_rear5.fore)
-        annotation (Line(
-          points={{-10,-80},{-20,-80}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(conductionElement5.fore, boundary_fore5.rear) annotation (Line(
-          points={{10,-80},{20,-80}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(fixedTemperature.port, conductionElement1.heatPort) annotation (Line(points={{60,60},{40,60},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      connect(conductionElement.heatPort, conductionElement1.heatPort)
-        annotation (Line(points={{0,79.8},{0,88},{40,88},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      connect(conductionElement2.heatPort, conductionElement1.heatPort)
-        annotation (Line(points={{0,19.8},{0,26},{40,26},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      connect(conductionElement3.heatPort, conductionElement1.heatPort)
-        annotation (Line(points={{0,-10.2},{0,-4},{40,-4},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      connect(conductionElement4.heatPort, conductionElement1.heatPort)
-        annotation (Line(points={{0,-40.2},{0,-34},{40,-34},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      connect(conductionElement5.heatPort, conductionElement1.heatPort)
-        annotation (Line(points={{0,-70.2},{0,-66},{40,-66},{40,56},{0,56},{0,49.8}}, color={191,0,0}));
-      annotation (experiment(StopTime=1, Tolerance=1e-6, Interval=0.001),
-      Documentation(info="<html>
-<u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"));
-    end ConductionElement;
-
-    model TransportDelay "Test for transport delay"
-      extends Modelica.Icons.Example;
-
-      replaceable package Medium = Chemical.Media.myMedia.Air.DryAirNasa constrainedby Chemical.Media.myMedia.Interfaces.PartialMedium
-                                                             "Medium Model"
-        annotation (Documentation(info="<html>
-<u>
-Medium model for the test. Can be anything.
-</u>
-</html>"));
-
-      Chemical.Processes.TransportDelay transportDelay(
-        redeclare package stateOfMatter = stateOfMatter,
-        l=100,
-        r(displayUnit="mm") = 0.015)
-        annotation (Placement(transformation(extent={{30,30},{50,50}})));
-      Chemical.Processes.FlowResistance flowResistance(
-        redeclare package stateOfMatter = stateOfMatter,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        r=100,
-        l(displayUnit="mm") = 0.008,
-        redeclare function pLoss =
-            Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss
-            (
-          k=1e4))
-        annotation (Placement(transformation(extent={{-10,30},{10,50}})));
-
-      Chemical.Boundaries.Sink sink(redeclare package stateOfMatter =
-            stateOfMatter,
-          u0_par=100000)
-        annotation (Placement(transformation(extent={{70,30},{90,50}})));
-      Chemical.Boundaries.Source source(
-        redeclare package stateOfMatter = stateOfMatter,
-        temperatureFromInput=true,
-        potentialFromInput=true)
-        annotation (Placement(transformation(extent={{-48,30},{-28,50}})));
-      Modelica.Blocks.Sources.Trapezoid
-                                   trapezoid(
-        amplitude=-6e3,
-        rising=0.2,
-        width=0.2,
-        falling=0.2,
-        period=0.8,
-        offset=1.04e5,
-        startTime=0.2)
-        annotation (Placement(transformation(extent={{-94,10},{-74,30}})));
-      Modelica.Blocks.Sources.Ramp ramp1(
-        height=20,
-        duration=1.5,
-        offset=273,
-        startTime=0.3)
-        annotation (Placement(transformation(extent={{-94,50},{-74,70}})));
-      inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{60,-80},{80,-60}})));
-
-      Chemical.Processes.TransportDelay transportDelay1(
-        redeclare package stateOfMatter = stateOfMatter,
-        l=100,
-        r(displayUnit="mm") = 0.015) annotation (Placement(transformation(extent={{30,-50},{50,-30}})));
-      FlowResistance flowResistance1(
-        redeclare package stateOfMatter = stateOfMatter,
-        initM_flow=Chemical.Utilities.Types.InitializationMethods.state,
-        r=100,
-        l(displayUnit="mm") = 0.008,
-        redeclare function pLoss =
-            Chemical.Processes.Internal.FlowResistance.linearQuadraticChemicalPotentialLoss
-            (
-          k=1e4))
-        annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
-      Chemical.Boundaries.BoundaryFore boundary_fore(redeclare package stateOfMatter = stateOfMatter, u0_par=100000)
-        annotation (Placement(transformation(extent={{70,-50},{90,-30}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear(
-        redeclare package stateOfMatter = stateOfMatter,
-        temperatureFromInput=true,
-        potentialFromInput=true) annotation (Placement(transformation(extent={{-48,-50},{-28,-30}})));
-      Modelica.Blocks.Sources.Trapezoid trapezoid1(
-        amplitude=-6e3,
-        rising=0.2,
-        width=0.2,
-        falling=0.2,
-        period=0.8,
-        offset=1.04e5,
-        startTime=0.2)
-        annotation (Placement(transformation(extent={{-94,-70},{-74,-50}})));
-      Modelica.Blocks.Sources.Ramp ramp2(
-        height=20,
-        duration=1.5,
-        offset=273,
-        startTime=0.3)
-        annotation (Placement(transformation(extent={{-94,-30},{-74,-10}})));
-    equation
-      connect(ramp1.y, source.T0_var) annotation (Line(points={{-73,60},{-60,60},{-60,40},{-40,40}},
-                               color={0,0,127}));
-      connect(trapezoid.y, source.u0_var) annotation (Line(points={{-73,20},{-60,20},{-60,46},{-40,46}},
-                                      color={0,0,127}));
-      connect(flowResistance.inlet, source.outlet) annotation (Line(
-          points={{-10,40},{-28,40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(flowResistance.outlet, transportDelay.inlet) annotation (Line(
-          points={{10,40},{30,40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(transportDelay.outlet, sink.inlet) annotation (Line(
-          points={{50,40},{70,40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(ramp2.y, boundary_rear.T0_var) annotation (Line(points={{-73,-20},{-60,-20},{-60,-40},{-40,-40}},
-                                              color={0,0,127}));
-      connect(trapezoid1.y, boundary_rear.u0_var) annotation (Line(points={{-73,-60},{-60,-60},{-60,-34},{-40,-34}},
-                                                   color={0,0,127}));
-      connect(flowResistance1.rear, boundary_rear.fore) annotation (Line(
-          points={{-10,-40},{-28,-40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(flowResistance1.fore, transportDelay1.rear) annotation (Line(
-          points={{10,-40},{30,-40}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(transportDelay1.fore, boundary_fore.rear) annotation (Line(
-          points={{50,-40},{62,-40},{62,-40},{70,-40}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (
-        experiment(
-          StopTime=2.5,
-          Tolerance=1e-6,
-          Interval=0.0025,
-          __Dymola_Algorithm="Dassl"),
-        Icon(coordinateSystem(preserveAspectRatio=false)),
-        Diagram(coordinateSystem(preserveAspectRatio=false)),
-        Documentation(info="<html>
-<u>Test for use Transport Delay to delay the thermodynamic state of the flow. </u>
-<u>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
-</html>"));
-    end TransportDelay;
-
     model EnzymeKinetics "Basic enzyme kinetics"
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
+
       extends Modelica.Icons.Example;
 
       Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
@@ -2321,8 +1936,8 @@ Medium model for the test. Can be anything.
         use_mass_start=false,
         amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{12,36},{-8,56}})));
       Reaction                    chemicalReaction(
+        K=2/Km,
         k_forward=1,
-        productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km))},
               nS=2,
         nP=1) annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
 
@@ -2435,17 +2050,7 @@ Medium model for the test. Can be anything.
     end EnzymeKinetics;
 
     model Diffusion
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
-      import Chemical;
+
       extends Modelica.Icons.Example;
 
       Chemical.Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
@@ -2544,6 +2149,32 @@ Medium model for the test. Can be anything.
         experiment(StopTime=1, __Dymola_Algorithm="Dassl"));
     end Diffusion;
 
+    model SimpleFlow0
+      constant Real K = 2 "Dissociation constant of the reaction";
+
+      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+      constant Real R = Modelica.Constants.R "Gas constant";
+      Chemical.Boundaries.Substance substance(
+        useFore=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
+      Chemical.Boundaries.Substance substance1(
+        useRear=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
+      inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
+      Pump pump(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, SubstanceFlow=1)
+        annotation (Placement(transformation(extent={{-14,14},{6,34}})));
+    equation
+      connect(substance.fore, pump.rear) annotation (Line(
+          points={{-50,24},{-14,24}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(pump.fore, substance1.rear) annotation (Line(
+          points={{6,24},{40,24},{40,22},{48,22}},
+          color={158,66,200},
+          thickness=0.5));
+    end SimpleFlow0;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));
