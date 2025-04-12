@@ -114,7 +114,6 @@ package Interfaces "Chemical interfaces"
     encapsulated operator function '+'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
       input Definition d1;
       input Definition d2;
       output Definition result " = d1 + d2";
@@ -139,7 +138,6 @@ package Interfaces "Chemical interfaces"
     encapsulated operator '-'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
      function negate
        input Definition d;
        output Definition result " = - d";
@@ -179,6 +177,7 @@ package Interfaces "Chemical interfaces"
             phase=d1.data.phase,
             VmBase=d1.data.VmBase - d2.data.VmBase,
             VmExcess=d1.data.VmExcess - d2.data.VmExcess));
+
           annotation (Inline=true);
      end substract;
     end '-';
@@ -186,7 +185,6 @@ package Interfaces "Chemical interfaces"
     encapsulated operator '*'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
-      constant Real R=1.380649e-23*6.02214076e23;
 
     function scalar
       input Real n=1 "Stoichiometric coefficient";
@@ -639,10 +637,15 @@ To change its behavior it is necessary to modify Property functions.
     input Modelica.Units.SI.StoichiometricNumber p[:] "Stoichiometric reaction coefficient for products [nP]";
      input Chemical.Interfaces.Definition process "Data record of process changes";
      input Chemical.Interfaces.Definition substrates[:] "Substrates definitions [nS]";
-     input Chemical.Interfaces.Definition products[:] "Other products definitions [nP-1]";
+     input Chemical.Interfaces.SubstanceDefinition products[:] "Products definitions [nP]";
      output Chemical.Interfaces.Definition firstProductDefinition "Definition of the first product in process";
+   protected
+     Chemical.Interfaces.Definition pd[size(products,1)-1];
    algorithm
-        firstProductDefinition := (1/p[1]) * (p[2:end]*products - s*substrates - process);
+        for i in 1:size(products,1)-1 loop
+          pd[i].data := products[i+1].data;
+        end for;
+        firstProductDefinition := (1/p[1]) * (s*substrates + process - p[2:end]*pd);
          /*Definition(
        MM = ((p[2:end]*products.data.MM) - (s*substrates.MolarWeight))/p[1],
        z = ((p[2:end]*products.z) - (s*substrates.z))/p[1],
@@ -1200,7 +1203,7 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
     import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
     import DataRecord=Chemical.Interfaces.DataRecord;
     import PhaseType=Chemical.Interfaces.Phase;
-      import Modelica;
+
     constant Real R=1.380649e-23*6.02214076e23;
     constant Real T0=298.15 "Base temperature";
     constant Real p0=100000 "Base pressure";
@@ -4415,31 +4418,6 @@ end solution_temperature_;
 
     import Chemical.Utilities.Types.InitializationMethods;
 
-    replaceable package stateOfMatterRear = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter "Substance model of rear"
-      annotation (Dialog(tab="Advanced"), choices(
-        choice(redeclare package stateOfMatterRear =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterRear =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterRear =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterRear =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
-    replaceable package stateOfMatterFore = Interfaces.Incompressible constrainedby
-      Interfaces.StateOfMatter
-    "Substance model of fore"
-      annotation (Dialog(tab="Advanced"), choices(
-        choice(redeclare package stateOfMatterFore =
-          Chemical.Interfaces.Incompressible  "Incompressible"),
-        choice(redeclare package stateOfMatterFore =
-          Chemical.Interfaces.IdealGas        "Ideal Gas"),
-        choice(redeclare package stateOfMatterFore =
-          Chemical.Interfaces.IdealGasMSL     "Ideal Gas from MSL"),
-        choice(redeclare package stateOfMatterFore =
-          Chemical.Interfaces.IdealGasShomate "Ideal Gas using Shomate model")));
-
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (HideResult=true, Dialog(tab="Advanced"));
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
       annotation(HideResult=true, Dialog(tab="Advanced"));
@@ -4451,10 +4429,10 @@ end solution_temperature_;
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.derivative)));
 
 
-    Chemical.Interfaces.RearOld rear(redeclare package stateOfMatter = stateOfMatterRear, state_rearwards(u=u_rear_out, h=h_rear_out))
+    Chemical.Interfaces.Rear rear( state_rearwards(u=u_rear_out, h=h_rear_out))
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
-    Chemical.Interfaces.ForeOld fore(redeclare package stateOfMatter = stateOfMatterFore, state_forwards(u=u_fore_out, h=h_fore_out))
+    Chemical.Interfaces.Fore fore( state_forwards(u=u_fore_out, h=h_fore_out))
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
 
@@ -4529,18 +4507,12 @@ end solution_temperature_;
     x_fore = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution.T)));
 
 
-    uPure_substrate = stateOfMatterRear.electroChemicalPotentialPure(
+    uPure_substrate = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
       rear.definition,
-      rear.solution.T,
-      rear.solution.p,
-      rear.solution.v,
-      rear.solution.I);
-    uPure_product = stateOfMatterFore.electroChemicalPotentialPure(
+      rear.solution);
+    uPure_product = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
       fore.definition,
-      fore.solution.T,
-      fore.solution.p,
-      fore.solution.v,
-      fore.solution.I);
+      fore.solution);
 
 
 

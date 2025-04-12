@@ -728,7 +728,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-28,-62},{-48,-42}})));
     inner Modelica.Fluid.System system(p_ambient=100000, T_ambient=298.15)
       annotation (Placement(transformation(extent={{72,-74},{92,-54}})));
-    Processes.GasVolatility gasVolatility(
+    Chemical.Processes.GasSolubility gasVolatility(
       redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
       substanceDataOut=Chemical.SubstancesOld.Water_gas(),
       k_forward=10,
@@ -830,7 +830,7 @@ extends Modelica.Icons.ExamplesPackage;
       substanceData=Chemical.SubstancesOld.Water_IceIh(),
       use_mass_start=false,
       amountOfSubstance_start=55.508) "Solid water" annotation (Placement(transformation(extent={{10,-52},{-10,-32}})));
-    Processes.GasVolatility gasVolatility(
+    Chemical.Processes.GasSolubility gasVolatility(
       redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas",
       substanceDataOut=Chemical.SubstancesOld.Water_gas(),
       redeclare package stateOfMatterOut = Chemical.Interfaces.IdealGas "Ideal Gas",
@@ -1495,9 +1495,9 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start(displayUnit="mmol") = 1e-05,
       useRear=true) annotation (Placement(transformation(extent={{28,-72},{48,-52}})));
-    Processes.GasVolatility H2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
+    Chemical.Processes.GasSolubility H2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
           Chemical.SubstancesOld.Hydrogen_gas()) annotation (Placement(transformation(extent={{64,-12},{44,8}})));
-    Processes.GasVolatility O2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
+    Chemical.Processes.GasSolubility O2_volatility(redeclare package stateOut = Chemical.Interfaces.IdealGas "Ideal Gas", substanceDataOut=
           Chemical.SubstancesOld.Oxygen_gas()) annotation (Placement(transformation(extent={{-38,-18},{-18,2}})));
   equation
   connect(electrone1.pin,voltageSensor. p) annotation (Line(
@@ -2485,7 +2485,7 @@ extends Modelica.Icons.ExamplesPackage;
             extent={{-10,-10},{10,10}},
             rotation=270,
             origin={-86,-18})));
-      Chemical.Processes.FastGasSolubility gasSolubilitySubstance(substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(), redeclare package
+      Chemical.Processes.GasSolubility gasSolubilitySubstance(substanceDataOut=Chemical.SubstancesOld.CarbonDioxide_aqueous(), redeclare package
           stateOfMatterIn = Chemical.Interfaces.IdealGas "Ideal Gas") annotation (Placement(transformation(extent={{-110,58},{-90,78}})));
     equation
       pH_p = -log10(H.substance.a);
@@ -4449,7 +4449,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start(displayUnit="mmol") = 1e-05) annotation (Placement(transformation(extent={{24,-76},{44,-56}})));
     Processes.GasSolubility gasSolubility annotation (Placement(transformation(extent={{-36,-22},{-16,-2}})));
-    Processes.GasVolatility gasVolatility annotation (Placement(transformation(extent={{40,-46},{60,-26}})));
+    Chemical.Processes.GasSolubility gasVolatility annotation (Placement(transformation(extent={{40,-46},{60,-26}})));
   equation
     connect(H.solution, solution1.solution) annotation (Line(points={{0,-58},{0,-26},{-42,-26},{-42,-102},{-2,-102},{-2,-100},{38.8,-100},{38.8,-95.34}},
                                        color={127,127,0}));
@@ -5691,9 +5691,9 @@ extends Modelica.Icons.ExamplesPackage;
     import Chemical.Interfaces.Phase;
 
 
-    parameter Definition H2 = Gas.H2;
-    parameter Definition O2 = Gas.O2;
-    parameter Definition H2O = Gas.H2O;
+    parameter Definition H2(data = Gas.H2.data);
+    parameter Definition O2(data = Gas.O2.data);
+    parameter Definition H2O(data = Gas.H2O.data);
 
     Definition Reaction = H2O - H2 - 0.5*O2;
 
