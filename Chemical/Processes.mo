@@ -400,25 +400,12 @@ package Processes "Undirected process package"
 
     import Chemical.Utilities.Types.SolutionChoice;
 
-    Real u(stateSelect=StateSelect.prefer),ru(start=0);
 
   equation
 
-    //chemical kinetics
-    du_fore = -uLoss(rr,kf,Sx_fore,solutionState);
-  /*  if nS>0 then
-    du_rear = -uLoss(-rr,Kx*kf,Px_rear,solutionState);
-  end if;
-  rr = kf * Sx_fore;
-  */
 
-    der(u).*TC = ru;
-    if nP>0 then
-       products[1].state_forwards.u=u;
-       ru = products[1].r;
-    else
-       ru=0;
-    end if;
+    du_fore = -du_rear;
+    rr = kf*Sx_fore;
 
 
     //chemical solution and its propagation
@@ -426,8 +413,6 @@ package Processes "Undirected process package"
     if nS>0 then
       products.solution = fill(solutionState,nP);
     end if;
-
-
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -525,11 +510,23 @@ package Processes "Undirected process package"
   end ForwardReaction;
 
   model Stream "Flow of whole solution"
-    extends Interfaces.PartialChangeSolution;
-    extends Onedirectional.Boundaries.Internal.ConditionalSolutionFlow;
+    extends Chemical.Interfaces.SISO;
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Boundaries.Internal.ConditionalSolutionFlow;
+
+    import Chemical.Utilities.Types.SolutionChoice;
+
 
   equation
-    n_flow = c_in * volumeFlow;
+    fore.definition = rear.definition;
+    fore.solution = solutionState;
+
+    connect(rear.solution,inputSubstrateSolution);
+
+
+    du_rear=-du_fore;
+    n_flow = x_rear * (solutionState.n/solutionState.V) * volumeFlow;
+
 
    annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
@@ -618,8 +615,8 @@ package Processes "Undirected process package"
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-    Interfaces.Inlet         inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
-    Interfaces.Outlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
+    Onedirectional.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
+    Onedirectional.Interfaces.Outlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
           iconTransformation(
           extent={{-10,-40},{10,40}},
           rotation=90,
@@ -825,8 +822,9 @@ package Processes "Undirected process package"
     Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
       annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
           iconTransformation(extent={{30,50},{50,70}})));
-    Interfaces.Outlet outletSubstance annotation (Placement(transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
-    Interfaces.Inlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
+    Onedirectional.Interfaces.Outlet outletSubstance
+      annotation (Placement(transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
+    Onedirectional.Interfaces.Inlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
           iconTransformation(
           extent={{10,-40},{-10,40}},
           rotation=90,
@@ -1509,7 +1507,7 @@ du := n_flow/kC;
   package Tests "Tests for top level components of undirected"
     extends Modelica.Icons.ExamplesPackage;
 
-    model TestFlowResistance "Test for the undirected flow resistance"
+    model TestFlow "Test for the undirected flow resistance"
       extends Modelica.Icons.Example;
 
       Chemical.Boundaries.BoundaryRear boundary_rear(substanceDefinition=Chemical.Substances.Liquid.H2O, u0_par=100000)
@@ -1572,7 +1570,7 @@ du := n_flow/kC;
 <u>Test for the undirected flow resistance.</u>
 <u><br>Owner: <a href=\"mailto:michael.meissner@dlr.de\">Michael Mei&szlig;ner</a></u>
 </html>"));
-    end TestFlowResistance;
+    end TestFlow;
 
     model SimpleReaction0
       constant Real K = 2 "Dissociation constant of the reaction";
@@ -1606,6 +1604,39 @@ du := n_flow/kC;
           thickness=0.5));
       annotation();
     end SimpleReaction0;
+
+    model SimpleForwardReaction0
+      constant Real K = 2 "Dissociation constant of the reaction";
+
+      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+      constant Real R = Modelica.Constants.R "Gas constant";
+      ForwardReaction             forwardReaction(
+        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters,
+        K=2,
+        solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
+        nS=1,
+        nP=1) annotation (Placement(transformation(extent={{-8,14},{12,34}})));
+      Chemical.Boundaries.Substance substance(
+        useFore=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
+      Chemical.Boundaries.Substance substance1(
+        useRear=true,
+        use_mass_start=false,
+        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
+      inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
+    equation
+      connect(substance.fore, forwardReaction.substrates[1]) annotation (Line(
+          points={{-50,24},{-8,24}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(forwardReaction.products[1], substance1.rear)
+        annotation (Line(
+          points={{12,24},{40,24},{40,22},{48,22}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation();
+    end SimpleForwardReaction0;
 
     model SimpleReaction "The simple chemical reaction A<->B with equilibrium B/A = 2"
       import Chemical;
@@ -1926,7 +1957,6 @@ du := n_flow/kC;
         useRear=true,
         useFore=true,
         useSolution=true,
-        initAmount=Chemical.Utilities.Types.InitializationMethods.state,
         use_mass_start=false,
         amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
       Chemical.Boundaries.Substance E(
@@ -1942,15 +1972,16 @@ du := n_flow/kC;
         nP=1) annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
 
       Processes.ForwardReaction chemicalReaction1(
+        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
         k_forward=k_cat,
-        productsSubstanceData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
-            Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
+        productsData={Chemical.Substances.Unknown,
+            Chemical.Substances.Unknown},
         nS=1,
-        nP=2) annotation (Placement(transformation(extent={{24,-8},{44,12}})));
+        nP=2) annotation (Placement(transformation(extent={{26,-8},{46,12}})));
 
       Chemical.Boundaries.Substance liquidWater(
         useSolution=true,
-        substanceData=Chemical.SubstancesOld.Water_liquid(),
+        substanceDefinition=Chemical.Substances.Liquid.H2O,
         use_mass_start=true,
         mass_start=1) annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
       inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
@@ -1976,7 +2007,7 @@ du := n_flow/kC;
           thickness=0.5));
       connect(ES.fore, chemicalReaction1.substrates[1])
         annotation (Line(
-          points={{12,0},{18,0},{18,2},{24,2}},
+          points={{12,0},{18,0},{18,2},{26,2}},
           color={158,66,200},
           thickness=0.5));
       connect(S.fore, chemicalReaction.substrates[1])
@@ -1991,12 +2022,12 @@ du := n_flow/kC;
           thickness=0.5));
       connect(chemicalReaction1.products[1], P.rear)
         annotation (Line(
-          points={{44,1.75},{58,1.75},{58,-2},{72,-2}},
+          points={{46,1.75},{58,1.75},{58,-2},{72,-2}},
           color={158,66,200},
           thickness=0.5));
       connect(E.rear, chemicalReaction1.products[2])
         annotation (Line(
-          points={{12,46},{48,46},{48,48},{56,48},{56,2.25},{44,2.25}},
+          points={{12,46},{48,46},{48,48},{56,48},{56,2.25},{46,2.25}},
           color={158,66,200},
           thickness=0.5));
           annotation ( Documentation(revisions="<html>
@@ -2157,7 +2188,7 @@ du := n_flow/kC;
       Chemical.Boundaries.Substance substance(
         useFore=true,
         use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
+        amountOfSubstance_start=2)   annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
       Chemical.Boundaries.Substance substance1(
         useRear=true,
         use_mass_start=false,
@@ -2179,125 +2210,6 @@ du := n_flow/kC;
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));
   end Tests;
-
-  model TransportDelay "Delay chemical state depending on fluid speed"
-    extends Chemical.Interfaces.SISO                 (final cliu_u_out=
-          false);
-
-    parameter Modelica.Units.SI.Length l "Length of Delay Pipe";
-    parameter Modelica.Units.SI.Radius r "Radius of Delay Pipe";
-    parameter Modelica.Units.SI.Density rho_min=dropOfCommons.rho_min "Minimal Density" annotation (Dialog(tab="Advanced"));
-    parameter Real v_min(
-      min=0,
-      unit="1/s")=0.01                             "Minimum nondimensional speed"
-      annotation(Dialog(tab="Advanced"));
-    parameter Real v_max(
-      min=0,
-      unit="1/s")=50                             "Maximum nondimensional speed"
-      annotation(Dialog(tab="Advanced"));
-
-    constant Medium.ThermodynamicState state_0 = Chemical.Interfaces.SubstanceState(u=Medium.u_default,h= Medium.h_default);
-
-    constant Modelica.Units.SI.SpecificVolume v_0=1/Medium.density(state_0);
-
-    Real x(unit="1");
-    Real v(unit="1/s");
-
-  protected
-    Modelica.Units.SI.SpecificInternalEnergy u_rear_in=Medium.specificInternalEnergy(rear.state_forwards);
-    Modelica.Units.SI.SpecificInternalEnergy u_fore_in=Medium.specificInternalEnergy(fore.state_rearwards);
-    Modelica.Units.SI.SpecificVolume v_rear_in=1/max(rho_min, Medium.density(rear.state_forwards));
-    Modelica.Units.SI.SpecificVolume v_fore_in=1/max(rho_min, Medium.density(fore.state_rearwards));
-
-    Modelica.Units.SI.SpecificInternalEnergy u_rear_out;
-    Modelica.Units.SI.SpecificInternalEnergy u_fore_out;
-    Modelica.Units.SI.SpecificVolume v_rear_out;
-    Modelica.Units.SI.SpecificVolume v_fore_out;
-
-    Modelica.Units.SI.Area A=r^2*Modelica.Constants.pi;
-
-  initial equation
-    x = 0;
-
-  equation
-    if n_flow >= 0 then
-      v = min(v_max, max(v_min, n_flow*v_rear_in/A/l));
-    else
-      v = -min(v_max, max(v_min, -n_flow*v_fore_in/A/l));
-    end if;
-
-    der(x) = v;
-
-    (u_rear_out,u_fore_out) = spatialDistribution(u_rear_in, u_fore_in,
-      x, v>=0,
-      initialPoints = {0.0,1.0},
-      initialValues = {Medium.specificInternalEnergy(state_0), Medium.specificInternalEnergy(state_0)});
-    (v_rear_out,v_fore_out) = spatialDistribution(v_rear_in, v_fore_in,
-      x, v>=0,
-      initialPoints = {0.0,1.0},
-      initialValues = {v_0, v_0});
-
-    for i in 1:Medium.nXi loop
-      (Xi_rear_out[i], Xi_fore_out[i]) = spatialDistribution(Xi_rear_in[i], Xi_fore_in[i],
-        x, v>=0,
-        initialPoints = {0.0,0.0},
-        initialValues = {Xi_0[i], Xi_0[i]});
-    end for;
-
-      //forwards model
-    du_fore = 0;
-    h_fore_out = u_fore_out + u_fore_out * v_fore_out;
-    Xi_fore_out = Xi_rear_in;
-
-    //rearwards model
-    du_rear = 0;
-    h_rear_out = u_rear_out + u_rear_out * v_rear_out;
-    Xi_rear_out = Xi_fore_in;
-    annotation (Documentation(info="<html>
-<u>Undirected implementation of the transport delay.</u>
-<u>Delays the temperature and massFraction, not potential, since potential differences propagate with speed of sound, and since delaying only steady state potential u not inertial potential r might lead to undesirable behavior.</u>
-<u>Note that this component uses the spatialDistribution operator, that has some artefacts (see Fig. 1) for high and low non-dimensional speeds v (possibly due to inerpolation or extrapolation of the function). Therefore minimum and maximum speed in the non-dimensional coordinate x (inlet @ x=0, outlet @ x=1) is limited. The default limits are [0.01, 50], so the delay is limited by default to [0.02s, 100s]. This limit can be adjusted in the advanced parameters tab.</u>
-<u><img src=\"modelica://Chemical/Resources/Doku/Chemical.Processes.Tests.TransportDelay_artefacts2.PNG\"/> <img src=\"modelica://Chemical/Resources/Doku/Chemical.Processes.Tests.TransportDelay_artefacts.PNG\"/> </u>
-<u style=\"margin-left: 250px;\">Fig. 1: artefacts of the TransportDelay</u>
-</html>"),
-  Icon(coordinateSystem(preserveAspectRatio=false), graphics={
-          Ellipse(
-            extent={{-56,54},{64,-66}},
-            lineColor={158,66,200},
-            lineThickness=0.5,
-            fillColor={215,215,215},
-            fillPattern=FillPattern.Solid,
-            pattern=LinePattern.None),
-          Line(
-            points={{-100,0},{100,0}},
-            color={158,66,200},
-            thickness=0.5),
-          Ellipse(
-            extent={{-60,60},{60,-60}},
-            lineColor={158,66,200},
-            lineThickness=0.5,
-            fillColor={255,255,255},
-            fillPattern=FillPattern.Solid),
-          Polygon(
-             points={{-25,-43},{25,-43},{-25,43},{25,43}},
-             lineColor= {158,66,200},
-             lineThickness=0.5),
-          Line(
-            points={{0,0},{0,-30}},
-            color={158,66,200},
-            thickness=0.5,
-            pattern=LinePattern.Dot),
-          Polygon(
-             points={{-25,-43},{25,-43}, {0,-30}},
-             lineColor= {158,66,200},
-             fillColor={158,66,200},
-             fillPattern=FillPattern.Solid),
-          Polygon(
-             points={{-15,26},{15,26}, {0,0}},
-             lineColor= {158,66,200},
-             fillColor={158,66,200},
-             fillPattern=FillPattern.Solid)}));
-  end TransportDelay;
 
   annotation (Documentation(info="<html>
 <u>This package contains models implementing undirected versions of the processes. Here, the thermodynamic state of one or more fluid streams is changed by exchanging heat or work with the streams, or by delaying the state.</u>

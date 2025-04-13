@@ -1,6 +1,15 @@
 within Chemical;
 package Substances "Definitions of some substances"
   package Gas
+    // How to define new gas:
+    // 1. Find it in Modelica.Media.IdealGases.Common.SingleGasesData -> mdata
+    // 2. Find its free Gibbs energy of formation -> Gf
+    //
+    // or calculate it from known reaction:
+    // e.g.
+    // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
+    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
+
    constant Chemical.Interfaces.Definition CH4=Chemical.Interfaces.Definition(
       data=Chemical.Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.CH4,
       Gf=-50720))
@@ -65,7 +74,17 @@ package Substances "Definitions of some substances"
     extends Modelica.Icons.Package;
 
   package Liquid
+    // How to define new liquid:
+    // 1. Find its molar mass -> MM
+    // 2. Find its free enthalpy of formation -> DfH
+    // 3. Find its free Gibbs energy of formation -> DfG
+    //
+    // or calculate it from known reaction:
+    // e.g.
+    // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
+    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
 
+    // See article: http://dx.doi.org/10.35191/medsoft_2020_1_32_85_88
     constant Chemical.Interfaces.Definition H2O=Chemical.Interfaces.Definition(
           MM=0.01801528,
           DfH=-285830,
@@ -94,35 +113,16 @@ package Substances "Definitions of some substances"
           Vm=(1/789)*0.04607) "Ethanol(l)";
       //  http://www.mhhe.com/physsci/chemistry/chang7/ssg/graphics/chang7/pdf/cng7pa08.pdf, https://en.wikipedia.org/wiki/Ethanol_(data_page)
 
-  /*record H2O "H2O(l)"
-   extends Chemical.Interfaces.Incompressible.SubstanceDataParameters(
-      MolarWeight=0.018015,
-      DfH=-285830,
-      DfG=-227230,
-      Cp=75.3,
-      SelfClustering=1,
-      SelfClustering_dH=-81.6348,
-      SelfClustering_dS=32.845554);
 
-  //  SelfClustering_dH = -81.6348,
-  //  SelfClustering_dS = 32.8344,
-
-
-    // S=(0 + Modelica.Constants.R*(273.15+25)*log(55.345/0.95-1))/(273.15+25),
-    // SelfClustering_dS = (SelfClustering_dH + Modelica.Constants.R*(273.15+25)*log((55.345-1)/1))/(273.15+25));
-
-    annotation (preferredView = "info", Documentation(info="<html>
-<p><span style=\"font-family: Courier New;\">Even the tabulated formation Gibbs energy is DfG=-237190 there is another values because of water self-clustering. </span></p>
-<p><br><span style=\"font-family: Courier New;\">New reported values for free water molecule in solution is calculated from water dissociation reaction.</span></p>
-<p><span style=\"font-family: Courier New;\">&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
-<p>http://www.vias.org/genchem/standard_enthalpies_table.html</p>
-</html>"));
-  end H2O;
-*/
 
   end Liquid;
 
   package Solid
+    // How to define new solid:
+    // 1. Find its molar mass -> MM
+    // 2. Find its free enthalpy of formation -> DfH
+    // 3. Find its free Gibbs energy of formation -> DfG
+
     constant Chemical.Interfaces.Definition Ag=Chemical.Interfaces.Definition(
           MM=0.1078682,
           z=0,
@@ -190,6 +190,16 @@ package Substances "Definitions of some substances"
   end Solid;
 
   package Aqueous
+    // How to define new aquaeous substance:
+    // 1. Find its molar mass -> MM
+    // 2. Find its free enthalpy of formation -> DfH
+    // 3. Find its free Gibbs energy of formation -> DfG
+    //
+    // or calculate it from gasseous phase and Henry's coefficient:
+    // e.g.
+    // constant Chemical.Interfaces.Definition O2 = Gas.O2 + Chemical.Interfaces.Properties.processData(0.0013*1/0.94,-1500*Modelica.Constants.R);
+    // where 0.0013 is Henry's coefficient and 1500 K is its temperature dependence coefficient
+
     constant Chemical.Interfaces.Definition Agplus=Chemical.Interfaces.Definition(
           MM=0.1078682,
           phase=Chemical.Interfaces.Phase.Incompressible,

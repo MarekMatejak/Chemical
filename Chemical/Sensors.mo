@@ -579,9 +579,7 @@ package Sensors "Sensors package for undirected chemical simulation"
   model UnidirectionalSensorAdapter "Adapter to connect a unidirectional sensor"
      extends Internal.PartialSensor;
 
-    Chemical.Interfaces.Outlet outlet(redeclare package Medium=Medium)
-      annotation (Placement(
-          transformation(
+    Chemical.Onedirectional.Interfaces.Outlet outlet(redeclare package Medium = Medium) annotation (Placement(transformation(
           extent={{-20,-20},{20,20}},
           rotation=90,
           origin={0,40}), iconTransformation(
