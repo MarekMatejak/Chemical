@@ -99,6 +99,7 @@ package Interfaces "Chemical interfaces"
         input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
         input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (298.15, 1bar)";
         input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
+        input Real S0=0 "Standart molar entropy of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
         input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
@@ -112,9 +113,9 @@ package Interfaces "Chemical interfaces"
                     Hf=DfH,
                     H0=DfH - T0*Cp,
                     alow={0,0,Cp/R,0,0,0,0},
-                    blow={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
+                    blow={(DfH-Cp*T0)/R,(S0-Cp*log(T0))/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
                     ahigh={0,0,Cp/R,0,0,0,0},
-                    bhigh={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
+                    bhigh={(DfH-Cp*T0)/R,(S0-Cp*log(T0))/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
                     z=z,
                     phase=phase,
                     VmBase=Vm/(1+log(gamma)),
@@ -236,9 +237,9 @@ package Interfaces "Chemical interfaces"
             Hf=n * d.data.Hf,
             H0=n * d.data.H0,
             alow= {sum({(n[i] * d[i].data.alow[j])  for i in 1:size(n,1)}) for j in 1:7},
-            blow= {sum({(n[i] * d[i].data.blow[j])  for i in 1:size(n,1)}) for j in 1:2},
+            blow= {sum({(n[i] * d[i].data.blow[j])  for i in 1:size(n,1)}) for j in 1:3},
             ahigh={sum({(n[i] * d[i].data.ahigh[j]) for i in 1:size(n,1)}) for j in 1:7},
-            bhigh={sum({(n[i] * d[i].data.bhigh[j]) for i in 1:size(n,1)}) for j in 1:2},
+            bhigh={sum({(n[i] * d[i].data.bhigh[j]) for i in 1:size(n,1)}) for j in 1:3},
             z=n*d.data.z,
             phase=d[1].data.phase,
             VmBase=n*d.data.VmBase,
@@ -248,71 +249,6 @@ package Interfaces "Chemical interfaces"
     end '*';
 
   end Definition;
-
-  operator record DefinitionOld "Definition of a substance or product"
-    //extends Chemical.Definition; //the inheritance of constructors is not supported in sufficient form in Modelica 3.6
-    Chemical.Interfaces.DataRecord data "Data record of the base substance";
-
-    Boolean SelfClustering "default=false If true then the base molecules are binding together into clusters";
-    Modelica.Units.SI.MolarEnthalpy SelfClustering_dH "Enthalpy of bond between two base molecules of substance at 25degC, 1 bar";
-    Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between two base molecules of substance at 25degC, 1 bar";
-
-    encapsulated operator 'constructor'
-      import Definition=Chemical.Interfaces.Definition;
-      import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
-      import DataRecord=Chemical.Interfaces.DataRecord;
-      import PhaseType=Chemical.Interfaces.Phase;
-      constant Real R=1.380649e-23*6.02214076e23;
-      constant Real T0=298.15 "Base temperature";
-      constant Real p0=100000 "Base pressure";
-
-      function fromDataRecord
-        input DataRecord data "Mass based data record";
-        input Boolean SelfClustering = false;
-        input Real SelfClustering_dH = 0;
-        input Real SelfClustering_dS = 0;
-        output Definition result(
-                  data=data,
-                  SelfClustering=SelfClustering,
-                  SelfClustering_dH=SelfClustering_dH,
-                  SelfClustering_dS=SelfClustering_dS) "Molar based data record";
-      algorithm
-        annotation (Inline=true);
-      end fromDataRecord;
-
-      function fromFormationEnergies
-        input Real MM=1 "Molar mass of the substance";
-        input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
-        input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (298.15, 1bar)";
-        input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
-        input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
-        input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
-        input Real gamma=1 "Activity coefficient of the substance";
-        input Boolean SelfClustering = false;
-        input Real SelfClustering_dH = 0;
-        input Real SelfClustering_dS = 0;
-        output Definition result(
-                  data=DataRecord(
-                    MM=MM,
-                    Hf=DfH,
-                    H0=DfH - T0*Cp,
-                    alow={0,0,Cp/R,0,0,0,0},
-                    blow={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
-                    ahigh={0,0,Cp/R,0,0,0,0},
-                    bhigh={(DfH-Cp*T0)/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
-                    z=z,
-                    phase=phase,
-                    VmBase=Vm/(1+log(gamma)),
-                    VmExcess=Vm*log(gamma)/(1+log(gamma))),
-                  SelfClustering=SelfClustering,
-                  SelfClustering_dH=SelfClustering_dH,
-                  SelfClustering_dS=SelfClustering_dS);
-      algorithm
-        annotation (Inline=true);
-      end fromFormationEnergies;
-    end 'constructor';
-  end DefinitionOld;
 
   type Phase                 = enumeration(
     Gas
@@ -352,7 +288,7 @@ To change its behavior it is necessary to modify Property functions.
 
       parameter Boolean SolutionObserverOnly = false "True if substance does not affect the solution";
 
-      Interfaces.InputSubstanceDefinition definition "Definition of the substance";
+      Chemical.Interfaces.InputDefinition definition "Definition of the substance";
 
       Interfaces.InputSolutionState solutionState "State of the solution";
 
@@ -592,6 +528,8 @@ To change its behavior it is necessary to modify Property functions.
 
       Modelica.Units.SI.MolarEnthalpy dH "Molar enthalpy change during the process";
 
+      Modelica.Units.SI.Temperature dlnK_per_dinvT(displayUnit="K") "Temperature dependence coefficient";
+
       Modelica.Units.SI.MolarEntropy dS "Molar entropy change during the process";
 
       Modelica.Units.SI.MolarHeatCapacity dCp "Molar heat capacity change during the process";
@@ -600,17 +538,22 @@ To change its behavior it is necessary to modify Property functions.
 
       Modelica.Units.SI.MolarVolume dVmExcess "Molar volume excess change during the process";
 
+      Real K "Dissociation constant (mole-fraction based)";
 
       outer Modelica.Fluid.System system "System wide properties";
 
 
     equation
-     assert(abs(definition.data.MM) < Modelica.Constants.eps, "Process should not change the mass");
+     assert(abs(definition.data.MM) < 1e-5, "Process should not change the mass");
      assert(abs(chargeNumberOfIon(definition,solutionState)) < Modelica.Constants.eps, "Process should not change the charge");
 
      dH = molarEnthalpy(definition,solutionState);
+     dlnK_per_dinvT = -dH/R;
+
      dG = chemicalPotentialPure(definition,solutionState);
      dG = dH - solutionState.T*dS;//  dS = molarEntropy(definition,dG,solutionState);
+
+     K = exp(-dG/(R*solutionState.T));
 
      dCp = molarHeatCapacityCp(definition,solutionState);
      dVm = molarVolume(definition,solutionState);
@@ -755,13 +698,20 @@ To change its behavior it is necessary to modify Property functions.
        //Molar entropy shift:
        // - temperature shift: to reach the definition of heat capacity at constant pressure Cp*dT = solution.T*dS (small amount of added heat energy)
        // - pressure shift: with constant molar volume at constant temperature Vm*dP = -solution.T*dS (small amount of work)
-       molarEntropyPure :=(if solution.T < Tlimit then R*(definition.data.blow[2] - 0.5*definition.data.alow[1]/(solution.T*solution.T) - definition.data.alow[
-        2]/solution.T + definition.data.alow[3]*Math.log(solution.T) + solution.T*(definition.data.alow[4] + solution.T*(0.5*definition.data.alow[5] + solution.T
-        *(1/3*definition.data.alow[6] + 0.25*definition.data.alow[7]*solution.T)))) else R*(definition.data.bhigh[2] - 0.5*definition.data.ahigh[1]/(solution.T
-        *solution.T) - definition.data.ahigh[2]/solution.T + definition.data.ahigh[3]*Math.log(solution.T) + solution.T*(definition.data.ahigh[4] + solution.T*
-        (0.5*definition.data.ahigh[5] + solution.T*(1/3*definition.data.ahigh[6] + 0.25*definition.data.ahigh[7]*solution.T))))) + (if definition.data.phase
-         == Chemical.Interfaces.Phase.Gas then -R*log(solution.p/100000) else -(Chemical.Interfaces.Properties.molarVolumeBase(definition, solution)/solution.T)
-        *(solution.p - 100000));
+       molarEntropyPure :=(if solution.T < Tlimit
+        then
+        R*(definition.data.blow[3] - 0.5*definition.data.alow[1]/(solution.T*solution.T)
+         - definition.data.alow[2]/solution.T + definition.data.alow[3]*Math.log(solution.T)
+         + solution.T*(definition.data.alow[4] + solution.T*(0.5*definition.data.alow[5]
+         + solution.T*(1/3*definition.data.alow[6] + 0.25*definition.data.alow[7]*solution.T))))
+        else
+        R*(definition.data.bhigh[3] - 0.5*definition.data.ahigh[1]/(solution.T*solution.T)
+         - definition.data.ahigh[2]/solution.T + definition.data.ahigh[3]*Math.log(solution.T)
+         + solution.T*(definition.data.ahigh[4] + solution.T*(0.5*definition.data.ahigh[5]
+         + solution.T*(1/3*definition.data.ahigh[6] + 0.25*definition.data.ahigh[7]*solution.T)))))
+        + (if definition.data.phase == Chemical.Interfaces.Phase.Gas
+             then -R*log(solution.p/100000)
+             else -(Chemical.Interfaces.Properties.molarVolumeBase(definition, solution)/solution.T)*(solution.p - 100000));
 
 
        //For example at triple point of water should be solution.T=273K, p=611.657Pa, DfH(l)-DfH(g)=44 kJ/mol and S(l)-s(g)=-166 J/mol/K
@@ -1202,10 +1152,11 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
   Modelica.Units.SI.MolarMass MM "Molar mass";
   Modelica.Units.SI.MolarEnthalpy Hf "Enthalpy of formation at 298.15K, 1bar";
   Modelica.Units.SI.MolarEnthalpy H0 "H0(298.15K, 1bar) - H0(0K, 1bar)";
+
   Real alow[7] "Low temperature coefficients a at 298.15K, 1bar";
-  Real blow[2] "Low temperature constants b at 298.15K, 1bar";
+  Real blow[3] "Low temperature constants b at 298.15K, 1bar";
   Real ahigh[7] "High temperature coefficients a at 298.15K, 1bar";
-  Real bhigh[2] "High temperature constants b at 298.15K, 1bar";
+  Real bhigh[3] "High temperature constants b at 298.15K, 1bar";
 
   Modelica.Units.SI.ChargeNumberOfIon z
   "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -1223,10 +1174,14 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
 
     constant Real R=1.380649e-23*6.02214076e23;
     constant Real T0=298.15 "Base temperature";
+    constant Real logT0 = 5.697596715569114904552663960891;
+    constant Real Tlimit=1000;
+    constant Real logTlimit=6.9077552789821370520539743640531;
     constant Real p0=100000 "Base pressure";
 
      function fromModelicaDataRecord
       input ModelicaDataRecord mdata "Mass based data record";
+      input Real Gf=0 "Gibbs energy of formation at 298.15K, 1bar";
       input Real z=0 "Charge number";
       input PhaseType phase=PhaseType.Gas "State of matter";
       input Real Vm=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001*mdata.MM "Molar volume";
@@ -1237,9 +1192,35 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
                   Hf=mdata.Hf*mdata.MM,
                   H0=mdata.H0*mdata.MM,
                   alow=(mdata.R_s*mdata.MM/R) * mdata.alow,
-                  blow=(mdata.R_s*mdata.MM/R) * mdata.blow,
+                  blow={(mdata.R_s*mdata.MM/R) * mdata.blow[1],
+                        (mdata.R_s*mdata.MM/R) * mdata.blow[2],
+                         (((mdata.Hf*mdata.MM)-Gf)/T0)/R - (mdata.R_s*mdata.MM/R)*
+                         (- 0.5*mdata.alow[1]/(T0*T0) - mdata.alow[2]/T0 +
+                         mdata.alow[3]*logT0 + T0*(mdata.alow[4] +
+                         T0*(0.5*mdata.alow[5] + T0*(1/3*mdata.alow[6] +
+                         0.25*mdata.alow[7]*T0))))},
+                        /*blow[3] = S(T0)/R - rSlow(T0), where S(T)=R* */
                   ahigh=(mdata.R_s*mdata.MM/R) * mdata.ahigh,
-                  bhigh=(mdata.R_s*mdata.MM/R) * mdata.bhigh,
+
+                  bhigh={(mdata.R_s*mdata.MM/R) * mdata.bhigh[1],
+                         (mdata.R_s*mdata.MM/R) * mdata.bhigh[2],
+                         ( ((((mdata.Hf*mdata.MM)-Gf)/T0)/R - (mdata.R_s*mdata.MM/R)*
+                         (- 0.5*mdata.alow[1]/(T0*T0) - mdata.alow[2]/T0 +
+                         mdata.alow[3]*logT0 + T0*(mdata.alow[4] +
+                         T0*(0.5*mdata.alow[5] + T0*(1/3*mdata.alow[6] +
+                         0.25*mdata.alow[7]*T0))))) +
+                         (mdata.R_s*mdata.MM/R)*(-0.5*mdata.alow[1]/(Tlimit*Tlimit)
+                           - mdata.alow[2]/Tlimit + mdata.alow[3]*logTlimit
+                           + Tlimit*(mdata.alow[4] + Tlimit*(0.5*mdata.alow[5]
+                           + Tlimit*(1/3*mdata.alow[6] + 0.25*mdata.alow[7]*Tlimit)))))
+                         - (mdata.R_s*mdata.MM/R)*
+                         (- 0.5*mdata.ahigh[1]/(Tlimit*Tlimit) - mdata.ahigh[2]/Tlimit +
+                         mdata.ahigh[3]*logTlimit + Tlimit*(mdata.ahigh[4] +
+                         Tlimit*(0.5*mdata.ahigh[5] + T0*(1/3*mdata.ahigh[6] +
+                         0.25*mdata.ahigh[7]*Tlimit))))},
+                         /*bhigh[3] = Slow(Tlimit)/R - rShigh(Tlimit) */
+
+
                   z=z,
                   phase=phase,
                   VmBase=Vm/(1+log(gamma)),
@@ -1256,9 +1237,9 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
       input Real Hf;
       input Real H0;
       input Real alow[7];
-      input Real blow[2];
+      input Real blow[3];
       input Real ahigh[7];
-      input Real bhigh[2];
+      input Real bhigh[3];
       input Real z=0 "Charge number";
       input PhaseType phase=PhaseType.Incompressible "State of matter";
       input Real VmBase=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001*MM "Base molar volume";
@@ -1344,7 +1325,7 @@ end DataRecord;
        input Real v=0 "Electric potential in the solution";
        input Real n=1 "Amount of the solution";
        input Real m=1 "Mass of the solution";
-       input Real V=if (phase==Phase.Gas) then n*R*T/p else 1 "Volume of the solution";
+       input Real V=if (phase==Phase.Gas) then n*R*T/p else 0.001 "Volume of the solution";
        input Real G=0 "Free Gibbs energy of the solution";
        input Real Q=0 "Electric charge of the solution";
        input Real I=0 "Mole fraction based ionic strength of the solution";
@@ -1390,13 +1371,9 @@ end DataRecord;
 
 
   connector InputDefinition = input Chemical.Interfaces.Definition;
-  connector InputSubstanceDefinition
-                            = input Chemical.Interfaces.Definition;
   connector InputSubstanceState = input SubstanceState;
   connector InputSolutionState = input SolutionState;
   connector OutputDefinition = output Chemical.Interfaces.Definition;
-  connector OutputSubstanceDefinition
-                             = output Chemical.Interfaces.Definition;
   connector OutputSubstanceState = output SubstanceState;
   connector OutputSolutionState = output SolutionState;
 

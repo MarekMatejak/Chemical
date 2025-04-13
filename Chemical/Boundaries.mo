@@ -1135,7 +1135,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       ExternalGas externalIdealGas(
         useRear=false,
         useFore=true,
-        substanceDefinition=Chemical.Substances.Gas.Air,
+        substanceDefinition=Chemical.Substances.Gas.H2O,
         PartialPressure(displayUnit="mmHg") = 1999.835811225) annotation (Placement(transformation(extent={{-72,72},{-52,92}})));
       BoundaryFore boundaryFore1
                                 annotation (Placement(transformation(extent={{32,72},{52,92}})));

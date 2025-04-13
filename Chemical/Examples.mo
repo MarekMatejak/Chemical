@@ -5683,13 +5683,12 @@ extends Modelica.Icons.ExamplesPackage;
     end H2O_formation;
   end EquilibriaDefinitions;
 
-  model Definitions
+  model Definition_H2O_formation
     import Chemical.Substances.Gas;
     import Chemical.Interfaces.Definition;
     import Chemical.Interfaces.Properties.BaseProcessProperties;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
-
 
     Definition Reaction;
 
@@ -5702,5 +5701,141 @@ extends Modelica.Icons.ExamplesPackage;
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
       experiment(StopTime=2000, __Dymola_Algorithm="Dassl"));
-  end Definitions;
+  end Definition_H2O_formation;
+
+  model Definition_H2O_PhaseChange "From liquid to gas"
+    import Chemical.Substances.Gas;
+    import Chemical.Substances.Liquid;
+    import Chemical.Interfaces.Definition;
+    import Chemical.Interfaces.Properties.BaseProcessProperties;
+    import Chemical.Interfaces.SolutionState;
+    import Chemical.Interfaces.Phase;
+
+    Definition PhaseChange;
+
+    SolutionState solution=SolutionState(phase=Phase.Gas, T = 273.15+1*time);
+
+    BaseProcessProperties phaseChangeProperties(definition=PhaseChange, solutionState=solution);
+
+  equation
+      PhaseChange = Gas.H2O - Liquid.H2O;
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
+  end Definition_H2O_PhaseChange;
+
+  model Definition_O2_dissolution "From gas into water"
+    import Chemical.Substances.Gas;
+    import Chemical.Substances.Aqueous;
+    import Chemical.Interfaces.Definition;
+    import Chemical.Interfaces.Properties.BaseProcessProperties;
+    import Chemical.Interfaces.Properties.BaseSubstanceProperties;
+    import Chemical.Interfaces.SolutionState;
+    import Chemical.Interfaces.Phase;
+    constant Real R = Modelica.Constants.R;
+
+    Definition dissolution;
+
+    SolutionState solution=SolutionState(phase=Phase.Aqueous, T = 273.15+1*time);
+
+    BaseProcessProperties dissolutionProperties(definition=dissolution, solutionState=solution);
+  /*
+  parameter Definition Dissolution = Chemical.Interfaces.Properties.processData(0.0013*1/0.94,-1500*R);
+
+  BaseProcessProperties DissolutionProperties(definition=Dissolution, solutionState=solution);
+
+  Definition aquaeous_O2;
+
+  BaseSubstanceProperties O2aqProperties(
+      FixedDefinition=true,
+      definitionParam=Aqueous.O2,
+      m_start = 0.0001*Aqueous.O2.data.MM,
+      SolutionObserverOnly = true,
+      definition=Aqueous.O2,
+      solutionState=solution,
+      amountOfBaseMolecules=0.0001,
+      n_flow=0,
+      h_flow=0);
+
+  //Real O2g_S0=Modelica.Media.IdealGases.Common.Functions.s0_T(Modelica.Media.IdealGases.Common.SingleGasesData.O2,solution.T);
+
+  BaseSubstanceProperties O2gasProperties(
+      FixedDefinition=true,
+      definitionParam=Gas.O2,
+      m_start = 0.0001*Gas.O2.data.MM,
+      SolutionObserverOnly = true,
+      definition=Gas.O2,
+      solutionState=solution,
+      amountOfBaseMolecules=0.0001,
+      n_flow=0,
+      h_flow=0);
+
+  BaseSubstanceProperties aquaeous_O2Properties(
+      FixedDefinition=true,
+      definitionParam=aquaeous_O2,
+      m_start = 0.0001*Aqueous.O2.data.MM,
+      SolutionObserverOnly = true,
+      definition=aquaeous_O2,
+      solutionState=solution,
+      amountOfBaseMolecules=0.0001,
+      n_flow=0,
+      h_flow=0);
+*/
+  equation
+      dissolution =  Aqueous.O2 - Gas.O2;
+
+    //  aquaeous_O2 = Gas.O2 + Dissolution;
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(StopTime=1000, __Dymola_Algorithm="Dassl"));
+  end Definition_O2_dissolution;
+
+  model Definition_CO2_dissolution "From gas into water"
+    import Chemical.Substances.Gas;
+    import Chemical.Substances.Aqueous;
+    import Chemical.Interfaces.Definition;
+    import Chemical.Interfaces.Properties.BaseProcessProperties;
+    import Chemical.Interfaces.Properties.BaseSubstanceProperties;
+    import Chemical.Interfaces.SolutionState;
+    import Chemical.Interfaces.Phase;
+
+    Definition dissolution;
+
+    SolutionState solution=SolutionState(phase=Phase.Aqueous, T = 273.15+1*time);
+
+    BaseProcessProperties dissolutionProperties(definition=dissolution, solutionState=solution);
+
+  /*
+  parameter Definition Dissolution = Chemical.Interfaces.Properties.processData(0.035*1/0.94,-2400*Modelica.Constants.R);
+  BaseProcessProperties DissolutionProperties(definition=Dissolution, solutionState=solution);
+
+  BaseSubstanceProperties CO2gProperties(
+      FixedDefinition=true,
+      definitionParam=Gas.CO2,
+      m_start = (100000*0.001/(Modelica.Constants.R*298.15))*Gas.CO2.data.MM,
+      SolutionObserverOnly = true,
+      definition=Gas.CO2,
+      solutionState=solution,
+      amountOfBaseMolecules=100000*0.001/(Modelica.Constants.R*298.15),
+      n_flow=0,
+      h_flow=0);
+
+
+  BaseSubstanceProperties CO2aqProperties(
+      FixedDefinition=true,
+      definitionParam=Aqueous.CO2,
+      m_start = 0.0001*Aqueous.CO2.data.MM,
+      SolutionObserverOnly = true,
+      definition=Aqueous.CO2,
+      solutionState=solution,
+      amountOfBaseMolecules=0.0001,
+      n_flow=0,
+      h_flow=0);
+*/
+  equation
+      dissolution =  Aqueous.CO2 - Gas.CO2;
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
+  end Definition_CO2_dissolution;
 end Examples;
