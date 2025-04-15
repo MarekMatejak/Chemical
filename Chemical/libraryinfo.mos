@@ -6,7 +6,7 @@ LibraryInfoMenuCommand(
     text = "Chemical",
     reference = "Chemical",
     isModel = true,
-    description = "Physical Chemistry 1.4.1",
-    version = "1.4.1",
+    description = "Chemical 2.0.0-alpha",
+    version = "2.0.0-alpha",
     ModelicaVersion = ">=4.0",
     pos = 3754);
