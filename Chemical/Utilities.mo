@@ -50,12 +50,12 @@ Choices for initialization of a&nbsp;state.
 </p>
 </html>"));
     type SolutionChoice        = enumeration(
-      fromSubstrate
-        "Chemical solution state from substrate (first one)",
-      fromSolutionPort
+      FirstSubstrate
+        "Chemical solution state from first substrate",
+      SolutionPort
         "Chemical solution state from solution port",
-      fromParameter
-        "Chemical solution state from parameter (with default values 20°C, 101.325kPa, 1mol, 1kg, 1L)")
+      Parameter
+        "Chemical solution state from parameter")
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false)),
         Diagram(
@@ -66,14 +66,11 @@ Choices for selection of a&nbsp;chemical solution state.
 </p>
 </html>"));
 
-    type ProductsDefinitionChoice
-                                = enumeration(
-      fromProcessParameters
-        "Firs product is defined by process parameters, others from substancesData",
-      fromProcessEnergies
-        "Firs product is defined by processData, others from substancesData",
-      fromParameter
-        "Chemical substance definition from substancesData (with default values 1kg/mol, 1J/(mol.K), 0J/mol)")
+    type FirstProductChoice     = enumeration(
+      Process
+        "First product is defined by process",
+      Substance
+        "First product definition is a parameter")
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false)),
       Diagram(

@@ -16,11 +16,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
     parameter Boolean use_mass_start=true  "prefere state as mass, otherwise amountOfSubstance"
       annotation (HideResult=true, Evaluate=true, choices(checkBox=true));
 
-    parameter Modelica.Units.SI.Mass mass_start=1 "Initial mass of the substance"
+    parameter Modelica.Units.SI.Mass mass_start=1e-3 "Initial mass of the substance"
       annotation (HideResult=true, Dialog(group="Initialization", enable=use_mass_start));
   //    HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or (not use_mass_start)
 
-    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1e-3
     "Initial amount of substance base molecules"
       annotation (HideResult=true, Dialog(group="Initialization", enable=(not use_mass_start)));
       //HideResult=(not (initAmount == Chemical.Utilities.Types.InitializationUndirectedSubstance.state)) or use_mass_start,
@@ -473,7 +473,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     import Chemical.Utilities.Types.SolutionChoice;
 
   //  parameter Chemical.Interfaces.SolutionStateParameters solutionState;
-    parameter Chemical.Interfaces.Definition definition = Chemical.Substances.Unknown
+    parameter Chemical.Interfaces.Definition definition = Chemical.Substances.Liquid.Unknown
    "Definition of the substance"
       annotation (choicesAllMatching = true);
 
@@ -695,7 +695,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     parameter Chemical.Interfaces.SolutionStateParameters solutionState
       annotation (Dialog(enable=not solutionFromInput));
-    parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Unknown "Definition of the substance" annotation (choicesAllMatching=true);
+    parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Liquid.Unknown "Definition of the substance" annotation (choicesAllMatching=true);
 
     parameter Boolean solutionFromInput = false "Use input connector for solution?";
     parameter Boolean potentialFromInput = false "Use input connector for chemical potential";
@@ -1367,7 +1367,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialBoundary
 
 
-      parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Unknown "Definition of the substance"
+      parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Liquid.Unknown "Definition of the substance"
         annotation (choicesAllMatching=true, Dialog(enable=not useRear));
 
       outer Modelica.Fluid.System system "System wide properties";
@@ -1476,7 +1476,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialSubstance
       extends PartialBoundary;
 
-      Chemical.Interfaces.Properties.BaseSubstanceProperties substance(
+      Chemical.Interfaces.Properties.SubstanceProperties substance(
         definition=substanceDefinitionVar,
         solutionState=solutionState,
         FixedDefinition=not useRear,
@@ -1565,10 +1565,14 @@ package Boundaries "Boundary models for undirected chemical simulation"
       Chemical.Interfaces.Rear rear "The substance"
         annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-      Chemical.Interfaces.Properties.BaseSubstanceProperties substance(
+      Chemical.Interfaces.Properties.SubstanceProperties substance(
         SolutionObserverOnly=true,
         definitionParam=Chemical.Substances.Liquid.H2O,
-        definition(data=rear.definition.data, SelfClustering=false, SelfClustering_dH=0, SelfClustering_dS=0),
+        definition(
+          data=rear.definition.data,
+          SelfClustering=false,
+          SelfClustering_dH=0,
+          SelfClustering_dS=0),
         solutionState=rear.solution,
         FixedDefinition=false,
         m_start=1,

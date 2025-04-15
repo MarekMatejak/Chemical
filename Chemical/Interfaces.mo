@@ -271,13 +271,80 @@ Phase of substance or solution. It is possible to include any phase - as default
 To change its behavior it is necessary to modify Property functions.
 </p>
 </html>"));
+ function processData "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
+   import Chemical;
+
+      extends Modelica.Icons.Function;
+  input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
+  input Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar";
+  input Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar";
+  input Modelica.Units.SI.MolarVolume dVm=0 "Process molar volume change at 25°C,1bar";
+   input Chemical.Interfaces.Phase phase=Chemical.Interfaces.Phase.Incompressible "State of matter";
+   output Chemical.Interfaces.Definition processData "Data record of process changes";
+ algorithm
+    processData := Chemical.Interfaces.Definition(
+       MM=0,
+       z=0,
+       DfG=-Modelica.Constants.R*Chemical.Interfaces.Properties.T0*log(K),
+       DfH=dH,
+       Cp=dCp,
+       Vm=dVm,
+       phase=phase,
+       gamma=1);
+
+ end processData;
+
+  model ProcessProperties "Properties of the chemical process"
+    import Chemical;
+
+    Interfaces.InputDefinition definition "Definition of the process";
+
+    Interfaces.InputSolutionState solutionState "State of the solution";
+
+    Modelica.Units.SI.ChemicalPotential dG "Gibbs energy change during the process";
+
+    Modelica.Units.SI.MolarEnthalpy dH "Molar enthalpy change during the process";
+
+    Modelica.Units.SI.Temperature dlnK_per_dinvT(displayUnit="K") "Temperature dependence coefficient";
+
+    Modelica.Units.SI.MolarEntropy dS "Molar entropy change during the process";
+
+    Modelica.Units.SI.MolarHeatCapacity dCp "Molar heat capacity change during the process";
+
+    Modelica.Units.SI.MolarVolume dVm "Molar volume change during the process";
+
+    Modelica.Units.SI.MolarVolume dVmExcess "Molar volume excess change during the process";
+
+    Real K "Dissociation constant (mole-fraction based)";
+
+    outer Modelica.Fluid.System system "System wide properties";
+
+  equation
+   assert(abs(definition.data.MM) < 1e-5, "Process should not change the mass");
+    assert(abs(Chemical.Interfaces.Properties.chargeNumberOfIon(definition, solutionState)) < Modelica.Constants.eps, "Process should not change the charge");
+
+    dH = Chemical.Interfaces.Properties.molarEnthalpy(definition, solutionState);
+    dlnK_per_dinvT = -dH/Chemical.Interfaces.Properties.R;
+
+    dG = Chemical.Interfaces.Properties.chemicalPotentialPure(definition, solutionState);
+   dG = dH - solutionState.T*dS;//  dS = molarEntropy(definition,dG,solutionState);
+
+    K = exp(-dG/(Chemical.Interfaces.Properties.R*solutionState.T));
+
+    dCp = Chemical.Interfaces.Properties.molarHeatCapacityCp(definition, solutionState);
+    dVm = Chemical.Interfaces.Properties.molarVolume(definition, solutionState);
+    dVmExcess = Chemical.Interfaces.Properties.molarVolumeExcess(definition, solutionState);
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+  end ProcessProperties;
+
   package Properties "Calculation of chemical properties from definition and solution state"
 
     constant Real R=1.380649e-23*6.02214076e23;
     constant Real T0=298.15 "Base temperature";
     constant Real p0=100000 "Base pressure";
 
-    model BaseSubstanceProperties "Base properties of the substance"
+    model SubstanceProperties "Properties of the substance"
       import Chemical;
 
       parameter Boolean FixedDefinition "definition==definitionParam";
@@ -515,77 +582,7 @@ To change its behavior it is necessary to modify Property functions.
       end if;
 
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-    end BaseSubstanceProperties;
-
-    model BaseProcessProperties "Base properties of the chemical process"
-      import Chemical;
-
-      Interfaces.InputDefinition definition "Definition of the process";
-
-      Interfaces.InputSolutionState solutionState "State of the solution";
-
-      Modelica.Units.SI.ChemicalPotential dG "Gibbs energy change during the process";
-
-      Modelica.Units.SI.MolarEnthalpy dH "Molar enthalpy change during the process";
-
-      Modelica.Units.SI.Temperature dlnK_per_dinvT(displayUnit="K") "Temperature dependence coefficient";
-
-      Modelica.Units.SI.MolarEntropy dS "Molar entropy change during the process";
-
-      Modelica.Units.SI.MolarHeatCapacity dCp "Molar heat capacity change during the process";
-
-      Modelica.Units.SI.MolarVolume dVm "Molar volume change during the process";
-
-      Modelica.Units.SI.MolarVolume dVmExcess "Molar volume excess change during the process";
-
-      Real K "Dissociation constant (mole-fraction based)";
-
-      outer Modelica.Fluid.System system "System wide properties";
-
-
-    equation
-     assert(abs(definition.data.MM) < 1e-5, "Process should not change the mass");
-     assert(abs(chargeNumberOfIon(definition,solutionState)) < Modelica.Constants.eps, "Process should not change the charge");
-
-     dH = molarEnthalpy(definition,solutionState);
-     dlnK_per_dinvT = -dH/R;
-
-     dG = chemicalPotentialPure(definition,solutionState);
-     dG = dH - solutionState.T*dS;//  dS = molarEntropy(definition,dG,solutionState);
-
-     K = exp(-dG/(R*solutionState.T));
-
-     dCp = molarHeatCapacityCp(definition,solutionState);
-     dVm = molarVolume(definition,solutionState);
-     dVmExcess = molarVolumeExcess(definition,solutionState);
-
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-    end BaseProcessProperties;
-
-   function processData
-     "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
-     import Chemical;
-
-        extends Modelica.Icons.Function;
-    input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
-    input Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar";
-    input Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar";
-    input Modelica.Units.SI.MolarVolume dVm=0 "Process molar volume change at 25°C,1bar";
-     input Chemical.Interfaces.Phase phase=Chemical.Interfaces.Phase.Incompressible "State of matter";
-     output Chemical.Interfaces.Definition processData "Data record of process changes";
-   algorithm
-       processData :=Chemical.Interfaces.Definition(
-       MM=0,
-       z=0,
-       DfG=-Modelica.Constants.R*T0*log(K),
-       DfH=dH,
-       Cp=dCp,
-       Vm=dVm,
-       phase=phase,
-       gamma=1);
-
-
-   end processData;
+    end SubstanceProperties;
 
    function firstProductDefinition
        "Return formation definition of the first product of chemical process"
@@ -1694,11 +1691,11 @@ end DataRecord;
     import Chemical.Utilities.Types.SolutionChoice;
 
    // parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution"
-    parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution"
+    parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution"
         annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
     parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
-      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.fromParameter)));
+      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter)));
 
     Chemical.Interfaces.SolutionPort solution(
         T=solutionState.T,
@@ -1719,18 +1716,18 @@ end DataRecord;
         Gj=0,
         Qj=0,
         Ij=0)
-          if (solutionFrom == SolutionChoice.fromSolutionPort) "To connect substance with solution, where is pressented"
+          if (solutionFrom == SolutionChoice.SolutionPort) "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
       Chemical.Interfaces.SolutionState solutionState;
 
   protected
 
-      Chemical.Interfaces.InputSolutionState inputSubstrateSolution=solutionState if (solutionFrom == Chemical.Utilities.Types.SolutionChoice.fromSubstrate);
+      Chemical.Interfaces.InputSolutionState inputSubstrateSolution=solutionState if (solutionFrom == SolutionChoice.FirstSubstrate);
 
   equation
 
-    if (solutionFrom == SolutionChoice.fromParameter) then
+    if (solutionFrom == SolutionChoice.Parameter) then
       solutionState.T=solutionParam.T "Temperature of the solution";
       solutionState.p=solutionParam.p "Pressure of the solution";
       solutionState.v=solutionParam.v "Electric potential in the solution";
@@ -1751,12 +1748,12 @@ end DataRecord;
     "Input of kinetics coefficient vs. parametric kinetics coefficient"
 
     parameter Boolean useForwardRateInput=false
-      "= true, if forward rate coefficient is provided via input"
+      "Forward rate coefficient from input?"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
-        Dialog(group="Chemical kinetics", __Dymola_compact=true));
+        Dialog(group="Conditional inputs"));
 
-    parameter Real k_forward(unit="mol/s") = 1 "Forward rate coefficient (mole-fraction based)  if useForwardRateInput=false"
-      annotation (HideResult=true, Dialog(group="Chemical kinetics", enable=not useForwardRateInput));
+    parameter Real k_forward(unit="mol/s") = 1 "Forward rate coefficient (mole-fraction based)"
+      annotation (HideResult=true, Dialog(enable=not useForwardRateInput));
 
     Modelica.Blocks.Interfaces.RealInput kfInput(start=KC, final unit="mol2.s-1.J-1")=
        kf if useForwardRateInput

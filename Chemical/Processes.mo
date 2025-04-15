@@ -2,17 +2,18 @@ within Chemical;
 package Processes "Undirected process package"
   model Reaction "Chemical Reaction"
     extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.fromParameter else SolutionChoice.fromSubstrate);
-    extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.FirstSubstrate);
 
     import Chemical.Utilities.Types.SolutionChoice;
+    import Chemical.Processes.Internal.Kinetics;
 
-    replaceable function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss
+    replaceable function uLoss = Kinetics.generalPotentialLoss
       constrainedby
-        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
+    extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
     //Real rr_fore_exact,rr_rear_exact,  kb;
 
@@ -25,8 +26,8 @@ package Processes "Undirected process package"
     end if;
 
     //chemical solution and its propagation
-    connect(substrates[1].solution,inputSubstrateSolution);
     if nS>0 then
+      connect(substrates[1].solution,inputSubstrateSolution);
       products.solution = fill(solutionState,nP);
     end if;
 
@@ -180,30 +181,31 @@ package Processes "Undirected process package"
     extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
     import Chemical.Utilities.Types.SolutionChoice;
-    import Chemical.Utilities.Types.ProductsDefinitionChoice;
+    import ProductsDefinitionChoice =
+           Chemical.Utilities.Types.FirstProductChoice;
 
-     parameter ProductsDefinitionChoice productFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters       "Choice of products definition"
-        annotation(HideResult=true, Dialog(group="Conditional inputs"));
+    parameter ProductsDefinitionChoice productFrom=Chemical.Utilities.Types.FirstProductChoice.fromProcessParameters "Choice of products definition"
+      annotation (HideResult=true, Dialog(group="Conditional inputs"));
 
-    parameter Chemical.Interfaces.Definition productData "Product definitions"
-      annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=(productFrom == ProductsDefinitionChoice.fromParameter)));
+    parameter Chemical.Interfaces.Definition productData = Chemical.Substances.Liquid.Unknown "Product definitions"
+      annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=(productFrom ==ProductsDefinitionChoice.fromParameter)));
 
-     parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.Properties.processData(K,dH,dCp,dVs)
+     parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.processData(           K,dH,dCp,dVs)
      "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
         annotation (Dialog(group="Process definition",
-        enable=(productFrom == ProductsDefinitionChoice.fromProcessEnergies)));
+        enable=(productFrom ==ProductsDefinitionChoice.fromProcessEnergies)));
 
     parameter Real K=1 "Process dissociation constant at 25°C,1bar"
-     annotation (HideResult=true, Dialog(group="Process definition",enable=(productFrom == ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true, Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom == ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom == ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom == ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
 
     replaceable function uLoss =
         Chemical.Processes.Internal.Kinetics.generalPotentialLoss
@@ -215,7 +217,7 @@ package Processes "Undirected process package"
 
   equation
 
-    if (productFrom == ProductsDefinitionChoice.fromParameter) then
+    if (productFrom ==ProductsDefinitionChoice.fromParameter)  then
       fore.definition.data = productData.data;
     else
       fore.definition = rear.definition + processData;
@@ -1016,55 +1018,69 @@ Choices for initialization of a state h.
     partial model PartialReactionWithProductsDefinition "Chemical Reaction"
       extends Chemical.Processes.Internal.PartialReaction;
 
-      import Chemical.Utilities.Types.ProductsDefinitionChoice;
+      import Chemical.Substances.Liquid;
+      import Chemical.Substances.Gas;
+      import Chemical.Substances.Solid;
+      import Chemical.Substances.Aqueous;
 
-      parameter ProductsDefinitionChoice productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters
-                                                                                                           "Choice of products definition"
+      import FirstProductChoice =
+             Chemical.Utilities.Types.FirstProductChoice;
+
+      parameter FirstProductChoice firstProductFrom=FirstProductChoice.Process  "First product definition comes from?"
           annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.Definition productsData[nP]=fill(Chemical.Substances.Unknown, nP) "Array of products definitions"
-        annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=((productsFrom == ProductsDefinitionChoice.fromParameter) or (nP > 1))));
+      parameter Chemical.Interfaces.Definition firstProduct=Liquid.Unknown "First product definition"
+        annotation (choicesAllMatching=true, Dialog(enable=(firstProductFrom == FirstProductChoice.Substance)));
 
 
-      parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.Properties.processData(K,dH,dCp,dVs)
+      parameter Chemical.Interfaces.Definition nextProducts[:]=fill(Liquid.Unknown, max(1,nP-1)) "Definitions of next products"
+        annotation (choicesAllMatching=true, Dialog(enable=(nP > 1)));
+
+
+      parameter Chemical.Interfaces.Definition process = Chemical.Interfaces.processData(1)
        "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
-       annotation (Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessEnergies)));
+       annotation (Dialog(enable=(firstProductFrom == FirstProductChoice.Process)));
 
+    /*
+  parameter Real K=1 "Process dissociation constant at 25°C,1bar"
+   annotation (HideResult=true, Dialog(group="Process definition",enable=(firstProductFrom == FirstProductChoice.ProcessProperties)));
 
-      parameter Real K=1 "Process dissociation constant at 25°C,1bar"
-       annotation (HideResult=true, Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+  parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
+   annotation (HideResult=true,Dialog(group="Process definition",enable=(firstProductFrom == FirstProductChoice.ProcessProperties)));
 
-      parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
-       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
+  parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
+   annotation (HideResult=true,Dialog(group="Process definition",enable=(firstProductFrom == FirstProductChoice.ProcessProperties)));
 
-      parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
-       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
-
-      parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
-       annotation (HideResult=true,Dialog(group="Process definition",enable=(productsFrom == ProductsDefinitionChoice.fromProcessParameters)));
-
-    protected
-      Chemical.Interfaces.Definition pd[nP];
+  parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
+   annotation (HideResult=true,Dialog(group="Process definition",enable=(firstProductFrom == FirstProductChoice.ProcessProperties)));
+*/
+    //protected
+      // this is just because Dymola 2025 check can not handle empty arrays in death branches of code
+     // Chemical.Interfaces.Definition pd[nP];
     equation
 
-      if (productsFrom == ProductsDefinitionChoice.fromParameter) then
-        products.definition.data = productsData.data;
-      end if;
-      if (nP>1) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
+      if (nP>1) then
         for i in 1:nP-1 loop
-           products[i+1].definition = productsData[i];
+           products[i+1].definition = nextProducts[i];
         end for;
       end if;
-      for i in 1:nP loop
-            pd[i]=productsData[i];
-      end for;
-      if (nP>0) and (productsFrom <> ProductsDefinitionChoice.fromParameter) then
-        if (nP>1) then
-          products[1].definition =
-             (1/p[1]) * (s*substrates.definition + processData - p[2:end]*pd[2:end]);
-        else
-          products[1].definition = (1/p[1])*(s*substrates.definition + processData);
 
+      if (nP>0)  then
+      //  pd[1] = firstProduct;
+        if (firstProductFrom == FirstProductChoice.Substance)  then
+          products[1].definition = firstProduct;
+        elseif (nP>1) then
+        //  for i in 2:nP loop
+        //    pd[i]=nextProducts[i-1];
+        //  end for;
+          products[1].definition =
+        (1/p[1]) * (s*substrates.definition + process - p[2:end]*nextProducts);
+
+        //    products[1].definition =
+        // (1/p[1]) * (s*substrates.definition + process - p[2:end]*pd[2:end]);
+
+        else
+          products[1].definition = (1/p[1])*(s*substrates.definition + process);
         end if;
       end if;
 
@@ -1530,12 +1546,12 @@ du := n_flow/kC;
       Chemical.Boundaries.BoundaryFore boundary_fore1(potentialFromInput=false, u0_par=100000)
         annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
       Reaction reaction(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.Substances.Liquid.H2O},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
       Reaction reaction1(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.Substances.Liquid.H2O},
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,-48},{12,-28}})));
@@ -1573,36 +1589,21 @@ du := n_flow/kC;
     end TestFlow;
 
     model SimpleReaction0
-      constant Real K = 2 "Dissociation constant of the reaction";
 
-      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
-      constant Real R = Modelica.Constants.R "Gas constant";
-      Chemical.Processes.Reaction reaction(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters,
-        K=2,
-        solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
-        redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-10,14},{10,34}})));
-      Chemical.Boundaries.Substance substance(
-        useFore=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
-      Chemical.Boundaries.Substance substance1(
-        useRear=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
-      inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
+      Chemical.Processes.Reaction r(
+        process=Chemical.Interfaces.processData(2),
+        nS=1, nP=1) annotation (Placement(transformation(extent={{-6,14},{14,34}})));
+      Chemical.Boundaries.Substance A(useFore=true) annotation (Placement(transformation(extent={{-50,14},{-30,34}})));
+      Chemical.Boundaries.Substance B(useRear=true) annotation (Placement(transformation(extent={{30,14},{50,34}})));
     equation
-      connect(substance.fore, reaction.substrates[1]) annotation (Line(
-          points={{-50,24},{-10,24}},
+      connect(A.fore, r.substrates[1]) annotation (Line(
+          points={{-30,24},{-6,24}},
           color={158,66,200},
           thickness=0.5));
-      connect(reaction.products[1], substance1.rear) annotation (Line(
-          points={{10,24},{40,24},{40,22},{48,22}},
+      connect(r.products[1], B.rear) annotation (Line(
+          points={{14,24},{30,24}},
           color={158,66,200},
           thickness=0.5));
-      annotation();
     end SimpleReaction0;
 
     model SimpleForwardReaction0
@@ -1610,8 +1611,8 @@ du := n_flow/kC;
 
       constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
       constant Real R = Modelica.Constants.R "Gas constant";
-      ForwardReaction             forwardReaction(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromProcessParameters,
+      ForwardReaction forwardReaction(
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromProcessParameters,
         K=2,
         solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
         nS=1,
@@ -1972,10 +1973,9 @@ du := n_flow/kC;
         nP=1) annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
 
       Processes.ForwardReaction chemicalReaction1(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         k_forward=k_cat,
-        productsData={Chemical.Substances.Unknown,
-            Chemical.Substances.Unknown},
+        productsData={Chemical.Substances.Unknown,Chemical.Substances.Unknown},
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{26,-8},{46,12}})));
 
@@ -2206,6 +2206,38 @@ du := n_flow/kC;
           color={158,66,200},
           thickness=0.5));
     end SimpleFlow0;
+
+    model SimpleReactionPathway
+      constant Real K = 2 "Dissociation constant of the reaction";
+
+      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
+      constant Real R = Modelica.Constants.R "Gas constant";
+      Chemical.Processes.Reaction r1(
+        K=2,
+        nS=1,
+        nP=1) annotation (Placement(transformation(extent={{-28,62},{-8,82}})));
+      Chemical.Boundaries.Substance A(useFore=true) annotation (Placement(transformation(extent={{-62,62},{-42,82}})));
+      Chemical.Boundaries.Substance B(useRear=true) annotation (Placement(transformation(extent={{74,62},{94,82}})));
+      Reaction r2(nP=1, nS=1) annotation (Placement(transformation(extent={{10,62},{30,82}})));
+      GasSolubility gasSolubility annotation (Placement(transformation(extent={{42,62},{62,82}})));
+    equation
+      connect(A.fore, r1.substrates[1]) annotation (Line(
+          points={{-42,72},{-28,72}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(r2.products[1], gasSolubility.rear) annotation (Line(
+          points={{30,72},{42,72}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(gasSolubility.fore, B.rear) annotation (Line(
+          points={{62,72},{74,72}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(r1.products[1], r2.substrates[1]) annotation (Line(
+          points={{-8,72},{10,72}},
+          color={158,66,200},
+          thickness=0.5));
+    end SimpleReactionPathway;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));

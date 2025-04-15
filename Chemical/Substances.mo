@@ -10,6 +10,14 @@ package Substances "Definitions of some substances"
     // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
     // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
 
+   constant Chemical.Interfaces.Definition Unknown=Chemical.Interfaces.Definition(
+        MM=1,
+        DfH=0,
+        DfG=0,
+        Cp=1,
+        phase=Chemical.Interfaces.Phase.Gas)
+          "Unknown gas";
+
    constant Chemical.Interfaces.Definition CH4=Chemical.Interfaces.Definition(
       data=Chemical.Interfaces.DataRecord(Modelica.Media.IdealGases.Common.SingleGasesData.CH4,
       Gf=-50720))
@@ -84,6 +92,14 @@ package Substances "Definitions of some substances"
     // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
     // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
 
+     constant Chemical.Interfaces.Definition Unknown=Chemical.Interfaces.Definition(
+        MM=1,
+        DfH=0,
+        DfG=0,
+        Cp=1,
+        phase=Chemical.Interfaces.Phase.Incompressible)
+          "Unknown incompressible substance";
+
     // See article: http://dx.doi.org/10.35191/medsoft_2020_1_32_85_88
     constant Chemical.Interfaces.Definition H2O=Chemical.Interfaces.Definition(
           MM=0.01801528,
@@ -123,7 +139,7 @@ package Substances "Definitions of some substances"
     // 2. Find its free enthalpy of formation -> DfH
     // 3. Find its free Gibbs energy of formation -> DfG
 
-    constant Chemical.Interfaces.Definition Ag=Chemical.Interfaces.Definition(
+     constant Chemical.Interfaces.Definition Ag=Chemical.Interfaces.Definition(
           MM=0.1078682,
           z=0,
           DfH=0,
@@ -477,14 +493,6 @@ package Substances "Definitions of some substances"
 
   end Aqueous;
 
-  constant Chemical.Interfaces.Definition Unknown=Chemical.Interfaces.Definition(
-      MM=1,
-      DfH=0,
-      DfG=0,
-      Cp=1,
-      phase=Chemical.Interfaces.Phase.Incompressible,
-      SelfClustering=false,
-      SelfClustering_dH=0,
-      SelfClustering_dS=0) "Unknown";
+
 
 end Substances;

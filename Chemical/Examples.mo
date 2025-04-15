@@ -21,7 +21,7 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
 
     Processes.Reaction reaction(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(K))},
       redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
       nS=1,
@@ -39,9 +39,8 @@ extends Modelica.Icons.ExamplesPackage;
       useSolution=true,
       use_mass_start=false,
       amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-64,34},{-44,54}})));
-    Chemical.Processes.Reaction
-                       reaction1(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+    Chemical.Processes.Reaction reaction1(
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(1/K))},
       k_forward=1/K,
       redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss,
@@ -109,7 +108,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-32,4},{-12,24}})));
     Processes.Reaction reaction2_1(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(MolarWeight=2, DfG=-R*T_25degC*log(Kx))},
       nS=2,
       nP=1) annotation (Placement(transformation(extent={{4,-8},{24,12}})));
@@ -178,7 +177,7 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
     Processes.Reaction reaction2_1(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx)),
           Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-R*T_25degC*log(Kx))},
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
@@ -338,11 +337,10 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
     Processes.Reaction reaction2_2(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
-                                         nS=1,
-      nP=1)
-      annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
+      nS=1,
+      nP=1) annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
     Chemical.Boundaries.Substance B(
       useFore=false,
       useSolution=true,
@@ -358,11 +356,10 @@ extends Modelica.Icons.ExamplesPackage;
       use_mass_start=false,
       amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,38},{-20,58}})));
     Processes.Reaction reaction2_1(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfH=ReactionEnthalpy)},
-                                         nS=1,
-      nP=1)
-      annotation (Placement(transformation(extent={{-8,40},{12,60}})));
+      nS=1,
+      nP=1) annotation (Placement(transformation(extent={{-8,40},{12,60}})));
     Chemical.Boundaries.Substance B1(
       useFore=false,
       useSolution=true,
@@ -501,7 +498,7 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGas "Ideal Gas",
       p={2},
       s={1,2},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.Water_gas()},
       redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
       nS=2,
@@ -626,7 +623,7 @@ extends Modelica.Icons.ExamplesPackage;
       redeclare package stateOfMatter = Chemical.Interfaces.IdealGasMSL "Ideal Gas from MSL",
       p={2},
       s={1,2},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.IdealGasesMSL.H2O()},
       processData=Chemical.Interfaces.IdealGasMSL.SubstanceDataParameters(),
       redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
@@ -1326,16 +1323,16 @@ extends Modelica.Icons.ExamplesPackage;
       amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{10,36},{-10,56}})));
     Chemical.Processes.Reaction chemicalReaction(
       k_forward=1,
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*log(2/Km))},
       nP=1,
       nS=2) annotation (Placement(transformation(extent={{-40,-10},{-20,10}})));
 
-    Processes.ForwardReaction   chemicalReaction1(
+    Processes.ForwardReaction chemicalReaction1(
       initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
       n_flow_0=1e-6,
       k_forward=k_cat,
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
           Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
       nS=1,
@@ -1460,7 +1457,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Processes.Reaction reaction(
       s={2,4},
       p={2,1,4},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.Hydrogen_aqueous(),Chemical.SubstancesOld.Oxygen_aqueous(),Chemical.SubstancesOld.Electrone_solid()},
       nS=2,
       nP=3) annotation (Placement(transformation(
@@ -1619,7 +1616,7 @@ extends Modelica.Icons.ExamplesPackage;
       annotation (Placement(transformation(extent={{-6,64},{14,84}})));
     Chemical.Processes.FastReaction electrodeReaction(
       s={2,2},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.Hydrogen_aqueous()},
       nS=2,
       nP=1) annotation (Placement(transformation(
@@ -1627,7 +1624,7 @@ extends Modelica.Icons.ExamplesPackage;
           rotation=270,
           origin={52,6})));
     Chemical.Processes.FastReaction electrodeReaction1(
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.Silver_solid(),Chemical.SubstancesOld.Chloride_aqueous()},
       nP=2,
       nS=2) annotation (Placement(transformation(
@@ -1776,7 +1773,7 @@ extends Modelica.Icons.ExamplesPackage;
     Chemical.Processes.Reaction electrodeReaction(
       s={1,1,3,2},
       p={1,2},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.LeadSulfate_solid(),Chemical.SubstancesOld.Water_liquid()},
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort,
       nP=2,
@@ -1786,7 +1783,7 @@ extends Modelica.Icons.ExamplesPackage;
           origin={-34,-14})));
     Chemical.Processes.Reaction electrodeReaction1(
       p={1,1,2},
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.SubstancesOld.LeadSulfate_solid(),Chemical.SubstancesOld.Proton_aqueous(),Chemical.SubstancesOld.Electrone_solid()},
       nP=3,
       nS=2) annotation (Placement(transformation(
@@ -1984,7 +1981,7 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-30,46})));
       Chemical.Processes.Reaction waterDissociation(
         s={2},
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Hydronium_aqueous(),Chemical.SubstancesOld.Hydroxide_aqueous()},
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{-12,36},{8,56}})));
@@ -2006,7 +2003,7 @@ extends Modelica.Icons.ExamplesPackage;
         mass_start=1,
         substanceData=Chemical.SubstancesOld.Water_liquid()) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-32,-56})));
       Chemical.Processes.Reaction waterDissociation_(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Proton_aqueous(),Chemical.SubstancesOld.Hydroxide_aqueous()},
         nS=1,
         nP=2) annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
@@ -2087,7 +2084,7 @@ extends Modelica.Icons.ExamplesPackage;
 
       Chemical.Processes.FastReaction HendersonHasselbalch(
         TC=dropOfCommons.L,
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Bicarbonate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
         kC=1e-4,
         nS=2,
@@ -2214,19 +2211,19 @@ extends Modelica.Icons.ExamplesPackage;
         amountOfSubstance_start=1e-08) annotation (Placement(transformation(extent={{78,-72},{98,-52}})));
 
       Chemical.Processes.FastReaction chemicalReaction(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.DihydrogenPhosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
         kC=KC,
         nP=2,
         nS=1) "10^(-1.915 + 3)" annotation (Placement(transformation(extent={{-64,-58},{-44,-38}})));
       Chemical.Processes.FastReaction chemicalReaction1(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.HydrogenPhosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
         kC=KC,
         nS=1,
         nP=2) "10^(-6.66 + 3)" annotation (Placement(transformation(extent={{-14,-58},{6,-38}})));
       Chemical.Processes.FastReaction chemicalReaction2(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Phosphate_aqueous(),Chemical.SubstancesOld.Proton_aqueous()},
         kC=1e-8,
         nS=1,
@@ -2461,7 +2458,7 @@ extends Modelica.Icons.ExamplesPackage;
       Chemical.Processes.Reaction HendersonHasselbalch1(
         initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
         n_flow_0=0,
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Bicarbonate_blood(),Chemical.SubstancesOld.Proton_aqueous()},
         nS=2,
         nP=1) "K=10^(-6.103 + 3), dH=7.3 kJ/mol" annotation (Placement(transformation(extent={{-24,-58},{-4,-38}})));
@@ -4582,7 +4579,7 @@ extends Modelica.Icons.ExamplesPackage;
         substanceData=Chemical.SubstancesOld.Water_liquid(),
         mass_start=1) annotation (Placement(transformation(extent={{-14,-66},{6,-46}})));
       Processes.Reaction reaction(
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Methan_aqueous(),Chemical.SubstancesOld.CarbonDioxide_aqueous()},
         nS=1,
         nP=2) "Acetoclastic (heterotrophic) methanogenesis" annotation (Placement(transformation(extent={{-18,32},{2,52}})));
@@ -4638,7 +4635,7 @@ extends Modelica.Icons.ExamplesPackage;
       Processes.Reaction reaction(
         s={4,1},
         p={1,2},
-        productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
         productsData={Chemical.SubstancesOld.Methan_aqueous(),Chemical.SubstancesOld.Water_liquid()},
         nS=2,
         nP=2) "Hydrogenotrophic (autotrophic) methanogenesis" annotation (Placement(transformation(extent={{-18,50},{2,70}})));
@@ -5541,10 +5538,10 @@ extends Modelica.Icons.ExamplesPackage;
       mass_start=tE/2,
       amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{10,36},{-10,56}})));
 
-    Processes.ForwardReaction   chemicalReaction1(
+    Processes.ForwardReaction chemicalReaction1(
       n_flow_0=1e-6,
       k_forward=k_cat,
-      productsFrom=Chemical.Utilities.Types.ProductsDefinitionChoice.fromParameter,
+      productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
       productsData={Chemical.Interfaces.Incompressible.SubstanceDataParameters(DfG=-Modelica.Constants.R*298.15*50),
           Chemical.Interfaces.Incompressible.SubstanceDataParameters()},
       nS=1,
@@ -5686,7 +5683,8 @@ extends Modelica.Icons.ExamplesPackage;
   model Definition_H2O_formation
     import Chemical.Substances.Gas;
     import Chemical.Interfaces.Definition;
-    import Chemical.Interfaces.Properties.BaseProcessProperties;
+    import BaseProcessProperties =
+           Chemical.Interfaces.ProcessProperties;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
 
@@ -5707,7 +5705,8 @@ extends Modelica.Icons.ExamplesPackage;
     import Chemical.Substances.Gas;
     import Chemical.Substances.Liquid;
     import Chemical.Interfaces.Definition;
-    import Chemical.Interfaces.Properties.BaseProcessProperties;
+    import BaseProcessProperties =
+           Chemical.Interfaces.ProcessProperties;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
 
@@ -5728,8 +5727,9 @@ extends Modelica.Icons.ExamplesPackage;
     import Chemical.Substances.Gas;
     import Chemical.Substances.Aqueous;
     import Chemical.Interfaces.Definition;
-    import Chemical.Interfaces.Properties.BaseProcessProperties;
-    import Chemical.Interfaces.Properties.BaseSubstanceProperties;
+    import Chemical.Interfaces.ProcessProperties;
+    import BaseSubstanceProperties =
+           Chemical.Interfaces.Properties.SubstanceProperties;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
     constant Real R = Modelica.Constants.R;
@@ -5738,7 +5738,8 @@ extends Modelica.Icons.ExamplesPackage;
 
     SolutionState solution=SolutionState(phase=Phase.Aqueous, T = 273.15+1*time);
 
-    BaseProcessProperties dissolutionProperties(definition=dissolution, solutionState=solution);
+    ProcessProperties dissolutionProperties(definition=dissolution, solutionState=solution);
+    constant Definition O2_aq = Gas.O2 + Chemical.Interfaces.processData(0.0013,-1500*R);
   /*
   parameter Definition Dissolution = Chemical.Interfaces.Properties.processData(0.0013*1/0.94,-1500*R);
 
@@ -5795,8 +5796,10 @@ extends Modelica.Icons.ExamplesPackage;
     import Chemical.Substances.Gas;
     import Chemical.Substances.Aqueous;
     import Chemical.Interfaces.Definition;
-    import Chemical.Interfaces.Properties.BaseProcessProperties;
-    import Chemical.Interfaces.Properties.BaseSubstanceProperties;
+    import BaseProcessProperties =
+           Chemical.Interfaces.ProcessProperties;
+    import BaseSubstanceProperties =
+           Chemical.Interfaces.Properties.SubstanceProperties;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
 
@@ -5839,4 +5842,53 @@ extends Modelica.Icons.ExamplesPackage;
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
       experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
   end Definition_CO2_dissolution;
+
+  model Paper_Modelica2025
+    import Chemical.Interfaces.Definition;
+    import Chemical.Substances.Gas;
+    import Chemical.Substances.Liquid;
+    import Chemical.Interfaces.processData;
+    constant Real R = Modelica.Constants.R;
+
+    constant Definition O2_aq =
+      Gas.O2 + processData(0.0013,-1500*R);
+
+    constant Definition H2O_formation =
+      Gas.H2O - (Gas.H2 + 0.5*Gas.O2);
+
+    constant Definition Hemoglobin =
+      Liquid.Unknown;
+
+
+    import Chemical.Interfaces.SolutionState;
+    import Chemical.Interfaces.Phase;
+
+    constant SolutionState SATP =
+      SolutionState(phase=Phase.Gas,
+                  T=298.15);
+
+    SolutionState heatingSolution =
+      SolutionState(phase=Phase.Gas,
+                  T=273.15+time);
+
+
+
+    import Chemical.Interfaces.ProcessProperties;
+
+    ProcessProperties O2_dissolving_props(
+       definition=processData(0.0013,-1500*R),
+       solutionState=heatingSolution);
+
+    ProcessProperties H2O_formation_props(
+       definition=H2O_formation,
+       solutionState=heatingSolution);
+
+    ProcessProperties H2O_vaporization_props(
+       definition=Gas.H2O - Liquid.H2O,
+       solutionState=heatingSolution);
+
+
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(StopTime=2000, __Dymola_Algorithm="Dassl"));
+  end Paper_Modelica2025;
 end Examples;
