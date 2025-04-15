@@ -156,14 +156,14 @@ package Substances "Definitions of some substances"
           DfG=-109720,
           Cp=50.8) "AgCl(s)";
 
-    constant Chemical.Interfaces.Definition eminus=Chemical.Interfaces.Definition(
+    constant Chemical.Interfaces.Definition e=Chemical.Interfaces.Definition(
           MM=5.4857990946e-7,
           phase=Chemical.Interfaces.Phase.Incompressible,
           z=-1,
           DfH=0,
           DfG=0,
           Cp=0,
-          Vm=1e-27) "e-(s)";
+          Vm=1e-27) "e-(s) electrone";
 
     constant Chemical.Interfaces.Definition Glu=Chemical.Interfaces.Definition(
           MM=0.1806,

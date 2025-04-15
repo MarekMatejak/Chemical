@@ -2,7 +2,7 @@ within Chemical;
 package Processes "Undirected process package"
   model Reaction "Chemical Reaction"
     extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.FirstSubstrate);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nP==0 then SolutionChoice.Parameter else SolutionChoice.FirstSubstrate);
 
     import Chemical.Utilities.Types.SolutionChoice;
     import Chemical.Processes.Internal.Kinetics;
@@ -138,7 +138,7 @@ package Processes "Undirected process package"
   model Diffusion "Solute diffusion"
     extends Icons.Diffusion;
     extends Chemical.Interfaces.SISO;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Chemical.Interfaces.ConditionalKinetics
                                           (k_forward=1);
 
@@ -177,35 +177,34 @@ package Processes "Undirected process package"
   //  extends Interfaces.ConditionalKinetics(k_forward=1);
 
     extends Chemical.Interfaces.SISO;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
     import Chemical.Utilities.Types.SolutionChoice;
-    import ProductsDefinitionChoice =
-           Chemical.Utilities.Types.FirstProductChoice;
+    import Chemical.Utilities.Types.FirstProductChoice;
 
-    parameter ProductsDefinitionChoice productFrom=Chemical.Utilities.Types.FirstProductChoice.fromProcessParameters "Choice of products definition"
+    parameter FirstProductChoice productFrom=Chemical.Utilities.Types.FirstProductChoice.Process "Choice of products definition"
       annotation (HideResult=true, Dialog(group="Conditional inputs"));
 
-    parameter Chemical.Interfaces.Definition productData = Chemical.Substances.Liquid.Unknown "Product definitions"
-      annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=(productFrom ==ProductsDefinitionChoice.fromParameter)));
+    parameter Chemical.Interfaces.Definition product = Chemical.Substances.Liquid.Unknown "Product definitions"
+      annotation (choicesAllMatching=true, Dialog(group="Process definition", enable=(productFrom ==FirstProductChoice.fromParameter)));
 
-     parameter Chemical.Interfaces.Definition processData = Chemical.Interfaces.processData(           K,dH,dCp,dVs)
+     parameter Chemical.Interfaces.Definition process = Chemical.Interfaces.processData(           K,dH,dCp,dVs)
      "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
         annotation (Dialog(group="Process definition",
-        enable=(productFrom ==ProductsDefinitionChoice.fromProcessEnergies)));
+        enable=(productFrom ==FirstProductChoice.fromProcessEnergies)));
 
     parameter Real K=1 "Process dissociation constant at 25°C,1bar"
-     annotation (HideResult=true, Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true, Dialog(group="Process definition",enable=(productFrom ==FirstProductChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==FirstProductChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==FirstProductChoice.fromProcessParameters)));
 
     parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
-     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==ProductsDefinitionChoice.fromProcessParameters)));
+     annotation (HideResult=true,Dialog(group="Process definition",enable=(productFrom ==FirstProductChoice.fromProcessParameters)));
 
     replaceable function uLoss =
         Chemical.Processes.Internal.Kinetics.generalPotentialLoss
@@ -217,10 +216,10 @@ package Processes "Undirected process package"
 
   equation
 
-    if (productFrom ==ProductsDefinitionChoice.fromParameter)  then
-      fore.definition.data = productData.data;
+    if (productFrom ==FirstProductChoice.Substance)  then
+      fore.definition.data = product.data;
     else
-      fore.definition = rear.definition + processData;
+      fore.definition = rear.definition + process;
     end if;
 
     fore.solution = solutionState;
@@ -306,7 +305,7 @@ package Processes "Undirected process package"
     extends Icons.Membrane;
 
     extends Chemical.Interfaces.SISO;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Chemical.Interfaces.ConditionalKinetics
                                           (k_forward=1);
 
@@ -352,7 +351,7 @@ package Processes "Undirected process package"
 
   model Pump "Prescribed sunstance molar flow"
     extends Chemical.Interfaces.SISO;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Interfaces.ConditionalSubstanceFlow;
 
     import Chemical.Utilities.Types.SolutionChoice;
@@ -395,8 +394,8 @@ package Processes "Undirected process package"
   end Pump;
 
   model ForwardReaction "Chemical Reaction"
-    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.fromParameter else SolutionChoice.fromSubstrate);
+    extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition(final process, final firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.Parameter else SolutionChoice.FirstSubstrate);
     extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
 
@@ -405,10 +404,11 @@ package Processes "Undirected process package"
 
   equation
 
-
-    du_fore = -du_rear;
     rr = kf*Sx_fore;
 
+    if (nS>0) then
+      du_fore = -du_rear;
+    end if;
 
     //chemical solution and its propagation
     connect(substrates[1].solution,inputSubstrateSolution);
@@ -513,7 +513,7 @@ package Processes "Undirected process package"
 
   model Stream "Flow of whole solution"
     extends Chemical.Interfaces.SISO;
-    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.fromParameter);
+    extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Boundaries.Internal.ConditionalSolutionFlow;
 
     import Chemical.Utilities.Types.SolutionChoice;
@@ -581,423 +581,6 @@ package Processes "Undirected process package"
 </html>"));
   end Stream;
 
-  model SpeciationIn "Quaternary macromolecule form defined by all its subunits"
-    extends Icons.Speciation;
-
-    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-       annotation (choicesAllMatching = true);
-
-    /*parameter stateOfMatter.SubstanceDataParameters substanceData
-  "Definition of the substance"
-    annotation (choicesAllMatching = true);
-*/
-    parameter stateOfMatter.SubstanceDataParameters subunitsSubstanceData[NumberOfSubunits]
-    "Definition of the subunits"
-     annotation (choicesAllMatching = true);
-
-    parameter Integer NumberOfSubunits=1
-    "Number of independent subunits occurring in macromolecule";
-
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
-      annotation(Dialog(tab="Advanced"));
-
-    Interfaces.SolutionPort solution                                                              annotation (Placement(transformation(extent={{-70,
-              -110},{-50,-90}}),
-          iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-    Modelica.Units.SI.AmountOfSubstance nm
-      "Amount of the macromolecule (all form in the conformation)";
-    Modelica.Units.SI.MoleFraction xm
-      "Mole fraction of the macromolecule (all form of in the conformation)";
-
-  public
-    Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
-      annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
-          iconTransformation(extent={{30,50},{50,70}})));
-    Onedirectional.Interfaces.Inlet inlet annotation (Placement(transformation(extent={{110,-110},{90,-90}}), iconTransformation(extent={{110,-110},{90,-90}})));
-    Onedirectional.Interfaces.Outlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
-          iconTransformation(
-          extent={{-10,-40},{10,40}},
-          rotation=90,
-          origin={-30,102})));
-
-    parameter Boolean EnthalpyNotUsed=false annotation (
-      Evaluate=true,
-      HideResult=true,
-      choices(checkBox=true),
-      Dialog(tab="Advanced", group="Performance"));
-
-  protected
-    outer DropOfCommons dropOfCommons;
-    Chemical.Utilities.Units.URT uRT_out;
-    Modelica.Units.SI.ChemicalPotential u_out;
-  equation
-
-    inlet.r + inlet.state.u = u_out;
-
-    if NumberOfSubunits>0 then
-      (ones(NumberOfSubunits) * subunits.r) = (inlet.r)  -  der(inlet.n_flow)*L;
-      for i in 2:NumberOfSubunits loop
-        //first subunit is based on inertial potential,
-        //other subunits are provided as source
-        der(subunits[i].state.u).*TC = subunits[i].r;
-      end for;
-    end if;
-
-    //amount of macromolecule (all forms in conformation)
-    nm*NumberOfSubunits + subunitSolution.nj = 0;
-
-    //change of macromolecule = change of its subunits
-    subunits.n_flow = -inlet.n_flow * ones(NumberOfSubunits);
-
-    //mole fraction of all forms in conformation
-    xm = nm/solution.n;
-
-    //electrochemical potential of the specific form divided by (Modelica.Constants.R*solution.T)
-    uRT_out = log(xm) +
-          sum(subunits.state.u/(Modelica.Constants.R*inlet.solution.T) - log(xm)
-           * ones(NumberOfSubunits));
-
-    u_out = uRT_out*(Modelica.Constants.R*inlet.solution.T);
-
-    subunits.state.h = (inlet.state.h/NumberOfSubunits)*ones(NumberOfSubunits);
-
-    //inlet.state.u = sum(subunits.state.u - (log(xm)*(Modelica.Constants.R*inlet.solution.T)) * ones(NumberOfSubunits));
-
-    for i in 1:NumberOfSubunits loop
-      subunits[i].solution.T = solution.T;
-      subunits[i].solution.v = solution.v;
-      subunits[i].solution.p = solution.p;
-      subunits[i].solution.n = solution.n;
-      subunits[i].solution.m = solution.m;
-      subunits[i].solution.V = solution.V;
-      subunits[i].solution.G = solution.G;
-      subunits[i].solution.Q = solution.Q;
-      subunits[i].solution.I = solution.I;
-    end for;
-
-    //inlet.definition = substanceData;
-    subunits.definition = subunitsSubstanceData;
-
-    //properties from subunits
-    subunitSolution.dH + solution.dH = 0;
-    subunitSolution.i + solution.i = 0;
-    subunitSolution.Qj + solution.Qj = 0;
-    subunitSolution.Ij + solution.Ij = 0;
-
-    //properties of macromolecule as a whole
-    subunitSolution.nj + solution.nj*NumberOfSubunits = 0; //only amount of substance is necessery to express between sites' solution and real solution
-    subunitSolution.mj + solution.mj = 0;
-    subunitSolution.Vj + solution.Vj = 0;
-    subunitSolution.Gj + solution.Gj = 0;
-    subunitSolution.dV + solution.dV = 0;
-
-    //shift global solution status to subunits
-    subunitSolution.T = solution.T;
-    subunitSolution.v = solution.v;
-    subunitSolution.p = solution.p;
-    subunitSolution.n = solution.n;
-    subunitSolution.m = solution.m;
-    subunitSolution.V = solution.V;
-    subunitSolution.G = solution.G;
-    subunitSolution.Q = solution.Q;
-    subunitSolution.I = solution.I;
-
-    annotation (defaultComponentName="macromolecule",
-      Documentation(revisions="<html>
-<p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic</p>
-</html>",   info="<html>
-<p><b>Macromolecule speciation in chemical equilibrium</b> </p>
-<p>The equilibrium of the conformation reactions of macromolecules can be simplified to the reactions of their selected electro-neutral forms of the selected conformation, because of the law of detailed balance.</p>
-<p>The assumptions of this calculation are:</p>
-<ol>
-<li><i>Initial total concentrations of each subunit must be set to the total macromolecule concentration (for the selected conformation).</i></li>
-<li><i>The charge, enthalpy of formation, entropy of formation and molar volume of each selected independent subunit form is zero. </i></li>
-<li><i>Subunits are connected to the same solution as the macromolecule. </i></li>
-</ol>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>x<sub>m</sub>&nbsp;</p></td>
-<td><p>the probability of macromolecule(of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub> = (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probalitivy of selected independent subunits forms (of the macromolecule in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= x<sub>m</sub>&middot; &Pi; f<sub>i</sub> = x<sub>m</sub>&middot; &Pi; (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probability of the selected form of macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>m</sub>) + &sum; (u<sub>i</sub> - R&middot;T&middot;ln(x<sub>m</sub>))</p></td>
-<td><p>final equation of the equilibrium of electro-chemical potential</p></td>
-</tr>
-</table>
-<p><br><br><br><b><font style=\"color: #008000; \">Notations</font></b></p>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>n<sub>T</sub></p></td>
-<td><p>total amount of substances in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>m</sub></p></td>
-<td><p>total amount of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>s</sub></p></td>
-<td><p>amount of the specific form of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>i</sub></p></td>
-<td><p>amount of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>x<sub>m </sub>= n<sub>m </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of macromolecule (of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= n<sub>s </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of the selected form of the whole macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i </sub>= n<sub>i </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of i-th macromolecule(of the selected conformation)&apos;s subunit form</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s</sub>&deg;</p></td>
-<td><p>base chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>s</sub>)</p></td>
-<td><p>chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i</sub>&deg; = 0</p></td>
-<td><p>base chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i </sub>= R&middot;T&middot;ln(x<sub>i</sub>)</p></td>
-<td><p>chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-</table>
-<p><br><br><br><br>For example: If the macromolecule M has four identical independent subunits and each subunit can occur in two form F1 and F2, then the probability of macromolecule form S composed only from four subunits in form F1 is P(S)=P(M)*P(F1)^4.</p>
-</html>"),
-      Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
-            100,100}}),
-          graphics={                                                        Text(
-            extent={{-22,-106},{220,-140}},
-            lineColor={128,0,255},
-            textString="%name")}));
-  end SpeciationIn;
-
-  model SpeciationOut "Quaternary macromolecule form defined by all its subunits"
-    extends Icons.Speciation;
-
-    replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby
-      Interfaces.StateOfMatter
-    "Substance model to translate data into substance properties"
-       annotation (choicesAllMatching = true);
-
-    parameter stateOfMatter.SubstanceDataParameters substanceData
-    "Definition of the substance"
-      annotation (choicesAllMatching = true);
-
-    parameter Integer NumberOfSubunits=1
-    "Number of independent subunits occurring in macromolecule";
-
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
-    parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
-      annotation(Dialog(tab="Advanced"));
-
-    Interfaces.SolutionPort solution                                                              annotation (Placement(transformation(extent={{-70,
-              -110},{-50,-90}}),
-          iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-    Modelica.Units.SI.AmountOfSubstance nm
-      "Amount of the macromolecule (all form in the conformation)";
-    Modelica.Units.SI.MoleFraction xm
-      "Mole fraction of the macromolecule (all form of in the conformation)";
-
-  public
-    Interfaces.SolutionPort subunitSolution "The port to connect all subunits"
-      annotation (Placement(transformation(extent={{-70,92},{-50,112}}),
-          iconTransformation(extent={{30,50},{50,70}})));
-    Onedirectional.Interfaces.Outlet outletSubstance
-      annotation (Placement(transformation(extent={{90,-110},{110,-90}}), iconTransformation(extent={{90,-110},{110,-90}})));
-    Onedirectional.Interfaces.Inlet subunits[NumberOfSubunits] "Subunits of macromolecule" annotation (Placement(transformation(extent={{-56,-14},{-36,66}}),
-          iconTransformation(
-          extent={{10,-40},{-10,40}},
-          rotation=90,
-          origin={-30,102})));
-
-    parameter Boolean EnthalpyNotUsed=false annotation (
-      Evaluate=true,
-      HideResult=true,
-      choices(checkBox=true),
-      Dialog(tab="Advanced", group="Performance"));
-
-  //protected
-
-   // stateOfMatter.SubstanceData outletSubstanceDefinition;
-    outer DropOfCommons dropOfCommons;
-  //  Modelica.Units.SI.MolarEnthalpy h_out;
-    Chemical.Utilities.Units.URT uRT_out;
-    Modelica.Units.SI.ChemicalPotential u_out; //, u_pure;
-  //  Modelica.Units.SI.MolarEntropy s_pure;
-
-  equation
-
-    outletSubstance.state.u = u_out;
-
-    if NumberOfSubunits>0 then
-      (ones(NumberOfSubunits) * subunits.r) =(outletSubstance.r) - der(outletSubstance.n_flow)*L;
-    end if;
-
-    //amount of macromolecule (all forms in conformation)
-    nm*NumberOfSubunits + subunitSolution.nj = 0;
-
-    //change of macromolecule = change of its subunits
-    subunits.n_flow =-outletSubstance.n_flow*ones(NumberOfSubunits);
-
-    //mole fraction of all forms in conformation
-    xm = nm/solution.n;
-
-    //electrochemical potential of the specific form divided by (Modelica.Constants.R*solution.T)
-    uRT_out = log(xm) +
-          sum(subunits.state.u/(Modelica.Constants.R*outletSubstance.solution.T) - log(xm)
-           * ones(NumberOfSubunits));
-
-    u_out = uRT_out*(Modelica.Constants.R*outletSubstance.solution.T);
-
-    subunits.state.h = (outletSubstance.state.h/NumberOfSubunits)*ones(NumberOfSubunits);
-
-   // h_out =outletSubstance.state.h;
-   //  (subunits.state.h*ones(NumberOfSubunits)) =(outletSubstance.state.h);
-
-    outletSubstance.solution.T = solution.T;
-    outletSubstance.solution.v = solution.v;
-    outletSubstance.solution.p = solution.p;
-    outletSubstance.solution.n = solution.n;
-    outletSubstance.solution.m = solution.m;
-    outletSubstance.solution.V = solution.V;
-    outletSubstance.solution.G = solution.G;
-    outletSubstance.solution.Q = solution.Q;
-    outletSubstance.solution.I = solution.I;
-
-    outletSubstance.definition = substanceData;
-
-    //properties from subunits
-    subunitSolution.dH + solution.dH = 0;
-    subunitSolution.i + solution.i = 0;
-    subunitSolution.Qj + solution.Qj = 0;
-    subunitSolution.Ij + solution.Ij = 0;
-
-    //properties of macromolecule as a whole
-    subunitSolution.nj + solution.nj*NumberOfSubunits = 0; //only amount of substance is necessery to express between sites' solution and real solution
-    subunitSolution.mj + solution.mj = 0;
-    subunitSolution.Vj + solution.Vj = 0;
-    subunitSolution.Gj + solution.Gj = 0;
-    subunitSolution.dV + solution.dV = 0;
-
-    //shift global solution status to subunits
-    subunitSolution.T = solution.T;
-    subunitSolution.v = solution.v;
-    subunitSolution.p = solution.p;
-    subunitSolution.n = solution.n;
-    subunitSolution.m = solution.m;
-    subunitSolution.V = solution.V;
-    subunitSolution.G = solution.G;
-    subunitSolution.Q = solution.Q;
-    subunitSolution.I = solution.I;
-
-    annotation (defaultComponentName="macromolecule",
-      Documentation(revisions="<html>
-<p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic</p>
-</html>",   info="<html>
-<p><b>Macromolecule speciation in chemical equilibrium</b> </p>
-<p>The equilibrium of the conformation reactions of macromolecules can be simplified to the reactions of their selected electro-neutral forms of the selected conformation, because of the law of detailed balance.</p>
-<p>The assumptions of this calculation are:</p>
-<ol>
-<li><i>Initial total concentrations of each subunit must be set to the total macromolecule concentration (for the selected conformation).</i></li>
-<li><i>The charge, enthalpy of formation, entropy of formation and molar volume of each selected independent subunit form is zero. </i></li>
-<li><i>Subunits are connected to the same solution as the macromolecule. </i></li>
-</ol>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>x<sub>m</sub>&nbsp;</p></td>
-<td><p>the probability of macromolecule(of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub> = (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probalitivy of selected independent subunits forms (of the macromolecule in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= x<sub>m</sub>&middot; &Pi; f<sub>i</sub> = x<sub>m</sub>&middot; &Pi; (x<sub>i</sub>/x<sub>m</sub>)</p></td>
-<td><p>the probability of the selected form of macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>m</sub>) + &sum; (u<sub>i</sub> - R&middot;T&middot;ln(x<sub>m</sub>))</p></td>
-<td><p>final equation of the equilibrium of electro-chemical potential</p></td>
-</tr>
-</table>
-<p><br><br><br><b><font style=\"color: #008000; \">Notations</font></b></p>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>n<sub>T</sub></p></td>
-<td><p>total amount of substances in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>m</sub></p></td>
-<td><p>total amount of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>s</sub></p></td>
-<td><p>amount of the specific form of the macromolecule (of the selected conformation) in the solution</p></td>
-</tr>
-<tr>
-<td><p>n<sub>i</sub></p></td>
-<td><p>amount of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>x<sub>m </sub>= n<sub>m </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of macromolecule (of the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>s </sub>= n<sub>s </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of the selected form of the whole macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i </sub>= n<sub>i </sub>/ n<sub>T</sub></p></td>
-<td><p>mole fraction of i-th macromolecule(of the selected conformation)&apos;s subunit form</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s</sub>&deg;</p></td>
-<td><p>base chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>s </sub>= u<sub>s</sub>&deg; + R&middot;T&middot;ln(x<sub>s</sub>)</p></td>
-<td><p>chemical potential of the selected form of the macromolecule (composed from selected subunits in the selected conformation)</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i</sub>&deg; = 0</p></td>
-<td><p>base chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-<tr>
-<td><p>u<sub>i </sub>= R&middot;T&middot;ln(x<sub>i</sub>)</p></td>
-<td><p>chemical potential of the specific form of the i-th macromolecule(of the selected conformation)&apos;s subunit in the solution</p></td>
-</tr>
-</table>
-<p><br><br><br><br>For example: If the macromolecule M has four identical independent subunits and each subunit can occur in two form F1 and F2, then the probability of macromolecule form S composed only from four subunits in form F1 is P(S)=P(M)*P(F1)^4.</p>
-</html>"),
-      Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{
-            100,100}}),
-          graphics={                                                        Text(
-            extent={{-22,-106},{220,-140}},
-            lineColor={128,0,255},
-            textString="%name")}));
-  end SpeciationOut;
-
   package Internal "Internals package for Processes"
     extends Modelica.Icons.InternalPackage;
 
@@ -1029,11 +612,12 @@ Choices for initialization of a state h.
       parameter FirstProductChoice firstProductFrom=FirstProductChoice.Process  "First product definition comes from?"
           annotation(HideResult=true, Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.Definition firstProduct=Liquid.Unknown "First product definition"
+      parameter Chemical.Interfaces.Definition firstProduct=dropOfCommons.DefaultSubstance "First product definition"
         annotation (choicesAllMatching=true, Dialog(enable=(firstProductFrom == FirstProductChoice.Substance)));
 
 
-      parameter Chemical.Interfaces.Definition nextProducts[:]=fill(Liquid.Unknown, max(1,nP-1)) "Definitions of next products"
+      // for unknown reason this array can not be empty in Dymola 2025 - stupid fix: max(1,nP-1) instead of max(0,nP-1) is used as size of the array
+      parameter Chemical.Interfaces.Definition nextProducts[:]=fill(dropOfCommons.DefaultSubstance, max(1,nP-1)) "Definitions of next products"
         annotation (choicesAllMatching=true, Dialog(enable=(nP > 1)));
 
 
@@ -1054,9 +638,6 @@ Choices for initialization of a state h.
   parameter Modelica.Units.SI.SpecificVolume dVs=0 "Process specific volume change at 25°C,1bar [L/g]"
    annotation (HideResult=true,Dialog(group="Process definition",enable=(firstProductFrom == FirstProductChoice.ProcessProperties)));
 */
-    //protected
-      // this is just because Dymola 2025 check can not handle empty arrays in death branches of code
-     // Chemical.Interfaces.Definition pd[nP];
     equation
 
       if (nP>1) then
@@ -1066,21 +647,19 @@ Choices for initialization of a state h.
       end if;
 
       if (nP>0)  then
-      //  pd[1] = firstProduct;
+
         if (firstProductFrom == FirstProductChoice.Substance)  then
           products[1].definition = firstProduct;
         elseif (nP>1) then
-        //  for i in 2:nP loop
-        //    pd[i]=nextProducts[i-1];
-        //  end for;
-          products[1].definition =
-        (1/p[1]) * (s*substrates.definition + process - p[2:end]*nextProducts);
-
-        //    products[1].definition =
-        // (1/p[1]) * (s*substrates.definition + process - p[2:end]*pd[2:end]);
+          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+            products[1].definition =
+              (1/p[i]) * (s*substrates.definition + process - p[2:end]*nextProducts);
+          end for;
 
         else
-          products[1].definition = (1/p[1])*(s*substrates.definition + process);
+          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+            products[1].definition = (1/p[i])*(s*substrates.definition + process);
+          end for;
         end if;
       end if;
 
@@ -1526,7 +1105,7 @@ du := n_flow/kC;
     model TestFlow "Test for the undirected flow resistance"
       extends Modelica.Icons.Example;
 
-      Chemical.Boundaries.BoundaryRear boundary_rear(substanceDefinition=Chemical.Substances.Liquid.H2O, u0_par=100000)
+      Chemical.Boundaries.BoundaryRear boundary_rear(u0_par=100000)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1538,7 +1117,7 @@ du := n_flow/kC;
         offset=140000,
         startTime=5)
         annotation (Placement(transformation(extent={{60,-6},{48,6}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(substanceDefinition=Chemical.Substances.Liquid.H2O, potentialFromInput=true)
+      Chemical.Boundaries.BoundaryRear boundary_rear1(potentialFromInput=true)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1546,13 +1125,11 @@ du := n_flow/kC;
       Chemical.Boundaries.BoundaryFore boundary_fore1(potentialFromInput=false, u0_par=100000)
         annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
       Reaction reaction(
-        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
-        productsData={Chemical.Substances.Liquid.H2O},
+        firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
       Reaction reaction1(
-        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
-        productsData={Chemical.Substances.Liquid.H2O},
+        firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
         nS=1,
         nP=1) annotation (Placement(transformation(extent={{-8,-48},{12,-28}})));
     equation
@@ -1588,509 +1165,17 @@ du := n_flow/kC;
 </html>"));
     end TestFlow;
 
-    model SimpleReaction0
-
-      Chemical.Processes.Reaction r(
-        process=Chemical.Interfaces.processData(2),
-        nS=1, nP=1) annotation (Placement(transformation(extent={{-6,14},{14,34}})));
-      Chemical.Boundaries.Substance A(useFore=true) annotation (Placement(transformation(extent={{-50,14},{-30,34}})));
-      Chemical.Boundaries.Substance B(useRear=true) annotation (Placement(transformation(extent={{30,14},{50,34}})));
-    equation
-      connect(A.fore, r.substrates[1]) annotation (Line(
-          points={{-30,24},{-6,24}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(r.products[1], B.rear) annotation (Line(
-          points={{14,24},{30,24}},
-          color={158,66,200},
-          thickness=0.5));
-    end SimpleReaction0;
-
-    model SimpleForwardReaction0
-      constant Real K = 2 "Dissociation constant of the reaction";
-
-      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
-      constant Real R = Modelica.Constants.R "Gas constant";
-      ForwardReaction forwardReaction(
-        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromProcessParameters,
-        K=2,
-        solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter,
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-8,14},{12,34}})));
-      Chemical.Boundaries.Substance substance(
-        useFore=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
-      Chemical.Boundaries.Substance substance1(
-        useRear=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
-      inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
-    equation
-      connect(substance.fore, forwardReaction.substrates[1]) annotation (Line(
-          points={{-50,24},{-8,24}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(forwardReaction.products[1], substance1.rear)
-        annotation (Line(
-          points={{12,24},{40,24},{40,22},{48,22}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation();
-    end SimpleForwardReaction0;
-
-    model SimpleReaction "The simple chemical reaction A<->B with equilibrium B/A = 2"
-      import Chemical;
-
-       extends Modelica.Icons.Example;
-
-      constant Real K = 2 "Dissociation constant of the reaction";
-
-      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
-      constant Real R = Modelica.Constants.R "Gas constant";
-
-      Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-      Chemical.Boundaries.Substance A(
-        useRear=false,
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-52,-8},{-32,12}})));
-
-      Chemical.Processes.Reaction
-               reaction(
-        K=2,
-
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-10,-8},{10,12}})));
-      Chemical.Boundaries.Substance B(
-        useRear=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-8},{64,12}})));
-
-      inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{58,64},{78,84}})));
-    equation
-      connect(A.solution, solution.solution) annotation (Line(
-          points={{-48,-8},{-48,-86},{60,-86},{60,-98}},
-          color={127,127,0}));
-      connect(B.solution, solution.solution) annotation (Line(points={{48,-8},{48,-86},{60,-86},{60,-98}},
-                                         color={127,127,0}));
-      connect(A.fore, reaction.substrates[1]) annotation (Line(
-          points={{-32,2},{-10,2}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reaction.products[1], B.rear) annotation (Line(
-          points={{10,2},{44,2}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation (Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Simple reaction demonstrating equilibria between substance A and substance B, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that mole fraction (A.x and B.x) are always summed to 1 for the solution.</p>
-</html>"),
-        experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
-    end SimpleReaction;
-
-    model SimpleReaction2 "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
-      import Chemical;
-
-       extends Modelica.Icons.Example;
-
-
-      Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-      Chemical.Boundaries.Substance A(
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,4},{-14,24}})));
-      Reaction reaction2_1(
-        K=2,
-        nS=2,
-        nP=1) annotation (Placement(transformation(extent={{6,-8},{26,12}})));
-      Chemical.Boundaries.Substance B(
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,-24},{-14,-4}})));
-      Chemical.Boundaries.Substance C(
-        useRear=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
-
-    equation
-      connect(A.solution, solution.solution) annotation (Line(
-          points={{-30,4},{-30,-90},{60,-90},{60,-98}},
-          color={127,127,0}));
-      connect(C.solution, solution.solution) annotation (Line(points={{52,-8},{66,-8},{66,-90},{60,-90},{60,-98}},
-                                                 color={127,127,0}));
-      connect(B.solution, solution.solution) annotation (Line(points={{-30,-24},
-            {-30,-90},{60,-90},{60,-98}},color={127,127,0}));
-
-      connect(A.fore, reaction2_1.substrates[1])
-        annotation (Line(
-          points={{-14,14},{-4,14},{-4,1.75},{6,1.75}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(B.fore, reaction2_1.substrates[2])
-        annotation (Line(
-          points={{-14,-14},{-8,-14},{-8,2.25},{6,2.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reaction2_1.products[1], C.rear) annotation (Line(
-          points={{26,2},{48,2}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
-</html>"),
-        experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
-    end SimpleReaction2;
-
-    model SimpleReaction22 "The simple chemical reaction A+B<->C+D with equilibrium [C]*[D]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
-       extends Modelica.Icons.Example;
-
-
-      Chemical.Boundaries.Substance A(
-        useFore=true,                 use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-34,2},{-14,22}})));
-      Chemical.Processes.Reaction reaction2_1(K=2,
-        nS=2,
-        nP=2)     annotation (Placement(transformation(extent={{2,-12},{22,8}})));
-      Chemical.Boundaries.Substance B(
-        useFore=true,                 use_mass_start=false, amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{-32,-24},{-12,-4}})));
-      Chemical.Boundaries.Substance C(useRear=true,
-                                      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,-8},{68,12}})));
-
-      Chemical.Boundaries.Substance D(useRear=true,
-                                      amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{44,-34},{64,-14}})));
-      inner DropOfCommons dropOfCommons(L=1e-3) annotation (Placement(transformation(extent={{52,56},{72,76}})));
-    equation
-
-      connect(A.fore, reaction2_1.substrates[1])
-        annotation (Line(
-          points={{-14,12},{-4,12},{-4,-2.25},{2,-2.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(B.fore, reaction2_1.substrates[2])
-        annotation (Line(
-          points={{-12,-14},{-2,-14},{-2,-1.75},{2,-1.75}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(C.rear, reaction2_1.products[1]) annotation (Line(
-          points={{48,2},{28,2},{28,-2.25},{22,-2.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(D.rear, reaction2_1.products[2])
-        annotation (Line(
-          points={{44,-24},{28,-24},{28,-1.75},{22,-1.75}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
-</html>"),
-        experiment(StopTime=100, __Dymola_Algorithm="Dassl"));
-    end SimpleReaction22;
-
-    model ExothermicReaction "Exothermic reaction in ideally thermal isolated solution and in constant temperature conditions"
-      import Chemical;
-
-
-       extends Modelica.Icons.Example;
-
-      parameter Modelica.Units.SI.MolarEnergy ReactionEnthalpy=-55000;
-
-      Chemical.Solution thermal_isolated_solution(useMechanicPorts=true, ConstantTemperature=false)
-        annotation (Placement(transformation(extent={{-100,-100},{98,-6}})));
-      Chemical.Boundaries.Substance A(
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,-60},{-20,-40}})));
-      Reaction reaction2_2(
-        dH=ReactionEnthalpy,
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-8,-60},{12,-40}})));
-      Chemical.Boundaries.Substance B(
-        useRear=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{28,-60},{48,-40}})));
-
-      Chemical.Solution solution_at_constant_temperature(useMechanicPorts=true, useThermalPort=true)
-        annotation (Placement(transformation(extent={{-100,0},{98,94}})));
-      Chemical.Boundaries.Substance A1(
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.9) annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
-      Reaction reaction2_1(
-        dH=ReactionEnthalpy,
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-8,40},{12,60}})));
-      Chemical.Boundaries.Substance B1(
-        useRear=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{20,40},{40,60}})));
-
-      //  Modelica.SIunits.HeatFlowRate q
-      //    "Heat flow to environment to reach constant temperature";
-      Modelica.Units.SI.Temperature t
-        "Temperature if the solution is ideally thermal isolated from environment";
-      Chemical.Boundaries.Substance H2O(substanceDefinition=Chemical.Substances.Liquid.H2O,
-        useSolution=true,                                                                   mass_start=1)
-        annotation (Placement(transformation(extent={{20,4},{40,24}})));
-      Chemical.Boundaries.Substance H2O1(substanceDefinition=Chemical.Substances.Liquid.H2O,
-        useSolution=true,                                                                    mass_start=1)
-        annotation (Placement(transformation(extent={{20,-94},{40,-74}})));
-      Modelica.Mechanics.Translational.Components.Fixed fixed1
-        annotation (Placement(transformation(extent={{-28,4},{-8,24}})));
-      Modelica.Mechanics.Translational.Components.Fixed fixed2
-        annotation (Placement(transformation(extent={{-26,-96},{-6,-76}})));
-      inner Modelica.Fluid.System system(T_ambient=298.15)
-        annotation (Placement(transformation(extent={{56,64},{76,84}})));
-      Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=
-            298.15)
-        annotation (Placement(transformation(extent={{-88,26},{-68,46}})));
-    equation
-      //  q = fixedTemperature.port.Q_flow;
-      t = thermal_isolated_solution.solution.T;
-
-      connect(B.solution, thermal_isolated_solution.solution) annotation (Line(
-          points={{32,-60},{32,-64},{58.4,-64},{58.4,-99.06}},
-          color={127,127,0}));
-      connect(A.solution, thermal_isolated_solution.solution) annotation (Line(
-            points={{-36,-60},{-36,-64},{58.4,-64},{58.4,-99.06}},
-                                                             color={127,127,0}));
-      connect(B1.solution, solution_at_constant_temperature.solution) annotation (
-          Line(
-          points={{24,40},{24,34},{58.4,34},{58.4,0.94}},
-          color={127,127,0}));
-      connect(A1.solution, solution_at_constant_temperature.solution) annotation (
-          Line(points={{-36,40},{-36,34},{58.4,34},{58.4,0.94}},
-                                                          color={127,127,0}));
-    connect(solution_at_constant_temperature.solution, H2O.solution)
-      annotation (Line(
-        points={{58.4,0.94},{24,0.94},{24,4}},
-        color={127,127,0}));
-    connect(thermal_isolated_solution.solution, H2O1.solution) annotation (Line(
-        points={{58.4,-99.06},{24,-99.06},{24,-94}},
-        color={127,127,0}));
-    connect(solution_at_constant_temperature.bottom, fixed1.flange) annotation (
-       Line(
-        points={{-1,-0.94},{0,-0.94},{0,14},{-18,14}},
-        color={0,127,0}));
-    connect(thermal_isolated_solution.bottom, fixed2.flange) annotation (Line(
-        points={{-1,-100.94},{-1,-86},{-16,-86}},
-        color={0,127,0}));
-      connect(solution_at_constant_temperature.heatPort, fixedTemperature.port)
-        annotation (Line(points={{-60.4,-0.94},{-60.4,36},{-68,36}}, color={191,0,
-              0}));
-      connect(A1.fore, reaction2_1.substrates[1]) annotation (Line(
-          points={{-20,50},{-8,50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reaction2_1.products[1], B1.rear) annotation (Line(
-          points={{12,50},{20,50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(A.fore, reaction2_2.substrates[1]) annotation (Line(
-          points={{-20,-50},{-8,-50}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(reaction2_2.products[1], B.rear) annotation (Line(
-          points={{12,-50},{28,-50}},
-          color={158,66,200},
-          thickness=0.5));
-      annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
-</html>"),
-        experiment(StopTime=10, __Dymola_Algorithm="Dassl"),
-        Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
-                100}})));
-    end ExothermicReaction;
-
-    model EnzymeKinetics "Basic enzyme kinetics"
-
-      extends Modelica.Icons.Example;
-
-      Chemical.Solution solution annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
-
-      //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-      Chemical.Boundaries.Substance P(
-        useRear=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=1e-8) annotation (Placement(transformation(extent={{72,-12},{92,8}})));
-
-      Chemical.Boundaries.Substance S(
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=100) annotation (Placement(transformation(extent={{-92,-14},{-72,6}})));
-
-      parameter Modelica.Units.SI.AmountOfSubstance tE=1
-        "Total amount of enzyme";
-         parameter Real k_cat(
-        unit="mol/s",
-        displayUnit="mol/min")=1
-        "Forward rate of second reaction";
-      constant Modelica.Units.SI.Concentration Km=0.1
-        "Michaelis constant = substrate concentration at rate of half Vmax";
-
-      parameter Modelica.Units.SI.MolarFlowRate Vmax=1e-5*k_cat
-        "Maximal molar flow";
-
-      Chemical.Boundaries.Substance ES(
-        useRear=true,
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{-8,-10},{12,10}})));
-      Chemical.Boundaries.Substance E(
-        useRear=true,
-        useFore=true,
-        useSolution=true,
-        use_mass_start=false,
-        amountOfSubstance_start=tE/2) annotation (Placement(transformation(extent={{12,36},{-8,56}})));
-      Reaction                    chemicalReaction(
-        K=2/Km,
-        k_forward=1,
-              nS=2,
-        nP=1) annotation (Placement(transformation(extent={{-42,-10},{-22,10}})));
-
-      Processes.ForwardReaction chemicalReaction1(
-        productsFrom=Chemical.Utilities.Types.FirstProductChoice.fromParameter,
-        k_forward=k_cat,
-        productsData={Chemical.Substances.Unknown,Chemical.Substances.Unknown},
-        nS=1,
-        nP=2) annotation (Placement(transformation(extent={{26,-8},{46,12}})));
-
-      Chemical.Boundaries.Substance liquidWater(
-        useSolution=true,
-        substanceDefinition=Chemical.Substances.Liquid.H2O,
-        use_mass_start=true,
-        mass_start=1) annotation (Placement(transformation(extent={{42,-80},{62,-60}})));
-      inner DropOfCommons dropOfCommons      annotation (Placement(transformation(extent={{68,70},{88,90}})));
-    equation
-      //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
-      connect(E.solution, solution.solution) annotation (Line(
-          points={{8,36},{-8,36},{-8,-98},{60,-98}},
-          color={127,127,0}));
-      connect(ES.solution, solution.solution)
-        annotation (Line(points={{-4,-10},{-4,-98},{60,-98}},         color={127,127,0}));
-
-      connect(S.solution, solution.solution) annotation (Line(
-          points={{-88,-14},{-88,-56},{-8,-56},{-8,-98},{60,-98}},
-          color={127,127,0}));
-      connect(P.solution, solution.solution) annotation (Line(
-          points={{76,-12},{76,-98},{60,-98}},
-          color={127,127,0}));
-      connect(liquidWater.solution, solution.solution) annotation (Line(points={{
-              46,-80},{46,-98},{60,-98}}, color={127,127,0}));
-      connect(chemicalReaction.products[1], ES.rear) annotation (Line(
-          points={{-22,0},{-8,0}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(ES.fore, chemicalReaction1.substrates[1])
-        annotation (Line(
-          points={{12,0},{18,0},{18,2},{26,2}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(S.fore, chemicalReaction.substrates[1])
-        annotation (Line(
-          points={{-72,-4},{-52,-4},{-52,-2},{-42,-2},{-42,-0.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(E.fore, chemicalReaction.substrates[2])
-        annotation (Line(
-          points={{-8,46},{-52,46},{-52,0.25},{-42,0.25}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(chemicalReaction1.products[1], P.rear)
-        annotation (Line(
-          points={{46,1.75},{58,1.75},{58,-2},{72,-2}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(E.rear, chemicalReaction1.products[2])
-        annotation (Line(
-          points={{12,46},{48,46},{48,48},{56,48},{56,2.25},{46,2.25}},
-          color={158,66,200},
-          thickness=0.5));
-          annotation ( Documentation(revisions="<html>
-<p><i>2015-2018</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",     info="<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
-<p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
-<p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
-<p>S = Km .. the amount of substrate is Km</p>
-<p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
-<p><br>Conversions of molar concentration to mole fraction (MM is molar mass of the solvent in solution -&gt; 55.508 kg/mol for water):</p>
-<p>x(Km) = Km/MM</p>
-<p>x(tE) = tE/MM</p>
-<p>xS = S/MM = Km/MM</p>
-<p><br>The new kinetics of the system defined as:</p>
-<p>uS&deg; = DfG(S) = 0</p>
-<p>uE&deg; = DfG(E) = 0</p>
-<p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
-<p>uP&deg; = DfG(P) </p>
-<p><br>r = Vmax/2</p>
-<p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
-<p>because xES=xE this time</p>
-<p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
-<h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
-<h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
-<p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
-<p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
-<p><br>where</p>
-<p>AmountOfSolution = MM = 55.508 (for water)</p>
-<p>Tau = 1 s (just to be physical unit correct)</p>
-<p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
-<h4>The maximum of the new enzyme kinetics</h4>
-<p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
-<p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
-<p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
-<p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
-<p>(uP&deg; +<b> </b>R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
-<p>R*T*ln(xP*xE/xES) ?=&lt;? - uP&deg; - R*T*ln(2/x(Km)) </p>
-<p>xP*xE/xES ?=&lt;? exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
-<p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
-</html>"),
-        experiment(StopTime=100000, __Dymola_Algorithm="Dassl"),
-        __Dymola_experimentSetupOutput);
-    end EnzymeKinetics;
-
     model Diffusion
 
       extends Modelica.Icons.Example;
 
       Chemical.Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
       Chemical.Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
-      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
+      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss =
             Chemical.Processes.Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
       Chemical.Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
       Chemical.Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
-      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromParameter, redeclare function uLoss =
+      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
       Chemical.Boundaries.Substance s3(
         useFore=true,
@@ -2100,7 +1185,7 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
-      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
+      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
       Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
@@ -2112,10 +1197,11 @@ du := n_flow/kC;
         useRear=true,
         useSolution=false,
         mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
-      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSolutionPort, redeclare function uLoss =
+      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
       Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
-      Chemical.Boundaries.Substance solvent(useFore=false, useSolution=true) annotation (Placement(transformation(extent={{194,24},{214,44}})));
+      Chemical.Boundaries.Substance solvent(useFore=false, useSolution=true,
+        mass_start=1)                                                        annotation (Placement(transformation(extent={{194,24},{214,44}})));
       Chemical.Boundaries.Substance s5(
         useFore=true,
         useSolution=true,
@@ -2124,7 +1210,7 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));
-      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, redeclare function uLoss =
+      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss =
             Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
       Solution solution2 annotation (Placement(transformation(extent={{12,-122},{220,-12}})));
     equation
@@ -2180,11 +1266,8 @@ du := n_flow/kC;
         experiment(StopTime=1, __Dymola_Algorithm="Dassl"));
     end Diffusion;
 
-    model SimpleFlow0
-      constant Real K = 2 "Dissociation constant of the reaction";
-
-      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
-      constant Real R = Modelica.Constants.R "Gas constant";
+    model SimpleFlow
+      extends Modelica.Icons.Example;
       Chemical.Boundaries.Substance substance(
         useFore=true,
         use_mass_start=false,
@@ -2194,7 +1277,7 @@ du := n_flow/kC;
         use_mass_start=false,
         amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
       inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
-      Pump pump(solutionFrom=Chemical.Utilities.Types.SolutionChoice.fromSubstrate, SubstanceFlow=1)
+      Pump pump(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, SubstanceFlow=1)
         annotation (Placement(transformation(extent={{-14,14},{6,34}})));
     equation
       connect(substance.fore, pump.rear) annotation (Line(
@@ -2205,39 +1288,8 @@ du := n_flow/kC;
           points={{6,24},{40,24},{40,22},{48,22}},
           color={158,66,200},
           thickness=0.5));
-    end SimpleFlow0;
+    end SimpleFlow;
 
-    model SimpleReactionPathway
-      constant Real K = 2 "Dissociation constant of the reaction";
-
-      constant Modelica.Units.SI.Temperature T_25degC=298.15 "Temperature";
-      constant Real R = Modelica.Constants.R "Gas constant";
-      Chemical.Processes.Reaction r1(
-        K=2,
-        nS=1,
-        nP=1) annotation (Placement(transformation(extent={{-28,62},{-8,82}})));
-      Chemical.Boundaries.Substance A(useFore=true) annotation (Placement(transformation(extent={{-62,62},{-42,82}})));
-      Chemical.Boundaries.Substance B(useRear=true) annotation (Placement(transformation(extent={{74,62},{94,82}})));
-      Reaction r2(nP=1, nS=1) annotation (Placement(transformation(extent={{10,62},{30,82}})));
-      GasSolubility gasSolubility annotation (Placement(transformation(extent={{42,62},{62,82}})));
-    equation
-      connect(A.fore, r1.substrates[1]) annotation (Line(
-          points={{-42,72},{-28,72}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(r2.products[1], gasSolubility.rear) annotation (Line(
-          points={{30,72},{42,72}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(gasSolubility.fore, B.rear) annotation (Line(
-          points={{62,72},{74,72}},
-          color={158,66,200},
-          thickness=0.5));
-      connect(r1.products[1], r2.substrates[1]) annotation (Line(
-          points={{-8,72},{10,72}},
-          color={158,66,200},
-          thickness=0.5));
-    end SimpleReactionPathway;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));

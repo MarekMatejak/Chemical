@@ -28,7 +28,7 @@ package Utilities
 Choices for initialization of a&nbsp;state.
 </p>
 </html>"));
-    type InitializationUndirectedSubstance
+    type InitializationSubstance
                                = enumeration(
       none
         "No initialization",

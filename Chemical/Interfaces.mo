@@ -1662,13 +1662,12 @@ end DataRecord;
 
     parameter Boolean useSubstanceFlowInput = false
     "=true, if substance flow is provided via input"
-    annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
-            Dialog(__Dymola_compact=true));
+    annotation(HideResult=true, choices(checkBox=true),
+            Dialog(group="Conditional inputs"));
 
   parameter Modelica.Units.SI.MolarFlowRate SubstanceFlow=0
     "Volumetric flow of Substance if useSubstanceFlowInput=false"
-    annotation (HideResult=true, Dialog(enable=not
-          useSubstanceFlowInput));
+    annotation (HideResult=true, Dialog(enable=not useSubstanceFlowInput));
 
     Modelica.Blocks.Interfaces.RealInput substanceFlow(start=SubstanceFlow, final unit="mol/s")=q
       if useSubstanceFlowInput
@@ -1894,33 +1893,4 @@ end DataRecord;
 </html>"));
   end SISO;
 
-  connector StateInput = input Chemical.Interfaces.SubstanceState "Substance state as connector"
-    annotation (
-      defaultComponentName="u",
-      Icon(graphics={
-        Polygon(
-          lineColor={162,29,33},
-          fillColor={162,29,33},
-          fillPattern=FillPattern.Solid,
-          points={{-100.0,100.0},{100.0,0.0},{-100.0,-100.0}})},
-        coordinateSystem(extent={{-100.0,-100.0},{100.0,100.0}},
-          preserveAspectRatio=true,
-          initialScale=0.2)),
-      Diagram(
-        coordinateSystem(preserveAspectRatio=true,
-          initialScale=0.2,
-          extent={{-100.0,-100.0},{100.0,100.0}}),
-          graphics={
-        Polygon(
-          lineColor={162,29,33},
-          fillColor={162,29,33},
-          fillPattern=FillPattern.Solid,
-          points={{0.0,50.0},{100.0,0.0},{0.0,-50.0},{0.0,50.0}}),
-        Text(
-          textColor={162,29,33},
-          extent={{-10.0,60.0},{-10.0,85.0}},
-          textString="%name")}),
-      Documentation(info="<html>
-<p>Connector with one input signal of type Medium.Thermodynamic state. </p>
-</html>"));
 end Interfaces;
