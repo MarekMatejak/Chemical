@@ -1331,12 +1331,12 @@ end DataRecord;
        annotation(Inline = true);
      end fromValues;
 
-     function fromSolutionPort
+    /* function fromSolutionPort
        input SolutionPort s;
        output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
      algorithm
        annotation(Inline = true);
-     end fromSolutionPort;
+     end fromSolutionPort;*/
    end 'constructor';
 
    encapsulated operator function '=='
@@ -1754,7 +1754,7 @@ end DataRecord;
     parameter Real k_forward(unit="mol/s") = 1 "Forward rate coefficient (mole-fraction based)"
       annotation (HideResult=true, Dialog(enable=not useForwardRateInput));
 
-    Modelica.Blocks.Interfaces.RealInput kfInput(start=KC, final unit="mol2.s-1.J-1")=
+    Modelica.Blocks.Interfaces.RealInput kfInput(start=k_forward, final unit="mol2.s-1.J-1")=
        kf if useForwardRateInput
        annotation ( HideResult=true, Placement(transformation(
           extent={{-20,-20},{20,20}},
