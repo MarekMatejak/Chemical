@@ -99,7 +99,7 @@ package Sensors "Sensors package for undirected chemical simulation"
     extends Internal.PartialSensor;
 
 
-    Chemical.Interfaces.OutputSubstanceState state_out   "Measured value [variable]"
+    Chemical.Interfaces.SubstanceStateOutput state_out   "Measured value [variable]"
       annotation (Placement(transformation(extent={{80,-20},{120,20}})));
 
   equation

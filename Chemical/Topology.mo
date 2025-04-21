@@ -808,7 +808,8 @@ Junction with a rear and two fores in a lying T shape.
       parameter Boolean useSolution = false "Use solution connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible)
+      "Constant chemical solution state if not from rear or input"
         annotation (Dialog(enable=not useSolution and not useRear));
 
       Chemical.Interfaces.SolutionPort solution(

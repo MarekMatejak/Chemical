@@ -7,11 +7,11 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-    Chemical.Interfaces.OutputSubstanceState state_forwards "State of substance in forwards direction";
-    Chemical.Interfaces.InputSubstanceState state_rearwards "State of substance in rearwards direction";
+    Chemical.Interfaces.SubstanceStateOutput state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.SubstanceStateInput state_rearwards "State of substance in rearwards direction";
 
-    Chemical.Interfaces.OutputSolutionState solution "State of solution";
-    Chemical.Interfaces.OutputDefinition definition "Definition of substance";
+    Chemical.Interfaces.SolutionStateOutput solution "State of solution";
+    Chemical.Interfaces.DefinitionOutput definition "Definition of substance";
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
             extent={{-80,80},{80,-80}},
             lineColor={158,66,200},
@@ -36,11 +36,11 @@ package Interfaces "Chemical interfaces"
     Modelica.Units.SI.ChemicalPotential r "Inertial Electro-chemical potential";
     flow Modelica.Units.SI.MolarFlowRate n_flow  "Molar change of the substance";
 
-    Chemical.Interfaces.InputSubstanceState state_forwards "State of substance in forwards direction";
-    Chemical.Interfaces.OutputSubstanceState state_rearwards "State of substance in rearwards direction";
+    Chemical.Interfaces.SubstanceStateInput state_forwards "State of substance in forwards direction";
+    Chemical.Interfaces.SubstanceStateOutput state_rearwards "State of substance in rearwards direction";
 
-    Chemical.Interfaces.InputSolutionState solution "State of solution";
-    Chemical.Interfaces.InputDefinition definition "Definition of substance";
+    Chemical.Interfaces.SolutionStateInput solution "State of solution";
+    Chemical.Interfaces.DefinitionInput definition "Definition of substance";
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
             extent={{-80,80},{80,-80}},
@@ -250,27 +250,69 @@ package Interfaces "Chemical interfaces"
 
   end Definition;
 
-  type Phase                 = enumeration(
-    Gas
-      "Gaseous phase",
-    Liquid
-      "Liquid phase",
-    Solid
-      "Liquid phase",
-    Aqueous
-      "Dissolved in water",
-    Incompressible
-      "Incompressible liquid or solid phase")
-    annotation (
-      Icon(coordinateSystem(preserveAspectRatio=false)),
-      Diagram(
-        coordinateSystem(preserveAspectRatio=false)),
-      Documentation(info="<html>
-<p>
-Phase of substance or solution. It is possible to include any phase - as default it behave as incompressible. 
-To change its behavior it is necessary to modify Property functions.
-</p>
-</html>"));
+ replaceable record SubstanceState "Set that defines a state of substance"
+  extends Modelica.Icons.Record;
+
+   Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
+   Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy of the substance";
+ end SubstanceState;
+
+ operator record SolutionState "Set that defines a state of solution"
+  extends Modelica.Icons.Record;
+
+   Modelica.Units.SI.Temperature T "Temperature of the solution";
+   Modelica.Units.SI.Pressure p "Pressure of the solution";
+   Modelica.Units.SI.ElectricPotential v "Electric potential in the solution";
+   Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
+   Modelica.Units.SI.Mass m "Mass of the solution";
+   Modelica.Units.SI.Volume V "Volume of the solution";
+   Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
+   Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
+   Modelica.Units.SI.MoleFraction I "Mole fraction based ionic strength of the solution";
+
+   encapsulated operator 'constructor'
+     import Chemical.Interfaces.SolutionState;
+     import Chemical.Interfaces.SolutionPort;
+     import Chemical.Interfaces.Phase;
+     constant Real R=1.380649e-23*6.02214076e23;
+     constant Real T0=298.15 "Base temperature";
+     constant Real p0=100000 "Base pressure";
+
+     function fromValues
+       input Phase phase "Phase of the chemical solution";
+       input Real T=T0 "Temperature of the solution";
+       input Real p=p0 "Pressure of the solution";
+       input Real v=0 "Electric potential in the solution";
+       input Real n=1 "Amount of the solution";
+       input Real m=1 "Mass of the solution";
+       input Real V=if (phase==Phase.Gas) then n*R*T/p else 0.001 "Volume of the solution";
+       input Real G=0 "Free Gibbs energy of the solution";
+       input Real Q=0 "Electric charge of the solution";
+       input Real I=0 "Mole fraction based ionic strength of the solution";
+       output SolutionState result(T=T,p=p,v=v,n=n,m=m,V=V,G=G,Q=Q,I=I);
+     algorithm
+       annotation(Inline = true);
+     end fromValues;
+
+    /* function fromSolutionPort
+       input SolutionPort s;
+       output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
+     algorithm
+       annotation(Inline = true);
+     end fromSolutionPort;*/
+   end 'constructor';
+
+   encapsulated operator function '=='
+     import Chemical.Interfaces.SolutionState;
+     input SolutionState s1;
+     input SolutionState s2;
+     output Boolean result "= s1 == s2";
+   algorithm
+      result := s1.T == s2.T and s1.p == s2.p and s1.v == s2.v and s1.n == s2.n and s1.m == s2.m and s1.V == s2.V and s1.G == s2.G and s1.Q == s2.Q and s1.I == s2.I;
+      annotation(Inline = true);
+   end '==';
+ end SolutionState;
+
  function processData "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
    import Chemical;
 
@@ -294,12 +336,119 @@ To change its behavior it is necessary to modify Property functions.
 
  end processData;
 
+  connector SolutionPort
+  "Only for connecting the one solution their substances. Please, do not use it in different way."
+
+    //enthalpy
+  Modelica.Units.SI.Temperature T "Temperature of the solution";
+  flow Modelica.Units.SI.EnthalpyFlowRate dH
+    "Internal enthalpy change of the solution";
+
+    //pressure
+  Modelica.Units.SI.Pressure p "Pressure of the solution";
+  flow Modelica.Units.SI.VolumeFlowRate dV
+    "Volume change of the solution";
+
+    //electric port
+  Modelica.Units.SI.ElectricPotential v
+    "Electric potential in the solution";
+  flow Modelica.Units.SI.ElectricCurrent i "Change of electric charge";
+
+    //Extensive properties of the solution:
+
+    // The extensive quantities here have not the real physical flows.
+    // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
+
+    //amount of substances
+  Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
+  flow Modelica.Units.SI.AmountOfSubstance nj
+    "Amount of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+    //mass of substances
+  Modelica.Units.SI.Mass m "Mass of the solution";
+  flow Modelica.Units.SI.Mass mj
+    "Mass of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+    //volume of substances
+  Modelica.Units.SI.Volume V "Volume of the solution";
+  flow Modelica.Units.SI.Volume Vj
+    "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+    //Gibbs energy of substances
+  Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
+  flow Modelica.Units.SI.Energy Gj
+    "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+    //electric charge of the substance
+  Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
+  flow Modelica.Units.SI.ElectricCharge Qj
+    "Electric charge of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+    //ionic strength of substances
+  Modelica.Units.SI.MoleFraction I
+    "Mole fraction based ionic strength of the solution";
+  flow Modelica.Units.SI.MoleFraction Ij
+    "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
+
+  /*  //suport for structural properties
+  replaceable package stateOfMatter = StateOfMatter  constrainedby StateOfMatter
+  "Substance model to translate data into substance properties"
+     annotation (choicesAllMatching = true);*/
+
+    annotation (
+    defaultComponentName="solution",
+    Documentation(revisions="<html>
+<p><i>2015-2016</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",   info="<html>
+<p>Solution port integrates all substances of the solution:</p>
+<p>Such as if there are connected together with electric port, thermal port and with port composed with the amont of substance and molar change of substance.</p>
+</html>"),
+         Icon(graphics={            Rectangle(
+            extent={{-100,100},{100,-100}},
+            lineColor={127,127,0},
+            fillColor={127,127,0},
+            fillPattern=FillPattern.Solid)}),
+    Diagram(graphics={
+     Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
+          fillColor={127,127,0},
+          fillPattern=FillPattern.Solid),
+                    Rectangle(
+            extent={{-40,40},{40,-40}},
+            lineColor={127,127,0},
+            fillColor={127,127,0},
+            fillPattern=FillPattern.Solid,
+            lineThickness=1)}));
+  end SolutionPort;
+
+  type Phase                 = enumeration(
+    Gas
+      "Gaseous phase",
+    Liquid
+      "Liquid phase",
+    Solid
+      "Liquid phase",
+    Aqueous
+      "Dissolved in water",
+    Incompressible
+      "Incompressible liquid or solid phase")
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false)),
+      Diagram(
+        coordinateSystem(preserveAspectRatio=false)),
+      Documentation(info="<html>
+<p>
+Phase of substance or solution. It is possible to include any phase - as default it behave as incompressible. 
+To change its behavior it is necessary to modify Property functions.
+</p>
+</html>"));
+
   model ProcessProperties "Properties of the chemical process"
     import Chemical;
 
-    Interfaces.InputDefinition definition "Definition of the process";
+    Chemical.Interfaces.DefinitionInput definition "Definition of the process";
 
-    Interfaces.InputSolutionState solutionState "State of the solution";
+    Chemical.Interfaces.SolutionStateInput solutionState "State of the solution";
 
     Modelica.Units.SI.ChemicalPotential dG "Gibbs energy change during the process";
 
@@ -355,9 +504,9 @@ To change its behavior it is necessary to modify Property functions.
 
       parameter Boolean SolutionObserverOnly = false "True if substance does not affect the solution";
 
-      Chemical.Interfaces.InputDefinition definition "Definition of the substance";
+      Chemical.Interfaces.DefinitionInput definition "Definition of the substance";
 
-      Interfaces.InputSolutionState solutionState "State of the solution";
+      Chemical.Interfaces.SolutionStateInput solutionState "State of the solution";
 
       InputAmountOfSubstance amountOfBaseMolecules
         "Amount of base molecules inside all clusters in compartment";
@@ -446,7 +595,8 @@ To change its behavior it is necessary to modify Property functions.
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*specificAmountOfFreeBaseMolecule(
                                        definitionParam,
-                                       Chemical.Interfaces.SolutionStateParameters(
+                                       Chemical.Interfaces.SolutionState(
+                                       phase=Chemical.Interfaces.Phase.Incompressible,
                                        T=system.T_ambient,
                                        p=system.p_ambient)))
         "Amount of free molecules not included inside any clusters in compartment";
@@ -454,7 +604,8 @@ To change its behavior it is necessary to modify Property functions.
       Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
            m_start*specificAmountOfParticles(
                                        definitionParam,
-                                       Chemical.Interfaces.SolutionStateParameters(
+                                       Chemical.Interfaces.SolutionState(
+                                       phase=Chemical.Interfaces.Phase.Incompressible,
                                        T=system.T_ambient,
                                        p=system.p_ambient)))
         "Amount of particles/clusters in compartment";
@@ -1286,178 +1437,14 @@ gases also differentiable at Tlimit.
 </html>"));
 end DataRecord;
 
- replaceable record SubstanceState "Set that defines a state of substance"
-  extends Modelica.Icons.Record;
-
-   Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential of the substance";
-   Modelica.Units.SI.MolarEnthalpy h "Molar enthalpy of the substance";
- end SubstanceState;
 
 
- operator record SolutionState "Set that defines a state of solution"
-  extends Modelica.Icons.Record;
-
-   Modelica.Units.SI.Temperature T "Temperature of the solution";
-   Modelica.Units.SI.Pressure p "Pressure of the solution";
-   Modelica.Units.SI.ElectricPotential v "Electric potential in the solution";
-   Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
-   Modelica.Units.SI.Mass m "Mass of the solution";
-   Modelica.Units.SI.Volume V "Volume of the solution";
-   Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
-   Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
-   Modelica.Units.SI.MoleFraction I "Mole fraction based ionic strength of the solution";
-
-   encapsulated operator 'constructor'
-     import Chemical.Interfaces.SolutionState;
-     import Chemical.Interfaces.SolutionPort;
-     import Chemical.Interfaces.Phase;
-     constant Real R=1.380649e-23*6.02214076e23;
-     constant Real T0=298.15 "Base temperature";
-     constant Real p0=100000 "Base pressure";
-
-     function fromValues
-       input Phase phase "Phase of the chemical solution";
-       input Real T=T0 "Temperature of the solution";
-       input Real p=p0 "Pressure of the solution";
-       input Real v=0 "Electric potential in the solution";
-       input Real n=1 "Amount of the solution";
-       input Real m=1 "Mass of the solution";
-       input Real V=if (phase==Phase.Gas) then n*R*T/p else 0.001 "Volume of the solution";
-       input Real G=0 "Free Gibbs energy of the solution";
-       input Real Q=0 "Electric charge of the solution";
-       input Real I=0 "Mole fraction based ionic strength of the solution";
-       output SolutionState result(T=T,p=p,v=v,n=n,m=m,V=V,G=G,Q=Q,I=I);
-     algorithm
-       annotation(Inline = true);
-     end fromValues;
-
-    /* function fromSolutionPort
-       input SolutionPort s;
-       output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
-     algorithm
-       annotation(Inline = true);
-     end fromSolutionPort;*/
-   end 'constructor';
-
-   encapsulated operator function '=='
-     import Chemical.Interfaces.SolutionState;
-     input SolutionState s1;
-     input SolutionState s2;
-     output Boolean result "= s1 == s2";
-   algorithm
-      result := s1.T == s2.T and s1.p == s2.p and s1.v == s2.v and s1.n == s2.n and s1.m == s2.m and s1.V == s2.V and s1.G == s2.G and s1.Q == s2.Q and s1.I == s2.I;
-      annotation(Inline = true);
-   end '==';
- end SolutionState;
-
- operator record SolutionStateParameters "Set that defines a state of solution"
-  extends Modelica.Icons.Record;
-
-   parameter Modelica.Units.SI.Temperature T=293.15   "Temperature of the solution";
-   parameter Modelica.Units.SI.Pressure p=101325   "Pressure of the solution";
-   parameter Modelica.Units.SI.Mass m = 1 "Mass of the solution";
-   parameter Modelica.Units.SI.Volume V(displayUnit="l")=0.001  "Volume of the solution";
-   parameter Modelica.Units.SI.AmountOfSubstance n = 1 "Amount of the solution";
-   parameter Modelica.Units.SI.ElectricPotential v = 0 "Electric potential in the solution";
-   parameter Modelica.Units.SI.Energy G = 0 "Free Gibbs energy of the solution";
-   parameter Modelica.Units.SI.ElectricCharge Q = 0 "Electric charge of the solution";
-   parameter Modelica.Units.SI.MoleFraction I = 0 "Mole fraction based ionic strength of the solution";
-
-
- end SolutionStateParameters;
-
-
-  connector InputDefinition = input Chemical.Interfaces.Definition;
-  connector InputSubstanceState = input SubstanceState;
-  connector InputSolutionState = input SolutionState;
-  connector OutputDefinition = output Chemical.Interfaces.Definition;
-  connector OutputSubstanceState = output SubstanceState;
-  connector OutputSolutionState = output SolutionState;
-
-  connector SolutionPort
-  "Only for connecting the one solution their substances. Please, do not use it in different way."
-
-    //enthalpy
-  Modelica.Units.SI.Temperature T "Temperature of the solution";
-  flow Modelica.Units.SI.EnthalpyFlowRate dH
-    "Internal enthalpy change of the solution";
-
-    //pressure
-  Modelica.Units.SI.Pressure p "Pressure of the solution";
-  flow Modelica.Units.SI.VolumeFlowRate dV
-    "Volume change of the solution";
-
-    //electric port
-  Modelica.Units.SI.ElectricPotential v
-    "Electric potential in the solution";
-  flow Modelica.Units.SI.ElectricCurrent i "Change of electric charge";
-
-    //Extensive properties of the solution:
-
-    // The extensive quantities here have not the real physical flows.
-    // They hack the Kirchhof's flow equation to be counted as the sum from all connected substances in the solution.
-
-    //amount of substances
-  Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
-  flow Modelica.Units.SI.AmountOfSubstance nj
-    "Amount of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-    //mass of substances
-  Modelica.Units.SI.Mass m "Mass of the solution";
-  flow Modelica.Units.SI.Mass mj
-    "Mass of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-    //volume of substances
-  Modelica.Units.SI.Volume V "Volume of the solution";
-  flow Modelica.Units.SI.Volume Vj
-    "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-    //Gibbs energy of substances
-  Modelica.Units.SI.Energy G "Free Gibbs energy of the solution";
-  flow Modelica.Units.SI.Energy Gj
-    "Gibbs energy of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-    //electric charge of the substance
-  Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
-  flow Modelica.Units.SI.ElectricCharge Qj
-    "Electric charge of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-    //ionic strength of substances
-  Modelica.Units.SI.MoleFraction I
-    "Mole fraction based ionic strength of the solution";
-  flow Modelica.Units.SI.MoleFraction Ij
-    "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
-
-  /*  //suport for structural properties
-  replaceable package stateOfMatter = StateOfMatter  constrainedby StateOfMatter
-  "Substance model to translate data into substance properties"
-     annotation (choicesAllMatching = true);*/
-
-    annotation (
-    defaultComponentName="solution",
-    Documentation(revisions="<html>
-<p><i>2015-2016</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",   info="<html>
-<p>Solution port integrates all substances of the solution:</p>
-<p>Such as if there are connected together with electric port, thermal port and with port composed with the amont of substance and molar change of substance.</p>
-</html>"),
-         Icon(graphics={            Rectangle(
-            extent={{-100,100},{100,-100}},
-            lineColor={127,127,0},
-            fillColor={127,127,0},
-            fillPattern=FillPattern.Solid)}),
-    Diagram(graphics={
-     Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
-          fillColor={127,127,0},
-          fillPattern=FillPattern.Solid),
-                    Rectangle(
-            extent={{-40,40},{40,-40}},
-            lineColor={127,127,0},
-            fillColor={127,127,0},
-            fillPattern=FillPattern.Solid,
-            lineThickness=1)}));
-  end SolutionPort;
+  connector DefinitionInput = input Chemical.Interfaces.Definition;
+  connector DefinitionOutput = output Chemical.Interfaces.Definition;
+  connector SubstanceStateInput = input SubstanceState;
+  connector SubstanceStateOutput = output SubstanceState;
+  connector SolutionStateInput = input SolutionState;
+  connector SolutionStateOutput = output SolutionState;
 
   model Total "Summation of all extensible properties per substance"
 
@@ -1689,12 +1676,12 @@ end DataRecord;
 
     import Chemical.Utilities.Types.SolutionChoice;
 
-   // parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution"
-    parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution"
-        annotation(HideResult=true, Dialog(group="Conditional inputs"));
+   // parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.fromSubstrate "Chemical solution "
+    parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution comes from?"
+        annotation(HideResult=true, Dialog(group="Chemical solution (of products)"));
 
-    parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
-      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter)));
+    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible) "Chemical solution state as Parameter"
+      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter), group="Chemical solution (of products)"));
 
     Chemical.Interfaces.SolutionPort solution(
         T=solutionState.T,
@@ -1722,7 +1709,7 @@ end DataRecord;
 
   protected
 
-      Chemical.Interfaces.InputSolutionState inputSubstrateSolution=solutionState if (solutionFrom == SolutionChoice.FirstSubstrate);
+      Chemical.Interfaces.SolutionStateInput inputSubstrateSolution=solutionState if (solutionFrom == SolutionChoice.FirstSubstrate);
 
   equation
 
@@ -1749,7 +1736,7 @@ end DataRecord;
     parameter Boolean useForwardRateInput=false
       "Forward rate coefficient from input?"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),
-        Dialog(group="Conditional inputs"));
+        Dialog(group="Conditional inputs", tab="Advanced"));
 
     parameter Real k_forward(unit="mol/s") = 1 "Forward rate coefficient (mole-fraction based)"
       annotation (HideResult=true, Dialog(enable=not useForwardRateInput));
@@ -1804,7 +1791,7 @@ end DataRecord;
     Modelica.Units.SI.ChemicalPotential du_fore;
     Modelica.Units.SI.ChemicalPotential du_rear;
 
-    Modelica.Units.SI.MoleFraction x_rear, x_fore;
+    Modelica.Units.SI.MoleFraction Px_rear, Sx_fore;
   /*  Modelica.Units.SI.Concentration c_in, c_out;
   Modelica.Units.SI.Molality b_in, b_out;
   Modelica.Units.SI.MassFraction X_in, X_out;
@@ -1812,8 +1799,8 @@ end DataRecord;
 
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Chemical.Interfaces.InputSubstanceState state_rear_in "Input substance state in forwards direction";
-    Chemical.Interfaces.InputSubstanceState state_fore_in "Input substance state in rearwards direction";
+    Chemical.Interfaces.SubstanceStateInput state_rear_in "Input substance state in forwards direction";
+    Chemical.Interfaces.SubstanceStateInput state_fore_in "Input substance state in rearwards direction";
 
     //Chemical.Interfaces.SubstanceState state_out "Input substance state in rearwards direction";
 
@@ -1834,6 +1821,8 @@ end DataRecord;
 
     //Chemical.Utilities.Units.URT duRT_fore, duRT_rear;
 
+    Real Kx;
+
   initial equation
     if initN_flow == InitializationMethods.state then
       n_flow = n_flow_0;
@@ -1848,23 +1837,26 @@ end DataRecord;
     connect(rear.state_forwards, state_rear_in);
     connect(fore.state_rearwards, state_fore_in);
 
-    u_fore_out = state_rear_in.u + du_fore;
-    u_rear_out = state_fore_in.u + du_rear;
+    du_fore = rear.state_forwards.u - fore.state_forwards.u;
+    du_rear = fore.state_rearwards.u - rear.state_rearwards.u;
 
-  //  du_fore = rear.state_forwards.u - fore.state_forwards.u;
-  //  du_rear = rear.state_rearwards.u - fore.state_rearwards.u;
+    /*
+  du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
+  du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
+  */
 
 
-    h_rear_out = state_fore_in.h;
-    h_fore_out = state_rear_in.h;
+    fore.state_forwards.h = rear.state_forwards.h;
+    rear.state_rearwards.h = fore.state_rearwards.h;
 
 
   //  duRT_fore = (rear.state_forwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_forwards.u / (Modelica.Constants.R*fore.solution.T));
   //  duRT_rear = (rear.state_rearwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_rearwards.u / (Modelica.Constants.R*fore.solution.T));
 
 
-    x_rear = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution.T)));
-    x_fore = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution.T)));
+    Sx_fore = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution.T)));
+    Px_rear = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution.T)));
+    Kx = exp(uPure_product/(Modelica.Constants.R*fore.solution.T)-uPure_substrate/(Modelica.Constants.R*rear.solution.T));
 
 
     uPure_substrate = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
@@ -1877,7 +1869,7 @@ end DataRecord;
 
 
     fore.n_flow + rear.n_flow = 0;
-    fore.r = rear.r - der(rear.n_flow) * L;
+    fore.r = rear.r - der(n_flow) * L;
 
 
 

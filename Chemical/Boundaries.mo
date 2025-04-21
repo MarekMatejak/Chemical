@@ -5,6 +5,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model Substance "Substance"
     extends Icons.Substance;
     extends Internal.PartialSubstance(
+
       useFore=false,
       useSolution=false,
       useRear=false,
@@ -156,7 +157,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   protected
     outer Chemical.DropOfCommons dropOfCommons;
 
-    Chemical.Interfaces.InputSubstanceState state_in_fore;
+    Chemical.Interfaces.SubstanceStateInput state_in_fore;
 
   initial equation
     u = u_0;
@@ -388,6 +389,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model ExternalGas "Gas substance with defined partial pressure"
     extends Internal.PartialSubstance(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas),
       m_start=1,
       substance(final SolutionObserverOnly=true));
 
@@ -691,7 +693,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model BoundaryRear "Generic Boundary model (may act as source or sink)"
 
 
-    parameter Chemical.Interfaces.SolutionStateParameters solutionState
+    parameter Chemical.Interfaces.SolutionState solutionState = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible)
       annotation (Dialog(enable=not solutionFromInput));
     parameter Chemical.Interfaces.Definition substanceDefinition=Chemical.Substances.Liquid.Unknown "Definition of the substance" annotation (choicesAllMatching=true);
 
@@ -1409,7 +1411,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
 
       Chemical.Interfaces.Definition substanceDefinitionVar;         //substanceDefinition;
-      Chemical.Interfaces.InputDefinition definitionVar;//substanceDefinition;
+      Chemical.Interfaces.DefinitionInput definitionVar;//substanceDefinition;
       Chemical.Interfaces.SolutionState solutionState;
 
        //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
@@ -1432,8 +1434,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
       Modelica.Units.SI.MolarFlowRate n_flow_rear;
       Modelica.Units.SI.MolarFlowRate n_flow_fore;
 
-      Chemical.Interfaces.InputSubstanceState state_in_rear;
-      Chemical.Interfaces.InputSubstanceState state_in_fore;
+      Chemical.Interfaces.SubstanceStateInput state_in_rear;
+      Chemical.Interfaces.SubstanceStateInput state_in_fore;
       Chemical.Interfaces.SubstanceState state_out;
 
     equation
@@ -1483,9 +1485,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
     parameter Boolean useSolution = false "Use solution connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.SolutionStateParameters solutionParam "Constant chemical solution state if not from rear or input"
+      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible) "Constant chemical solution state if not from rear or input"
         annotation (HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear));
-
       Chemical.Interfaces.SolutionPort solution(
           T=solutionPortState.T,
           p=solutionPortState.p,
@@ -1507,36 +1508,28 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Ij=substance.Ij)
             if useSolution "To connect substance with solution, where is pressented"
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
         Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
             "Concentration";
         Modelica.Units.SI.MassConcentration M(displayUnit="g/l")
             "Mass concentration";
         Modelica.Units.SI.Molality b(displayUnit="mmol/kg")
             "Molality";
-
         Modelica.Units.SI.MoleFraction x "Mole fraction";
         Modelica.Units.SI.MassFraction X "Mass fraction";
-
     protected
          outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
-
          Chemical.Interfaces.SolutionState solutionPortState;
-
     equation
       c = substance.c;
       b = substance.b;
       M = substance.M;
       x = substance.x;
       X = substance.X;
-
       state_out.u = substance.u;
       state_out.h = substance.h;
-
       if (useSolution and not useRear) or (not useSolution) then
         solutionState=solutionPortState;
       end if;
-
       if not useSolution and not useRear then
         solutionState.T=solutionParam.T "Temperature of the solution";
         solutionState.p=solutionParam.p "Pressure of the solution";
@@ -1548,8 +1541,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
         solutionState.Q=solutionParam.Q "Electric charge of the solution";
         solutionState.I=solutionParam.I "Mole fraction based ionic strength of the solution";
       end if;
+        annotation (choicesAllMatching=true, HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear),
+                  Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
 
-      annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+
     end PartialSubstance;
 
     partial model PartialTerminalRear

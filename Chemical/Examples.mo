@@ -30,16 +30,18 @@ package Examples "Tests for top level components of undirected"
   model SimpleReaction
     extends Modelica.Icons.Example;
     Chemical.Processes.Reaction r( nP = 1, nS = 1, process = Chemical.Interfaces.processData(2)) annotation(
-      Placement(transformation(extent = {{-6, 14}, {14, 34}})));
+      Placement(transformation(extent={{-6,12},{14,32}})));
     Chemical.Boundaries.Substance A(useFore = true) annotation(
       Placement(transformation(extent = {{-50, 14}, {-30, 34}})));
     Chemical.Boundaries.Substance B(useRear = true) annotation(
       Placement(transformation(extent = {{30, 14}, {50, 34}})));
   equation
     connect(A.fore, r.substrates[1]) annotation(
-      Line(points = {{-30, 24}, {-6, 24}}, color = {158, 66, 200}, thickness = 0.5));
+      Line(points={{-30,24},{-18,24},{-18,22},{-6,22}},
+                                           color = {158, 66, 200}, thickness = 0.5));
     connect(r.products[1], B.rear) annotation(
-      Line(points = {{14, 24}, {30, 24}}, color = {158, 66, 200}, thickness = 0.5));
+      Line(points={{14,22},{22,22},{22,24},{30,24}},
+                                          color = {158, 66, 200}, thickness = 0.5));
     annotation(
       Documentation(revisions = "<html>
 <p><i>2025</i></p>
@@ -468,6 +470,177 @@ package Examples "Tests for top level components of undirected"
     connect(r1.products[1], r2.substrates[1]) annotation(
       Line(points = {{-22, 58}, {-4, 58}}, color = {158, 66, 200}, thickness = 0.5));
   end SimpleReactionPathway;
+
+  model OxygenInWater "Oxygen dsisolution in water"
+    extends Modelica.Icons.Example;
+
+
+    Boundaries.Substance O2aqS(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{12,34},{32,54}})));
+    Boundaries.Substance O2gS(
+      substanceDefinition=Chemical.Substances.Gas.O2,
+      useFore=true,
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      use_mass_start=false,
+      amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-86,34},{-66,54}})));
+    Boundaries.Substance O2aqR(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{20,2},{40,22}})));
+    Boundaries.Substance O2gR(
+      substanceDefinition=Chemical.Substances.Gas.O2,
+      useFore=true,
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      use_mass_start=false,
+      amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-84,2},{-64,22}})));
+    Processes.Reaction gasSolubilityR(
+      firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      firstProduct=Chemical.Substances.Aqueous.O2,
+      solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter,
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      nS=1,
+      nP=1) annotation (Placement(transformation(extent={{-32,2},{-12,22}})));
+    Processes.GasSolubility gasSolubilityS(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-36,34},{-16,54}})));
+    Boundaries.ExternalGas O2gE(substanceDefinition=Chemical.Substances.Gas.O2, PartialPressure(displayUnit="mmHg") = 13332.2387415)
+      annotation (Placement(transformation(extent={{-76,70},{-56,90}})));
+    Boundaries.Substance O2aqE(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{16,70},{36,90}})));
+    Processes.GasSolubility gasSolubilityE(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-28,70},{-8,90}})));
+    Boundaries.Substance O2aqF(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-9) annotation (Placement(transformation(extent={{30,-88},{50,-68}})));
+    Processes.GasSolubility gasSolubilityF(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-12,-78})));
+    Boundaries.TerminalInflow O2gF(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      SubstanceFlow(displayUnit="umol/min") = 1.6666666666667e-10,
+      definition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-66,-88},{-46,-68}})));
+    Modelica.Blocks.Sources.ContinuousClock clock(offset=1e3)
+                                                            annotation (
+       Placement(transformation(extent={{-94,-42},{-74,-22}})));
+    Boundaries.Substance O2aqT(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-3) annotation (Placement(transformation(extent={{22,-50},{44,-30}})));
+    Boundaries.ExternalGas O2gT(
+      substanceDefinition=Chemical.Substances.Gas.O2,
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      usePartialPressureInput=true,
+      PartialPressure(displayUnit="mmHg") = 13332.2387415)
+      annotation (Placement(transformation(
+          extent={{-10,-10},{10,10}},
+          rotation=0,
+          origin={-50,-40})));
+    Processes.GasSolubility gasSolubilityT(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={-8,-40})));
+    Boundaries.ExternalGas O2gP(substanceDefinition=Chemical.Substances.Gas.O2, PartialPressure(displayUnit="mmHg") = 13332.2387415)
+      annotation (Placement(transformation(extent={{50,70},{70,90}})));
+    Boundaries.Substance O2aqP(
+      useRear=true,
+      useFore=false,
+      useSolution=false,
+      use_mass_start=false,
+      amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{142,70},{162,90}})));
+    Processes.GasSolubility gasSolubilityP(
+      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.O2,
+      process=Chemical.Interfaces.processData(0.0013, -1500*Modelica.Constants.R))
+                                              annotation (Placement(transformation(extent={{98,70},{118,90}})));
+  equation
+
+    connect(O2gR.fore, gasSolubilityR.substrates[1]) annotation (Line(
+        points={{-64,12},{-32,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityR.products[1], O2aqR.rear) annotation (Line(
+        points={{-12,12},{20,12}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2gS.fore, gasSolubilityS.rear) annotation (Line(
+        points={{-66,44},{-36,44}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityS.fore, O2aqS.rear) annotation (Line(
+        points={{-16,44},{12,44}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityE.fore, O2aqE.rear) annotation (Line(
+        points={{-8,80},{16,80}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2gE.fore,gasSolubilityE. rear) annotation (Line(
+        points={{-56,80},{-28,80}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityF.fore, O2aqF.rear) annotation (Line(
+        points={{-2,-78},{30,-78}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2gF.fore, gasSolubilityF.rear) annotation (Line(
+        points={{-46,-78},{-22,-78}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityT.rear, O2gT.fore) annotation (Line(
+        points={{-18,-40},{-40,-40}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(gasSolubilityT.fore, O2aqT.rear) annotation (Line(
+        points={{2,-40},{22,-40}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(clock.y, O2gT.partialPressure) annotation (Line(points={{-73,-32},{-72,-32.8},{-60,-32.8}}, color={0,0,127}));
+    connect(gasSolubilityP.fore, O2aqP.rear) annotation (Line(
+        points={{118,80},{142,80}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2gP.fore, gasSolubilityP.rear) annotation (Line(
+        points={{70,80},{98,80}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation (          experiment(StopTime=15000),
+      Documentation(revisions="<html>
+<p><i>2013-2018</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",
+      info="<html>
+<p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
+<p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
+<p><br>In short it is about binding oxygen to hemoglobin.</p>
+<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
+<p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
+<p>Hemoglobin was observed (by Perutz) in two structuraly different forms R and T.</p>
+<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
+<p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
+<p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
+<p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 %).</p>
+</html>"));
+  end OxygenInWater;
   annotation(
     Documentation(info = "<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
