@@ -118,25 +118,25 @@ package Examples "Tests for top level components of undirected"
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{60,2},{80,22}})));
     Boundaries.Substance O2gS(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useFore=true,
       solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-38,2},{-18,22}})));
     Boundaries.Substance O2aqR(
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{68,-30},{88,-10}})));
     Boundaries.Substance O2gR(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useFore=true,
       solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-36,-30},{-16,-10}})));
     Processes.Reaction gasSolubilityR(
       firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
@@ -155,7 +155,7 @@ package Examples "Tests for top level components of undirected"
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{56,66},{76,86}})));
     Processes.GasSolubility gasSolubilityE(
       solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
@@ -165,7 +165,7 @@ package Examples "Tests for top level components of undirected"
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-9) annotation (Placement(transformation(extent={{70,-96},{90,-76}})));
     Processes.GasSolubility gasSolubilityF(
       solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
@@ -182,7 +182,7 @@ package Examples "Tests for top level components of undirected"
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-3) annotation (Placement(transformation(extent={{58,-70},{80,-50}})));
     Boundaries.ExternalGas O2gT(
       substanceDefinition=Chemical.Substances.Gas.O2,
@@ -203,7 +203,7 @@ package Examples "Tests for top level components of undirected"
       useRear=true,
       useFore=false,
       useSolution=false,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{56,32},{76,52}})));
     Processes.GasSolubility gasSolubilityP(
       solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
@@ -286,9 +286,9 @@ package Examples "Tests for top level components of undirected"
     constant Real K = 2 "Dissociation constant of the reaction";
     constant Modelica.Units.SI.Temperature T_25degC = 298.15 "Temperature";
     constant Real R = Modelica.Constants.R "Gas constant";
-    Chemical.Boundaries.Substance substance(useFore = true, use_mass_start = false, amountOfSubstance_start = 2) annotation(
+    Chemical.Boundaries.Substance substance(useFore = true, preferMass = false, amountOfSubstance_start = 2) annotation(
       Placement(transformation(extent = {{-70, 14}, {-50, 34}})));
-    Chemical.Boundaries.Substance substance1(useRear = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance substance1(useRear = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{48, 12}, {68, 32}})));
     inner DropOfCommons dropOfCommons annotation(
       Placement(transformation(extent = {{-76, 66}, {-56, 86}})));
@@ -330,9 +330,9 @@ package Examples "Tests for top level components of undirected"
     extends Modelica.Icons.Example;
     Processes.ForwardReaction forwardReaction(solutionFrom = Chemical.Utilities.Types.SolutionChoice.Parameter, nS = 1, nP = 1) annotation(
       Placement(transformation(extent = {{-8, 14}, {12, 34}})));
-    Chemical.Boundaries.Substance substance(useFore = true, use_mass_start = false, amountOfSubstance_start = 0.9) annotation(
+    Chemical.Boundaries.Substance substance(useFore = true, preferMass = false, amountOfSubstance_start = 0.9) annotation(
       Placement(transformation(extent = {{-70, 14}, {-50, 34}})));
-    Chemical.Boundaries.Substance substance1(useRear = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance substance1(useRear = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{48, 12}, {68, 32}})));
     inner DropOfCommons dropOfCommons annotation(
       Placement(transformation(extent = {{-76, 66}, {-56, 86}})));
@@ -379,11 +379,11 @@ package Examples "Tests for top level components of undirected"
     extends Modelica.Icons.Example;
     Chemical.Solution solution annotation(
       Placement(transformation(extent = {{-100, -100}, {100, 100}})));
-    Chemical.Boundaries.Substance A(useRear = false, useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.9) annotation(
+    Chemical.Boundaries.Substance A(useRear = false, useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.9) annotation(
       Placement(transformation(extent = {{-52, -8}, {-32, 12}})));
     Chemical.Processes.Reaction reaction(process = Chemical.Interfaces.processData(2), nS = 1, nP = 1) annotation(
       Placement(transformation(extent = {{-10, -8}, {10, 12}})));
-    Chemical.Boundaries.Substance B(useRear = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance B(useRear = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{44, -8}, {64, 12}})));
     inner Modelica.Fluid.System system annotation(
       Placement(transformation(extent = {{58, 64}, {78, 84}})));
@@ -409,13 +409,13 @@ package Examples "Tests for top level components of undirected"
   model SimpleReaction2 "The simple chemical reaction A+B<->C with equilibrium [C]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
     import Chemical;
     extends Modelica.Icons.Example;
-    Chemical.Boundaries.Substance A(useFore = true, useSolution = false, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance A(useFore = true, useSolution = false, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{-34, 4}, {-14, 24}})));
     Chemical.Processes.Reaction reaction2_1(process = Chemical.Interfaces.processData(2), nS = 2, nP = 1) annotation(
       Placement(transformation(extent = {{6, -8}, {26, 12}})));
-    Chemical.Boundaries.Substance B(useFore = true, useSolution = false, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance B(useFore = true, useSolution = false, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{-34, -24}, {-14, -4}})));
-    Chemical.Boundaries.Substance C(useRear = true, useSolution = false, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance C(useRear = true, useSolution = false, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{48, -8}, {68, 12}})));
   equation
     connect(A.fore, reaction2_1.substrates[1]) annotation(
@@ -436,11 +436,11 @@ package Examples "Tests for top level components of undirected"
 
   model SimpleReaction22 "The simple chemical reaction A+B<->C+D with equilibrium [C]*[D]/([A]*[B]) = 2, where [A] is molar concentration of A in water"
     extends Modelica.Icons.Example;
-    Chemical.Boundaries.Substance A(useFore = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance A(useFore = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{-34, 2}, {-14, 22}})));
     Chemical.Processes.Reaction reaction2_1(process = Chemical.Interfaces.processData(2), nS = 2, nP = 2) annotation(
       Placement(transformation(extent = {{2, -12}, {22, 8}})));
-    Chemical.Boundaries.Substance B(useFore = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance B(useFore = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{-32, -24}, {-12, -4}})));
     Chemical.Boundaries.Substance C(useRear = true, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{48, -8}, {68, 12}})));
@@ -480,7 +480,7 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Liquid.H2O,
       useFore=false,
       useSolution=true,
-      use_mass_start=true,
+      preferMass=true,
       mass_start=1) annotation (Placement(transformation(extent={{22,-28},{42,-8}})));
     inner Modelica.Fluid.System system(T_ambient=298.15)
       annotation (Placement(transformation(extent={{60,50},{80,70}})));
@@ -510,7 +510,7 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Liquid.Ethanol,
       useFore=false,
       useSolution=true,
-      use_mass_start=true,
+      preferMass=true,
       mass_start=(55.508/2)*0.04607) annotation (Placement(transformation(extent={{18,-8},{38,12}})));
 
     Chemical.Solution solution(useMechanicPorts=true, useThermalPort=true) annotation (Placement(transformation(extent={{-100,-100},{100,100}})));
@@ -524,7 +524,7 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Liquid.H2O,
       useFore=false,
       useSolution=true,
-      use_mass_start=true,
+      preferMass=true,
       mass_start=1/2) annotation (Placement(transformation(extent={{-50,-8},{-30,12}})));
     inner Modelica.Fluid.System system(T_ambient=298.15)
       annotation (Placement(transformation(extent={{62,42},{82,62}})));
@@ -555,19 +555,19 @@ package Examples "Tests for top level components of undirected"
     parameter Modelica.Units.SI.MolarEnergy ReactionEnthalpy = -55000;
     Chemical.Solution thermal_isolated_solution(useMechanicPorts = true, ConstantTemperature = false) annotation(
       Placement(transformation(extent = {{-100, -100}, {98, -6}})));
-    Chemical.Boundaries.Substance A(useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.9) annotation(
+    Chemical.Boundaries.Substance A(useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.9) annotation(
       Placement(transformation(extent = {{-40, -60}, {-20, -40}})));
     Chemical.Processes.Reaction reaction2_2(process = Chemical.Interfaces.processData(1, ReactionEnthalpy), nS = 1, nP = 1) annotation(
       Placement(transformation(extent = {{-8, -60}, {12, -40}})));
-    Chemical.Boundaries.Substance B(useRear = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance B(useRear = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{28, -60}, {48, -40}})));
     Chemical.Solution solution_at_constant_temperature(useMechanicPorts = true, useThermalPort = true) annotation(
       Placement(transformation(extent = {{-100, 0}, {98, 94}})));
-    Chemical.Boundaries.Substance A1(useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.9) annotation(
+    Chemical.Boundaries.Substance A1(useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.9) annotation(
       Placement(transformation(extent = {{-40, 40}, {-20, 60}})));
     Chemical.Processes.Reaction reaction2_1(process = Chemical.Interfaces.processData(1, ReactionEnthalpy), nS = 1, nP = 1) annotation(
       Placement(transformation(extent = {{-8, 40}, {12, 60}})));
-    Chemical.Boundaries.Substance B1(useRear = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 0.1) annotation(
+    Chemical.Boundaries.Substance B1(useRear = true, useSolution = true, preferMass = false, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{20, 40}, {40, 60}})));
     //  Modelica.SIunits.HeatFlowRate q
     //    "Heat flow to environment to reach constant temperature";
@@ -648,17 +648,17 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Gas.H2,
       useFore=true,
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=26) annotation (Placement(transformation(extent={{-96,-26},{-76,-6}})));
     Chemical.Boundaries.Substance O2_gas(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useFore=true,
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=13) annotation (Placement(transformation(extent={{-100,10},{-80,30}})));
     Chemical.Boundaries.Substance H2O_gas(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=1,
       useRear=true) annotation (Placement(transformation(extent={{-36,-8},{-16,12}})));
     Chemical.Processes.Reaction reaction(
@@ -759,7 +759,7 @@ package Examples "Tests for top level components of undirected"
         displayUnit="l") = 0.001, */
     Chemical.Boundaries.Substance H2O_gaseuous(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       useRear=true) annotation (Placement(transformation(extent={{8,50},{28,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
                                                          fixedTemperature
@@ -771,7 +771,7 @@ package Examples "Tests for top level components of undirected"
     Chemical.Boundaries.Substance otherSubstances(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=1) annotation (Placement(transformation(extent={{2,28},{22,48}})));
   Modelica.Thermal.HeatTransfer.Components.ThermalConductor thermalConductor(
       G=1e6) annotation (Placement(transformation(extent={{44,-12},{64,8}})));
@@ -855,7 +855,7 @@ package Examples "Tests for top level components of undirected"
         displayUnit="l") = 0.001, */
     Chemical.Boundaries.Substance H2O_gaseuous(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=0.001,
       useRear=true) annotation (Placement(transformation(extent={{-20,56},{0,76}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature
@@ -868,7 +868,7 @@ package Examples "Tests for top level components of undirected"
     Chemical.Boundaries.Substance otherSubstances(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=1) annotation (Placement(transformation(extent={{-4,36},{16,56}})));
     Chemical.Solution solid(
       temperature_start=T_start,
@@ -878,7 +878,7 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Solid.H2O_IceIh,
       useFore=true,
       useSolution=true,
-      use_mass_start=true,
+      preferMass=true,
       mass_start=1)                   "Solid water" annotation (Placement(transformation(extent={{10,-52},{-10,-32}})));
     Chemical.Processes.GasSolubility gasVolatility(
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
@@ -951,7 +951,7 @@ package Examples "Tests for top level components of undirected"
     //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
     Chemical.Boundaries.Substance CO2_25(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.001,
       useRear=true) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-28},{-150,-8}})));
 
@@ -966,7 +966,7 @@ package Examples "Tests for top level components of undirected"
       annotation (Placement(transformation(extent={{-114,74},{-94,94}})));
     Chemical.Boundaries.Substance O2_25(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       useRear=true) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
 
@@ -982,7 +982,7 @@ package Examples "Tests for top level components of undirected"
 
     Chemical.Boundaries.Substance CO2_37(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.001,
       useRear=true) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
 
@@ -992,7 +992,7 @@ package Examples "Tests for top level components of undirected"
       k_forward=1) annotation (Placement(transformation(extent={{20,42},{40,62}})));
     Chemical.Boundaries.Substance O2_37(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       useRear=true) "Free dissolved O2 in water at 37degC" annotation (Placement(transformation(extent={{18,-34},{-2,-14}})));
 
@@ -1019,7 +1019,7 @@ package Examples "Tests for top level components of undirected"
       k_forward=1) annotation (Placement(transformation(extent={{92,44},{112,64}})));
     Chemical.Boundaries.Substance CO2_0(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.001,
       useRear=true) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
 
@@ -1029,7 +1029,7 @@ package Examples "Tests for top level components of undirected"
       k_forward=1) annotation (Placement(transformation(extent={{134,42},{154,62}})));
     Chemical.Boundaries.Substance O2_0(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start(displayUnit="mmol") = 0.0001,
       useRear=true) "Free dissolved O2 in water at 0degC" annotation (Placement(transformation(extent={{136,-34},{116,-14}})));
 
@@ -1194,23 +1194,23 @@ package Examples "Tests for top level components of undirected"
     Chemical.Solution solution annotation(
       Placement(transformation(extent = {{-100, -100}, {100, 100}})));
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
-    Chemical.Boundaries.Substance P(useRear = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 1e-8) annotation(
+    Chemical.Boundaries.Substance P(useRear = true, useSolution = true, preferMass = false, amountOfSubstance_start = 1e-8) annotation(
       Placement(transformation(extent = {{72, -12}, {92, 8}})));
-    Chemical.Boundaries.Substance S(useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = 100) annotation(
+    Chemical.Boundaries.Substance S(useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = 100) annotation(
       Placement(transformation(extent = {{-92, -14}, {-72, 6}})));
     parameter Modelica.Units.SI.AmountOfSubstance tE = 1 "Total amount of enzyme";
     parameter Real k_cat(unit = "mol/s", displayUnit = "mol/min") = 1 "Forward rate of second reaction";
     constant Modelica.Units.SI.Concentration Km = 0.1 "Michaelis constant = substrate concentration at rate of half Vmax";
     parameter Modelica.Units.SI.MolarFlowRate Vmax = 1e-5*k_cat "Maximal molar flow";
-    Chemical.Boundaries.Substance ES(useRear = true, useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = tE/10) annotation(
+    Chemical.Boundaries.Substance ES(useRear = true, useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = tE/10) annotation(
       Placement(transformation(extent = {{-8, -10}, {12, 10}})));
-    Chemical.Boundaries.Substance E(useRear = true, useFore = true, useSolution = true, use_mass_start = false, amountOfSubstance_start = tE*(9/10)) annotation(
+    Chemical.Boundaries.Substance E(useRear = true, useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = tE*(9/10)) annotation(
       Placement(transformation(extent = {{12, 36}, {-8, 56}})));
     Processes.Reaction chemicalReaction(process = Chemical.Interfaces.processData(2/Km), k_forward = 1, nS = 2, nP = 1) annotation(
       Placement(transformation(extent = {{-42, -8}, {-22, 12}})));
     Processes.ForwardReaction chemicalReaction1(k_forward = k_cat, nS = 1, nP = 2) annotation(
       Placement(transformation(extent = {{26, -8}, {46, 12}})));
-    Chemical.Boundaries.Substance liquidWater(useSolution = true, substanceDefinition = Chemical.Substances.Liquid.H2O, use_mass_start = true, mass_start = 1) annotation(
+    Chemical.Boundaries.Substance liquidWater(useSolution = true, substanceDefinition = Chemical.Substances.Liquid.H2O, preferMass = true, mass_start = 1) annotation(
       Placement(transformation(extent = {{42, -80}, {62, -60}})));
     inner DropOfCommons dropOfCommons annotation(
       Placement(transformation(extent = {{68, 70}, {88, 90}})));
@@ -1295,13 +1295,13 @@ package Examples "Tests for top level components of undirected"
     extends Modelica.Icons.Example;
     Chemical.Boundaries.Substance O2_gas(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=0.001,
       useRear=true) annotation (Placement(transformation(extent={{-12,-6},{8,14}})));
 
     Chemical.Boundaries.Substance H2_gas(
       useSolution=true,
-      use_mass_start=false,
+      preferMass=false,
       amountOfSubstance_start=0.001,
       useRear=true) annotation (Placement(transformation(extent={{38,-6},{18,14}})));
     Chemical.Processes.Reaction reaction(

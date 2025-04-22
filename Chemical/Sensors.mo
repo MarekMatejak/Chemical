@@ -51,7 +51,7 @@ package Sensors "Sensors package for undirected chemical simulation"
   input Chemical.Interfaces.Definition substance "Substance definition";
   input Chemical.Interfaces.SolutionState solution "Schemica solution state";
   */
-    direct_value = getQuantity(state, rear.r, quantity, rear.definition, rear.solution);
+    direct_value = getQuantity(state, rear.r, quantity, rear.definition, rear.solution_forwards);
 
     if filter_output then
       der(value) * TC = direct_value-value;
@@ -195,7 +195,7 @@ package Sensors "Sensors package for undirected chemical simulation"
     Real direct_T; // unit intentionally not set to avoid Warning
     Real direct_n_flow; // unit intentionally not set to avoid Warning
 
-    Chemical.Interfaces.SolutionState solution = rear.solution;
+    Chemical.Interfaces.SolutionState solution = rear.solution_forwards;
 
   initial equation
     if filter_output and init==InitMode.steadyState then
@@ -332,7 +332,8 @@ package Sensors "Sensors package for undirected chemical simulation"
       fore.state_forwards = rear.state_forwards;
       rear.state_rearwards = fore.state_rearwards;
       connect(rear.definition,fore.definition);
-      connect(rear.solution,fore.solution);
+      connect(rear.solution_forwards,fore.solution_forwards);
+      connect(rear.solution_rearwards,fore.solution_rearwards);
       fore.r = rear.r;
       fore.n_flow + rear.n_flow = 0;
 

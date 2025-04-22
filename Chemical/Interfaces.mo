@@ -10,7 +10,9 @@ package Interfaces "Chemical interfaces"
     Chemical.Interfaces.SubstanceStateOutput state_forwards "State of substance in forwards direction";
     Chemical.Interfaces.SubstanceStateInput state_rearwards "State of substance in rearwards direction";
 
-    Chemical.Interfaces.SolutionStateOutput solution "State of solution";
+    Chemical.Interfaces.SolutionStateOutput solution_forwards "State of solution to forward direction";
+    Chemical.Interfaces.SolutionStateInput solution_rearwards "State of solution from rearward direction";
+
     Chemical.Interfaces.DefinitionOutput definition "Definition of substance";
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
             extent={{-80,80},{80,-80}},
@@ -39,7 +41,9 @@ package Interfaces "Chemical interfaces"
     Chemical.Interfaces.SubstanceStateInput state_forwards "State of substance in forwards direction";
     Chemical.Interfaces.SubstanceStateOutput state_rearwards "State of substance in rearwards direction";
 
-    Chemical.Interfaces.SolutionStateInput solution "State of solution";
+    Chemical.Interfaces.SolutionStateInput solution_forwards "State of solution from forward direction";
+    Chemical.Interfaces.SolutionStateOutput solution_rearwards "State of solution to rearward direction";
+
     Chemical.Interfaces.DefinitionInput definition "Definition of substance";
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Ellipse(
@@ -1649,8 +1653,7 @@ end DataRecord;
 
     parameter Boolean useSubstanceFlowInput = false
     "=true, if substance flow is provided via input"
-    annotation(HideResult=true, choices(checkBox=true),
-            Dialog(group="Conditional inputs"));
+    annotation(HideResult=true, choices(checkBox=true));
 
   parameter Modelica.Units.SI.MolarFlowRate SubstanceFlow=0
     "Volumetric flow of Substance if useSubstanceFlowInput=false"
@@ -1854,17 +1857,17 @@ end DataRecord;
   //  duRT_rear = (rear.state_rearwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_rearwards.u / (Modelica.Constants.R*fore.solution.T));
 
 
-    Sx_fore = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution.T)));
-    Px_rear = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution.T)));
-    Kx = exp(uPure_product/(Modelica.Constants.R*fore.solution.T)-uPure_substrate/(Modelica.Constants.R*rear.solution.T));
+    Sx_fore = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution_forwards.T)));
+    Px_rear = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution_rearwards.T)));
+    Kx = exp(uPure_product/(Modelica.Constants.R*fore.solution_rearwards.T)-uPure_substrate/(Modelica.Constants.R*rear.solution_forwards.T));
 
 
     uPure_substrate = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
       rear.definition,
-      rear.solution);
+      rear.solution_forwards);
     uPure_product = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
       fore.definition,
-      fore.solution);
+      fore.solution_rearwards);
 
 
 

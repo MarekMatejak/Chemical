@@ -50,12 +50,12 @@ Choices for initialization of a&nbsp;state.
 </p>
 </html>"));
     type SolutionChoice        = enumeration(
-      FirstSubstrate
-        "Chemical solution state from first substrate",
       SolutionPort
         "Chemical solution state from solution port",
       Parameter
-        "Chemical solution state from parameter")
+        "Chemical solution state from parameter",
+      FirstSubstrate
+        "Chemical solution state from first substrate")
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false)),
         Diagram(

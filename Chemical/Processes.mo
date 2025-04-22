@@ -27,8 +27,9 @@ package Processes "Undirected process package"
 
     //chemical solution and its propagation
     if nS>0 then
-      connect(substrates[1].solution,inputSubstrateSolution);
-      products.solution = fill(solutionState,nP);
+      connect(substrates[1].solution_forwards,inputSubstrateSolution);
+      products.solution_forwards = fill(solutionState,nP);
+      substrates.solution_rearwards = fill(solutionState,nS);
     end if;
 
 
@@ -156,9 +157,10 @@ package Processes "Undirected process package"
 
   equation
     fore.definition = rear.definition;
-    fore.solution = solutionState;
+    fore.solution_forwards = solutionState;
+    rear.solution_rearwards = solutionState;
 
-    connect(rear.solution,inputSubstrateSolution);
+    connect(rear.solution_forwards,inputSubstrateSolution);
 
 
     du_fore = -uLoss(n_flow,kf,Sx_fore,solutionState);
@@ -212,8 +214,10 @@ package Processes "Undirected process package"
       fore.definition = rear.definition + process;
     end if;
 
-    fore.solution = solutionState;
-    connect(rear.solution,inputSubstrateSolution);
+    fore.solution_forwards = solutionState;
+    rear.solution_rearwards = solutionState;
+    connect(rear.solution_forwards,inputSubstrateSolution);
+
 
     du_fore = -uLoss(n_flow,kf,Sx_fore,solutionState);
     du_rear = -uLoss(-n_flow,Kx*kf,Px_rear,solutionState);
@@ -315,9 +319,12 @@ package Processes "Undirected process package"
 
   equation
     fore.definition = rear.definition;
-    fore.solution = solutionState;
+    fore.solution_forwards = solutionState;
+    rear.solution_rearwards = solutionState;
 
-    connect(rear.solution,inputSubstrateSolution);
+    connect(rear.solution_forwards,inputSubstrateSolution);
+
+
 
     du_fore = -uLoss(n_flow,kf,Sx_fore,solutionState);
     du_rear = -uLoss(-n_flow,Kx*kf,Px_rear,solutionState);
@@ -351,9 +358,12 @@ package Processes "Undirected process package"
 
   equation
     fore.definition = rear.definition;
-    fore.solution = solutionState;
+    fore.solution_forwards = solutionState;
+    rear.solution_rearwards = solutionState;
 
-    connect(rear.solution,inputSubstrateSolution);
+    connect(rear.solution_forwards,inputSubstrateSolution);
+
+
 
 
     du_rear=-du_fore;
@@ -403,9 +413,10 @@ package Processes "Undirected process package"
     end if;
 
     //chemical solution and its propagation
-    connect(substrates[1].solution,inputSubstrateSolution);
+    connect(substrates[1].solution_forwards,inputSubstrateSolution);
     if nS>0 then
-      products.solution = fill(solutionState,nP);
+      products.solution_forwards = fill(solutionState,nP);
+      substrates.solution_rearwards = fill(solutionState,nS);
     end if;
 
     annotation (
@@ -513,10 +524,10 @@ package Processes "Undirected process package"
 
   equation
     fore.definition = rear.definition;
-    fore.solution = solutionState;
+    fore.solution_forwards = solutionState;
+    rear.solution_rearwards = solutionState;
 
-    connect(rear.solution,inputSubstrateSolution);
-
+    connect(rear.solution_forwards,inputSubstrateSolution);
 
     du_rear=-du_fore;
     n_flow = Sx_fore * (solutionState.n/solutionState.V) * volumeFlow;
@@ -810,28 +821,28 @@ Choices for initialization of a state h.
       du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
       du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
 
-      duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution.T))));
-      duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution.T))));
+      duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))));
+      duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))));
 
       for i in 1:nS loop
        uPure_substrates[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
         substrates[i].definition,
-        substrates[i].solution);
+        substrates[i].solution_forwards);
       end for;
 
       for i in 1:nP loop
        uPure_products[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
        products[i].definition,
-       products[i].solution);
+       products[i].solution_rearwards);
       end for;
 
-      Sx_fore = exp(s * ((substrates.state_forwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution.T)));
-      Px_rear = exp((p * ((products.state_rearwards.u - uPure_products)./(Modelica.Constants.R*products.solution.T))));
+      Sx_fore = exp(s * ((substrates.state_forwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
+      Px_rear = exp((p * ((products.state_rearwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
 
       //debug
-      Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution.T)));
-      Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution.T))));
-      Kx = exp(- ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution.T)))));
+      Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
+      Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
+      Kx = exp(- ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T)))));
 
       //reaction molar rates
       rr*s = substrates.n_flow;
@@ -922,111 +933,6 @@ Choices for initialization of a state h.
 </table>
 </html>"));
     end PartialReaction;
-
-    partial model PartialSwitchSolution "Substance between different chemical solutions"
-      extends Chemical.Interfaces.SISO;
-
-      Interfaces.SolutionPort solution annotation (Placement(transformation(extent={{92,-52},{112,-32}}),   iconTransformation(extent={{92,-52},{112,-32}})));
-
-    equation
-
-      fore.definition = rear.definition;
-
-      fore.solution.T = solution.T;
-      fore.solution.p = solution.p;
-      fore.solution.v = solution.v;
-      fore.solution.n = solution.n;
-      fore.solution.m = solution.m;
-      fore.solution.V = solution.V;
-      fore.solution.G = solution.G;
-      fore.solution.Q = solution.Q;
-      fore.solution.I = solution.I;
-
-      solution.dH = 0;
-      solution.i = 0;
-      solution.Qj = 0;
-      solution.Ij = 0;
-      solution.nj = 0;
-      solution.mj = 0;
-      solution.Vj = 0;
-      solution.Gj = 0;
-      solution.dV = 0;
-
-      annotation (
-        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
-              100,100}})),
-        Documentation(revisions="<html>
-<p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>",     info="<html>
-<p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
-<p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
-<h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>K = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(S)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s) / <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>( a(P)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>s ) = <a href=\"modelica://ModelicaReference.Operators.'product()'\">product</a>(a(A)<a href=\"modelica://ModelicaReference.Operators.ElementaryOperators\">.^</a>v)&nbsp;</p></td>
-<td><p>dissociation constant</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>G = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>G<sub>i</sub>) = &Delta;<sub>r</sub>H - T&middot;&Delta;<sub>r</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K) </p></td>
-<td><p>molar Gibb&apos;s energy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>H = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>H<sub>i</sub>) </p></td>
-<td><p>molar enthalpy of the reaction</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>S = &sum; (v<sub>i</sub> &middot; &Delta;<sub>f</sub>S<sub>i</sub>) = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>r</sub>&omega;) </p></td>
-<td><p>molar entropy of the reaction</p></td>
-</tr>
-</table>
-<h4><span style=\"color:#008000\">Notations</span></h4>
-<table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
-<td><p>A<sub>i</sub></p></td>
-<td><p>i-th substance</p></td>
-</tr>
-<tr>
-<td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>K</p></td>
-<td><p>dissociation constant (activity based)</p></td>
-</tr>
-<tr>
-<td><p>a(A<sub>i</sub>)=f<sub>i</sub>*x<sub>i</sub></p></td>
-<td><p>activity of the substance A</p></td>
-</tr>
-<tr>
-<td><p>f<sub>i</sub></p></td>
-<td><p>activity coefficient of the substance A</p></td>
-</tr>
-<tr>
-<td><p>x<sub>i</sub></p></td>
-<td><p>mole fraction of the substance A</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>H<sub>i</sub></p></td>
-<td><p>molar enthalpy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>G<sub>i</sub></p></td>
-<td><p>molar Gibbs energy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>f</sub>S<sub>i</sub></p></td>
-<td><p>molar entropy of formation of i-th substance</p></td>
-</tr>
-<tr>
-<td><p>&Delta;<sub>r</sub>&omega;</p></td>
-<td><p>change of number of microstates of particles by reaction</p></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</table>
-</html>"));
-    end PartialSwitchSolution;
 
     package Kinetics
 
@@ -1364,7 +1270,8 @@ du := n_flow/kC;
       //chemical solution and its propagation
       if nS>0 then
       //  connect(subunit_rear[1].solution,inputSubstrateSolution);
-        subunit_fore.solution = fill(solutionState,nP);
+        subunit_fore.solution_forwards = fill(solutionState,nP);
+        subunit_rear.solution_rearwards = fill(solutionState,nS);
       end if;
 
       solution_rear.dH + solution_fore.dH + dH = 0 "entalphy change per each subunit";
@@ -1400,13 +1307,13 @@ du := n_flow/kC;
       for i in 1:nS loop
        uPure_subunit_rear[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
         subunit_rear[i].definition,
-        subunit_rear[i].solution);
+        subunit_rear[i].solution_forwards);
       end for;
 
       for i in 1:nP loop
        uPure_subunit_fore[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
        subunit_fore[i].definition,
-       subunit_fore[i].solution);
+       subunit_fore[i].solution_rearwards);
       end for;
 
       Sx_fore = xm_rear; // * exp(ones(nS) * ((subunit_rear.state_forwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
@@ -1519,19 +1426,19 @@ du := n_flow/kC;
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={-30,0})));
-      Chemical.Boundaries.BoundaryFore boundary_fore(potentialFromInput=true, u0_par=110000) annotation (Placement(transformation(extent={{20,-10},{40,10}})));
+      Chemical.Boundaries.BoundaryFore boundary_fore(usePotential=true, u0_par=110000) annotation (Placement(transformation(extent={{20,-10},{40,10}})));
       inner Chemical.DropOfCommons dropOfCommons(n_flow_reg=0.01) annotation (Placement(transformation(extent={{-80,20},{-60,40}})));
       Modelica.Blocks.Sources.Step step(
         height=-80000,
         offset=140000,
         startTime=5)
         annotation (Placement(transformation(extent={{60,-6},{48,6}})));
-      Chemical.Boundaries.BoundaryRear boundary_rear1(potentialFromInput=true)
+      Chemical.Boundaries.BoundaryRear boundary_rear1(usePotential=true)
         annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={-28,-38})));
-      Chemical.Boundaries.BoundaryFore boundary_fore1(potentialFromInput=false, u0_par=100000)
+      Chemical.Boundaries.BoundaryFore boundary_fore1(usePotential=false, u0_par=100000)
         annotation (Placement(transformation(extent={{22,-48},{42,-28}})));
       Reaction reaction(
         firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
@@ -1679,11 +1586,11 @@ du := n_flow/kC;
       extends Modelica.Icons.Example;
       Chemical.Boundaries.Substance substance(
         useFore=true,
-        use_mass_start=false,
+        preferMass=false,
         amountOfSubstance_start=2)   annotation (Placement(transformation(extent={{-70,14},{-50,34}})));
       Chemical.Boundaries.Substance substance1(
         useRear=true,
-        use_mass_start=false,
+        preferMass=false,
         amountOfSubstance_start=0.1) annotation (Placement(transformation(extent={{48,12},{68,32}})));
       inner DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{-76,66},{-56,86}})));
       Pump pump(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, SubstanceFlow=1)

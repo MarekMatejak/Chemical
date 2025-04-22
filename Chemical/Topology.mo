@@ -48,6 +48,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
           us_out[i],
           n_flow_reg) + rs[i] = u_mix + r_mix;
       rears[i].state_rearwards = Chemical.Interfaces.SubstanceState(u=us_out[i],h=hs_out[i]);
+      rears[i].solution_rearwards = rears[1].solution_forwards;
     end for;
 
     // fores are N+1:end
@@ -66,7 +67,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
       fores[i].state_forwards = Chemical.Interfaces.SubstanceState(u=us_out[N+i],h=hs_out[N+i]);
 
       fores[i].definition = rears[1].definition;
-      fores[i].solution = rears[1].solution;
+      fores[i].solution_forwards = rears[1].solution_forwards;
 
     end for;
 
@@ -127,8 +128,8 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
     fore_b.definition=substanceData;
     fore_a.definition=substanceData;
-    fore_b.solution=solutionState;
-    fore_a.solution=solutionState;
+    fore_b.solution_forwards=solutionState;
+    fore_a.solution_forwards=solutionState;
 
     annotation (Icon(
         graphics={
@@ -164,6 +165,8 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     rear_a.n_flow + rear_b.n_flow = 0;
     L*der(rear_a.n_flow) = rear_a.r - rear_b.r;
 
+    rear_b.solution_rearwards = rear_a.solution_forwards;
+    rear_a.solution_rearwards = rear_b.solution_forwards;
     annotation (Icon(
         graphics={
           Line(
