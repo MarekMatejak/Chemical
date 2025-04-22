@@ -151,8 +151,17 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
     parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
+      annotation (Dialog(tab="Advanced"));
 
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
+
+
+    Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Utilities.Internal.regStep(
+              n_flow,
+              u - state_in_fore.u,
+              0,
+              n_flow_reg);
 
   protected
     outer Chemical.DropOfCommons dropOfCommons;
@@ -187,11 +196,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
     h = definition.data.z*Modelica.Constants.F*electricPotential;
 
     // Bounsaries.Source - u adaptation
-    der(u)*L = r_out;
+    //der(u)*L = r_out - r_fore_intern;
+    der(n_flow)*L = r_out - r_fore_intern;
+    temperature = solution.T;
 
     //solution changes
 
-    temperature = solution.T;
     electricPotential = solution.v;
 
     annotation ( Icon(coordinateSystem(
