@@ -1306,12 +1306,12 @@ package Examples "Tests for top level components of undirected"
       useRear=true) annotation (Placement(transformation(extent={{38,-6},{18,14}})));
     Chemical.Processes.Reaction reaction(
       s={2,4},
-      p={2,1,4},
+      p={4,2,1},
       firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
-      firstProduct=Chemical.Substances.Aqueous.H2,
-      nextProducts={Chemical.Substances.Aqueous.O2,Chemical.Substances.Solid.e},
-      nS=2,
-      nP=3) annotation (Placement(transformation(
+      firstProduct=Chemical.Substances.Solid.e,
+      nextProducts={Chemical.Substances.Aqueous.H2,Chemical.Substances.Aqueous.O2},
+      nP=3,
+      nS=2) annotation (Placement(transformation(
           extent={{11,11},{-11,-11}},
           rotation=180,
           origin={-31,-29})));
@@ -1319,8 +1319,8 @@ package Examples "Tests for top level components of undirected"
     Chemical.Solution cathode(ElectricGround=false) annotation (Placement(transformation(extent={{-90,-80},{-56,28}})));
     Modelica.Electrical.Analog.Sensors.VoltageSensor voltageSensor
       annotation (Placement(transformation(extent={{-42,70},{-22,90}})));
-    Chemical.Boundaries.ElectronSink electrone annotation (Placement(transformation(extent={{84,-38},{64,-18}})));
-    Chemical.Boundaries.ElectronSource electrone1 annotation (Placement(transformation(extent={{-84,-34},{-64,-14}})));
+    Chemical.Boundaries.ElectronTransfer electrone(useRear=true, useFore=false) annotation (Placement(transformation(extent={{66,-38},{86,-18}})));
+    Chemical.Boundaries.ElectronTransfer electrone1(useFore=true) annotation (Placement(transformation(extent={{-84,-34},{-64,-14}})));
   Modelica.Electrical.Analog.Basic.Resistor resistor(R=1)
     annotation (Placement(transformation(extent={{-36,38},{-16,58}})));
   Modelica.Electrical.Analog.Sensors.CurrentSensor currentSensor
@@ -1332,17 +1332,17 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Liquid.H2O,
       useFore=true,
       useSolution=false,                                                                  mass_start=1)
-      annotation (Placement(transformation(extent={{0,-74},{-20,-54}})));
+      annotation (Placement(transformation(extent={{0,-72},{-20,-52}})));
     Modelica.Electrical.Analog.Basic.Ground ground annotation (Placement(transformation(extent={{36,26},{56,46}})));
   equation
   connect(electrone1.pin,voltageSensor. p) annotation (Line(
       points={{-74,-14.2},{-92,-14.2},{-92,48},{-74,48},{-74,80},{-42,80}},
       color={0,0,255}));
   connect(electrone.pin,voltageSensor. n) annotation (Line(
-      points={{74,-18.2},{74,48},{60,48},{60,80},{-22,80}},
+      points={{76,-18.2},{76,48},{60,48},{60,80},{-22,80}},
       color={0,0,255}));
   connect(electrone.solution,anode. solution) annotation (Line(
-      points={{80,-38},{80,-76.92},{85.2,-76.92}},
+      points={{70,-38},{70,-76.92},{85.2,-76.92}},
       color={127,127,0}));
   connect(electrone1.pin,currentSensor. p) annotation (Line(
       points={{-74,-14.2},{-92,-14.2},{-92,48},{-66,48}},
@@ -1362,30 +1362,29 @@ package Examples "Tests for top level components of undirected"
     connect(resistor.n, constantVoltage.n)
       annotation (Line(points={{-16,48},{-2,48}}, color={0,0,255}));
     connect(ground.p, constantVoltage.p) annotation (Line(points={{46,46},{46,48},{18,48}}, color={0,0,255}));
+    connect(electrone.rear, reaction.products[1])
+      annotation (Line(
+        points={{66,-28},{62,-28},{62,-30},{-18,-30},{-18,-29.3667},{-20,-29.3667}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(H2_gas.rear, reaction.products[2]) annotation (Line(
+        points={{38,4},{54,4},{54,-29},{-20,-29}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2_gas.rear, reaction.products[3])
+      annotation (Line(
+        points={{-12,4},{-12,-28.6333},{-20,-28.6333}},
+        color={158,66,200},
+        thickness=0.5));
     connect(liquidWater.fore, reaction.substrates[1])
       annotation (Line(
-        points={{-20,-64},{-46,-64},{-46,-29.275},{-42,-29.275}},
+        points={{-20,-62},{-48,-62},{-48,-52},{-52,-52},{-52,-29.275},{-42,-29.275}},
         color={158,66,200},
         thickness=0.5));
     connect(electrone1.fore, reaction.substrates[2])
       annotation (Line(
         points={{-64,-24},{-48,-24},{-48,-28.725},{-42,-28.725}},
         color={158,66,200},
-        thickness=0.5));
-    connect(reaction.products[1], H2_gas.rear)
-      annotation (Line(
-        points={{-20,-29.3667},{-20,-30},{38,-30},{38,4}},
-        color={200,66,175},
-        thickness=0.5));
-    connect(reaction.products[2], O2_gas.rear)
-      annotation (Line(
-        points={{-20,-29},{-20,-26},{-12,-26},{-12,4}},
-        color={200,66,175},
-        thickness=0.5));
-    connect(reaction.products[3], electrone.rear)
-      annotation (Line(
-        points={{-20,-28.6333},{-18,-28},{64,-28}},
-        color={200,66,175},
         thickness=0.5));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
 <p>The water ecectrolysis: </p>

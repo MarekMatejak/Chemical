@@ -5,7 +5,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
   model Substance "Substance"
     extends Icons.Substance;
     extends Internal.PartialSubstance(
-
       useFore=false,
       useSolution=false,
       useRear=false,
@@ -104,30 +103,58 @@ package Boundaries "Boundary models for undirected chemical simulation"
 </html>"));
   end Substance;
 
-  model ElectronSource "Electron transfer from the solution to electric circuit"
+  model ElectronTransfer
     extends Icons.ElectronTransfer;
+    outer Modelica.Fluid.System system "System wide properties";
+
+    import Chemical.Utilities.Types.InitializationSubstance;
+
+    parameter InitializationSubstance init=Chemical.Utilities.Types.InitializationSubstance.state "Initialization"
+      annotation (HideResult=true, Dialog(tab="Initialization"));
+
+    parameter Modelica.Units.SI.ElectricCurrent i_start=0 "Initial electric current"
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(init ==InitializationSubstance.derivative)));
+
+    parameter Modelica.Units.SI.ElectricPotential v_start=0 "Initial electric potential"
+      annotation (HideResult=true, Dialog(tab="Initialization", enable=(init ==InitializationSubstance.state)));
+
+    parameter Boolean useRear = false "Use rearwards conector?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+    parameter Boolean useFore = true "Use forwards connector?"
+        annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
+
+    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
+     annotation(HideResult=true, Dialog(tab = "Advanced"));
+
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
+      annotation(HideResult=true, Dialog(tab="Advanced"));
+
+    Chemical.Interfaces.Rear rear(
+      n_flow=n_flow_rear,
+      r=r_rear_port,
+      state_rearwards=state_out) if useRear annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
 
     Chemical.Interfaces.Fore fore(
-      r=r_out,
-      n_flow=n_flow,
-      state_forwards(u=u, h=h),
-      solution(
-        T=solution.T,
-        p=solution.p,
-        v=solution.v,
-        n=solution.n,
-        m=solution.m,
-        V=solution.V,
-        Q=solution.Q,
-        I=solution.I,
-        G=solution.G),
-      definition=definition) "The substance exiting" annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+      n_flow=n_flow_fore,
+      r=r_fore_port,
+      state_forwards=state_out,
+      solution=solutionState,
+      definition=definition) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
-    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
+     Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
             extent={{-10,88},{10,108}})));
 
-    Chemical.Interfaces.SolutionPort solution(
+     Chemical.Interfaces.SolutionPort solution(
+        T=solutionState.T,
+        p=solutionState.p,
+        v=solutionState.v,
+        n=solutionState.n,
+        m=solutionState.m,
+        V=solutionState.V,
+        Q=solutionState.Q,
+        I=solutionState.I,
+        G=solutionState.G,
         dH=0,
         dV=0,
         nj=0,
@@ -139,179 +166,84 @@ package Boundaries "Boundary models for undirected chemical simulation"
       "To connect substance with solution, where is pressented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
-    parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.e "Definition of the substance";
+  protected
 
-    Real r_out, h;
+    parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.e "Definition of the substance"
+      annotation (choicesAllMatching=true, Dialog(enable=not useRear));
 
-    Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
+    Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
+    Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
 
-    Modelica.Units.SI.ElectricPotential electricPotential "Electric potential of the solution";
+    outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
 
-    Modelica.Units.SI.Temperature temperature "Temperature of the solution";
+    Chemical.Interfaces.SolutionState solutionState; // = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible);
 
-    parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
-    parameter Modelica.Units.SI.ChemicalPotential u_0=0 "Initial electro-chemical potential";
-    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
-      annotation (Dialog(tab="Advanced"));
-
-    Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
-
-
-    Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Utilities.Internal.regStep(
-              n_flow,
-              u - state_in_fore.u,
+     //if port.n_flow > 0 -> it is sink (r=medium.u-u_in) else it is source (r=0)
+    Modelica.Units.SI.ChemicalPotential r_rear_intern=Chemical.Utilities.Internal.regStep(
+              n_flow_rear,
+              state_out.u - state_in_rear.u,
               0,
               n_flow_reg);
+    Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Utilities.Internal.regStep(
+              n_flow_fore,
+              state_out.u - state_in_fore.u,
+              0,
+              n_flow_reg);
+    // dont regstep variables that are only in der(state), to increase accuracy
+    Modelica.Units.SI.EnthalpyFlowRate h_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else state_out.h)*n_flow_rear;
+    Modelica.Units.SI.EnthalpyFlowRate h_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else state_out.h)*n_flow_fore;
 
-  protected
-    outer Chemical.DropOfCommons dropOfCommons;
+    Modelica.Units.SI.ChemicalPotential r_rear_port;
+    Modelica.Units.SI.ChemicalPotential r_fore_port;
+    Modelica.Units.SI.MolarFlowRate n_flow_rear;
+    Modelica.Units.SI.MolarFlowRate n_flow_fore;
 
+    Chemical.Interfaces.SubstanceStateInput state_in_rear;
     Chemical.Interfaces.SubstanceStateInput state_in_fore;
+    Chemical.Interfaces.SubstanceState state_out;
 
   initial equation
-    u = u_0;
-  equation
+     if init == InitializationSubstance.steadyStateForwards  then
+      state_out.u = state_in_rear.u;
+    elseif init ==InitializationSubstance.steadyStateRearwards  then
+      state_out.u = state_in_fore.u;
+    elseif init ==InitializationSubstance.state then
+      state_out.u = definition.data.z*Modelica.Constants.F*v_start;
+    elseif init ==InitializationSubstance.derivative  then
+      n_flow = i_start/(definition.data.z*Modelica.Constants.F);
+    end if;
 
+  equation
+     //electric
+    pin.v = solution.v;
+    pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
+
+    state_out.u = definition.data.z*Modelica.Constants.F*solutionState.v;
+    state_out.h = definition.data.z*Modelica.Constants.F*solutionState.v;
+
+    der(n_flow_rear)*L = r_rear_port - r_rear_intern;
+    der(n_flow_fore)*L = r_fore_port - r_fore_intern;
+
+    connect(state_in_rear,rear.state_forwards);
     connect(state_in_fore,fore.state_rearwards);
 
-    //electric
-    pin.v = electricPotential;
-    pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
+    if not useRear then
+      r_rear_port = 0;
+      n_flow_rear = 0;
+      state_in_rear.h = 0;
+    end if;
 
-    /*
-  These equations :
-  
-  u = Interfaces.Incompressible.chemicalPotentialPure(
-    substanceData,
-    temperature,
-    pressure,
-    electricPotential,
-    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + definition.data.z*Modelica.Constants.F*electricPotential;
-  uRT = u/(Modelica.Constants.R*temperature);
-  h = Interfaces.Incompressible.molarEnthalpy(substanceData,temperature,pressure,electricPotential,moleFractionBasedIonicStrength);
-  
-  ... are simplified as:
-  */
-    u = definition.data.z*Modelica.Constants.F*electricPotential;
-    h = definition.data.z*Modelica.Constants.F*electricPotential;
+    if not useFore then
+      r_fore_port = 0;
+      n_flow_fore = 0;
+      state_in_fore.h = 0;
+    end if;
 
-    // Bounsaries.Source - u adaptation
-    //der(u)*L = r_out - r_fore_intern;
-    der(n_flow)*L = r_out - r_fore_intern;
-    temperature = solution.T;
+    n_flow = n_flow_rear + n_flow_fore;
+    h_flow = h_flow_rear + h_flow_fore;
 
-    //solution changes
-
-    electricPotential = solution.v;
-
-    annotation ( Icon(coordinateSystem(
-            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-          graphics={
-          Text(
-            extent={{-146,-44},{154,-84}},
-            textString="%name",
-            lineColor={128,0,255})}),
-      Documentation(revisions="<html>
-<p><i>2009-2025</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-  end ElectronSource;
-
-  model ElectronSink "Electron transfer to an electric circuit"
-    extends Icons.ElectronTransfer;
-
-    Chemical.Interfaces.Rear rear(n_flow=n_flow) "Chemical electron inlet"
-      annotation (Placement(transformation(extent={{110,-10},{90,10}}), iconTransformation(extent={{110,-10},{90,10}})));
-
-    Modelica.Electrical.Analog.Interfaces.PositivePin pin annotation (
-        Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
-            extent={{-10,88},{10,108}})));
-
-    Chemical.Interfaces.SolutionPort solution "To connect substance with solution, where is pressented"
-      annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
-
-   parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L;
-
-    Modelica.Units.SI.MolarFlowRate n_flow "Total molar change of substance";
-
-    Modelica.Units.SI.ElectricPotential electricPotential "Electric potential of the solution";
-
-    Modelica.Units.SI.Temperature temperature "Temperature of the solution";
-
-    Modelica.Units.SI.ChemicalPotential u;
-
-   parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
-      annotation (Dialog(tab="Advanced"));
-
-  protected
-
-    parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.e "Definition of the substance";
-
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Modelica.Units.SI.ChemicalPotential r_rear_intern=Chemical.Utilities.Internal.regStep(
-              n_flow,
-              u - rear.state_forwards.u,
-              0,
-              n_flow_reg);
-
-  initial equation
-    u = rear.state_forwards.u;
-  equation
-
-    rear.state_rearwards.u=u;
-    rear.state_rearwards.h=u;
-
-  //  substanceData=rear.definition;
-
-    der(rear.n_flow)*L = rear.r - r_rear_intern;
-
-    //electric
-    pin.v = electricPotential;
-    pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
-
-    /*
-  These equations :
-  
-  u = Interfaces.Incompressible.chemicalPotentialPure(
-    substanceData,
-    temperature,
-    pressure,
-    electricPotential,
-    moleFractionBasedIonicStrength) + (Modelica.Constants.R*temperature)*log(a) + definition.data.z*Modelica.Constants.F*electricPotential;
-  uRT = u/(Modelica.Constants.R*temperature);
-  
-  ... are simplified as:
-  */
-    u = definition.data.z*Modelica.Constants.F*electricPotential;
-
-    //solution changes
-    solution.dH = 0;
-    solution.dV = 0;
-
-    //extensive properties of the solution
-    solution.nj=0;
-    solution.mj=0;
-    solution.Vj=0;
-    solution.Gj=0;
-    solution.Qj=0;
-    solution.Ij=0;
-
-    temperature = solution.T;
-    electricPotential = solution.v;
-
-    annotation ( Icon(coordinateSystem(
-            preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
-          graphics={
-          Text(
-            extent={{-146,-44},{154,-84}},
-            textString="%name",
-            lineColor={128,0,255})}),
-      Documentation(revisions="<html>
-<p><i>2009-2025</i></p>
-<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
-</html>"));
-  end ElectronSink;
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
+  end ElectronTransfer;
 
   model ExternalSubstance "Constant source of molar concentration"
     extends Internal.PartialSubstance(
@@ -1376,9 +1308,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     partial model PartialBoundary
 
-
       parameter Chemical.Interfaces.Definition substanceDefinition=dropOfCommons.DefaultSubstance "Definition of the substance"
         annotation (choicesAllMatching=true, Dialog(enable=not useRear));
+
+
 
 
       outer Modelica.Fluid.System system "System wide properties";
@@ -1410,13 +1343,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     protected
 
+
       Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
       Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
-
-      Modelica.Units.SI.AmountOfSubstance n
-        "Amount of base molecules inside all clusters in compartment";
-
-      parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
       outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
 
@@ -1449,6 +1378,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
       Chemical.Interfaces.SubstanceState state_out;
 
     equation
+      substanceDefinitionVar = definitionVar;
+
 
       der(n_flow_rear)*L = r_rear_port - r_rear_intern;
       der(n_flow_fore)*L = r_fore_port - r_fore_intern;
@@ -1456,7 +1387,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
       connect(state_in_rear,rear.state_forwards);
       connect(state_in_fore,fore.state_rearwards);
 
-      substanceDefinitionVar = definitionVar;
 
       if not useRear then
         r_rear_port = 0;
@@ -1482,6 +1412,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
     partial model PartialSubstance
       extends PartialBoundary;
 
+
+      parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
+
+      Modelica.Units.SI.AmountOfSubstance n
+        "Amount of base molecules inside all clusters in compartment";
+
       Chemical.Interfaces.Properties.SubstanceProperties substance(
         definition=substanceDefinitionVar,
         solutionState=solutionState,
@@ -1492,7 +1428,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         n_flow=n_flow,
         h_flow=h_flow);
 
-    parameter Boolean useSolution = false "Use solution connector?"
+      parameter Boolean useSolution = false "Use solution connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
       parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible) "Constant chemical solution state if not from rear or input"
@@ -1530,6 +1466,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
          outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
          Chemical.Interfaces.SolutionState solutionPortState;
     equation
+
+
+
       c = substance.c;
       b = substance.b;
       M = substance.M;
