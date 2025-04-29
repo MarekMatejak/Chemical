@@ -80,9 +80,9 @@ package Interfaces "Chemical interfaces"
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
       import DataRecord=Chemical.Interfaces.DataRecord;
       import PhaseType=Chemical.Interfaces.Phase;
-      constant Real R=1.380649e-23*6.02214076e23;
-      constant Real T0=298.15 "Base temperature";
-      constant Real p0=100000 "Base pressure";
+      //    constant Real R=1.380649e-23*6.02214076e23;
+      //    constant Real T0=298.15 "Base temperature";
+      //    constant Real p0=100000 "Base pressure";
 
       function fromDataRecord
         input DataRecord data "Mass based data record";
@@ -106,7 +106,7 @@ package Interfaces "Chemical interfaces"
         input Real S0=0 "Standart molar entropy of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then (R*T0)/p0 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
+        input Real Vm=if (phase == PhaseType.Gas) then ((1.380649e-23*6.02214076e23)*298.15)/100000 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
         input Real gamma=1 "Activity coefficient of the substance";
         input Boolean SelfClustering = false;
         input Real SelfClustering_dH = 0;
@@ -115,11 +115,11 @@ package Interfaces "Chemical interfaces"
                   data=DataRecord(
                     MM=MM,
                     Hf=DfH,
-                    H0=DfH - T0*Cp,
-                    alow={0,0,Cp/R,0,0,0,0},
-                    blow={(DfH-Cp*T0)/R,(S0-Cp*log(T0))/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
-                    ahigh={0,0,Cp/R,0,0,0,0},
-                    bhigh={(DfH-Cp*T0)/R,(S0-Cp*log(T0))/R,(((DfH-DfG)/T0)-Cp*log(T0))/R},
+                    H0=DfH - 298.15*Cp,
+                    alow={0,0,Cp/(1.380649e-23*6.02214076e23),0,0,0,0},
+                    blow={(DfH-Cp*298.15)/(1.380649e-23*6.02214076e23),(S0-Cp*log(298.15))/(1.380649e-23*6.02214076e23),(((DfH-DfG)/298.15)-Cp*log(298.15))/(1.380649e-23*6.02214076e23)},
+                    ahigh={0,0,Cp/(1.380649e-23*6.02214076e23),0,0,0,0},
+                    bhigh={(DfH-Cp*298.15)/(1.380649e-23*6.02214076e23),(S0-Cp*log(298.15))/(1.380649e-23*6.02214076e23),(((DfH-DfG)/298.15)-Cp*log(298.15))/(1.380649e-23*6.02214076e23)},
                     z=z,
                     phase=phase,
                     VmBase=Vm/(1+log(gamma)),
@@ -262,7 +262,6 @@ package Interfaces "Chemical interfaces"
  end SubstanceState;
 
  operator record SolutionState "Set that defines a state of solution"
-  extends Modelica.Icons.Record;
 
    Modelica.Units.SI.Temperature T "Temperature of the solution";
    Modelica.Units.SI.Pressure p "Pressure of the solution";
@@ -278,18 +277,18 @@ package Interfaces "Chemical interfaces"
      import Chemical.Interfaces.SolutionState;
      import Chemical.Interfaces.SolutionPort;
      import Chemical.Interfaces.Phase;
-     constant Real R=1.380649e-23*6.02214076e23;
-     constant Real T0=298.15 "Base temperature";
-     constant Real p0=100000 "Base pressure";
+      //   constant Real R=1.380649e-23*6.02214076e23;
+      //   constant Real T0=298.15 "Base temperature";
+      //   constant Real p0=100000 "Base pressure";
 
      function fromValues
        input Phase phase "Phase of the chemical solution";
-       input Real T=T0 "Temperature of the solution";
-       input Real p=p0 "Pressure of the solution";
+       input Real T=298.15 "Temperature of the solution";
+       input Real p=100000 "Pressure of the solution";
        input Real v=0 "Electric potential in the solution";
        input Real n=1 "Amount of the solution";
        input Real m=1 "Mass of the solution";
-       input Real V=if (phase==Phase.Gas) then n*R*T/p else 0.001 "Volume of the solution";
+       input Real V=if (phase==Phase.Gas) then n*(1.380649e-23*6.02214076e23)*T/p else 0.001 "Volume of the solution";
        input Real G=0 "Free Gibbs energy of the solution";
        input Real Q=0 "Electric charge of the solution";
        input Real I=0 "Mole fraction based ionic strength of the solution";
@@ -298,12 +297,7 @@ package Interfaces "Chemical interfaces"
        annotation(Inline = true);
      end fromValues;
 
-    /* function fromSolutionPort
-       input SolutionPort s;
-       output SolutionState result(T=s.T,p=s.p,v=s.v,n=s.n,m=s.m,V=s.V,G=s.G,Q=s.Q,I=s.I);
-     algorithm
-       annotation(Inline = true);
-     end fromSolutionPort;*/
+
    end 'constructor';
 
    encapsulated operator function '=='
@@ -1321,7 +1315,6 @@ algorithm
   constant Modelica.Units.SI.Temperature Tlimit=1000 "Temperature limit between low and high data sets";
 
 operator record DataRecord "Coefficient data record for chemical definitions based on NASA source"
-  extends Modelica.Icons.Record;
 
   Modelica.Units.SI.MolarMass MM "Molar mass";
   Modelica.Units.SI.MolarEnthalpy Hf "Enthalpy of formation at 298.15K, 1bar";
@@ -1346,53 +1339,53 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
     import DataRecord=Chemical.Interfaces.DataRecord;
     import PhaseType=Chemical.Interfaces.Phase;
 
-    constant Real R=1.380649e-23*6.02214076e23;
-    constant Real T0=298.15 "Base temperature";
-    constant Real logT0 = 5.697596715569114904552663960891;
-    constant Real Tlimit=1000;
-    constant Real logTlimit=6.9077552789821370520539743640531;
-    constant Real p0=100000 "Base pressure";
+      //    constant Real R=1.380649e-23*6.02214076e23;
+      //    constant Real T0=298.15 "Base temperature";
+      //    constant Real logT0 = 5.697596715569114904552663960891;
+      //    constant Real Tlimit=1000;
+      //    constant Real logTlimit=6.9077552789821370520539743640531;
+      //    constant Real p0=100000 "Base pressure";
 
      function fromModelicaDataRecord
       input ModelicaDataRecord mdata "Mass based data record";
       input Real Gf=0 "Gibbs energy of formation at 298.15K, 1bar";
       input Real z=0 "Charge number";
       input PhaseType phase=PhaseType.Gas "State of matter";
-      input Real Vm=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001*mdata.MM "Molar volume";
+      input Real Vm=if (phase == PhaseType.Gas) then (1.380649e-23*6.02214076e23)*298.15/100000 else 0.001*mdata.MM "Molar volume";
       input Real gamma=1 "Activity coefficient";
 
       output DataRecord result(
                   MM=mdata.MM,
                   Hf=mdata.Hf*mdata.MM,
                   H0=mdata.H0*mdata.MM,
-                  alow=(mdata.R_s*mdata.MM/R) * mdata.alow,
-                  blow={(mdata.R_s*mdata.MM/R) * mdata.blow[1],
-                        (mdata.R_s*mdata.MM/R) * mdata.blow[2],
-                         (((mdata.Hf*mdata.MM)-Gf)/T0)/R - (mdata.R_s*mdata.MM/R)*
-                         (- 0.5*mdata.alow[1]/(T0*T0) - mdata.alow[2]/T0 +
-                         mdata.alow[3]*logT0 + T0*(mdata.alow[4] +
-                         T0*(0.5*mdata.alow[5] + T0*(1/3*mdata.alow[6] +
-                         0.25*mdata.alow[7]*T0))))},
-                        /*blow[3] = S(T0)/R - rSlow(T0), where S(T)=R* */
-                  ahigh=(mdata.R_s*mdata.MM/R) * mdata.ahigh,
+                  alow=(mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.alow,
+                  blow={(mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.blow[1],
+                        (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.blow[2],
+                         (((mdata.Hf*mdata.MM)-Gf)/298.15)/(1.380649e-23*6.02214076e23) - (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*
+                         (- 0.5*mdata.alow[1]/(298.15*298.15) - mdata.alow[2]/298.15 +
+                         mdata.alow[3]*5.697596715569114904552663960891 + 298.15*(mdata.alow[4] +
+                         298.15*(0.5*mdata.alow[5] + 298.15*(1/3*mdata.alow[6] +
+                         0.25*mdata.alow[7]*298.15))))},
+                        /*blow[3] = S(298.15)/(1.380649e-23*6.02214076e23) - rSlow(298.15), where S(T)=R* */
+                  ahigh=(mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.ahigh,
 
-                  bhigh={(mdata.R_s*mdata.MM/R) * mdata.bhigh[1],
-                         (mdata.R_s*mdata.MM/R) * mdata.bhigh[2],
-                         ( ((((mdata.Hf*mdata.MM)-Gf)/T0)/R - (mdata.R_s*mdata.MM/R)*
-                         (- 0.5*mdata.alow[1]/(T0*T0) - mdata.alow[2]/T0 +
-                         mdata.alow[3]*logT0 + T0*(mdata.alow[4] +
-                         T0*(0.5*mdata.alow[5] + T0*(1/3*mdata.alow[6] +
-                         0.25*mdata.alow[7]*T0))))) +
-                         (mdata.R_s*mdata.MM/R)*(-0.5*mdata.alow[1]/(Tlimit*Tlimit)
-                           - mdata.alow[2]/Tlimit + mdata.alow[3]*logTlimit
-                           + Tlimit*(mdata.alow[4] + Tlimit*(0.5*mdata.alow[5]
-                           + Tlimit*(1/3*mdata.alow[6] + 0.25*mdata.alow[7]*Tlimit)))))
-                         - (mdata.R_s*mdata.MM/R)*
-                         (- 0.5*mdata.ahigh[1]/(Tlimit*Tlimit) - mdata.ahigh[2]/Tlimit +
-                         mdata.ahigh[3]*logTlimit + Tlimit*(mdata.ahigh[4] +
-                         Tlimit*(0.5*mdata.ahigh[5] + T0*(1/3*mdata.ahigh[6] +
-                         0.25*mdata.ahigh[7]*Tlimit))))},
-                         /*bhigh[3] = Slow(Tlimit)/R - rShigh(Tlimit) */
+                  bhigh={(mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.bhigh[1],
+                         (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23)) * mdata.bhigh[2],
+                         ( ((((mdata.Hf*mdata.MM)-Gf)/298.15)/(1.380649e-23*6.02214076e23) - (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*
+                         (- 0.5*mdata.alow[1]/(298.15*298.15) - mdata.alow[2]/298.15 +
+                         mdata.alow[3]*5.697596715569114904552663960891 + 298.15*(mdata.alow[4] +
+                         298.15*(0.5*mdata.alow[5] + 298.15*(1/3*mdata.alow[6] +
+                         0.25*mdata.alow[7]*298.15))))) +
+                         (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*(-0.5*mdata.alow[1]/(1000*1000)
+                           - mdata.alow[2]/1000 + mdata.alow[3]*10006.9077552789821370520539743640531
+                           + 1000*(mdata.alow[4] + 1000*(0.5*mdata.alow[5]
+                           + 1000*(1/3*mdata.alow[6] + 0.25*mdata.alow[7]*1000)))))
+                         - (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*
+                         (- 0.5*mdata.ahigh[1]/(1000*1000) - mdata.ahigh[2]/1000 +
+                         mdata.ahigh[3]*10006.9077552789821370520539743640531 + 1000*(mdata.ahigh[4] +
+                         1000*(0.5*mdata.ahigh[5] + 298.15*(1/3*mdata.ahigh[6] +
+                         0.25*mdata.ahigh[7]*1000))))},
+                         /*bhigh[3] = Slow(1000)/(1.380649e-23*6.02214076e23) - rShigh(1000) */
 
 
                   z=z,
@@ -1416,7 +1409,7 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
       input Real bhigh[3];
       input Real z=0 "Charge number";
       input PhaseType phase=PhaseType.Incompressible "State of matter";
-      input Real VmBase=if (phase == PhaseType.Gas) then R*T0/p0 else 0.001*MM "Base molar volume";
+      input Real VmBase=if (phase == PhaseType.Gas) then (1.380649e-23*6.02214076e23)*298.15/100000 else 0.001*MM "Base molar volume";
       input Real VmExcess=0 "Excess molar volume";
 
       output DataRecord result(
