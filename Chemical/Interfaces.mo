@@ -771,6 +771,28 @@ To change its behavior it is necessary to modify Property functions.
        Vs = ((p[2:end]*products.Vs) - (s*substrates.Vs) - process.Vs)/p[1]);*/
    end firstProductDefinition;
 
+   function moleFraction "Return mole fraction from potential, definition and solution"
+     import Chemical;
+      extends Modelica.Icons.Function;
+      input Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      output Modelica.Media.Interfaces.Types.MoleFraction moleFraction "Mole fraction of the substance";
+   algorithm
+       moleFraction := exp((u - chemicalPotentialPure(definition,solution)-definition.data.z*Modelica.Constants.F*solution.v)/(Modelica.Constants.R*solution.T))/activityCoefficient(definition,solution);
+   end moleFraction;
+
+   function activity "Return activity from potential, definition and solution"
+     import Chemical;
+      extends Modelica.Icons.Function;
+      input Modelica.Units.SI.ChemicalPotential u "Electro-chemical potential";
+      input Chemical.Interfaces.Definition definition "Definition of substance";
+      input Interfaces.SolutionState solution "Chemical solution state";
+      output Real activity "Activity of the substance";
+   algorithm
+       activity := exp((u - chemicalPotentialPure(definition,solution)-definition.data.z*Modelica.Constants.F*solution.v)/(Modelica.Constants.R*solution.T));
+   end activity;
+
    function activityCoefficient
     "Return activity coefficient of the substance in the solution"
      import Chemical;
@@ -1767,6 +1789,9 @@ end DataRecord;
   partial model SISO "Base Model with basic flow eqautions for SISO"
 
     import Chemical.Utilities.Types.InitializationMethods;
+
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
+      annotation(HideResult=true, Dialog(tab="Advanced"));
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (HideResult=true, Dialog(tab="Advanced"));
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"

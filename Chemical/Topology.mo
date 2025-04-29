@@ -48,7 +48,8 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
           us_out[i],
           n_flow_reg) + rs[i] = u_mix + r_mix;
       rears[i].state_rearwards = Chemical.Interfaces.SubstanceState(u=us_out[i],h=hs_out[i]);
-      rears[i].solution_rearwards = rears[1].solution_forwards;
+
+      rears[i].solution_rearwards = fores[1].solution_rearwards;
     end for;
 
     // fores are N+1:end

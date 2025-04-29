@@ -1466,7 +1466,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(enable=not useSolution and useRear, group="Chemical solution"));
 
       parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible) "Constant chemical solution state if not from rear or input"
-        annotation (HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear, group="Chemical solution"));
+          annotation (HideResults=useSolution or (useRearSolution and useRear), Dialog(enable=not useSolution and (not useRear or not useRearSolution), group="Chemical solution"));
       Chemical.Interfaces.SolutionPort solution(
           T=solutionPortState.T,
           p=solutionPortState.p,

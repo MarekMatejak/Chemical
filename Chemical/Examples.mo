@@ -1212,7 +1212,8 @@ package Examples "Tests for top level components of undirected"
       Placement(transformation(extent = {{26, -8}, {46, 12}})));
     Chemical.Boundaries.Substance liquidWater(useSolution = true, substanceDefinition = Chemical.Substances.Liquid.H2O, preferMass = true, mass_start = 1) annotation(
       Placement(transformation(extent = {{42, -80}, {62, -60}})));
-    inner DropOfCommons dropOfCommons annotation(
+    inner DropOfCommons dropOfCommons(n_flow_reg=1e-8)
+                                      annotation(
       Placement(transformation(extent = {{68, 70}, {88, 90}})));
   equation
     //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
@@ -1285,7 +1286,7 @@ package Examples "Tests for top level components of undirected"
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 </html>"),
-      experiment(StopTime = 100000, __Dymola_Algorithm = "Dassl"),
+      experiment(StopTime=70000, __Dymola_Algorithm="Dassl"),
       __Dymola_experimentSetupOutput);
   end EnzymeKinetics;
 
@@ -1342,7 +1343,7 @@ package Examples "Tests for top level components of undirected"
       points={{76,-18.2},{76,48},{60,48},{60,80},{-22,80}},
       color={0,0,255}));
   connect(electrone.solution,anode. solution) annotation (Line(
-      points={{70,-38},{70,-76.92},{85.2,-76.92}},
+      points={{70,-38},{70,-68},{84,-68},{84,-76.92},{85.2,-76.92}},
       color={127,127,0}));
   connect(electrone1.pin,currentSensor. p) annotation (Line(
       points={{-74,-14.2},{-92,-14.2},{-92,48},{-66,48}},
@@ -1351,7 +1352,7 @@ package Examples "Tests for top level components of undirected"
       points={{-46,48},{-36,48}},
       color={0,0,255}));
   connect(electrone1.solution,cathode. solution) annotation (Line(
-      points={{-80,-34},{-80,-66},{-74,-66},{-74,-78.92},{-62.8,-78.92}},
+      points={{-80,-34},{-80,-70},{-64,-70},{-64,-78.92},{-62.8,-78.92}},
       color={127,127,0}));
     connect(O2_gas.solution, air.solution) annotation (Line(points={{-8,-6},{-8,-20},{32,-20},{32,-15.58}},
                                            color={127,127,0}));
@@ -1378,7 +1379,7 @@ package Examples "Tests for top level components of undirected"
         thickness=0.5));
     connect(liquidWater.fore, reaction.substrates[1])
       annotation (Line(
-        points={{-20,-62},{-48,-62},{-48,-52},{-52,-52},{-52,-29.275},{-42,-29.275}},
+        points={{-20,-62},{-52,-62},{-52,-29.275},{-42,-29.275}},
         color={158,66,200},
         thickness=0.5));
     connect(electrone1.fore, reaction.substrates[2])
@@ -1391,6 +1392,67 @@ package Examples "Tests for top level components of undirected"
 <p><b>2 H<sub>2</sub>O +&nbsp;&nbsp;4 e<sup>-</sup><sub>(catode)</sub>&nbsp;&lt;-&gt;  2 H<sub>2</sub> + O<sub>2</sub>&nbsp;+&nbsp;&nbsp;4 e<sup>-</sup><sub>(anode)</sub>&nbsp;</b></p>
 </html>"));
   end WaterElectrolysis;
+
+  model SimpleReactionsWithJunction
+    extends Modelica.Icons.Example;
+    Chemical.Processes.Reaction r( nP = 1,         process = Chemical.Interfaces.processData(2),
+      nS=1)                                                                                      annotation(
+      Placement(transformation(extent={{-6,12},{14,32}})));
+    Chemical.Boundaries.Substance A(useFore = true) annotation(
+      Placement(transformation(extent={{-68,-10},{-48,10}})));
+    Chemical.Boundaries.Substance B(useRear = true) annotation(
+      Placement(transformation(extent = {{30, 14}, {50, 34}})));
+    Boundaries.Substance          B1(useRear=true)  annotation(
+      Placement(transformation(extent={{34,-32},{54,-12}})));
+    Processes.Reaction          r1(
+      nP=1,
+      nS=1,
+      process=Chemical.Interfaces.processData(2))                                                annotation(
+      Placement(transformation(extent={{-2,-32},{18,-12}})));
+    Processes.Reaction r_ref(
+      nP=1,
+      nS=1,
+      process=Chemical.Interfaces.processData(2)) annotation (Placement(transformation(extent={{-2,64},{18,84}})));
+    Boundaries.Substance A_ref(useFore=true) annotation (Placement(transformation(extent={{-54,64},{-34,84}})));
+    Boundaries.Substance B_ref(useRear=true) annotation (Placement(transformation(extent={{34,66},{54,86}})));
+    Topology.JunctionRFF junctionRFF annotation (Placement(transformation(extent={{-30,-10},{-10,10}})));
+  equation
+    connect(r.products[1], B.rear) annotation(
+      Line(points={{14,22},{22,22},{22,24},{30,24}},
+                                          color = {158, 66, 200}, thickness = 0.5));
+    connect(r1.products[1], B1.rear) annotation (Line(
+        points={{18,-22},{34,-22}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(A_ref.fore, r_ref.substrates[1]) annotation (Line(
+        points={{-34,74},{-2,74}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(r_ref.products[1], B_ref.rear) annotation (Line(
+        points={{18,74},{26,74},{26,76},{34,76}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(A.fore, junctionRFF.rear) annotation (Line(
+        points={{-48,0},{-30,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(junctionRFF.foreA, r.substrates[1]) annotation (Line(
+        points={{-20,10},{-20,22},{-6,22}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(junctionRFF.foreB, r1.substrates[1]) annotation (Line(
+        points={{-20,-10},{-20,-22},{-2,-22}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation(
+      Documentation(revisions = "<html>
+<p><i>2025</i></p>
+<p>Marek Matejak</p>
+</html>", info = "<html>
+        <p>Simple reaction demonstrating equilibration between substance A and substance B, in constant solution. Observe the molar concentration (A.c) and molar fraction.</p>
+</html>"),
+      experiment(StopTime = 10));
+  end SimpleReactionsWithJunction;
 
   annotation(
     Documentation(info = "<html>
