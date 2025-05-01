@@ -1377,12 +1377,12 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
                          298.15*(0.5*mdata.alow[5] + 298.15*(1/3*mdata.alow[6] +
                          0.25*mdata.alow[7]*298.15))))) +
                          (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*(-0.5*mdata.alow[1]/(1000*1000)
-                           - mdata.alow[2]/1000 + mdata.alow[3]*10006.9077552789821370520539743640531
+                           - mdata.alow[2]/1000 + mdata.alow[3]*6.9077552789821370520539743640531
                            + 1000*(mdata.alow[4] + 1000*(0.5*mdata.alow[5]
                            + 1000*(1/3*mdata.alow[6] + 0.25*mdata.alow[7]*1000)))))
                          - (mdata.R_s*mdata.MM/(1.380649e-23*6.02214076e23))*
                          (- 0.5*mdata.ahigh[1]/(1000*1000) - mdata.ahigh[2]/1000 +
-                         mdata.ahigh[3]*10006.9077552789821370520539743640531 + 1000*(mdata.ahigh[4] +
+                         mdata.ahigh[3]*6.9077552789821370520539743640531 + 1000*(mdata.ahigh[4] +
                          1000*(0.5*mdata.ahigh[5] + 298.15*(1/3*mdata.ahigh[6] +
                          0.25*mdata.ahigh[7]*1000))))},
                          /*bhigh[3] = Slow(1000)/(1.380649e-23*6.02214076e23) - rShigh(1000) */
