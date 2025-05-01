@@ -213,7 +213,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model ExternalSubstance "Constant source of molar concentration"
     extends Internal.PartialSubstance(
-      m_start=1,
+      final m_start=1,
       substance(final SolutionObserverOnly=true));
 
    /* parameter stateOfMatter.SubstanceDataParameters substanceData
@@ -438,10 +438,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
      Chemical.Interfaces.Rear rear "The substance"
       annotation (Placement(transformation(extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},{-90,10}})));
 
-    parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
+    parameter Modelica.Units.SI.Time TC=dropOfCommons.TC "Time constant for electro-chemical potential adaption" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.ChemicalPotential u_start=0 "Initial electro-chemical potential";
 
   protected
+    outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
     Modelica.Units.SI.ChemicalPotential u(stateSelect=StateSelect.prefer);
 
   initial equation
