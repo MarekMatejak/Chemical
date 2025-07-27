@@ -1125,7 +1125,22 @@ Choices for initialization of a state h.
       outer DropOfCommons dropOfCommons;
 
 
+      //if substrates[i].n_flow > 0 -> i-th substrate is sink (r[i]=(s[i]/sum(s))*(p*products.r)) else it is source (r=0)
+      Modelica.Units.SI.ChemicalPotential substrates_r_intern[nS]=Chemical.Utilities.Internal.regStep(
+                substrates.n_flow,
+                s.*(p*products.r)./(s*ones(nS)),
+                0,
+                n_flow_reg);                    //state_out.u - substrates.state_forewards.u,
+      //if products[j].n_flow > 0 -> j-th product is sink (r[j]=(p[j]/sum(p))*(s*substrates.r)) else it is source (r=0)
+      Modelica.Units.SI.ChemicalPotential products_r_intern[nP]=Chemical.Utilities.Internal.regStep(
+                products.n_flow,
+                p.*(s*substrates.r)./(p*ones(nP)),
+                0,
+                n_flow_reg);
+
+
       Real Px_fore,Sx_rear;
+      Real r_products_mix, r_substrates_mix;
 
     initial equation
       if initN_flow == InitializationMethods.state then
@@ -1196,13 +1211,16 @@ Choices for initialization of a state h.
 
         (p * products.r) = (s * substrates.r)  -  der(rr)*L;
 
-        for i in 2:nP loop
+       //     der(substrates.n_flow)*L = s.*substrates.r - substrates_r_intern;
+       //     der(products.n_flow)*L = p.*products.r - products_r_intern;
+
+        for i in 1:nP loop
           //first product is based on inertial potential,
           //other products are provided as source with fixed flow and adaptation of their potential
-          der(products[i].state_forwards.u).*TC = products[i].r;
+          der(products[i].state_forwards.u).*TC = products[i].r + r_products_mix;
         end for;
-        for i in 2:nS loop
-          der(substrates[i].state_rearwards.u).*TC = substrates[i].r;
+        for i in 1:nS loop
+          der(substrates[i].state_rearwards.u).*TC = substrates[i].r + r_substrates_mix;
         end for;
       end if;
 

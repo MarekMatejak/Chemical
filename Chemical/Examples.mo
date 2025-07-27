@@ -11,6 +11,7 @@ package Examples "Tests for top level components of undirected"
     import Chemical.Interfaces.processData;
     constant Real R = Modelica.Constants.R;
     constant Definition O2_aq = Gas.O2 + processData(0.0013, -1500*R);
+    constant Definition NO_aq = Gas.NO + processData(0.0014, -1500*R);
     constant Definition H2O_formation = Gas.H2O - (Gas.H2 + 0.5*Gas.O2);
     constant Definition Hemoglobin = Liquid.Unknown;
     import Chemical.Interfaces.SolutionState;
@@ -22,11 +23,16 @@ package Examples "Tests for top level components of undirected"
     ProcessProperties H2O_formation_props(definition = H2O_formation, solutionState = heatingSolution);
     ProcessProperties H2O_vaporization_props(definition = Gas.H2O - Liquid.H2O, solutionState = heatingSolution);
     import Modelica.Units.SI;
-    SI.ChemicalPotential uO2,uH2,uH2O;
+    SI.ChemicalPotential uO2,uH2,uH2O,uNO,uO2_,uNO_,uNO_aq;
     SI.MolarEnthalpy hO2;
     SI.MolarEntropy sO2;
   equation
     uO2 = Properties.electroChemicalPotentialPure(Gas.O2,heatingSolution);
+    uNO = Properties.electroChemicalPotentialPure(Gas.NO,heatingSolution);
+    uO2_ = Properties.electroChemicalPotentialPure(Gas.O2,SATP);
+    uNO_ = Properties.electroChemicalPotentialPure(Gas.NO,SATP);
+    uNO_aq = Properties.electroChemicalPotentialPure(NO_aq,SATP);
+
     hO2 = Properties.molarEnthalpyElectroneutral(Gas.O2,heatingSolution);
     sO2 = Properties.molarEntropyPure(Gas.O2,heatingSolution);
     uH2 = Chemical.Interfaces.Properties.electroChemicalPotentialPure(Gas.H2,heatingSolution);
@@ -456,8 +462,8 @@ package Examples "Tests for top level components of undirected"
       Placement(transformation(extent = {{48, -8}, {68, 12}})));
     Chemical.Boundaries.Substance D(useRear = true, amountOfSubstance_start = 0.1) annotation(
       Placement(transformation(extent = {{44, -34}, {64, -14}})));
-    inner DropOfCommons dropOfCommons(L = 1e-3) annotation(
-      Placement(transformation(extent = {{52, 56}, {72, 76}})));
+    inner DropOfCommons dropOfCommons           annotation(
+      Placement(transformation(extent={{56,56},{76,76}})));
   equation
     connect(A.fore, reaction2_1.substrates[1]) annotation(
       Line(points = {{-14, 12}, {-4, 12}, {-4, -2.25}, {2, -2.25}}, color = {158, 66, 200}, thickness = 0.5));
@@ -474,7 +480,7 @@ package Examples "Tests for top level components of undirected"
 </html>", info = "<html>
 <p>Simple reaction demonstrating equilibria between substance A, B, and substance C, mixed in one solution. Observe the molar concentration (A.c) and molar fraction. Note, that molar fractions (A.x and B.x and C.x) are always summed to 1 for the whole solution.</p>
 </html>"),
-      experiment(StopTime = 100, __Dymola_Algorithm = "Dassl"));
+      experiment(StopTime=0.0002, __Dymola_Algorithm="Dassl"));
   end SimpleReaction22;
 
   model HeatingOfWater "Heating of 1 kg water"
