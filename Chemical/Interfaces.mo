@@ -359,17 +359,17 @@ package Interfaces "Chemical interfaces"
 
     //amount of substances
   Modelica.Units.SI.AmountOfSubstance n "Amount of the solution";
-  flow Modelica.Units.SI.AmountOfSubstance nj
+  flow Real nj(quantity="AmountOfSubstance", unit="mol")
     "Amount of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
     //mass of substances
   Modelica.Units.SI.Mass m "Mass of the solution";
-  flow Modelica.Units.SI.Mass mj
+  flow Real mj(quantity="Mass", unit="kg")
     "Mass of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
     //volume of substances
   Modelica.Units.SI.Volume V "Volume of the solution";
-  flow Modelica.Units.SI.Volume Vj
+  flow Real Vj(quantity="Volume", unit="m3")
     "Volume of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
     //Gibbs energy of substances
@@ -385,7 +385,7 @@ package Interfaces "Chemical interfaces"
     //ionic strength of substances
   Modelica.Units.SI.MoleFraction I
     "Mole fraction based ionic strength of the solution";
-  flow Modelica.Units.SI.MoleFraction Ij
+  flow Real Ij(quantity="MoleFraction", unit="1")
     "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
   /*  //suport for structural properties
