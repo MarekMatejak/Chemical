@@ -1219,9 +1219,11 @@ package Examples "Tests for top level components of undirected"
     parameter Real k_cat(unit = "mol/s", displayUnit = "mol/min") = 1 "Forward rate of second reaction";
     constant Modelica.Units.SI.Concentration Km = 0.1 "Michaelis constant = substrate concentration at rate of half Vmax";
     parameter Modelica.Units.SI.MolarFlowRate Vmax = 1e-5*k_cat "Maximal molar flow";
-    Chemical.Boundaries.Substance ES(useRear = true, useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = tE/10) annotation(
+    Chemical.Boundaries.Substance ES(useRear = true, useFore = true, useSolution = true, preferMass = false,
+      amountOfSubstance_start=tE/1e2)                                                                                                         annotation(
       Placement(transformation(extent = {{-8, -10}, {12, 10}})));
-    Chemical.Boundaries.Substance E(useRear = true, useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = tE*(9/10)) annotation(
+    Chemical.Boundaries.Substance E(useRear = true, useFore = true, useSolution = true, preferMass = false,
+      amountOfSubstance_start=tE*(1 - 1e-2))                                                                                                     annotation(
       Placement(transformation(extent = {{12, 36}, {-8, 56}})));
     Processes.Reaction chemicalReaction(process = Chemical.Interfaces.processData(2/Km), k_forward = 1, nS = 2, nP = 1) annotation(
       Placement(transformation(extent = {{-42, -8}, {-22, 12}})));
