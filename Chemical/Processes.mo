@@ -37,9 +37,9 @@ package Processes "Undirected process package"
 
   /*  Kx = kb/kf;
 
-  //the same as:
-    rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
-    rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
+    //the same as:
+      rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
+      rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
 */
 
     annotation (
@@ -937,7 +937,7 @@ Choices for initialization of a state h.
 
 
       // for unknown reason this array can not be empty in Dymola 2025 - stupid fix: max(1,nP-1) instead of max(0,nP-1) is used as size of the array
-      parameter Chemical.Interfaces.Definition nextProducts[:]=fill(dropOfCommons.DefaultSubstance, max(1,nP-1)) "Definitions of next products"
+      parameter Chemical.Interfaces.Definition nextProducts[:]=fill(((s*ones(nS))/(p*ones(nP)))*dropOfCommons.DefaultSubstance, max(1,nP-1)) "Definitions of next products"
         annotation (choicesAllMatching=true, Dialog(enable=(nP > 1), group="Products definitions"));
 
 
@@ -2193,6 +2193,7 @@ du := n_flow/kC;
 </table>
 </html>"));
   end MichaelisMenten_2;
+
   annotation (Documentation(info="<html>
 <u>This package contains models implementing undirected versions of the processes. Here, the thermodynamic state of one or more fluid streams is changed by exchanging heat or work with the streams, or by delaying the state.</u>
 </html>", revisions="<html>
