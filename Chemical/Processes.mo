@@ -15,17 +15,33 @@ package Processes "Undirected process package"
     </html>"));
     extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
-    //Real rr_fore_exact,rr_rear_exact,  kb;
+     Real rr_fore_exact,rr_rear_exact,  kb;
      Chemical.Interfaces.Definition processDefinition;
+     Real du2,du3,du4;
   equation
 
     processDefinition = p*products.definition - s*substrates.definition;
 
     //chemical kinetics
-    du_fore = -uLoss(rr,kf*Sx_fore,solutionState,n_flow_reg);
-    if nS>0 then
-      du_rear = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
-    end if;
+    du2 = uLoss(rr,kf*Sx,solutionState,n_flow_reg);
+    du3 = -uLoss(-rr,(kf/Kx)*Px,solutionState,n_flow_reg);
+    du4 = uLoss(rr,kf*Sx_fore,solutionState,n_flow_reg);
+    du = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    // uLoss(rr,kf*Sx,solutionState,n_flow_reg);
+          /*if rr>0 then 
+          (if (rr<kf*Sx) then Modelica.Constants.R*solutionState.T*log(abs(1-rr/(kf*Sx)))
+          else -Modelica.Constants.R*solutionState.T*log(n_flow_reg/(kf*Sx)))
+        else 
+          (if (-rr<(kf/Kx)*Px) then -Modelica.Constants.R*solutionState.T*log(abs(1+rr/((kf/Kx)*Px)))
+          else Modelica.Constants.R*solutionState.T*log(n_flow_reg/((kf/Kx)*Px)));
+*/
+
+
+  //   du_fore = -uLoss(rr,kf*Sx_fore,solutionState,n_flow_reg);
+  //   du_fore = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+  //  if nS>0 then
+  //    du_rear = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+  //  end if;
 
     //chemical solution and its propagation
     if nS>0 then
@@ -35,12 +51,12 @@ package Processes "Undirected process package"
     end if;
 
 
-  /*  Kx = kb/kf;
+    Kx = kf/kb;
 
-    //the same as:
-      rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
-      rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
-*/
+      //the same as:
+        rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
+        rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
+
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -1118,7 +1134,7 @@ Choices for initialization of a state h.
 
       Modelica.Units.SI.MolarEnthalpy h_fore_mix, h_rear_mix;
 
-      Real duRT_fore, duRT_rear, du_fore, du_rear, dr, Sx_fore,Px_rear,Kx;
+      Real duRT_fore, duRT_rear, du_fore, du_rear, Sx_fore,Px_rear,Kx;
 
       Modelica.Units.SI.ChemicalPotential uPure_substrates[nS];
       Modelica.Units.SI.ChemicalPotential uPure_products[nP];
@@ -1140,7 +1156,16 @@ Choices for initialization of a state h.
 
 
       Real Px_fore,Sx_rear;
-      Real r_products_mix, r_substrates_mix;
+     // Real r_mix;
+      //  Real r_products_mix, r_substrates_mix;
+
+      Real _rR[nS+nP];
+      Real _uIn[nS+nP];
+      Real _uOut[nS+nP];
+      Real _qIn[nS+nP];
+      Real _uS[nS],_uP[nP];
+      Real du, Sx, Px;
+
 
     initial equation
       if initN_flow == InitializationMethods.state then
@@ -1152,13 +1177,42 @@ Choices for initialization of a state h.
       end if;
 
       //je potreba urcit pociatocny stav koncentrace ostatnich substanci dle pocatecniho stavu boundaries:
-      for i in 2:nP loop
-          products[i].state_forwards.u = products[i].state_rearwards.u;
-      end for;
-      for i in 2:nS loop
-          substrates[i].state_forwards.u = substrates[i].state_rearwards.u;
-      end for;
+     /* for i in 2:nP loop
+      products[i].state_forwards.u = products[i].state_rearwards.u;
+  end for;
+  for i in 2:nS loop
+      substrates[i].state_forwards.u = substrates[i].state_rearwards.u;
+  end for;*/
     equation
+
+       //(products.r) = p*(r_mix + der(rr)*L);
+      //(substrates.r) = s*(r_mix + der(rr)*L);
+
+      s*(der(rr)*L) = substrates.r - _rR[1:nS];
+      p*(der(rr)*L) = products.r - _rR[nS+1:end];
+
+      for i in 1:nS loop
+        _uIn[i] = substrates[i].state_forwards.u;
+        _uOut[i] = (_uIn*_qIn - _uIn[i]*_qIn[i])/((_qIn*ones(nS+nP)-_qIn[i])*(s*ones(nS)));
+        _qIn[i] = max(substrates[i].n_flow,n_flow_reg);
+        Chemical.Utilities.Internal.regStep(substrates[i].n_flow,_uIn[i],_uOut[i],n_flow_reg) + _rR[i] = _uS[i];
+        substrates[i].state_rearwards.u = _uOut[i];
+      end for;
+      for i in 1:nP loop
+        _uIn[i+nS] = products[i].state_rearwards.u;
+        _uOut[i+nS] = (_uIn*_qIn - _uIn[i]*_qIn[i+nS])/((_qIn*ones(nS+nP)-_qIn[i+nS])*(p*ones(nP)));
+        _qIn[i+nS] = max(products[i].n_flow,n_flow_reg);
+        Chemical.Utilities.Internal.regStep(products[i].n_flow,_uIn[i+nS],_uOut[i+nS],n_flow_reg) + _rR[i+nS] = _uP[i];
+        products[i].state_forwards.u = _uOut[i+nS];
+      end for;
+
+
+
+      du = p*_uP - s*_uS;
+
+      Sx = exp(s * ((_uS - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
+      Px = exp(p * ((_uP - uPure_products)  ./(Modelica.Constants.R*products.solution_rearwards.T)));
+
 
       du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
       du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
@@ -1184,7 +1238,7 @@ Choices for initialization of a state h.
       //debug
        Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
        Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
-       Kx = exp(- ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T)))));
+       Kx = exp( ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T)))));
 
       //reaction molar rates
       rr*s = substrates.n_flow;
@@ -1205,24 +1259,27 @@ Choices for initialization of a state h.
         h_fore_mix = 0;
       end if;
 
-      dr = (s * substrates.r) - (p * products.r);
 
-      if nP>0 then
 
-        (p * products.r) = (s * substrates.r)  -  der(rr)*L;
 
-       //     der(substrates.n_flow)*L = s.*substrates.r - substrates_r_intern;
-       //     der(products.n_flow)*L = p.*products.r - products_r_intern;
 
-        for i in 1:nP loop
-          //first product is based on inertial potential,
-          //other products are provided as source with fixed flow and adaptation of their potential
-          der(products[i].state_forwards.u).*TC = products[i].r + r_products_mix;
-        end for;
-        for i in 1:nS loop
-          der(substrates[i].state_rearwards.u).*TC = substrates[i].r + r_substrates_mix;
-        end for;
-      end if;
+      /*  if nP>0 then
+
+    (p * products.r) = (s * substrates.r)  -  der(rr)*L;
+
+   //     der(substrates.n_flow)*L = s.*substrates.r - substrates_r_intern;
+   //     der(products.n_flow)*L = p.*products.r - products_r_intern;
+
+    for i in 1:nP loop
+      //first product is based on inertial potential,
+      //other products are provided as source with fixed flow and adaptation of their potential
+      der(products[i].state_forwards.u).*TC = products[i].r + r_products_mix;
+    end for;
+    for i in 1:nS loop
+      der(substrates[i].state_rearwards.u).*TC = substrates[i].r + r_substrates_mix;
+    end for;
+    end if;
+    */
 
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
