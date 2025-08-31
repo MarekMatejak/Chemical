@@ -369,11 +369,16 @@ package Examples "Tests for top level components of undirected"
 
   model SimpleReactionPathway
     extends Modelica.Icons.Example;
-    Chemical.Processes.Reaction r1(process = Chemical.Interfaces.processData(2), nS = 1, nP = 1) annotation(
+    Chemical.Processes.Reaction r1(
+      process=Chemical.Interfaces.processData(1),                                nS = 1, nP = 1) annotation(
       Placement(transformation(extent = {{-42, 48}, {-22, 68}})));
-    Chemical.Boundaries.Substance A(useFore = true) annotation(
+    Chemical.Boundaries.Substance A(useFore = true,
+      preferMass=false,
+      amountOfSubstance_start=0.6)                  annotation(
       Placement(transformation(extent = {{-76, 48}, {-56, 68}})));
-    Chemical.Boundaries.Substance B(useRear = true) annotation(
+    Chemical.Boundaries.Substance B(useRear = true,
+      preferMass=false,
+      amountOfSubstance_start=0.01)                 annotation(
       Placement(transformation(extent = {{60, 48}, {80, 68}})));
     Processes.Reaction r2(nP = 1, nS = 1) annotation(
       Placement(transformation(extent = {{-4, 48}, {16, 68}})));
@@ -1214,11 +1219,13 @@ package Examples "Tests for top level components of undirected"
     //The huge negative Gibbs energy of the product will make the second reaction almost irreversible (e.g. K=exp(50))
     Chemical.Boundaries.Substance P(useRear = true, useSolution = true, preferMass = false, amountOfSubstance_start = 1e-8) annotation(
       Placement(transformation(extent = {{72, -12}, {92, 8}})));
-    Chemical.Boundaries.Substance S(useFore = true, useSolution = true, preferMass = false, amountOfSubstance_start = 100) annotation(
+    Chemical.Boundaries.Substance S(useFore = true, useSolution = true, preferMass = false,
+      amountOfSubstance_start=0.2)                                                                                         annotation(
       Placement(transformation(extent = {{-92, -14}, {-72, 6}})));
-    parameter Modelica.Units.SI.AmountOfSubstance tE = 1 "Total amount of enzyme";
+    parameter Modelica.Units.SI.AmountOfSubstance tE = 0.1
+                                                          "Total amount of enzyme";
     parameter Real k_cat(unit = "mol/s", displayUnit = "mol/min") = 1 "Forward rate of second reaction";
-    constant Modelica.Units.SI.Concentration Km = 0.1 "Michaelis constant = substrate concentration at rate of half Vmax";
+    constant Modelica.Units.SI.Concentration Km = 1000 "Michaelis constant = substrate concentration at rate of half Vmax";
     parameter Modelica.Units.SI.MolarFlowRate Vmax = tE*k_cat "Maximal molar flow";
     Chemical.Boundaries.Substance ES(useRear = true, useFore = true, useSolution = true, preferMass = false,
       amountOfSubstance_start=tE*(1e-2))                                                                                                         annotation(
