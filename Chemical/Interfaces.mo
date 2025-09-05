@@ -312,13 +312,11 @@ package Interfaces "Chemical interfaces"
  end SolutionState;
 
  function processData "Process changes of Gibbs energy, enthalpy, volume and heat capacity (products - reactants)"
-   import Chemical;
 
-      extends Modelica.Icons.Function;
-  input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
-  input Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar";
-  input Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar";
-  input Modelica.Units.SI.MolarVolume dVm=0 "Process molar volume change at 25°C,1bar";
+   input Real K "Process dissociation constant (mole-fraction based) at 25°C,1bar";
+   input Modelica.Units.SI.MolarEnergy dH=0 "Process molar enthalpy change at 25°C,1bar";
+   input Modelica.Units.SI.MolarHeatCapacity dCp=0 "Process molar heat capacity change at 25°C,1bar";
+   input Modelica.Units.SI.MolarVolume dVm=0 "Process molar volume change at 25°C,1bar";
    input Chemical.Interfaces.Phase phase=Chemical.Interfaces.Phase.Incompressible "State of matter";
    output Chemical.Interfaces.Definition processData "Data record of process changes";
  algorithm
@@ -1809,8 +1807,8 @@ end DataRecord;
   protected
 
     // delta potential computation
-    Modelica.Units.SI.ChemicalPotential du_fore;
-    Modelica.Units.SI.ChemicalPotential du_rear;
+    //Modelica.Units.SI.ChemicalPotential du_fore;
+    //Modelica.Units.SI.ChemicalPotential du_rear;
 
     Modelica.Units.SI.MoleFraction Px_rear, Sx_fore;
   /*  Modelica.Units.SI.Concentration c_in, c_out;
@@ -1844,6 +1842,13 @@ end DataRecord;
 
     Real Kx;
 
+    Real _rR[2];
+    Real _uIn[2];
+    Real _uOut[2];
+    Real _qIn[2];
+   // Real _uS,_uP;
+    Real du;
+
   initial equation
     if initN_flow == InitializationMethods.state then
       n_flow = n_flow_0;
@@ -1858,8 +1863,22 @@ end DataRecord;
     connect(rear.state_forwards, state_rear_in);
     connect(fore.state_rearwards, state_fore_in);
 
-    du_fore = rear.state_forwards.u - fore.state_forwards.u;
-    du_rear = fore.state_rearwards.u - rear.state_rearwards.u;
+
+     _uIn[1] = rear.state_forwards.u;
+     _uOut[1] = (_uIn*_qIn - _uIn[1]*_qIn[1])/(_qIn*ones(2)-_qIn[1]);
+     _qIn[1] = max(rear.n_flow,n_flow_reg);
+     rear.state_rearwards.u = _uOut[1];
+
+     _uIn[2] = fore.state_rearwards.u;
+     _uOut[2] = (_uIn*_qIn - _uIn[2]*_qIn[2])/(_qIn*ones(2)-_qIn[2]);
+     _qIn[2] = max(fore.n_flow,n_flow_reg);
+     fore.state_forwards.u = _uOut[2];
+
+
+     du = if (rear.n_flow>=n_flow_reg) then (_uOut[2] + _rR[2]) - (_uIn[1] + _rR[1]) else (_uIn[2] + _rR[2]) - (_uOut[1] + _rR[1]);
+
+   //du_fore = rear.state_forwards.u - fore.state_forwards.u;
+    //du_rear = fore.state_rearwards.u - rear.state_rearwards.u;
 
     /*
   du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
@@ -1890,8 +1909,10 @@ end DataRecord;
 
 
     fore.n_flow + rear.n_flow = 0;
-    fore.r = rear.r - der(n_flow) * L;
 
+
+    (der(rear.n_flow)*L) =  rear.r - _rR[1];
+    (der(fore.n_flow)*L) =  fore.r - _rR[2];
 
 
 

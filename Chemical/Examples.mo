@@ -49,19 +49,19 @@ package Examples "Tests for top level components of undirected"
       Placement(transformation(extent = {{-174, 20}, {-154, 40}})));
     Chemical.Boundaries.Substance p2(useRear = true, mass_start = 0.4) annotation(
       Placement(transformation(extent = {{-66, 20}, {-46, 40}})));
-    Chemical.Processes.Diffusion d2(solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss = Chemical.Processes.Internal.Kinetics.generalPotentialLoss) annotation(
+    Chemical.Processes.Diffusion d2(solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation(
       Placement(transformation(extent = {{-118, 20}, {-98, 40}})));
     Chemical.Boundaries.Substance s1(useFore = true, mass_start = 0.6) annotation(
       Placement(transformation(extent = {{-174, 58}, {-154, 78}})));
     Chemical.Boundaries.Substance p1(useRear = true, mass_start = 0.4) annotation(
       Placement(transformation(extent = {{-66, 58}, {-46, 78}})));
-    Chemical.Processes.Diffusion d1(solutionFrom = Chemical.Utilities.Types.SolutionChoice.Parameter, redeclare function uLoss = Processes.Internal.Kinetics.generalPotentialLoss) annotation(
+    Chemical.Processes.Diffusion d1(solutionFrom = Chemical.Utilities.Types.SolutionChoice.Parameter) annotation(
       Placement(transformation(extent = {{-118, 58}, {-98, 78}})));
     Chemical.Boundaries.Substance s3(useFore = true, useSolution = true, mass_start = 0.6) annotation(
       Placement(transformation(extent = {{-170, -54}, {-150, -34}})));
     Chemical.Boundaries.Substance p3(useRear = true, useSolution = true, mass_start = 0.4) annotation(
       Placement(transformation(extent = {{-62, -54}, {-42, -34}})));
-    Chemical.Processes.Diffusion d3(solutionFrom = Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss = Processes.Internal.Kinetics.generalPotentialLoss) annotation(
+    Chemical.Processes.Diffusion d3(solutionFrom = Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation(
       Placement(transformation(extent = {{-114, -56}, {-94, -36}})));
     Solution solution annotation(
       Placement(transformation(extent = {{-222, -122}, {-14, -12}})));
@@ -71,7 +71,7 @@ package Examples "Tests for top level components of undirected"
       Placement(transformation(extent = {{78, 64}, {98, 84}})));
     Chemical.Boundaries.Substance p4(useRear = true, useSolution = false, mass_start = 0.4) annotation(
       Placement(transformation(extent = {{186, 64}, {206, 84}})));
-    Chemical.Processes.Diffusion d4(solutionFrom = Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss = Processes.Internal.Kinetics.generalPotentialLoss) annotation(
+    Chemical.Processes.Diffusion d4(solutionFrom = Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation(
       Placement(transformation(extent = {{134, 62}, {154, 82}})));
     Solution solution1 annotation(
       Placement(transformation(extent = {{26, -4}, {234, 106}})));
@@ -81,7 +81,7 @@ package Examples "Tests for top level components of undirected"
       Placement(transformation(extent = {{64, -54}, {84, -34}})));
     Chemical.Boundaries.Substance p5(useRear = true, useSolution = true, mass_start = 0.4) annotation(
       Placement(transformation(extent = {{172, -54}, {192, -34}})));
-    Chemical.Processes.Diffusion d5(solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss = Processes.Internal.Kinetics.generalPotentialLoss) annotation(
+    Chemical.Processes.Diffusion d5(solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation(
       Placement(transformation(extent = {{120, -56}, {140, -36}})));
     Solution solution2 annotation(
       Placement(transformation(extent = {{12, -122}, {220, -12}})));
@@ -370,29 +370,44 @@ package Examples "Tests for top level components of undirected"
   model SimpleReactionPathway
     extends Modelica.Icons.Example;
     Chemical.Processes.Reaction r1(
-      process=Chemical.Interfaces.processData(1),                                nS = 1, nP = 1) annotation(
-      Placement(transformation(extent = {{-42, 48}, {-22, 68}})));
+      process=Chemical.Interfaces.processData(1),  nP = 1,
+      nS=1)                                        annotation(
+      Placement(transformation(extent={{-20,20},{0,40}})));
     Chemical.Boundaries.Substance A(useFore = true,
       preferMass=false,
       amountOfSubstance_start=0.6)                  annotation(
-      Placement(transformation(extent = {{-76, 48}, {-56, 68}})));
+      Placement(transformation(extent={{-96,20},{-76,40}})));
     Chemical.Boundaries.Substance B(useRear = true,
       preferMass=false,
       amountOfSubstance_start=0.01)                 annotation(
-      Placement(transformation(extent = {{60, 48}, {80, 68}})));
+      Placement(transformation(extent={{74,20},{94,40}})));
     Processes.Reaction r2(nP = 1, nS = 1) annotation(
-      Placement(transformation(extent = {{-4, 48}, {16, 68}})));
+      Placement(transformation(extent={{10,20},{30,40}})));
     Processes.GasSolubility gasSolubility annotation(
-      Placement(transformation(extent = {{28, 48}, {48, 68}})));
+      Placement(transformation(extent={{44,20},{64,40}})));
+    Processes.MichaelisMenten michaelisMenten(
+      k_cat=1,
+      Km=20,
+      nS=1,
+      nP=1) annotation (Placement(transformation(extent={{-54,20},{-34,40}})));
+    Modelica.Blocks.Sources.Constant Enzyme(k=0.1) annotation (Placement(transformation(extent={{-76,50},{-56,70}})));
   equation
-    connect(A.fore, r1.substrates[1]) annotation(
-      Line(points = {{-56, 58}, {-42, 58}}, color = {158, 66, 200}, thickness = 0.5));
     connect(r2.products[1], gasSolubility.rear) annotation(
-      Line(points = {{16, 58}, {28, 58}}, color = {158, 66, 200}, thickness = 0.5));
+      Line(points={{30,30},{44,30}},      color = {158, 66, 200}, thickness = 0.5));
     connect(gasSolubility.fore, B.rear) annotation(
-      Line(points = {{48, 58}, {60, 58}}, color = {158, 66, 200}, thickness = 0.5));
+      Line(points={{64,30},{74,30}},      color = {158, 66, 200}, thickness = 0.5));
     connect(r1.products[1], r2.substrates[1]) annotation(
-      Line(points = {{-22, 58}, {-4, 58}}, color = {158, 66, 200}, thickness = 0.5));
+      Line(points={{0,30},{10,30}},        color = {158, 66, 200}, thickness = 0.5));
+    connect(michaelisMenten.substrates[1], A.fore)
+      annotation (Line(
+        points={{-54,30},{-76,30}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(michaelisMenten.products[1], r1.substrates[1]) annotation (Line(
+        points={{-34,30},{-20,30}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(Enzyme.y, michaelisMenten.e0) annotation (Line(points={{-55,60},{-50,60},{-50,62},{-48.2,62},{-48.2,40}}, color={0,0,127}));
   end SimpleReactionPathway;
 
   model SimpleReactionInSolution "The simple chemical reaction A<->B with equilibrium B/A = 2"
@@ -687,7 +702,7 @@ package Examples "Tests for top level components of undirected"
       firstProduct=Chemical.Substances.Gas.H2O,
       p={2},
       s={1,2},
-      redeclare function uLoss = Chemical.Processes.Internal.Kinetics.fastPotentialLoss,
+      redeclare function uDiff = Chemical.Processes.Internal.Kinetics.linearPotentialDiff,
       nS=2,
       nP=1) annotation (Placement(transformation(extent={{-68,-8},{-48,12}})));
     Modelica.Mechanics.Translational.Components.Spring spring(c=1e6) annotation (
@@ -980,7 +995,8 @@ package Examples "Tests for top level components of undirected"
     Chemical.Processes.GasSolubility O2_dissolutionP(
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
       product=Chemical.Substances.Aqueous.O2,
-      k_forward=1) annotation (Placement(transformation(extent={{-98,40},{-78,60}})));
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{-98,40},{-78,60}})));
 
     Chemical.Boundaries.ExternalGas O2_g_25(
       substanceDefinition=Chemical.Substances.Gas.O2,
@@ -1011,7 +1027,8 @@ package Examples "Tests for top level components of undirected"
     Chemical.Processes.GasSolubility O2_dissolutionE_NIST(
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
       product=Chemical.Substances.Aqueous.O2,
-      k_forward=1) annotation (Placement(transformation(extent={{20,42},{40,62}})));
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{20,42},{40,62}})));
     Chemical.Boundaries.Substance O2_37(
       useSolution=true,
       preferMass=false,
@@ -1048,7 +1065,8 @@ package Examples "Tests for top level components of undirected"
     Chemical.Processes.GasSolubility O2_dissolutionE_NIST1(
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
       product=Chemical.Substances.Aqueous.O2,
-      k_forward=1) annotation (Placement(transformation(extent={{134,42},{154,62}})));
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{136,42},{156,62}})));
     Chemical.Boundaries.Substance O2_0(
       useSolution=true,
       preferMass=false,
@@ -1070,7 +1088,8 @@ package Examples "Tests for top level components of undirected"
     inner Modelica.Fluid.System system(p_ambient=100000)
       annotation (Placement(transformation(extent={{-70,-98},{-50,-78}})));
     Real kH_CO2_25, kH_O2_25;
-    inner Chemical.DropOfCommons dropOfCommons annotation (Placement(transformation(extent={{38,76},{58,96}})));
+    inner Chemical.DropOfCommons dropOfCommons(n_flow_reg=1e-8)
+                                               annotation (Placement(transformation(extent={{38,76},{58,96}})));
   equation
 
     kH_CO2_25 = CO2_25.c / CO2_g_25.substance.x;
@@ -1119,7 +1138,7 @@ package Examples "Tests for top level components of undirected"
         color={158,66,200},
         thickness=0.5));
     connect(O2_g_0.fore, O2_dissolutionE_NIST1.rear) annotation (Line(
-        points={{132,78},{132,52},{134,52}},
+        points={{132,78},{132,52},{136,52}},
         color={158,66,200},
         thickness=0.5));
     connect(CO2_g_25.solution, water_solution_25degC.solution)
@@ -1153,7 +1172,7 @@ package Examples "Tests for top level components of undirected"
         thickness=0.5));
     connect(O2_dissolutionE_NIST1.fore, O2_0.rear)
       annotation (Line(
-        points={{154,52},{154,-26},{136,-26},{136,-24}},
+        points={{156,52},{156,-26},{136,-26},{136,-24}},
         color={200,66,175},
         thickness=0.5));
     connect(CO2_dissolutionP.solution, water_solution_25degC.solution)
@@ -1167,7 +1186,7 @@ package Examples "Tests for top level components of undirected"
     connect(CO2_dissolutionE1.solution, water_solution_37degC1.solution)
       annotation (Line(points={{96,44},{96,34},{168,34},{168,-79.08},{141.2,-79.08}},         color={127,127,0}));
     connect(O2_dissolutionE_NIST1.solution, water_solution_37degC1.solution)
-      annotation (Line(points={{138,42},{168,42},{168,-79.08},{141.2,-79.08}},       color={127,127,0}));
+      annotation (Line(points={{140,42},{168,42},{168,-79.08},{141.2,-79.08}},       color={127,127,0}));
     annotation (
       experiment(StopTime=1, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
@@ -1312,7 +1331,7 @@ package Examples "Tests for top level components of undirected"
 <p>The equality is the equation of the equilibrium: xP*xE/xES = exp((- uP&deg; - uE&deg; + uES&deg; )/(R*T)) = exp((- uP&deg; - R*T*ln(2/x(Km))/(R*T))</p>
 <p>If the equilibrium of the reaction is reached only by forward rate then xP*xE/xES must be less than the dissociation constant.</p>
 </html>"),
-      experiment(StopTime=70000, __Dymola_Algorithm="Dassl"),
+      experiment(StopTime=17, __Dymola_Algorithm="Dassl"),
       __Dymola_experimentSetupOutput);
   end EnzymeKinetics;
 
@@ -1871,6 +1890,452 @@ package Examples "Tests for top level components of undirected"
         experiment(StopTime = 10));
     end SimpleReaction_back;
   end debug;
+
+  model GasSolubility_NIST_ "Dissolution of gases in liquids"
+    import Chemical;
+     extends Modelica.Icons.Example;
+
+    Chemical.Solution water_solution_25degC(temperature_start=298.15) annotation (Placement(transformation(extent={{-160,-78},{-68,12}})));
+                                        //(amountOfSolution_start=52.3)
+                                     //(amountOfSolution_start=39.7)
+    Chemical.Processes.GasSolubility CO2_dissolutionP(
+      solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.CO2,
+      k_forward=1) annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
+    //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+    Chemical.Boundaries.Substance CO2_25(
+      useSolution=true,
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
+      useRear=true) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-28},{-150,-8}})));
+
+    Chemical.Boundaries.ExternalGas CO2_g_25(
+      substanceDefinition=Chemical.Substances.Gas.CO2,
+      useSolution=true,                                                                       PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      annotation (Placement(transformation(extent={{-154,74},{-134,94}})));
+
+    Chemical.Boundaries.Substance water_25(
+      substanceDefinition=Chemical.Substances.Liquid.H2O,
+      useSolution=true,                                                                mass_start=1)
+      annotation (Placement(transformation(extent={{-98,-68},{-78,-48}})));
+
+  //  Real kH_CO2_25, kH_O2_25;
+  equation
+
+  //  kH_CO2_25 = CO2_25.c / CO2_g_25.substance.x;
+  //  kH_O2_25 = O2_25.c / O2_g_25.substance.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+
+    connect(CO2_25.solution, water_solution_25degC.solution) annotation (Line(
+          points={{-134,-28},{-134,-77.1},{-86.4,-77.1}},
+                                                        color={127,127,0}));
+    connect(water_25.solution, water_solution_25degC.solution) annotation (Line(
+          points={{-94,-68},{-94,-77.1},{-86.4,-77.1}}, color={127,127,0}));
+    connect(CO2_g_25.fore, CO2_dissolutionP.rear) annotation (Line(
+        points={{-134,84},{-138,84},{-138,52}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(CO2_g_25.solution, water_solution_25degC.solution)
+      annotation (Line(points={{-150,74},{-150,64},{-172,64},{-172,-84},{-138,-84},{-138,-77.1},{-86.4,-77.1}}, color={127,127,0}));
+    connect(CO2_dissolutionP.fore, CO2_25.rear) annotation (Line(
+        points={{-118,52},{-118,-18},{-130,-18}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(CO2_dissolutionP.solution, water_solution_25degC.solution)
+      annotation (Line(points={{-134,42},{-134,34},{-76,34},{-76,-78},{-86.4,-78},{-86.4,-77.1}},       color={127,127,0}));
+    annotation (
+      experiment(StopTime=1, __Dymola_Algorithm="Dassl"),
+      Documentation(info="<html>
+<p>Demonstration of CO2 and O2 dissolution in pure water as described by NIST Henry&apos;s law data at 25degC.</p>
+<p>Recalculation from Henry&apos;s law constants ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility ):</p>
+<p>CO2:</p>
+<p>kH = 0.035 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.87 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 2400 K ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility )</p>
+<p>0degC ... 0.035*exp(2400*(1/273.15 - 1/298.15) = 0.073 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 3.9 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.035*exp(2400*(1/310.15 - 1/298.15) = 0.026 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.4 mmol/kg at 37degC</li>
+</ul>
+<p><br>O2:</p>
+<p>kH = 0.0013 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pO2 = 95 mmHg (0.126656 bar) =&gt; dissolved O2 .. 0.165 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 1500 K ( https://webbook.nist.gov/cgi/cbook.cgi?ID=C7782447&amp;Mask=10 )</p>
+<p>0degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0021 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.26 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0011 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.14 mmol/kg at 37degC</li>
+</ul>
+</html>",
+        revisions="<html>
+<p><i>2015-2019</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),
+      Diagram(coordinateSystem(extent={{-160,-100},{160,100}})));
+  end GasSolubility_NIST_;
+
+  model GasSolubility_NIST_2 "Dissolution of gases in liquids"
+    import Chemical;
+     extends Modelica.Icons.Example;
+
+                                        //(amountOfSolution_start=52.3)
+                                     //(amountOfSolution_start=39.7)
+    Chemical.Processes.GasSolubility CO2_dissolutionP(
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.CO2,
+      k_forward=1) annotation (Placement(transformation(extent={{-140,42},{-120,62}})));
+    //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+    Chemical.Boundaries.Substance CO2_25(
+      useSolution=false,
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
+      useRear=true) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-128,-28},{-148,-8}})));
+
+    Chemical.Boundaries.ExternalGas CO2_g_25(
+      substanceDefinition=Chemical.Substances.Gas.CO2,
+      useSolution=false,                                                                      PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      annotation (Placement(transformation(extent={{-154,74},{-134,94}})));
+
+  //  Real kH_CO2_25, kH_O2_25;
+  equation
+
+  //  kH_CO2_25 = CO2_25.c / CO2_g_25.substance.x;
+  //  kH_O2_25 = O2_25.c / O2_g_25.substance.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+
+    connect(CO2_g_25.fore, CO2_dissolutionP.rear) annotation (Line(
+        points={{-134,84},{-140,84},{-140,52}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(CO2_dissolutionP.fore, CO2_25.rear) annotation (Line(
+        points={{-120,52},{-120,-18},{-128,-18}},
+        color={200,66,175},
+        thickness=0.5));
+    annotation (
+      experiment(StopTime=1, __Dymola_Algorithm="Dassl"),
+      Documentation(info="<html>
+<p>Demonstration of CO2 and O2 dissolution in pure water as described by NIST Henry&apos;s law data at 25degC.</p>
+<p>Recalculation from Henry&apos;s law constants ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility ):</p>
+<p>CO2:</p>
+<p>kH = 0.035 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.87 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 2400 K ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility )</p>
+<p>0degC ... 0.035*exp(2400*(1/273.15 - 1/298.15) = 0.073 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 3.9 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.035*exp(2400*(1/310.15 - 1/298.15) = 0.026 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.4 mmol/kg at 37degC</li>
+</ul>
+<p><br>O2:</p>
+<p>kH = 0.0013 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pO2 = 95 mmHg (0.126656 bar) =&gt; dissolved O2 .. 0.165 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 1500 K ( https://webbook.nist.gov/cgi/cbook.cgi?ID=C7782447&amp;Mask=10 )</p>
+<p>0degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0021 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.26 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0011 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.14 mmol/kg at 37degC</li>
+</ul>
+</html>",
+        revisions="<html>
+<p><i>2015-2019</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),
+      Diagram(coordinateSystem(extent={{-160,-100},{160,100}})));
+  end GasSolubility_NIST_2;
+
+  model GasSolubility_NIST1 "Dissolution of gases in liquids"
+    import Chemical;
+     extends Modelica.Icons.Example;
+
+                                        //(amountOfSolution_start=52.3)
+                                     //(amountOfSolution_start=39.7)
+    Chemical.Processes.GasSolubility CO2_dissolutionP(
+
+      productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
+      product=Chemical.Substances.Aqueous.CO2,
+      k_forward=1) annotation (Placement(transformation(extent={{-138,42},{-118,62}})));
+    //  kH_T0(displayUnit="(mol/kg H2O)/bar at 25degC,101325Pa")= 0.00062064026806947,
+    Chemical.Boundaries.Substance CO2_25(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
+      useRear=true) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-28},{-150,-8}})));
+
+    Chemical.Processes.GasSolubility O2_dissolutionP(
+
+      product=Chemical.Substances.Aqueous.O2,
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{-98,40},{-78,60}})));
+
+    Chemical.Boundaries.ExternalGas O2_g_25(
+      substanceDefinition=Chemical.Substances.Gas.O2,                PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      annotation (Placement(transformation(extent={{-114,74},{-94,94}})));
+    Chemical.Boundaries.Substance O2_25(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
+      useRear=true) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
+
+    Chemical.Processes.GasSolubility CO2_dissolutionE(
+
+      product=Chemical.Substances.Aqueous.CO2,
+      k_forward=1) annotation (Placement(transformation(extent={{-24,40},{-4,60}})));
+
+    Chemical.Boundaries.ExternalGas CO2_g_25(
+      substanceDefinition=Chemical.Substances.Gas.CO2,
+      useSolution=false,                                                                      PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      annotation (Placement(transformation(extent={{-152,74},{-132,94}})));
+
+    Chemical.Boundaries.Substance CO2_37(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
+      useRear=true) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
+
+    Chemical.Processes.GasSolubility O2_dissolutionE_NIST(
+
+      product=Chemical.Substances.Aqueous.O2,
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{20,42},{40,62}})));
+    Chemical.Boundaries.Substance O2_37(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
+      useRear=true) "Free dissolved O2 in water at 37degC" annotation (Placement(transformation(extent={{18,-34},{-2,-14}})));
+
+    Chemical.Boundaries.ExternalGas CO2_g_37(
+      substanceDefinition=Chemical.Substances.Gas.CO2,                       PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      annotation (Placement(transformation(extent={{-44,68},{-24,88}})));
+    Chemical.Boundaries.ExternalGas O2_g_37(
+      substanceDefinition=Chemical.Substances.Gas.O2,                PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      annotation (Placement(transformation(extent={{-6,68},{14,88}})));
+    Chemical.Processes.GasSolubility CO2_dissolutionE1(
+
+      product=Chemical.Substances.Aqueous.CO2,
+      k_forward=1) annotation (Placement(transformation(extent={{92,44},{112,64}})));
+    Chemical.Boundaries.Substance CO2_0(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.001,
+      useRear=true) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
+
+    Chemical.Processes.GasSolubility O2_dissolutionE_NIST1(
+
+      product=Chemical.Substances.Aqueous.O2,
+      k_forward=0.05)
+                   annotation (Placement(transformation(extent={{136,42},{156,62}})));
+    Chemical.Boundaries.Substance O2_0(
+
+      preferMass=false,
+      amountOfSubstance_start(displayUnit="mmol") = 0.0001,
+      useRear=true) "Free dissolved O2 in water at 0degC" annotation (Placement(transformation(extent={{136,-34},{116,-14}})));
+
+    Chemical.Boundaries.ExternalGas CO2_g_0(
+      substanceDefinition=Chemical.Substances.Gas.CO2,                      PartialPressure(displayUnit="mmHg") = 5332.8954966)
+      annotation (Placement(transformation(extent={{74,68},{94,88}})));
+    Chemical.Boundaries.ExternalGas O2_g_0(
+      substanceDefinition=Chemical.Substances.Gas.O2,               PartialPressure(displayUnit="mmHg") = 12665.626804425)
+      annotation (Placement(transformation(extent={{112,68},{132,88}})));
+    Real kH_CO2_25, kH_O2_25;
+  equation
+
+    kH_CO2_25 = CO2_25.c / CO2_g_25.substance.x;
+    kH_O2_25 = O2_25.c / O2_g_25.substance.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+  //  kH_CO2_25 = CO2_25.x / CO2_g_25.x;
+
+    connect(CO2_g_25.fore, CO2_dissolutionP.rear) annotation (Line(
+        points={{-132,84},{-138,84},{-138,52}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2_g_25.fore, O2_dissolutionP.rear) annotation (Line(
+        points={{-94,84},{-98,84},{-98,50}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(CO2_g_37.fore, CO2_dissolutionE.rear) annotation (Line(
+        points={{-24,78},{-24,50}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2_g_37.fore, O2_dissolutionE_NIST.rear) annotation (Line(
+        points={{14,78},{20,78},{20,52}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(CO2_g_0.fore, CO2_dissolutionE1.rear) annotation (Line(
+        points={{94,78},{92,78},{92,54}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(O2_g_0.fore, O2_dissolutionE_NIST1.rear) annotation (Line(
+        points={{132,78},{132,52},{136,52}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(CO2_dissolutionP.fore, CO2_25.rear) annotation (Line(
+        points={{-118,52},{-118,-18},{-130,-18}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(O2_dissolutionP.fore, O2_25.rear) annotation (Line(
+        points={{-78,50},{-78,-16},{-94,-16}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(CO2_dissolutionE.fore, CO2_37.rear) annotation (Line(
+        points={{-4,50},{-4,-24},{-22,-24}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(O2_dissolutionE_NIST.fore, O2_37.rear) annotation (Line(
+        points={{40,52},{40,-24},{18,-24}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(CO2_dissolutionE1.fore, CO2_0.rear)
+      annotation (Line(
+        points={{112,54},{112,-26},{96,-26},{96,-24}},
+        color={200,66,175},
+        thickness=0.5));
+    connect(O2_dissolutionE_NIST1.fore, O2_0.rear)
+      annotation (Line(
+        points={{156,52},{156,-26},{136,-26},{136,-24}},
+        color={200,66,175},
+        thickness=0.5));
+    annotation (
+      experiment(StopTime=1, __Dymola_Algorithm="Dassl"),
+      Documentation(info="<html>
+<p>Demonstration of CO2 and O2 dissolution in pure water as described by NIST Henry&apos;s law data at 25degC.</p>
+<p>Recalculation from Henry&apos;s law constants ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility ):</p>
+<p>CO2:</p>
+<p>kH = 0.035 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.87 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 2400 K ( https://webbook.nist.gov/cgi/inchi?ID=C124389&amp;Mask=10#Solubility )</p>
+<p>0degC ... 0.035*exp(2400*(1/273.15 - 1/298.15) = 0.073 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 3.9 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.035*exp(2400*(1/310.15 - 1/298.15) = 0.026 mol/(kg.bar)</p>
+<ul>
+<li>pCO2 = 40 mmHg =&gt; dissolved CO2 .. 1.4 mmol/kg at 37degC</li>
+</ul>
+<p><br>O2:</p>
+<p>kH = 0.0013 mol/(kg.bar) at 25degC</p>
+<ul>
+<li>pO2 = 95 mmHg (0.126656 bar) =&gt; dissolved O2 .. 0.165 mmol/kg at 25degC</li>
+</ul>
+<p><br>Other temperatures:</p>
+<p>NIST constant ... 1500 K ( https://webbook.nist.gov/cgi/cbook.cgi?ID=C7782447&amp;Mask=10 )</p>
+<p>0degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0021 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.26 mmol/kg at 0degC</li>
+</ul>
+<p>37degC ... 0.0013*exp(1500*(1/273.15 - 1/298.15) = 0.0011 mol/(kg.bar)</p>
+<ul>
+<li>pO2 = 95 mmHg =&gt; dissolved O2 .. 0.14 mmol/kg at 37degC</li>
+</ul>
+</html>",
+        revisions="<html>
+<p><i>2015-2019</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),
+      Diagram(coordinateSystem(extent={{-160,-100},{160,100}})));
+  end GasSolubility_NIST1;
+
+  model SimpleReactionsWithJunction2
+    extends Modelica.Icons.Example;
+    Chemical.Processes.Reaction r( nP = 1,         process = Chemical.Interfaces.processData(2),
+      nS=1)                                                                                      annotation(
+      Placement(transformation(extent={{-6,12},{14,32}})));
+    Chemical.Boundaries.Substance A(useFore = true) annotation(
+      Placement(transformation(extent={{-68,-10},{-48,10}})));
+    Chemical.Boundaries.Substance B(useRear = true) annotation(
+      Placement(transformation(extent = {{30, 14}, {50, 34}})));
+    Boundaries.Substance          B1(useRear=true)  annotation(
+      Placement(transformation(extent={{34,-32},{54,-12}})));
+    Processes.Reaction          r1(
+      nP=1,
+      nS=1,
+      process=Chemical.Interfaces.processData(3))                                                annotation(
+      Placement(transformation(extent={{-2,-32},{18,-12}})));
+    Topology.JunctionRFF junctionRFF annotation (Placement(transformation(extent={{-30,-10},{-10,10}})));
+  equation
+    connect(r.products[1], B.rear) annotation(
+      Line(points={{14,22},{22,22},{22,24},{30,24}},
+                                          color = {158, 66, 200}, thickness = 0.5));
+    connect(r1.products[1], B1.rear) annotation (Line(
+        points={{18,-22},{34,-22}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(A.fore, junctionRFF.rear) annotation (Line(
+        points={{-48,0},{-30,0}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(junctionRFF.foreA, r.substrates[1]) annotation (Line(
+        points={{-20,10},{-20,22},{-6,22}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(junctionRFF.foreB, r1.substrates[1]) annotation (Line(
+        points={{-20,-10},{-20,-22},{-2,-22}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation(
+      Documentation(revisions = "<html>
+<p><i>2025</i></p>
+<p>Marek Matejak</p>
+</html>", info = "<html>
+        <p>Simple reaction demonstrating equilibration between substance A and substance B, in constant solution. Observe the molar concentration (A.c) and molar fraction.</p>
+</html>"),
+      experiment(StopTime = 10));
+  end SimpleReactionsWithJunction2;
+
+  model SimpleReactionsWithJunction3
+    extends Modelica.Icons.Example;
+    Processes.Reaction r_ref(
+      nP=1,
+      nS=1,
+      process=Chemical.Interfaces.processData(2)) annotation (Placement(transformation(extent={{-2,64},{18,84}})));
+    Boundaries.Substance A_ref(useFore=true) annotation (Placement(transformation(extent={{-54,64},{-34,84}})));
+    Boundaries.Substance B_ref(useRear=true) annotation (Placement(transformation(extent={{34,66},{54,86}})));
+  equation
+    connect(A_ref.fore, r_ref.substrates[1]) annotation (Line(
+        points={{-34,74},{-2,74}},
+        color={158,66,200},
+        thickness=0.5));
+    connect(r_ref.products[1], B_ref.rear) annotation (Line(
+        points={{18,74},{26,74},{26,76},{34,76}},
+        color={158,66,200},
+        thickness=0.5));
+    annotation(
+      Documentation(revisions = "<html>
+<p><i>2025</i></p>
+<p>Marek Matejak</p>
+</html>", info = "<html>
+        <p>Simple reaction demonstrating equilibration between substance A and substance B, in constant solution. Observe the molar concentration (A.c) and molar fraction.</p>
+</html>"),
+      experiment(StopTime = 10));
+  end SimpleReactionsWithJunction3;
   annotation(
     Documentation(info = "<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>

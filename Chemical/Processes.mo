@@ -7,9 +7,9 @@ package Processes "Undirected process package"
     import Chemical.Utilities.Types.SolutionChoice;
     import Chemical.Processes.Internal.Kinetics;
 
-    replaceable function uLoss = Kinetics.generalPotentialLoss
+    replaceable function uDiff = Kinetics.traditionalPotentialDiff
       constrainedby
-        Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Kinetics.partialPotentialDiff "Electro-chemical potential diference function"
       annotation(choicesAllMatching=true, Dialog(tab="Advanced"), Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
@@ -17,15 +17,14 @@ package Processes "Undirected process package"
 
 
      Chemical.Interfaces.Definition processDefinition;
-   //  Real rr_fore_exact,rr_rear_exact,  kb;
-   //  Real du2,du3,du4,du5,du6;
+
   equation
 
     processDefinition = p*products.definition - s*substrates.definition;
 
     //chemical kinetics
 
-    du = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
 
 
     //chemical solution and its propagation
@@ -35,27 +34,6 @@ package Processes "Undirected process package"
       substrates.solution_rearwards = fill(solutionState,nS);
     end if;
 
-  /*
-  //debug:
-  Kx = kf/kb;
-
-    //the same as:
-      rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
-      rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
-      
-  du2 = uLoss(rr,kf*Sx,solutionState,n_flow_reg);
-  du3 = -uLoss(-rr,(kf/Kx)*Px,solutionState,n_flow_reg);
-  du4 = uLoss(rr,kf*Sx_fore,solutionState,n_flow_reg);
-  
-  du5 = uLoss(rr,kf*Sx,solutionState,n_flow_reg);
-  du6 = if rr>0 then 
-          (if (rr<kf*Sx) then Modelica.Constants.R*solutionState.T*log(abs(1-rr/(kf*Sx)))
-          else -Modelica.Constants.R*solutionState.T*log(n_flow_reg/(kf*Sx)))
-        else 
-          (if (-rr<(kf/Kx)*Px) then -Modelica.Constants.R*solutionState.T*log(abs(1+rr/((kf/Kx)*Px)))
-          else Modelica.Constants.R*solutionState.T*log(n_flow_reg/((kf/Kx)*Px)));
-
-*/
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -164,10 +142,10 @@ package Processes "Undirected process package"
 
 
 
-    replaceable function uLoss =
-        Chemical.Processes.Internal.Kinetics.generalPotentialLoss
+    replaceable function uDiff =
+        Chemical.Processes.Internal.Kinetics.traditionalPotentialDiff
       constrainedby
-        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Internal.Kinetics.partialPotentialDiff "Electro-chemical potential difference function"
       annotation(choicesAllMatching=true, Dialog(tab="Advanced"), Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
@@ -180,8 +158,7 @@ package Processes "Undirected process package"
     connect(rear.solution_forwards,inputSubstrateSolution);
 
 
-    du_fore = -uLoss(n_flow,kf*Sx_fore,solutionState,n_flow_reg);
-    du_rear = -uLoss(-n_flow,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
 
 
      annotation ( Documentation(revisions="<html>
@@ -193,8 +170,6 @@ package Processes "Undirected process package"
 
   model GasSolubility "Henry's law of gas solubility into liquid."
     extends Icons.GasSolubility;
-  //  extends Interfaces.PartialGasToLiquid;
-  //  extends Interfaces.ConditionalKinetics(k_forward=1);
 
     extends Chemical.Interfaces.SISO;
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
@@ -215,13 +190,14 @@ package Processes "Undirected process package"
      "Process definition"
         annotation (Dialog(enable=(productFrom ==FirstProductChoice.fromProcessEnergies)));
 
-    replaceable function uLoss =
-        Chemical.Processes.Internal.Kinetics.generalPotentialLoss
+    replaceable function uDiff =
+        Chemical.Processes.Internal.Kinetics.traditionalPotentialDiff
       constrainedby
-        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Internal.Kinetics.partialPotentialDiff "Electro-chemical potential difference function"
       annotation(choicesAllMatching=true, Dialog(tab="Advanced"), Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
+
 
   equation
 
@@ -236,8 +212,7 @@ package Processes "Undirected process package"
     connect(rear.solution_forwards,inputSubstrateSolution);
 
 
-    du_fore = -uLoss(n_flow,kf*Sx_fore,solutionState,n_flow_reg);
-    du_rear = -uLoss(-n_flow,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
 
 
     annotation (
@@ -325,10 +300,10 @@ package Processes "Undirected process package"
 
 
 
-    replaceable function uLoss =
-        Chemical.Processes.Internal.Kinetics.generalPotentialLoss
+    replaceable function uDiff =
+        Chemical.Processes.Internal.Kinetics.traditionalPotentialDiff
       constrainedby
-        Internal.Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Internal.Kinetics.partialPotentialDiff "Electro-chemical potential difference function"
       annotation(choicesAllMatching=true, Dialog(tab="Advanced"), Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
@@ -340,10 +315,7 @@ package Processes "Undirected process package"
 
     connect(rear.solution_forwards,inputSubstrateSolution);
 
-
-
-    du_fore = -uLoss(n_flow,kf*Sx_fore,solutionState,n_flow_reg);
-    du_rear = -uLoss(-n_flow,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
 
 
     annotation ( Documentation(info="<html>
@@ -382,7 +354,6 @@ package Processes "Undirected process package"
 
 
 
-    du_rear=-du_fore;
     n_flow = q;
 
    annotation (
@@ -545,7 +516,6 @@ package Processes "Undirected process package"
 
     connect(rear.solution_forwards,inputSubstrateSolution);
 
-    du_rear=-du_fore;
     n_flow = Sx_fore * (solutionState.n/solutionState.V) * volumeFlow;
 
 
@@ -607,30 +577,21 @@ package Processes "Undirected process package"
     //import Chemical.Utilities.Types.SolutionChoice;
     import Chemical.Processes.Internal.Kinetics;
 
-    replaceable function uLoss = Kinetics.generalPotentialLoss
+    replaceable function uDiff = Kinetics.traditionalPotentialDiff
       constrainedby
-        Kinetics.partialPotentialLoss "Electro-chemical potential loss function"
+        Kinetics.partialPotentialDiff "Electro-chemical potential difference function"
       annotation(choicesAllMatching=true, Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
     extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
 
-    //Real rr_fore_exact,rr_rear_exact,  kb;
+
 
   equation
 
     //chemical kinetics
-    du_fore = -uLoss(rr,kf*Sx_fore,solutionState,n_flow_reg);
-    if nS>0 then
-      du_rear = -uLoss(-rr,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
-    end if;
+    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
 
-  /*  Kx = kb/kf;
-
-  //the same as:
-    rr_fore_exact = (kf*Sx_fore - kb*Px_fore);
-    rr_rear_exact = (kb*Px_rear - kf*Sx_rear);
-*/
 
     annotation (
       Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
@@ -731,7 +692,7 @@ package Processes "Undirected process package"
     extends Chemical.Icons.EnzymeKinetics;
     extends Chemical.Processes.Internal.PartialReactionWithProductsDefinition(final process, final firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance);
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = if nS==0 then SolutionChoice.Parameter else SolutionChoice.FirstSubstrate);
-    //extends Chemical.Interfaces.ConditionalKinetics(k_forward=1);
+
 
     import Chemical.Utilities.Types.SolutionChoice;
 
@@ -750,10 +711,6 @@ package Processes "Undirected process package"
 
     rr = k_cat*e0*Sx_fore/(Km+Sx_fore);
 
-    /*if (nS>0) then
-    du_fore = -du_rear;
-  end if;
-*/
     //chemical solution and its propagation
     connect(substrates[1].solution_forwards,inputSubstrateSolution);
     if nS>0 then
@@ -1183,8 +1140,8 @@ Choices for initialization of a state h.
       rr*p = -products.n_flow;
 
       //electro-chemical inertia
-      s*(der(rr)*L) = substrates.r - _rR[1:nS];
-      p*(der(rr)*L) = products.r - _rR[nS+1:end];
+      s*(der(rr)*L) =  substrates.r - _rR[1:nS];
+      -p*(der(rr)*L) =  products.r - _rR[nS+1:end];
 
       for i in 1:nS loop
         _uIn[i] = substrates[i].state_forwards.u;
@@ -1196,7 +1153,7 @@ Choices for initialization of a state h.
       end for;
       for i in 1:nP loop
         _uIn[i+nS] = products[i].state_rearwards.u;
-        _uOut[i+nS] = (_uIn*_qIn - _uIn[i]*_qIn[i+nS])/((_qIn*ones(nS+nP)-_qIn[i+nS])*(p*ones(nP)));
+        _uOut[i+nS] = (_uIn*_qIn - _uIn[i+nS]*_qIn[i+nS])/((_qIn*ones(nS+nP)-_qIn[i+nS])*(p*ones(nP)));
         _qIn[i+nS] = max(products[i].n_flow,n_flow_reg);
         Chemical.Utilities.Internal.regStep(products[i].n_flow,_uIn[i+nS],_uOut[i+nS],n_flow_reg) + _rR[i+nS] = _uP[i];
         products[i].state_forwards.u = _uOut[i+nS];
@@ -1300,27 +1257,32 @@ Choices for initialization of a state h.
 
     package Kinetics
 
-      partial function partialPotentialLoss "Interface for potential loss functions"
+      partial function partialPotentialDiff "Interface for potential difference functions"
         extends Modelica.Icons.Function;
 
-        input Modelica.Units.SI.MolarFlowRate q "Molar flow rate of the reaction";
-        input Modelica.Units.SI.MolarFlowRate q_f "Forward rate of the reaction (e.g. k_forward*x_substrates)";
+        input Modelica.Units.SI.MolarFlowRate q "Molar flow rate of the process";
+        input Modelica.Units.SI.MolarFlowRate q_f "Forward rate (e.g. k_forward*x_substrates)";
+        input Modelica.Units.SI.MolarFlowRate q_b "Backward rate (e.g. k_backward*x_products)";
         input Chemical.Interfaces.SolutionState solutionState "Solution state";
-        input Modelica.Units.SI.MolarFlowRate q_reg "Smallest backward molar flow";
+        input Modelica.Units.SI.MolarFlowRate q_reg "Smallest significant rate near forward and backward rate";
 
-        output Modelica.Units.SI.ChemicalPotential potentialLoss "Gibbs energy lost in chemical process";
+        output Modelica.Units.SI.ChemicalPotential potentialDiff "Electro-chemical potential difference in chemical process";
 
         annotation(Inline=true, smoothOrder=100,
           Documentation(info="<html>
     <p>Interface definition for a potential loss in a chemical process. Inputs are information about flow condition and the chemical solution state, output is the electro-chemical potential drop.</p>
 </html>"));
-      end partialPotentialLoss;
+      end partialPotentialDiff;
 
-      function generalPotentialLoss "General potential loss function trough forward/backward rate coefficient"
-        extends partialPotentialLoss;
+      function traditionalPotentialDiff "Traditional potential difference function trough forward/backward rate"
+        extends partialPotentialDiff;
 
       algorithm
-        potentialLoss := if (q<q_f-q_reg) then Modelica.Constants.R*solutionState.T*log(abs(1-q/q_f)) else -Modelica.Constants.R*solutionState.T*log(q_reg/q_f);
+        potentialDiff :=
+          if (q > q_f - q_reg) then Modelica.Constants.R*solutionState.T*log(q_reg/q_f)
+          elseif (q > -q_reg) then Modelica.Constants.R*solutionState.T*log(abs(1-q/q_f))
+          elseif (q < -q_b + q_reg) then -Modelica.Constants.R*solutionState.T*log(q_reg/q_b)
+          else -Modelica.Constants.R*solutionState.T*log(abs(1+q/q_b));
           annotation(Dialog(enable=true),
                     Documentation(info="<html>
 <p>
@@ -1336,17 +1298,17 @@ And K = kf/kb = xB/xA is a dissociation coefficient of the chemical process.
 </p>
 </html>"));
 
-      end generalPotentialLoss;
+      end traditionalPotentialDiff;
 
-      function fastPotentialLoss "Fast potential loss function"
-        extends partialPotentialLoss;
+      function linearPotentialDiff "Linear potential difference function"
+        extends partialPotentialDiff;
 
         input Real kC(unit="mol2/(J.s)") = 1 "Linear factor"
           annotation(Dialog(enable=true));
 
 
       algorithm
-        potentialLoss := q/kC;
+        potentialDiff := -q/kC;
 
         annotation (Documentation(info="<html>
 <p>
@@ -1356,7 +1318,7 @@ This Gibbs energy loss is linear in the molarflow with the linear factor kC:
 du := n_flow/kC;
 </pre></blockquote>
 </html>"));
-      end fastPotentialLoss;
+      end linearPotentialDiff;
     end Kinetics;
 
     partial model PartialSpeciationWithSubunitsDefinition "Chemical speciation"
@@ -1854,12 +1816,10 @@ du := n_flow/kC;
 
       Chemical.Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
       Chemical.Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
-      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss =
-            Chemical.Processes.Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
+      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
       Chemical.Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
       Chemical.Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
-      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter, redeclare function uLoss =
-            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
+      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
       Chemical.Boundaries.Substance s3(
         useFore=true,
         useSolution=true,
@@ -1868,8 +1828,7 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
-      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss =
-            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
+      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
       Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
       Chemical.Boundaries.Substance s4(
@@ -1880,8 +1839,7 @@ du := n_flow/kC;
         useRear=true,
         useSolution=false,
         mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
-      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort, redeclare function uLoss =
-            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{134,62},{154,82}})));
+      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{134,62},{154,82}})));
       Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
       Chemical.Boundaries.Substance solvent(useFore=false, useSolution=true,
         mass_start=1)                                                        annotation (Placement(transformation(extent={{194,24},{214,44}})));
@@ -1893,8 +1851,7 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));
-      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate, redeclare function uLoss =
-            Internal.Kinetics.generalPotentialLoss) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
+      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
       Solution solution2 annotation (Placement(transformation(extent={{12,-122},{220,-12}})));
     equation
       connect(s2.fore, d2.rear) annotation (Line(
@@ -1973,6 +1930,26 @@ du := n_flow/kC;
           thickness=0.5));
     end SimpleFlow;
 
+    model TestMembrane
+
+      extends Modelica.Icons.Example;
+
+      Chemical.Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
+      Chemical.Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
+      Membrane d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
+    equation
+      connect(d1.fore, p1.rear) annotation (Line(
+          points={{-98,68},{-66,68}},
+          color={158,66,200},
+          thickness=0.5));
+      connect(s1.fore, d1.rear) annotation (Line(
+          points={{-154,68},{-118,68}},
+          color={158,66,200},
+          thickness=0.5));
+      annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,-140},{240,140}})), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-240,
+                -140},{240,140}})),
+        experiment(StopTime=1, __Dymola_Algorithm="Dassl"));
+    end TestMembrane;
     annotation (Documentation(info="<html>
 <u>Tests for top level components of the undirected chemical simulation package.</u>
 </html>"));
