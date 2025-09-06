@@ -175,6 +175,18 @@ annotation (Documentation(info="<html>
 </ul>
 </html>"));
 end Version_1_4_1;
+
+class Version_2_0_0 "Version 2.0.0 (Sep. 06, 2025)"
+  extends Modelica.Icons.ReleaseNotes;
+
+annotation (Documentation(info="<html>
+<ul>
+<li>definition of substances/processes</li>
+<li>chemical kinetics</li>
+<li>support of chemical pathways</li>
+</ul>
+</html>"));
+end Version_2_0_0;
  annotation (Documentation(info="<html>
 <p>This section summarizes the changes that have been performed on the Chemical. </p>
 </html>"));

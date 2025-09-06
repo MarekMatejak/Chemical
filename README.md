@@ -7,7 +7,7 @@ Modelica Library of Chemical processes
 ## Current release
 
 
-Download [Chemical 1.4.1 (2023-11-23)](../../archive/v1.4.1.zip)
+Download [Chemical 2.0 (2025-09-06)](../../archive/v2.0.0.zip)
 
 
 ## Main references
@@ -18,19 +18,20 @@ Download [Chemical 1.4.1 (2023-11-23)](../../archive/v1.4.1.zip)
  
 ## Description
 
+* Chemical substance/process definition 
+  * with +,-,* operations of chemical notations
+* Traditional chemical kinetics
+  * with forward and backward rates
+* Chemical pathways 
+  * supported by inertial connector inspired by ThermofluidStream library
+  * defualt settings of substances or solutions
 * Chemical Solution 
   * full thermodynamical state support: amount of substances, pressure, volume, temperature, electric potential, enthalpy, entropy
   * thermal, electric and mechanic connectors from Modelica Standard Library 4.0
-* Chemical Substance 
-  * ideal gas substance model 
-    * with 6-parameters record as definition of gaseous chemical substance (all parameters of the substance are well described tabulated values)
-  * incompressible substance model 
-    * with 7-parameters record as definition of liquid or solid chemical substance (all parameters of the substance are well described tabulated values)
-  * example of more than 30 fully defined chemical substances 
-  * template for user substance models
 * Chemical Reaction
   * any number of reactants and products
   * dissociation coefficient from free Gibbs energies (from substances definitions)
+  * forward rate coefficient 
   * temperature dependences and heat flows from free enthalpies (from substances definitions)
   * new epoch making kinetics based with better fit with data
 * Electro-chemical cell (batteries)
@@ -60,7 +61,7 @@ Download [Chemical 1.4.1 (2023-11-23)](../../archive/v1.4.1.zip)
 
 ## License (BSD 3-Clause)
 
-Copyright (c) 2008-2023, Marek Mateják, Charles University in Prague
+Copyright (c) 2008-2025, Marek Mateják, PhD.
 
 All rights reserved. 
 
