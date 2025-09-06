@@ -1517,7 +1517,7 @@ du := n_flow/kC;
          Q=solutionState.Q,
          I=solutionState.I)
          "To connect solution of subunits with rear state of macromolecule"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-110,36},{-90,56}})));
+        annotation (Placement(transformation(extent={{-110,34},{-90,54}}),   iconTransformation(extent={{-110,36},{-90,56}})));
 
       Interfaces.SolutionPort solution_fore(
          T=solutionState.T,
@@ -1530,7 +1530,7 @@ du := n_flow/kC;
          Q=solutionState.Q,
          I=solutionState.I)
           "To connect solution of subunits with fore state of macromolecule"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{90,40},{110,60}})));
+        annotation (Placement(transformation(extent={{90,38},{110,58}}),     iconTransformation(extent={{90,38},{110,58}})));
 
       Modelica.Units.SI.AmountOfSubstance nm_fore
         "Amount of the macromolecule in fore state";
@@ -1562,7 +1562,7 @@ du := n_flow/kC;
           Qj=Qj,
           Ij=Ij)
              "To connect substance with solution, where is pressented"
-        annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
+        annotation (Placement(transformation(extent={{-66,-110},{-46,-90}}), iconTransformation(extent={{-66,-110},{-46,-90}})));
 
          Chemical.Interfaces.SolutionState solutionState;
 
@@ -1576,13 +1576,21 @@ du := n_flow/kC;
       Modelica.Units.SI.MolarEnthalpy h_fore_mix, h_rear_mix;
 
     //  Real duRT_fore, duRT_rear,
-      Real du_fore, du_rear, dr, Sx_fore,Px_rear,Kx;
+      //Real du_fore, du_rear, dr,
+      Real Sx_fore,Px_rear,Kx;
 
       Modelica.Units.SI.ChemicalPotential uPure_subunit_rear[nS];
       Modelica.Units.SI.ChemicalPotential uPure_subunit_fore[nP];
       outer DropOfCommons dropOfCommons;
 
       Real Px_fore,Sx_rear;
+
+      Real _rR[nS+nP];
+      Real _uIn[nS+nP];
+      Real _uOut[nS+nP];
+      Real _qIn[nS+nP];
+      Real _uS[nS],_uP[nP];
+      Real du;
 
     initial equation
       if initN_flow == InitializationMethods.state then
@@ -1629,21 +1637,6 @@ du := n_flow/kC;
       RTlnxm_rear = Modelica.Constants.R*solution.T*log(xm_rear)*ones(nS);
       RTlnxm_fore = Modelica.Constants.R*solution.T*log(xm_fore)*ones(nP);
 
-      du_fore = (ones(nS) * (subunit_rear.state_forwards.u - RTlnxm_rear)) - (ones(nP) * (subunit_fore.state_forwards.u - RTlnxm_fore));
-      du_rear = (ones(nP) * (subunit_fore.state_rearwards.u - RTlnxm_fore)) - (ones(nS) * (subunit_rear.state_rearwards.u - RTlnxm_rear));
-
-      for i in 1:nS loop
-       uPure_subunit_rear[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
-        subunit_rear[i].definition,
-        subunit_rear[i].solution_forwards);
-      end for;
-
-      for i in 1:nP loop
-       uPure_subunit_fore[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
-       subunit_fore[i].definition,
-       subunit_fore[i].solution_rearwards);
-      end for;
-
       Sx_fore = xm_rear; // * exp(ones(nS) * ((subunit_rear.state_forwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
       Px_rear = xm_fore; // * exp(ones(nP) * ((subunit_fore.state_rearwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
 
@@ -1671,21 +1664,30 @@ du := n_flow/kC;
         h_fore_mix = 0;
       end if;
 
-      dr = (ones(nS) * subunit_rear.r) - (ones(nP) * subunit_fore.r);
 
-      if nP>0 then
 
-        (ones(nP) * subunit_fore.r) = (ones(nS) * subunit_rear.r)  -  der(rr)*L;
+      (der(subunit_rear.n_flow)*L) =  subunit_rear.r - _rR[1:nS];
+      (der(subunit_fore.n_flow)*L) =  subunit_fore.r - _rR[nS+1:end];
 
-        for i in 2:nP loop
-          //first product is based on inertial potential,
-          //other subunit_fore are provided as source with fixed flow and adaptation of their potential
-          der(subunit_fore[i].state_forwards.u).*TC = subunit_fore[i].r;
-        end for;
-        for i in 2:nS loop
-          der(subunit_rear[i].state_rearwards.u).*TC = subunit_rear[i].r;
-        end for;
-      end if;
+      for i in 1:nS loop
+        _uIn[i] = subunit_rear[i].state_forwards.u;
+        _uOut[i] = (_uIn*_qIn - _uIn[i]*_qIn[i])/(_qIn*ones(nS+nP)-_qIn[i]);
+        _qIn[i] = max(subunit_rear[i].n_flow,n_flow_reg);
+        Chemical.Utilities.Internal.regStep(subunit_rear[i].n_flow,_uIn[i],_uOut[i],n_flow_reg) + _rR[i] = _uS[i];
+        subunit_rear[i].state_rearwards.u = _uOut[i];
+        uPure_subunit_rear[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure(subunit_rear[i].definition, subunit_rear[i].solution_forwards);
+      end for;
+      for i in 1:nP loop
+        _uIn[i+nS] = subunit_fore[i].state_rearwards.u;
+        _uOut[i+nS] = (_uIn*_qIn - _uIn[i+nS]*_qIn[i+nS])/(_qIn*ones(nS+nP)-_qIn[i+nS]);
+        _qIn[i+nS] = max(subunit_fore[i].n_flow,n_flow_reg);
+        Chemical.Utilities.Internal.regStep(subunit_fore[i].n_flow,_uIn[i+nS],_uOut[i+nS],n_flow_reg) + _rR[i+nS] = _uP[i];
+        subunit_fore[i].state_forwards.u = _uOut[i+nS];
+        uPure_subunit_fore[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure( subunit_fore[i].definition,  subunit_fore[i].solution_rearwards);
+      end for;
+
+      du = ones(nP)*_uP - ones(nS)*_uS;
+
 
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
