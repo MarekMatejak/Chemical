@@ -3,10 +3,10 @@ LibraryInfoMenuSeparator(
 	pos = 3000);
 LibraryInfoMenuCommand(
     category = "libraries",
-    text = "Chemical",
+    text = "Chemical 2.0",
     reference = "Chemical",
     isModel = true,
-    description = "Chemical 2.0.0-alpha",
-    version = "2.0.0-alpha",
+    description = "Chemical 2.0.0",
+    version = "2.0.0",
     ModelicaVersion = ">=4.0",
     pos = 3754);
