@@ -184,11 +184,11 @@ package Processes "Undirected process package"
                   HideResult=true, Dialog(group="Product definition"));
 
     parameter Chemical.Interfaces.Definition product = Chemical.Substances.Liquid.Unknown "Product definitions"
-      annotation (choicesAllMatching=true, Dialog(group="Product definition", enable=(productFrom ==FirstProductChoice.fromParameter)));
+      annotation (choicesAllMatching=true, Dialog(group="Product definition", enable=(productFrom ==Chemical.Utilities.Types.FirstProductChoice.fromParameter)));
 
      parameter Chemical.Interfaces.Definition process = Chemical.Interfaces.processData(1)
      "Process definition"
-        annotation (Dialog(enable=(productFrom ==FirstProductChoice.fromProcessEnergies)));
+        annotation (Dialog(enable=(productFrom==Chemical.Utilities.Types.FirstProductChoice.fromProcessEnergies)));
 
     replaceable function uDiff =
         Chemical.Processes.Internal.Kinetics.traditionalPotentialDiff

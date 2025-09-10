@@ -226,11 +226,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
     "Fixed value of concentration in selected quantity if useVariableInput=false"
       annotation (HideResult=true, Dialog(enable=not useVariableInput));
 
-    parameter Boolean useVariableInput = false
+    parameter Boolean useVariableInput=false
     "Is amount of substance an input?"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-    Modelica.Blocks.Interfaces.RealInput VariableInput=val if useVariableInput
+    Modelica.Blocks.Interfaces.RealInput VariableInput=value if useVariableInput
       annotation (HideResult=true, Placement(transformation(extent={{-130,56},{-90,96}})));
 
     Real  value(unit=Chemical.Boundaries.Internal.getUnit(           quantity));
