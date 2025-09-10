@@ -1818,10 +1818,12 @@ du := n_flow/kC;
 
       Chemical.Boundaries.Substance s2(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,20},{-154,40}})));
       Chemical.Boundaries.Substance p2(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,20},{-46,40}})));
-      Chemical.Processes.Diffusion d2(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
+      Chemical.Processes.Diffusion d2(initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+                                      solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{-118,20},{-98,40}})));
       Chemical.Boundaries.Substance s1(useFore=true, mass_start=0.6) annotation (Placement(transformation(extent={{-174,58},{-154,78}})));
       Chemical.Boundaries.Substance p1(useRear=true, mass_start=0.4) annotation (Placement(transformation(extent={{-66,58},{-46,78}})));
-      Chemical.Processes.Diffusion d1(solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
+      Chemical.Processes.Diffusion d1(initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+                                      solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter) annotation (Placement(transformation(extent={{-118,58},{-98,78}})));
       Chemical.Boundaries.Substance s3(
         useFore=true,
         useSolution=true,
@@ -1830,7 +1832,8 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{-62,-54},{-42,-34}})));
-      Chemical.Processes.Diffusion d3(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
+      Chemical.Processes.Diffusion d3(initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+                                      solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{-114,-56},{-94,-36}})));
       Solution solution annotation (Placement(transformation(extent={{-222,-122},{-14,-12}})));
       inner Modelica.Fluid.System system annotation (Placement(transformation(extent={{-210,64},{-190,84}})));
       Chemical.Boundaries.Substance s4(
@@ -1841,7 +1844,8 @@ du := n_flow/kC;
         useRear=true,
         useSolution=false,
         mass_start=0.4) annotation (Placement(transformation(extent={{186,64},{206,84}})));
-      Chemical.Processes.Diffusion d4(solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{134,62},{154,82}})));
+      Chemical.Processes.Diffusion d4(initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+                                      solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort) annotation (Placement(transformation(extent={{134,62},{154,82}})));
       Solution solution1 annotation (Placement(transformation(extent={{26,-4},{234,106}})));
       Chemical.Boundaries.Substance solvent(useFore=false, useSolution=true,
         mass_start=1)                                                        annotation (Placement(transformation(extent={{194,24},{214,44}})));
@@ -1853,7 +1857,8 @@ du := n_flow/kC;
         useRear=true,
         useSolution=true,
         mass_start=0.4) annotation (Placement(transformation(extent={{172,-54},{192,-34}})));
-      Chemical.Processes.Diffusion d5(solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
+      Chemical.Processes.Diffusion d5(initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+                                      solutionFrom=Chemical.Utilities.Types.SolutionChoice.FirstSubstrate) annotation (Placement(transformation(extent={{120,-56},{140,-36}})));
       Solution solution2 annotation (Placement(transformation(extent={{12,-122},{220,-12}})));
     equation
       connect(s2.fore, d2.rear) annotation (Line(
