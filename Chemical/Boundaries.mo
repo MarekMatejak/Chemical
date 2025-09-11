@@ -72,7 +72,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
        annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
               {100,100}}), graphics={Text(
             extent={{-84,22},{92,64}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
             textString="%name")}), Documentation(revisions="<html>
 <p>2009-2025 by Marek Matejak, Ph.D. </p>
 </html>",   info="<html>
@@ -270,7 +270,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
             fillPattern=FillPattern.Backward),
           Text(
             extent={{94,92},{-94,18}},
-            lineColor={0,0,0},
+            textColor={0,0,0},
             textString="molarity"),
           Line(
             points={{-62,0},{56,0}},
@@ -284,10 +284,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-150,150},{150,110}},
             textString="%name",
-            lineColor={128,0,255}),
+            textColor={128,0,255}),
           Text(
             extent={{-104,-76},{100,-100}},
-            lineColor={0,0,0},
+            textColor={0,0,0},
             textString="%T K")}),
       Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -348,7 +348,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
             lineColor={0,0,0}),
           Text(
             extent={{54,108},{-46,8}},
-            lineColor={0,0,0},
+            textColor={0,0,0},
             textString="P,T"),
           Line(
             points={{-62,0},{56,0}},
@@ -362,10 +362,10 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-150,150},{150,110}},
             textString="%name",
-            lineColor={128,0,255}),
+            textColor={128,0,255}),
           Text(
             extent={{-100,-102},{104,-126}},
-            lineColor={0,0,0},
+            textColor={0,0,0},
             textString="%T K")}),
       Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -422,7 +422,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-220,-80},{220,-60}},
             textString="%name",
-            lineColor={128,0,255})}),      Documentation(revisions="<html>
+            textColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -472,7 +472,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-220,-80},{220,-60}},
             textString="%name",
-            lineColor={128,0,255})}),      Documentation(revisions="<html>
+            textColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -508,7 +508,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-150,-20},{150,20}},
             textString="%name",
-            lineColor={128,0,255},
+            textColor={128,0,255},
             origin={2,-74},
             rotation=180)}),
       Documentation(revisions="<html>
@@ -572,7 +572,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Text(
             extent={{-150,-20},{150,20}},
             textString="%name",
-            lineColor={128,0,255},
+            textColor={128,0,255},
             origin={2,-74},
             rotation=180)}),
       Documentation(revisions="<html>

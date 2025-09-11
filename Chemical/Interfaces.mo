@@ -406,9 +406,7 @@ package Interfaces "Chemical interfaces"
             fillColor={127,127,0},
             fillPattern=FillPattern.Solid)}),
     Diagram(graphics={
-     Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
-          fillColor={127,127,0},
-          fillPattern=FillPattern.Solid),
+     Text(extent={{-160,110},{40,50}},   textColor={127,127,0},    textString = "%name"),
                     Rectangle(
             extent={{-40,40},{40,-40}},
             lineColor={127,127,0},
