@@ -83,7 +83,7 @@ Choices for selection of a&nbsp;products definition.
 
   end Types;
 
-  package Internal "Internal helper functions and models for the undirected themofluid simulation."
+  package Internal "Internal helper functions and models for the undirected thermofluid simulation."
     extends Modelica.Icons.InternalPackage;
 
     function regStep
@@ -158,7 +158,7 @@ for a smooth transition from y1 to y2.
 </html>"));
     end regStepState;
     annotation (Documentation(info="<html>
-<u>Internal helper functions and models for the undirected themofluid simulation.</u>
+<u>Internal helper functions and models for the undirected thermofluid simulation.</u>
 </html>"));
   end Internal;
 end Utilities;

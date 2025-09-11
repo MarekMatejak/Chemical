@@ -21,11 +21,11 @@ class Overview "Overview"
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Reaction1.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Obsolete.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"modelica://Examples.EnzymeKinetics\">Michaelic-Menton</a> can be recalculated with precision of 1.5% of maximal rate. </p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Obsolete.Components.Reaction\">Chemical reaction</a></p><p>The chemical reaction component is very general. The dissociation constant of the equilibrium is calculated from substance properties at usual in thermodynamics, for example as definition of <a href=\"http://goldbook.iupac.org/S05915.html\">UIPAC</a>. For example if we want to define <a href=\"modelica://Examples.SimpleReaction\">simple reaction A&lt;-&gt;B</a> with dissociation constant [B]/[A]=2 then it must be the difference between Gibbs energies of formation equal to B.DfG - A.DfG = - R * T * ln(2). Without lost of generality it is possible to select some substances as reference and give them the zero Gibbs energy of formation. The next substances created by some chemical process can be expressed from them such as example of <a href=\"modelica://Examples.Hemoglobin.Allosteric_Hemoglobin_MWC\">alosteric hemoglobin</a> calculation. The kinetics of the chemical reaction is different as usual. However the most of processes can be recalculated with sufficient precision, for example the <a href=\"modelica://Examples.EnzymeKinetics\">Michaelis-Menten</a> can be recalculated with precision of 1.5% of maximal rate. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/Diffusion1.png\"/></p></td>
-<td valign=\"middle\"><p><a href=\"modelica://Chemical.Obsolete.Components.Diffusion\">Diffusion</a></p><p>Diffusion is a dynamic chemical process, wich is also equilibrating of electro-chemical potential of the substance. Analogically as in chemical reaction the speed of diffucion can be calculated as coefficient C multiplied by electro-chemical gratient. C can be a parammeter or input expressed from distance, substance and solution properties. </p></td>
+<td valign=\"middle\"><p><a href=\"modelica://Chemical.Obsolete.Components.Diffusion\">Diffusion</a></p><p>Diffusion is a dynamic chemical process, wich is also equilibrating of electro-chemical potential of the substance. Analogically as in chemical reaction the speed of diffusion can be calculated as coefficient C multiplied by electro-chemical gradient. C can be a parameter or input expressed from distance, substance and solution properties. </p></td>
 </tr>
 <tr>
 <td valign=\"top\"><p align=\"center\"><img src=\"modelica://Chemical/Resources/Images/UsersGuide/GasSolubility1.png\"/></p></td>
@@ -102,7 +102,7 @@ annotation (Documentation(info="<html>
 <ul>
 <li>Separation the Chemical from Physiolibrary to https://github.com/MarekMatejak/Chemical from https://github.com/MarekMatejak/Physiolibrary branche PhysicalChemistry </li>
 <li><font style=\"color: #333333; \">Components for solution, substance, chemical reaction, diffusion, gas dissolution, semipermeable membranes, chemical speciation of macromolecules, ..</font></li>
-<li><font style=\"color: #333333; \">The library uses the Modelica Standard Libary (MSL) version 3.2.</font></li>
+<li><font style=\"color: #333333; \">The library uses the Modelica Standard Library (MSL) version 3.2.</font></li>
 </ul>
 </html>"));
 end Version_1_0;
@@ -132,7 +132,7 @@ annotation (Documentation(info="<html>
 <li>Substance, which are making clusters (E.g. liquid water molecules with hydrogen bonds</li>
 <li>Support of fluid connectors</li>
 <li>Mass fraction connector</li>
-<li>Molarity concentration conector</li>
+<li>Molarity concentration connector</li>
 </ul>
 </html>"));
 end Version_1_2;
@@ -236,7 +236,7 @@ class NewRelease "Publishing new release"
 <p><br>New release must be numbered by Semantic Versioning 2.0.0, see <a href=\"http://semver.org/\">semver.org</a>. </p>
 <p><br>If minor version, then the conversion script must be written and connected with package Chemical using &quot;annotation(conversion(from(version=..)))&quot;! </p>
 <p><br>To clean the code from dummy annotations try to use script <a href=\"https://github.com/dietmarw/trimtrailingwhitespaces\">ttws</a>. </p>
-<p>To check english spelling try to use <a href=\"https://github.com/vlajos/misspell_fixer\">missspell_fixer</a>.</p>
+<p>To check English spelling try to use <a href=\"https://github.com/vlajos/misspell_fixer\">missspell_fixer</a>.</p>
 <p><br>Update version number to &quot;X.Y.Z&quot;: </p>
 <ul>
 <li>At package Chemical annotation: (version=&quot;X.Y.Z&quot;) together with &quot;versionBuild&quot;, &quot;versionDate&quot; and &quot;dateModified&quot; attribute </li>

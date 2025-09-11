@@ -6,7 +6,7 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
 
 
     parameter Integer N(min=0) = 1 "Number of rears";
-    parameter Integer M(min=0) = 1 "Number of fors";
+    parameter Integer M(min=0) = 1 "Number of fores";
 
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance for each branch" annotation (Dialog(tab="Advanced"));
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of molar flow rate"
@@ -28,10 +28,10 @@ package Topology "Junctions and Connectors for undirected chemical simulation"
     Modelica.Units.SI.MolarFlowRate inflows[M + N] "molarFlows assuming positive molarFlow";
 
     Modelica.Units.SI.ChemicalPotential us[M + N] "potential of medium entering";
-    Modelica.Units.SI.ChemicalPotential us_out[M + N] "potential of medium exeting";
+    Modelica.Units.SI.ChemicalPotential us_out[M + N] "potential of medium exiting";
 
     Modelica.Units.SI.MolarEnthalpy hs[M + N] "molar enthalpy of medium entering";
-    Modelica.Units.SI.MolarEnthalpy hs_out[M + N] "molar enthalpy of medium exeting";
+    Modelica.Units.SI.MolarEnthalpy hs_out[M + N] "molar enthalpy of medium exiting";
 
   equation
     // rears are 1:N
@@ -835,7 +835,7 @@ Junction with a rear and two fores in a lying T shape.
           Gj=0,
           Qj=0,
           Ij=0)
-            if useSolution "To connect substance with solution, where is pressented"
+            if useSolution "To connect substance with solution, where is present"
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
          Chemical.Interfaces.SolutionState solutionState;
