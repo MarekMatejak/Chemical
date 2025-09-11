@@ -313,7 +313,7 @@ package Obsolete
               100,100}}),
             graphics={Text(
               extent={{-90,-88},{78,-96}},
-              lineColor={128,0,255},
+              textColor={128,0,255},
               textString="%name",
               horizontalAlignment=TextAlignment.Left)}),
         Documentation(revisions="<html>
@@ -473,7 +473,7 @@ package Obsolete
          annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
                 {100,100}}), graphics={Text(
               extent={{-84,22},{92,64}},
-              lineColor={128,0,255},
+              textColor={128,0,255},
               textString="%name")}), Documentation(revisions="<html>
 <p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
@@ -592,7 +592,7 @@ package Obsolete
               fillPattern=FillPattern.Solid),
             Text(
               extent={{-100,-72},{100,-40}},
-              lineColor={128,0,255},
+              textColor={128,0,255},
             textString="%name"),
             Polygon(
               points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
@@ -720,7 +720,7 @@ package Obsolete
             Text(
               extent={{-146,-44},{154,-84}},
               textString="%name",
-              lineColor={128,0,255})}),
+              textColor={128,0,255})}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -877,7 +877,7 @@ package Obsolete
             Text(
               extent={{-97,-12},{97,12}},
               textString="%name",
-              lineColor={128,0,255},
+              textColor={128,0,255},
             origin={69,2},
             rotation=90)}));
     end Membrane;
@@ -906,7 +906,7 @@ package Obsolete
               rotation=360),
             Text(
               extent={{-150,-20},{150,20}},
-              lineColor={128,0,255},
+              textColor={128,0,255},
               origin={-10,-76},
               rotation=360,
               textString="%name")}),        Documentation(revisions="<html>
@@ -1091,7 +1091,7 @@ package Obsolete
               100,100}}),
             graphics={                                                        Text(
               extent={{-22,-106},{220,-140}},
-              lineColor={128,0,255},
+              textColor={128,0,255},
               textString="%name")}));
     end Speciation;
 
@@ -1204,7 +1204,7 @@ package Obsolete
             Text(
               extent={{-150,-20},{150,20}},
               textString="%name",
-              lineColor={128,0,255},
+              textColor={128,0,255},
               origin={2,-74},
               rotation=180)}),
         Documentation(revisions="<html>
@@ -10931,7 +10931,7 @@ package Obsolete
               color={127,0,127}),
             Text(
               extent={{-31,-5},{28,-64}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="dn")}));
     end MolarFlowSensor;
 
@@ -10960,7 +10960,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="x"),
             Line(
               points={{70,0},{80,0}},
@@ -11000,7 +11000,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="u"),
             Line(
               points={{70,0},{80,0}},
@@ -11042,7 +11042,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="b"),
             Line(
               points={{70,0},{80,0}},
@@ -11084,7 +11084,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="c"),
             Line(
               points={{70,0},{80,0}},
@@ -11124,7 +11124,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="mx"),
             Line(
               points={{70,0},{80,0}},
@@ -11161,7 +11161,7 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-31,-3},{28,-62}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="p"),
             Line(
               points={{70,0},{80,0}},
@@ -11283,11 +11283,11 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-160,-94},{-12,-68}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="%s"),
             Text(
               extent={{12,-92},{160,-66}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="%p")}),
         Documentation(revisions="<html>
 <p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -11479,11 +11479,11 @@ package Obsolete
               100,100}}),   graphics={
             Text(
               extent={{-160,-94},{-12,-68}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="%s"),
             Text(
               extent={{12,-92},{160,-66}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
             textString="%p")}),
         Documentation(revisions="<html>
 <p><i>2013-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -11665,7 +11665,7 @@ package Obsolete
               fillPattern=FillPattern.Backward),
             Text(
               extent={{10,8},{-90,-92}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="pure"),
             Line(
               points={{-62,0},{56,0}},
@@ -11679,10 +11679,10 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -11754,7 +11754,7 @@ package Obsolete
               lineColor={0,0,0}),
             Text(
               extent={{0,0},{-100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="P,T"),
             Line(
               points={{-62,0},{56,0}},
@@ -11768,10 +11768,10 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-100,-102},{104,-126}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -11847,14 +11847,14 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K"),
             Text(
               extent={{94,-4},{-94,-78}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="molality")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -11919,7 +11919,7 @@ package Obsolete
               fillPattern=FillPattern.Backward),
             Text(
               extent={{94,92},{-94,18}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="molarity"),
             Line(
               points={{-62,0},{56,0}},
@@ -11933,10 +11933,10 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -12004,14 +12004,14 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K"),
             Text(
               extent={{94,-4},{-94,-78}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="n")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -12065,14 +12065,14 @@ package Obsolete
             Text(
               extent={{-150,150},{150,110}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-104,-76},{100,-100}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="%T K"),
             Text(
               extent={{94,-4},{-94,-78}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="molality")}),
         Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
@@ -12107,7 +12107,7 @@ package Obsolete
             Text(
               extent={{-220,-80},{220,-60}},
               textString="%name",
-              lineColor={128,0,255})}),      Documentation(revisions="<html>
+              textColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -12141,7 +12141,7 @@ package Obsolete
             Text(
               extent={{-220,-80},{220,-60}},
               textString="%name",
-              lineColor={128,0,255})}),      Documentation(revisions="<html>
+              textColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -12184,10 +12184,10 @@ package Obsolete
             Text(
               extent={{-150,-90},{150,-50}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-100,-30},{100,-50}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="K=%K")}),        Documentation(revisions="<html>
 <p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -12218,10 +12218,10 @@ package Obsolete
             Text(
               extent={{-148,-82},{152,-42}},
               textString="%name",
-              lineColor={128,0,255}),
+              textColor={128,0,255}),
             Text(
               extent={{-100,54},{100,28}},
-              lineColor={0,0,0},
+              textColor={0,0,0},
               textString="t1/2 = %HalfTime s"),
             Polygon(
               points={{54,24},{54,-24},{44,-22},{44,22},{54,24}},
@@ -12350,7 +12350,7 @@ package Obsolete
               Text(
                 extent={{-82,62},{92,24}},
                 textString="%name",
-                lineColor={128,0,255})}),
+                textColor={128,0,255})}),
           Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -12408,7 +12408,7 @@ package Obsolete
             Text(
               extent={{-220,-80},{220,-60}},
               textString="%name",
-              lineColor={128,0,255})}),      Documentation(revisions="<html>
+              textColor={128,0,255})}),      Documentation(revisions="<html>
 <p><i>2009-2015</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
@@ -12475,7 +12475,7 @@ package Obsolete
               fillColor={158,66,200},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent = {{-160,110},{40,50}}, textColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -12506,7 +12506,7 @@ package Obsolete
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={172,72,218},   textString = "%name")}),
+       Text(extent = {{-160,110},{40,50}}, textColor={172,72,218},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -14206,9 +14206,7 @@ end solution_temperature_;
               fillColor={127,127,0},
               fillPattern=FillPattern.Solid)}),
       Diagram(graphics={
-       Text(extent={{-160,110},{40,50}},   lineColor={127,127,0},    textString = "%name",
-            fillColor={127,127,0},
-            fillPattern=FillPattern.Solid),
+       Text(extent={{-160,110},{40,50}},   textColor={127,127,0},    textString = "%name"),
                       Rectangle(
               extent={{-40,40},{40,-40}},
               lineColor={127,127,0},
@@ -14564,7 +14562,7 @@ end solution_temperature_;
                 fillColor={105,44,133},
                 fillPattern=FillPattern.Solid,
                 lineThickness=1),
-         Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+         Text(extent = {{-160,110},{40,50}}, textColor={105,44,133},   textString = "%name")}),
           Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>", revisions="<html>
@@ -14594,7 +14592,7 @@ end solution_temperature_;
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={105,44,133},   textString = "%name")}),
+       Text(extent = {{-160,110},{40,50}}, textColor={105,44,133},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",
@@ -14614,7 +14612,7 @@ end solution_temperature_;
             initialScale=0.2),graphics={
             Text(extent={{-73,130},{77,100}},
               textString="%name",
-              lineColor={105,44,133}),
+              textColor={105,44,133}),
             Rectangle(
               extent={{25,-100},{-25,100}},
               lineColor={105,44,133}),
@@ -14689,7 +14687,7 @@ end solution_temperature_;
               fillColor={174,73,220},
               fillPattern=FillPattern.Solid,
               lineThickness=1),
-       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
+       Text(extent = {{-160,110},{40,50}}, textColor={174,73,220},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with internal definition of the substance inside the component. </p>
 </html>",
@@ -14720,7 +14718,7 @@ end solution_temperature_;
               lineThickness=1,
             fillColor={255,255,255},
             fillPattern=FillPattern.Solid),
-       Text(extent = {{-160,110},{40,50}}, lineColor={174,73,220},   textString = "%name")}),
+       Text(extent = {{-160,110},{40,50}}, textColor={174,73,220},   textString = "%name")}),
         Documentation(info="<html>
 <p>Chemical port with external definition of the substance outside the component.</p>
 </html>",

@@ -62,7 +62,7 @@ equation
           100,100}}),
         graphics={Text(
           extent={{-90,-88},{78,-96}},
-          lineColor={128,0,255},
+          textColor={128,0,255},
           textString="%name",
           horizontalAlignment=TextAlignment.Left)}),
     Documentation(revisions="<html>

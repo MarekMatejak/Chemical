@@ -34,7 +34,7 @@ package Icons "Icons for chemical models"
   class Membrane
 
     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
-              -100},{100,100}}), graphics={Bitmap(extent={{-100,100},{100,-100}},
+              -100},{100,100}}), graphics={Bitmap(extent={{-100,-100},{100,100}},
               fileName="modelica://Chemical/Resources/Icons/membrane.png")}));
   end Membrane;
 

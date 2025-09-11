@@ -45,7 +45,7 @@ package Processes "Undirected process package"
             fillPattern=FillPattern.Solid),
           Text(
             extent={{-146,-72},{142,-42}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
           textString="%name"),
           Polygon(
             points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
@@ -331,7 +331,7 @@ package Processes "Undirected process package"
           Text(
             extent={{-97,-12},{97,12}},
             textString="%name",
-            lineColor={128,0,255},
+            textColor={128,0,255},
           origin={69,2},
           rotation=90)}));
   end Membrane;
@@ -373,7 +373,7 @@ package Processes "Undirected process package"
             rotation=360),
           Text(
             extent={{-150,-20},{150,20}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
             origin={0,-72},
             rotation=360,
             textString="%name")}),        Documentation(revisions="<html>
@@ -416,7 +416,7 @@ package Processes "Undirected process package"
             fillPattern=FillPattern.Solid),
           Text(
             extent={{-160,-70},{160,-40}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
           textString="%name"),
           Polygon(
             points={{-60,2},{-60,0},{54,0},{54,0},{18,10},{18,2},{-60,2}},
@@ -537,7 +537,7 @@ package Processes "Undirected process package"
           Text(
             extent={{-150,-20},{150,20}},
             textString="%name",
-            lineColor={128,0,255},
+            textColor={128,0,255},
             origin={2,-74},
             rotation=180)}),
       Documentation(revisions="<html>
@@ -603,7 +603,7 @@ package Processes "Undirected process package"
             fillPattern=FillPattern.Solid),
           Text(
             extent={{-100,-72},{100,-40}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
           textString="%name"),
           Polygon(
             points={{-60,6},{-60,4},{54,4},{54,4},{18,14},{18,6},{-60,6}},
@@ -723,7 +723,7 @@ package Processes "Undirected process package"
             100,100}}),   graphics={
           Text(
             extent={{-160,-70},{160,-40}},
-            lineColor={128,0,255},
+            textColor={128,0,255},
           textString="%name")}),
       Documentation(revisions="<html>
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
