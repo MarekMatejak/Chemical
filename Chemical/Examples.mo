@@ -1904,6 +1904,8 @@ package Examples "Tests for top level components of undirected"
                                         //(amountOfSolution_start=52.3)
                                      //(amountOfSolution_start=39.7)
     Chemical.Processes.GasSolubility CO2_dissolutionP(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.SolutionPort,
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.CO2,
@@ -2000,6 +2002,8 @@ package Examples "Tests for top level components of undirected"
                                         //(amountOfSolution_start=52.3)
                                      //(amountOfSolution_start=39.7)
     Chemical.Processes.GasSolubility CO2_dissolutionP(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.CO2,
       k_forward=1) annotation (Placement(transformation(extent={{-140,42},{-120,62}})));
@@ -2081,6 +2085,8 @@ package Examples "Tests for top level components of undirected"
                                         //(amountOfSolution_start=52.3)
                                      //(amountOfSolution_start=39.7)
     Chemical.Processes.GasSolubility CO2_dissolutionP(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.CO2,
@@ -2093,6 +2099,8 @@ package Examples "Tests for top level components of undirected"
       useRear=true) "Free dissolved CO2 in water at 25 degC" annotation (Placement(transformation(extent={{-130,-28},{-150,-8}})));
 
     Chemical.Processes.GasSolubility O2_dissolutionP(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       product=Chemical.Substances.Aqueous.O2,
       k_forward=0.05)
@@ -2108,6 +2116,8 @@ package Examples "Tests for top level components of undirected"
       useRear=true) "Free dissolved O2 in water at 25 degC" annotation (Placement(transformation(extent={{-94,-26},{-114,-6}})));
 
     Chemical.Processes.GasSolubility CO2_dissolutionE(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       product=Chemical.Substances.Aqueous.CO2,
       k_forward=1) annotation (Placement(transformation(extent={{-24,40},{-4,60}})));
@@ -2124,6 +2134,8 @@ package Examples "Tests for top level components of undirected"
       useRear=true) "Free dissolved CO2 in water at 37degC" annotation (Placement(transformation(extent={{-22,-34},{-42,-14}})));
 
     Chemical.Processes.GasSolubility O2_dissolutionE_NIST(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       product=Chemical.Substances.Aqueous.O2,
       k_forward=0.05)
@@ -2141,6 +2153,8 @@ package Examples "Tests for top level components of undirected"
       substanceDefinition=Chemical.Substances.Gas.O2,                PartialPressure(displayUnit="mmHg") = 12665.626804425)
       annotation (Placement(transformation(extent={{-6,68},{14,88}})));
     Chemical.Processes.GasSolubility CO2_dissolutionE1(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       product=Chemical.Substances.Aqueous.CO2,
       k_forward=1) annotation (Placement(transformation(extent={{92,44},{112,64}})));
@@ -2151,6 +2165,8 @@ package Examples "Tests for top level components of undirected"
       useRear=true) "Free dissolved CO2 in water at 0degC" annotation (Placement(transformation(extent={{96,-34},{76,-14}})));
 
     Chemical.Processes.GasSolubility O2_dissolutionE_NIST1(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
 
       product=Chemical.Substances.Aqueous.O2,
       k_forward=0.05)
@@ -2270,7 +2286,9 @@ package Examples "Tests for top level components of undirected"
 
   model SimpleReactionsWithJunction2
     extends Modelica.Icons.Example;
-    Chemical.Processes.Reaction r( nP = 1,         process = Chemical.Interfaces.processData(2),
+    Chemical.Processes.Reaction r(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,                  nP = 1,         process = Chemical.Interfaces.processData(2),
       nS=1)                                                                                      annotation(
       Placement(transformation(extent={{-6,12},{14,32}})));
     Chemical.Boundaries.Substance A(useFore = true) annotation(
@@ -2280,6 +2298,8 @@ package Examples "Tests for top level components of undirected"
     Boundaries.Substance          B1(useRear=true)  annotation(
       Placement(transformation(extent={{34,-32},{54,-12}})));
     Processes.Reaction          r1(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
       nP=1,
       nS=1,
       process=Chemical.Interfaces.processData(3))                                                annotation(
@@ -2318,6 +2338,8 @@ package Examples "Tests for top level components of undirected"
   model SimpleReactionsWithJunction3
     extends Modelica.Icons.Example;
     Processes.Reaction r_ref(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
       nP=1,
       nS=1,
       process=Chemical.Interfaces.processData(2)) annotation (Placement(transformation(extent={{-2,64},{18,84}})));
