@@ -1440,7 +1440,9 @@ package Examples "Tests for top level components of undirected"
 
   model SimpleReactionsWithJunction
     extends Modelica.Icons.Example;
-    Chemical.Processes.Reaction r( nP = 1,         process = Chemical.Interfaces.processData(2),
+    Chemical.Processes.Reaction r(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,                  nP = 1,         process = Chemical.Interfaces.processData(2),
       nS=1)                                                                                      annotation(
       Placement(transformation(extent={{-6,12},{14,32}})));
     Chemical.Boundaries.Substance A(useFore = true) annotation(
@@ -1450,11 +1452,14 @@ package Examples "Tests for top level components of undirected"
     Boundaries.Substance          B1(useRear=true)  annotation(
       Placement(transformation(extent={{34,-32},{54,-12}})));
     Processes.Reaction          r1(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
+      n_flow_0=0,
       nP=1,
       nS=1,
       process=Chemical.Interfaces.processData(2))                                                annotation(
       Placement(transformation(extent={{-2,-32},{18,-12}})));
     Processes.Reaction r_ref(
+      initN_flow=Chemical.Utilities.Types.InitializationMethods.state,
       nP=1,
       nS=1,
       process=Chemical.Interfaces.processData(2)) annotation (Placement(transformation(extent={{-2,64},{18,84}})));
