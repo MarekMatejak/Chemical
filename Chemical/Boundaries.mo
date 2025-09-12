@@ -13,7 +13,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     import Chemical.Utilities.Types.InitializationSubstance;
 
-    parameter Boolean preferMass=true  "prefere state as mass, otherwise amountOfSubstance"
+    parameter Boolean preferMass=true  "prefer state as mass, otherwise amountOfSubstance"
       annotation (HideResult=true, Evaluate=true, choices(checkBox=true), Dialog(group="Substance"));
 
     parameter Modelica.Units.SI.Mass mass_start=dropOfCommons.DefaultMass "Initial mass of the substance"
@@ -90,7 +90,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 <p>where</p>
 <p>x .. mole fraction of the substance in the solution</p>
 <p>T .. temperature in Kelvins</p>
-<p>v .. relative eletric potential of the solution</p>
+<p>v .. relative electric potential of the solution</p>
 <p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
 <p>R .. gas constant</p>
 <p>F .. Faraday constant</p>
@@ -99,7 +99,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 <p>DfG .. free Gibbs energy of formation of the substance</p>
 <p>DfH .. free enthalpy of formation of the substance</p>
 <p>DfS .. free entropy of formation of the substance </p>
-<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+<p><br>Be careful, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodynamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
 </html>"));
   end Substance;
 
@@ -119,7 +119,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     parameter Modelica.Units.SI.ElectricPotential v_start=0 "Initial electric potential"
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(init ==InitializationSubstance.state)));
 
-    parameter Boolean useRear = false "Use rearwards conector?"
+    parameter Boolean useRear = false "Use rearwards connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
     parameter Boolean useFore = true "Use forwards connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
@@ -160,7 +160,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
         Gj=0,
         Qj=0,
         Ij=0)
-      "To connect substance with solution, where is pressented"
+      "To connect substance with solution, where is presented"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
   protected
@@ -545,7 +545,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     extends Internal.PartialTerminalRear;
 
     parameter Modelica.Units.SI.Time HalfTime
-    "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
+    "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearance and degradation exist.";
 
     Modelica.Units.SI.AmountOfSubstance n;
 
@@ -1385,7 +1385,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Chemical.Interfaces.Definition substanceDefinition=dropOfCommons.DefaultSubstance "Definition of the substance"
         annotation (choicesAllMatching=true, Dialog(enable=not useRear, group = "Substance"));
 
-      parameter Boolean useRear = false "Use rearwards conector?"
+      parameter Boolean useRear = false "Use rearwards connector?"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
       parameter Boolean useFore = true "Use forwards connector?"
           annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
@@ -1487,7 +1487,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
           Gj=substance.Gj,
           Qj=substance.Qj,
           Ij=substance.Ij)
-            if useSolution "To connect substance with solution, where is pressented"
+            if useSolution "To connect substance with solution, where is present"
         annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
         Modelica.Units.SI.Concentration c(displayUnit="mmol/l")
             "Concentration";

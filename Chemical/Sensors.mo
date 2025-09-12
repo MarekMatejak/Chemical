@@ -27,7 +27,7 @@ package Sensors "Sensors package for undirected chemical simulation"
 
     function getQuantity = Chemical.Sensors.Internal.getQuantity "Quantity compute function"
       annotation (Documentation(info="<html>
-      <u>This function computes the selected quantity from state. r and rho_min are neddet for the quantities r/u_total and v respectively.</u>
+      <u>This function computes the selected quantity from state. r and rho_min are needed for the quantities r/u_total and v respectively.</u>
       </html>"));
 
     Real value(unit=Chemical.Sensors.Internal.getUnit(quantity));
@@ -49,7 +49,7 @@ package Sensors "Sensors package for undirected chemical simulation"
   input Modelica.Units.SI.ChemicalPotential r "Inertial electro-chemical potential";
   input Quantities quantity "What to measure?";
   input Chemical.Interfaces.Definition substance "Substance definition";
-  input Chemical.Interfaces.SolutionState solution "Schemica solution state";
+  input Chemical.Interfaces.SolutionState solution "Chemical solution state";
   */
     direct_value = getQuantity(state, rear.r, quantity, rear.definition, rear.solution_forwards);
 
@@ -91,7 +91,7 @@ package Sensors "Sensors package for undirected chemical simulation"
             textString="%quantity")}),
       Diagram(coordinateSystem(preserveAspectRatio=false)),
       Documentation(info="<html>
-<u>Undirected sensor for a single selectable quantity. For some quatities several units are available.</u>
+<u>Undirected sensor for a single selectable quantity. For some quantities several units are available.</u>
 </html>"));
   end SingleSensorSelect;
 
@@ -364,7 +364,7 @@ package Sensors "Sensors package for undirected chemical simulation"
           u_total_Jpmol "Total electro-chemical potential (J/mol)",
           u_total_kJpmol "Total electro-chemical potential (kJ/mol)",
           h_Jpmol "Specific enthalpy (J/mol)",
-          s_JpmolK "Specific enthropy (J/(mol.K))");
+          s_JpmolK "Specific entropy (J/(mol.K))");
       type InitializationModelSensor = enumeration(
         steadyState
           "Steady state initialization (derivatives of states are zero)",
@@ -394,7 +394,7 @@ package Sensors "Sensors package for undirected chemical simulation"
           m_flow_kgps "Mass flow (kg/s)",
           m_flow_gps "Mass flow (g/s)",
           H_flow_Jps "Enthalpy flow (J/s)",
-          S_flow_JpKs "Enthopy flow (J/(K.s))",
+          S_flow_JpKs "Entropy flow (J/(K.s))",
           Cp_flow_JpKs "Heat capacity flow (J/(K.s))",
           V_flow_m3ps "Volume flow (m3/s)",
           V_flow_lpMin "Volume flow (l/min)");
@@ -417,7 +417,7 @@ package Sensors "Sensors package for undirected chemical simulation"
       input Modelica.Units.SI.ChemicalPotential r "Inertial electro-chemical potential";
       input Quantities quantity "What to measure?";
       input Chemical.Interfaces.Definition substance "Substance definition";
-      input Chemical.Interfaces.SolutionState solution "Schemica solution state";
+      input Chemical.Interfaces.SolutionState solution "Chemical solution state";
 
 
       output Real value;
@@ -437,7 +437,7 @@ package Sensors "Sensors package for undirected chemical simulation"
     u_total_Jpmol "Total electro-chemical potential (J/mol)",
     u_total_kJpmol "Total electro-chemical potential (kJ/mol)",
     h_Jpmol "Specific enthalpy (J/mol)",
-    s_JpmolK "Specific enthropy (J/(mol.K))"
+    s_JpmolK "Specific entropy (J/(mol.K))"
     */
 
     protected
@@ -527,7 +527,7 @@ package Sensors "Sensors package for undirected chemical simulation"
 </html>"));
     end getUnit;
     annotation (Documentation(info="<html>
-<u>Partials and functions needet for undirected sensors.</u>
+<u>Partials and functions needed for undirected sensors.</u>
 </html>"));
   end Internal;
   annotation (Documentation(revisions="<html>

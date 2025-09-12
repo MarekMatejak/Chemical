@@ -103,10 +103,10 @@ package Interfaces "Chemical interfaces"
         input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
         input Real DfG=0 "Gibbs energy of formation of the substance at SATP conditions (298.15, 1bar)";
         input Real DfH=0 "Enthalpy of formation of the substance at SATP conditions (298.15, 1bar)";
-        input Real S0=0 "Standart molar entropy of the substance at SATP conditions (298.15, 1bar)";
+        input Real S0=0 "Standard molar entropy of the substance at SATP conditions (298.15, 1bar)";
         input Real Cp=1 "Molar heat capacity of the substance at  SATP conditions (298.15, 1bar)";
         input PhaseType phase=PhaseType.Incompressible "State of matter";
-        input Real Vm=if (phase == PhaseType.Gas) then ((1.380649e-23*6.02214076e23)*298.15)/100000 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default fron non-gaseous is to reach density 1kg/L)";
+        input Real Vm=if (phase == PhaseType.Gas) then ((1.380649e-23*6.02214076e23)*298.15)/100000 else 0.001*MM "Molar volume of the pure substance at SATP conditions (298.15, 1bar) (default from non-gaseous is to reach density 1kg/L)";
         input Real gamma=1 "Activity coefficient of the substance";
         input Boolean SelfClustering = false;
         input Real SelfClustering_dH = 0;
@@ -181,7 +181,7 @@ package Interfaces "Chemical interfaces"
           annotation (Inline=true);
      end negate;
 
-     function substract
+     function subtract
       input Definition d1;
       input Definition d2;
       output Definition result " = d1 - d2";
@@ -201,7 +201,7 @@ package Interfaces "Chemical interfaces"
             VmExcess=d1.data.VmExcess - d2.data.VmExcess));
 
           annotation (Inline=true);
-     end substract;
+     end subtract;
     end '-';
 
     encapsulated operator '*'
@@ -386,7 +386,7 @@ package Interfaces "Chemical interfaces"
   flow Real Ij(quantity="MoleFraction", unit="1")
     "Mole-fraction based ionic strength of the substance (fictive flow to calculate total extensive property in solution as sum from all substances)";
 
-  /*  //suport for structural properties
+  /*  //support for structural properties
   replaceable package stateOfMatter = StateOfMatter  constrainedby StateOfMatter
   "Substance model to translate data into substance properties"
      annotation (choicesAllMatching = true);*/
@@ -507,7 +507,7 @@ To change its behavior it is necessary to modify Property functions.
 
       InputMolarFlowRate n_flow "Molar change of the substance";
 
-      InputHeatFlowRate h_flow "Substance enthaply change";
+      InputHeatFlowRate h_flow "Substance enthalpy change";
 
       Modelica.Units.SI.MoleFraction x "Mole fraction of the base molecule of the substance";
 
@@ -715,7 +715,7 @@ To change its behavior it is necessary to modify Property functions.
       else
       //solution flows
         i = Modelica.Constants.F*z*n_flow +
-          Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of sunstance charge [A]";
+          Modelica.Constants.F*der(z)*amountOfBaseMolecules "change of substance charge [A]";
         dV = Vm*n_flow + der(Vm)*amountOfBaseMolecules "change of substance volume [m3/s]";
 
       //extensive properties
@@ -1205,7 +1205,7 @@ To change its behavior it is necessary to modify Property functions.
      input Modelica.Units.SI.ElectricPotential v=0
       "Electric potential of the substance";
      input Modelica.Units.SI.MoleFraction I=0
-      "Ionic strengh (mole fraction based)";
+      "Ionic strength (mole fraction based)";
 
     output Modelica.Units.SI.Temperature T "Temperature";
 
@@ -1251,7 +1251,7 @@ algorithm
     input Modelica.Units.SI.ElectricPotential v=0
       "Electric potential of the substance";
     input Modelica.Units.SI.MoleFraction I=0
-      "Ionic strengh (mole fraction based)";
+      "Ionic strength (mole fraction based)";
 
     output Modelica.Units.SI.Temperature T "Temperature";
 
@@ -1328,7 +1328,7 @@ operator record DataRecord "Coefficient data record for chemical definitions bas
 
   // following is used only if phase is not Chemical.Interfaces.Phase.Gas:
   Modelica.Units.SI.MolarVolume VmBase "Base molar volume at 298.15K, 1bar (molar volume Vm = VmBase + VmExcess, density = MM/Vm)";
-  Modelica.Units.SI.MolarVolume VmExcess "Excess of molar volume at 298.15K, 1bar (activity coeficient = exp(VmExcess/VmBase)";
+  Modelica.Units.SI.MolarVolume VmExcess "Excess of molar volume at 298.15K, 1bar (activity coefficient = exp(VmExcess/VmBase)";
 
    encapsulated operator 'constructor'
     import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
@@ -1551,12 +1551,12 @@ end DataRecord;
 <h4>freeEnthalpy = &int; EnthalpyChanges</h4>
 <h4>freeEntropy = &int; EntropyChanges</h4>
 <h4>freeGibbsEnergy = &int; GibbsEnergyChanges</h4>
-<p>Integration of all substances together into one homogenous mixture - the solution.</p>
+<p>Integration of all substances together into one homogeneous mixture - the solution.</p>
 </html>"));
   end Total;
 
   partial model PartialSolution
-    "Base chemical solution as homogenous mixture of the substances (only pressure and electric potential are not defined)"
+    "Base chemical solution as homogeneous mixture of the substances (only pressure and electric potential are not defined)"
 
 
     outer Modelica.Fluid.System system "System wide properties";
@@ -1609,7 +1609,7 @@ end DataRecord;
   end PartialSolution;
 
   partial model PartialSolutionWithHeatPort
-    "Chemical solution as homogenous mixture of the substances"
+    "Chemical solution as homogeneous mixture of the substances"
 
     extends Interfaces.PartialSolution(temperature(start=temperature_start));
 
@@ -1617,7 +1617,7 @@ end DataRecord;
     "Initial temperature of the solution"
     annotation (Dialog(group="Initialization"));
 
-    parameter Boolean useThermalPort = false "Is thermal port pressent?"
+    parameter Boolean useThermalPort = false "Is thermal port present?"
       annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
     parameter Boolean ConstantTemperature = true
@@ -1716,7 +1716,7 @@ end DataRecord;
         Gj=0,
         Qj=0,
         Ij=0)
-          if (solutionFrom == SolutionChoice.SolutionPort) "To connect substance with solution, where is pressented"
+          if (solutionFrom == SolutionChoice.SolutionPort) "To connect substance with solution, where is present"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
       Chemical.Interfaces.SolutionState solutionState;
@@ -1775,7 +1775,7 @@ end DataRecord;
 
   end ConditionalKinetics;
 
-  partial model SISO "Base Model with basic flow eqautions for SISO"
+  partial model SISO "Base Model with basic flow equations for SISO"
 
     import Chemical.Utilities.Types.InitializationMethods;
 
@@ -1824,8 +1824,8 @@ end DataRecord;
     // input state quantities
     //Modelica.Units.SI.ChemicalPotential u_rear_in=rear.state_forwards.u "Chemical potential of substance entering";
     //Modelica.Units.SI.ChemicalPotential u_fore_in=fore.state_rearwards.u "Chemical potential of substance entering";
-    //Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance enetering";
-    //Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance enetering";
+    //Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance entering";
+    //Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance entering";
 
     //outlet state quantities
     Modelica.Units.SI.ChemicalPotential u_rear_out "Chemical potential of substance exiting";
@@ -1918,7 +1918,7 @@ end DataRecord;
 
     annotation (Documentation(info="<html>
 <u>Interface class for all components with one fore and one rear port and a massflow without a mass storage between.</u>
-<u>This class already implements the equations that are common for such components, namly the conservation of mass, the intertance equation, as well as the clipping of u_fore to u_min. </u>
+<u>This class already implements the equations that are common for such components, namely the conservation of mass, the inertance equation, as well as the clipping of u_fore to u_min. </u>
 <u>If u_fore should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
 <u>The component offers different initialization methods for the massflow, as well as several parameters used in the equations above. </u>
 <u>The clipping of the massflow can be turned off (this should be done by the modeler as a final modificator while extending to hide this option from the enduser).</u>

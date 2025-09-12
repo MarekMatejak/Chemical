@@ -126,7 +126,7 @@ package Examples "Tests for top level components of undirected"
       experiment(StopTime = 1, __Dymola_Algorithm = "Dassl"));
   end Diffusion;
 
-  model OxygenInWater "Oxygen dsisolution in water"
+  model OxygenInWater "Oxygen dissolution in water"
     extends Modelica.Icons.Example;
 
 
@@ -287,10 +287,10 @@ package Examples "Tests for top level components of undirected"
 <p><br>To understand the model is necessary to study the principles of MWC allosteric transitions first published by </p>
 <p>[1] Monod,Wyman,Changeux (1965). &quot;On the nature of allosteric transitions: a plausible model.&quot; Journal of molecular biology 12(1): 88-118.</p>
 <p><br>In short it is about binding oxygen to hemoglobin.</p>
-<p>Oxgen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
+<p>Oxygen are driven by its partial pressure using clock source - from very little pressure to pressure of 10kPa.</p>
 <p>(Partial pressure of oxygen in air is the air pressure multiplied by the fraction of the oxygen in air.)</p>
-<p>Hemoglobin was observed (by Perutz) in two structuraly different forms R and T.</p>
-<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffexed index means the number of oxygen bounded to the form.</p>
+<p>Hemoglobin was observed (by Perutz) in two structurally different forms R and T.</p>
+<p>These forms are represented by blocks T0..T4 and R0..R4, where the suffixed index means the number of oxygen bounded to the form.</p>
 <p><br>In equilibrated model can be four chemical reactions removed and the results will be the same, but dynamics will change a lot. ;)</p>
 <p>If you remove the quaternaryForm1,quaternaryForm2,quaternaryForm3,quaternaryForm4 then the model in equilibrium will be exactly the same as in MWC article.</p>
 <p><br>Parameters was fitted to data of Severinghaus article from 1979. (For example at pO2=26mmHg is oxygen saturation sO2 = 48.27 %).</p>
@@ -654,7 +654,7 @@ package Examples "Tests for top level components of undirected"
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info = "<html>
-<p>Demonstration of exotermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
+<p>Demonstration of exothermic reaction with perfect cooling (i.e. connected fixed temperature to the HeatPort) and thermally insulated (HetPort unconnected). See solution_(...).T</p>
 </html>"),
       experiment(StopTime = 10, __Dymola_Algorithm = "Dassl"),
       Diagram(coordinateSystem(preserveAspectRatio = false, extent = {{-100, -100}, {100, 100}})));
@@ -673,7 +673,7 @@ package Examples "Tests for top level components of undirected"
 
     //p*V=n*R*T
     // parameter Modelica.SIunits.AmountOfSubstance n=p*V/(Modelica.Constants.R*T)
-    //   "Initial amount of substances in sulution";
+    //   "Initial amount of substances in solution";
     Chemical.Solution idealGas(
       SurfaceArea=A,
       useMechanicPorts=true,
@@ -868,7 +868,7 @@ package Examples "Tests for top level components of undirected"
         Tolerance=1e-08,
         __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
-<p>Demonstraiton of water vaporization between two solutions - liquid and gaseous. The temperature is increased in time to illustrate, how the vaporization rate rises in higher temperatures. See liquid.T and liquid.Volume, compared to gas.T and gas.volume.</p>
+<p>Demonstration of water vaporization between two solutions - liquid and gaseous. The temperature is increased in time to illustrate, how the vaporization rate rises in higher temperatures. See liquid.T and liquid.Volume, compared to gas.T and gas.volume.</p>
 </html>",
         revisions="<html>
 <p><i>2015-2018</i></p>
@@ -964,7 +964,7 @@ package Examples "Tests for top level components of undirected"
     annotation (
       experiment(StopTime=49.7, __Dymola_Algorithm="Dassl"),
       Documentation(info="<html>
-<p>Demonstraiton of water sublimation between two solutions - solid and gaseous. The temperature is increased in time to illustrate, how the sublimation rate rises in higher temperatures. See solid.T and solid.Volume, compared to gas.T and gas.volume. Note, that the liquid phase is omitted here.</p>
+<p>Demonstration of water sublimation between two solutions - solid and gaseous. The temperature is increased in time to illustrate, how the sublimation rate rises in higher temperatures. See solid.T and solid.Volume, compared to gas.T and gas.volume. Note, that the liquid phase is omitted here.</p>
 </html>",
         revisions="<html>
 <p><i>2015-2018</i></p>
@@ -1261,7 +1261,7 @@ package Examples "Tests for top level components of undirected"
     inner DropOfCommons dropOfCommons annotation(
       Placement(transformation(extent = {{68, 70}, {88, 90}})));
   equation
-    //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+    //Michaelis-Menten: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
     connect(E.solution, solution.solution) annotation(
       Line(points = {{8, 36}, {-8, 36}, {-8, -98}, {60, -98}}, color = {127, 127, 0}));
     connect(ES.solution, solution.solution) annotation(
@@ -1289,9 +1289,9 @@ package Examples "Tests for top level components of undirected"
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>", info = "<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>Be careful, the assumption for Michaelis-Menten are very strong: </p>
 <p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menten parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
@@ -1303,7 +1303,7 @@ package Examples "Tests for top level components of undirected"
 <p>uS&deg; = DfG(S) = 0</p>
 <p>uE&deg; = DfG(E) = 0</p>
 <p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>from dissociation coefficient of the first reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
 <p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
@@ -1311,7 +1311,7 @@ package Examples "Tests for top level components of undirected"
 <p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
 <h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
 <h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be careful: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
 <p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
 <p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
 <p><br>where</p>
@@ -1320,9 +1320,9 @@ package Examples "Tests for top level components of undirected"
 <p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
 <h4>The maximum of the new enzyme kinetics</h4>
 <p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The new maximum is a little higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
+<p>We want to satisfy the following inequality:</p>
 <p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
 <p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
 <p>(uP&deg; + R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
@@ -1433,7 +1433,7 @@ package Examples "Tests for top level components of undirected"
         color={158,66,200},
         thickness=0.5));
     annotation ( experiment(StopTime=1), Documentation(info="<html>
-<p>The water ecectrolysis: </p>
+<p>The water electrolysis: </p>
 <p><b>2 H<sub>2</sub>O +&nbsp;&nbsp;4 e<sup>-</sup><sub>(catode)</sub>&nbsp;&lt;-&gt;  2 H<sub>2</sub> + O<sub>2</sub>&nbsp;+&nbsp;&nbsp;4 e<sup>-</sup><sub>(anode)</sub>&nbsp;</b></p>
 </html>"));
   end WaterElectrolysis;
@@ -1534,7 +1534,7 @@ package Examples "Tests for top level components of undirected"
       inner DropOfCommons dropOfCommons annotation(
         Placement(transformation(extent={{68,72},{88,92}})));
     equation
-      //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+      //Michaelis-Menten: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
       connect(E.solution, solution.solution) annotation(
         Line(points = {{8, 36}, {-8, 36}, {-8, -98}, {60, -98}}, color = {127, 127, 0}));
       connect(ES.solution, solution.solution) annotation(
@@ -1554,9 +1554,9 @@ package Examples "Tests for top level components of undirected"
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info = "<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>Be careful, the assumption for Michaelis-Menten are very strong: </p>
 <p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menten parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
@@ -1568,7 +1568,7 @@ package Examples "Tests for top level components of undirected"
 <p>uS&deg; = DfG(S) = 0</p>
 <p>uE&deg; = DfG(E) = 0</p>
 <p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>from dissociation coefficient of the first reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
 <p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
@@ -1576,7 +1576,7 @@ package Examples "Tests for top level components of undirected"
 <p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
 <h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
 <h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be careful: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
 <p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
 <p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
 <p><br>where</p>
@@ -1585,9 +1585,9 @@ package Examples "Tests for top level components of undirected"
 <p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
 <h4>The maximum of the new enzyme kinetics</h4>
 <p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The new maximum is a little higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
+<p>We want to satisfy the following inequality:</p>
 <p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
 <p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
 <p>(uP&deg; + R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
@@ -1628,7 +1628,7 @@ package Examples "Tests for top level components of undirected"
       inner DropOfCommons dropOfCommons annotation(
         Placement(transformation(extent = {{68, 70}, {88, 90}})));
     equation
-      //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+      //Michaelis-Menten: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
       connect(E.solution, solution.solution) annotation(
         Line(points = {{8, 36}, {-8, 36}, {-8, -98}, {60, -98}}, color = {127, 127, 0}));
       connect(ES.solution, solution.solution) annotation(
@@ -1651,9 +1651,9 @@ package Examples "Tests for top level components of undirected"
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info = "<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>Be careful, the assumption for Michaelis-Menten are very strong: </p>
 <p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menten parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
@@ -1665,7 +1665,7 @@ package Examples "Tests for top level components of undirected"
 <p>uS&deg; = DfG(S) = 0</p>
 <p>uE&deg; = DfG(E) = 0</p>
 <p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>from dissociation coefficient of the first reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
 <p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
@@ -1673,7 +1673,7 @@ package Examples "Tests for top level components of undirected"
 <p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
 <h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
 <h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be careful: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
 <p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
 <p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
 <p><br>where</p>
@@ -1682,9 +1682,9 @@ package Examples "Tests for top level components of undirected"
 <p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
 <h4>The maximum of the new enzyme kinetics</h4>
 <p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The new maximum is a little higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
+<p>We want to satisfy the following inequality:</p>
 <p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
 <p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
 <p>(uP&deg; + R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>
@@ -1811,7 +1811,7 @@ package Examples "Tests for top level components of undirected"
         k_forward(displayUnit="mol/s"),                                                                 nS = 2, nP = 1) annotation(
         Placement(transformation(extent={{-44,-8},{-24,12}})));
     equation
-      //Michaelis-Menton: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
+      //Michaelis-Menten: v=((E.q_out.conc + ES.q_out.conc)*k_cat)*S.concentration/(Km+S.concentration);
       connect(chemicalReaction.products[1], ES.rear) annotation(
         Line(points={{-24,2},{-16,2},{-16,0},{-8,0}},          color = {158, 66, 200}, thickness = 0.5));
       connect(S.fore, chemicalReaction.substrates[1]) annotation(
@@ -1823,9 +1823,9 @@ package Examples "Tests for top level components of undirected"
 <p><i>2015-2018</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info = "<html>
-<p>Be carefull, the assumption for Michaelis-Menton are very strong: </p>
+<p>Be careful, the assumption for Michaelis-Menten are very strong: </p>
 <p>The substrate must be in sufficiently high concentration and the product must be in very low concentration to reach almost all enzyme in enzyme-substrate complex all time. ([S] &gt;&gt; Km) &amp;&amp; ([P] &lt;&lt; K2)</p>
-<p><br>To recalculate the enzyme kinetics from Michaelis-Menton parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
+<p><br>To recalculate the enzyme kinetics from Michaelis-Menten parameters Km, tE a k_cat is selected the same half-rate of the reaction defined as:</p>
 <p>E = ES = tE/2 .. the amount of free enzyme is the same as the amount of enzyme-substrate complexes</p>
 <p>S = Km .. the amount of substrate is Km</p>
 <p>r = Vmax/2 = tE*k_cat / 2 .. the rate of reaction is the half of maximal rate</p>
@@ -1837,7 +1837,7 @@ package Examples "Tests for top level components of undirected"
 <p>uS&deg; = DfG(S) = 0</p>
 <p>uE&deg; = DfG(E) = 0</p>
 <p>uES&deg; = <b>DfG(ES) = DfG(S) + DfG(E) - R*T*ln(2/x(Km))</b></p>
-<p>from dissociation coeficient of the frist reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
+<p>from dissociation coefficient of the first reaction 2/x(Km) = xSE/(xS*xE) = exp((uE&deg; + uS&deg; - uES&deg;)/(RT))</p>
 <p>uP&deg; = DfG(P) </p>
 <p><br>r = Vmax/2</p>
 <p>r = -kC1 * (uES&deg; - uE&deg; - uS&deg; + R*T*ln(xES/(xE*xS) ) = -kC1 * (-R*T*ln(2/x(Km)) + R*T*ln(xS) ) = kC1 * R * T * ln(2)</p>
@@ -1845,7 +1845,7 @@ package Examples "Tests for top level components of undirected"
 <p>r = -kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) = -kC2 * (DfG(P) - uES&deg; + R*T*ln(xP) ) = kC2 * (-DfG(P) - R * T * ln(2))</p>
 <h4>kC1 = (Vmax/2) / (R * T * ln(2))</h4>
 <h4>kC2 = (Vmax/2) / ( -DfG(P) - R * T * ln(2) ) </h4>
-<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be carefull: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
+<p><br>For example in case of C=AmountOfSolution/(Tau*ActivationPotential) we can rewrite C to ActivationPotential (Be careful: this energy is not the same as in <a href=\"http://en.wikipedia.org/wiki/Arrhenius_equation\">Arrhenius equation</a> or in Transition State Theory):</p>
 <p>ActivationPotential1 = AmountOfSolution/(Tau*(Vmax/2)) * R * T * ln(2) </p>
 <p>ActivationPotential2 = AmountOfSolution/(Tau*(Vmax/2)) * ( -DfG(P) - R * T * ln(2) ) </p>
 <p><br>where</p>
@@ -1854,9 +1854,9 @@ package Examples "Tests for top level components of undirected"
 <p>DfG(P) = -R*T*50 is Gibbs energy of formation of product (setting negative enough makes second reaction almost irreversible)</p>
 <h4>The maximum of the new enzyme kinetics</h4>
 <p>The enzymatic rate must have a maximum near of Vmax. </p>
-<p>The new maximum is a litle higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
+<p>The new maximum is a little higher: Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) ), for example if -uP&deg;/RT = 50, the new maximum is around 1.014*Vmax, where Vmax is the maximum of Michaelis Menten.</p>
 <p>The proof:</p>
-<p>We want to sutisfied the following inequality:</p>
+<p>We want to satisfy the following inequality:</p>
 <p>-kC2 * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) ?=&lt;? Vmax * (1 + 1/( -uP&deg;/(R*T*ln(2)) - 1) )</p>
 <p><br>(Vmax/2) * (uP&deg; + uE&deg; - uES&deg; + R*T*ln(xP*xE/xES) ) / ( - uP&deg; - R * T * ln(2) ) ?=&lt;? Vmax*(1 + R*T*ln(2) / ( -uP&deg; - R*T*ln(2)) )</p>
 <p>(uP&deg; + R*T*ln(2/x(Km)) + R*T*ln(xP*xE/xES) ) ?=&lt;? 2*( - uP&deg; - R * T * ln(2) ) + 2*R*T*ln(2)</p>

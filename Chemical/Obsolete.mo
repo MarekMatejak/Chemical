@@ -133,7 +133,7 @@ package Obsolete
 <li>Substance, which are making clusters (E.g. liquid water molecules with hydrogen bonds</li>
 <li>Support of fluid connectors</li>
 <li>Mass fraction connector</li>
-<li>Molarity concentration conector</li>
+<li>Molarity concentration connector</li>
 </ul>
 </html>"));
   end Version_1_2;
@@ -12197,7 +12197,7 @@ package Obsolete
       extends Interfaces.PartialSubstanceSensor;
 
     parameter Modelica.Units.SI.Time HalfTime
-      "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearence and degradation exist.";
+      "Degradation half time. The time after which will remain half of initial concentration in the defined volume when no other generation, clearance and degradation exist.";
 
     equation
       port_a.q = (Modelica.Math.log(2)/HalfTime)*x*amountOfSolution;
@@ -12759,7 +12759,7 @@ package Obsolete
     "Substance properties for components, where the substance is connected with the solution"
 
       SolutionPort            solution
-      "To connect substance with solution, where is pressented"                                  annotation (Placement(transformation(
+      "To connect substance with solution, where is present"                                  annotation (Placement(transformation(
               extent={{-70,-110},{-50,-90}}),iconTransformation(extent={{-70,-110},{
                 -50,-90}})));
 

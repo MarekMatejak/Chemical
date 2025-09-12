@@ -8,7 +8,7 @@ package Substances "Definitions of some substances"
     // or calculate it from known reaction:
     // e.g.
     // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
-    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
+    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalpy)
 
    constant Chemical.Interfaces.Definition Unknown=Chemical.Interfaces.Definition(
         MM=1,
@@ -90,7 +90,7 @@ package Substances "Definitions of some substances"
     // or calculate it from known reaction:
     // e.g.
     // constant Chemical.Interfaces.Definition P = S + Chemical.Interfaces.Properties.processData(K,dH);
-    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalphy)
+    // where K is molar-based dissociation constant and dH is consumed reaction heat (change of enthalpy)
 
      constant Chemical.Interfaces.Definition Unknown=Chemical.Interfaces.Definition(
         MM=1,
@@ -206,12 +206,12 @@ package Substances "Definitions of some substances"
   end Solid;
 
   package Aqueous
-    // How to define new aquaeous substance:
+    // How to define new aqueous substance:
     // 1. Find its molar mass -> MM
     // 2. Find its free enthalpy of formation -> DfH
     // 3. Find its free Gibbs energy of formation -> DfG
     //
-    // or calculate it from gasseous phase and Henry's coefficient:
+    // or calculate it from gaseous phase and Henry's coefficient:
     // e.g.
     // constant Chemical.Interfaces.Definition O2 = Gas.O2 + Chemical.Interfaces.Properties.processData(0.0013*1/0.94,-1500*Modelica.Constants.R);
     // where 0.0013 is Henry's coefficient and 1500 K is its temperature dependence coefficient

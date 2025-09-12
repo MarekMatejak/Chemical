@@ -9,7 +9,7 @@ package Processes "Undirected process package"
 
     replaceable function uDiff = Kinetics.traditionalPotentialDiff
       constrainedby
-        Kinetics.partialPotentialDiff "Electro-chemical potential diference function"
+        Kinetics.partialPotentialDiff "Electro-chemical potential difference function"
       annotation(choicesAllMatching=true, Dialog(tab="Advanced"), Documentation(info="<html>
     <p>Electro-chemical potential loss function used in the diffusion.</p>
     </html>"));
@@ -61,7 +61,7 @@ package Processes "Undirected process package"
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -88,7 +88,7 @@ package Processes "Undirected process package"
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -220,7 +220,7 @@ package Processes "Undirected process package"
 <p><i>2009-2015 </i></p>
 <p><i>by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
-<p>Gaseuous substance dissolition in liquid (Henry&apos;s law, Raoult&apos;s law, Nernst dissolution in one). </p>
+<p>Gaseous substance dissolution in liquid (Henry&apos;s law, Raoult&apos;s law, Nernst dissolution in one). </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
 <td><p>K<sub>H</sub> =x<sub>L</sub> / x<sub>g</sub>&nbsp;</p></td>
@@ -228,15 +228,15 @@ package Processes "Undirected process package"
 </tr>
 <tr>
 <td><p>&Delta;<sub>sol</sub>G = &Delta;<sub>f</sub>G<sub>L </sub>- &Delta;<sub>f</sub>G<sub>g </sub>= &Delta;<sub>sol</sub>H - T&middot;&Delta;<sub>sol</sub>S = -R&middot;T&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(K<sub>H</sub>&middot; (f<sub>L</sub> / f<sub>g</sub>)) </p></td>
-<td><p>molar Gibb&apos;s energy of the dissolition</p></td>
+<td><p>molar Gibb&apos;s energy of the dissolution</p></td>
 </tr>
 <tr>
 <td><p>&Delta;<sub>sol</sub>H = &Delta;<sub>f</sub>H<sub>L </sub>- &Delta;<sub>f</sub>H<sub>g</sub></p></td>
-<td><p>molar enthalpy of the dissolition</p></td>
+<td><p>molar enthalpy of the dissolution</p></td>
 </tr>
 <tr>
 <td><p>&Delta;<sub>sol</sub>S = &Delta;<sub>f</sub>S<sub>L</sub> - &Delta;<sub>f</sub>S<sub>g</sub> = <a href=\"modelica://Modelica.Constants\">k</a>&middot;<a href=\"modelica://ModelicaReference.Operators.'log()'\">log</a>(&Delta;<sub>sol</sub>&omega;) </p></td>
-<td><p>molar entropy of the dissolition</p></td>
+<td><p>molar entropy of the dissolution</p></td>
 </tr>
 </table>
 <h4><span style=\"color:#008000\">Notations</span></h4>
@@ -319,7 +319,7 @@ package Processes "Undirected process package"
 
 
     annotation ( Documentation(info="<html>
-<p><u><b><font style=\"color: #008000; \">Filtration throught semipermeable membrane.</font></b></u></p>
+<p><u><b><font style=\"color: #008000; \">Filtration through semipermeable membrane.</font></b></u></p>
 <p>The penetrating particles are driven by electric and chemical gradient to reach Donnan&apos;s equilibrium.</p>
 <p>If zero-flow Donnan&apos;s equilibrium is reached. </p>
 </html>",
@@ -336,7 +336,7 @@ package Processes "Undirected process package"
           rotation=90)}));
   end Membrane;
 
-  model Pump "Prescribed sunstance molar flow"
+  model Pump "Prescribed substance molar flow"
     extends Chemical.Interfaces.SISO;
     extends Chemical.Interfaces.PartialSolutionSensor(solutionFrom = SolutionChoice.Parameter);
     extends Interfaces.ConditionalSubstanceFlow;
@@ -432,7 +432,7 @@ package Processes "Undirected process package"
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -459,7 +459,7 @@ package Processes "Undirected process package"
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -619,7 +619,7 @@ package Processes "Undirected process package"
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -646,7 +646,7 @@ package Processes "Undirected process package"
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -729,7 +729,7 @@ package Processes "Undirected process package"
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",   info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -756,7 +756,7 @@ package Processes "Undirected process package"
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -943,13 +943,13 @@ Choices for initialization of a state h.
         if (firstProductFrom == FirstProductChoice.Substance)  then
           products[1].definition = firstProduct;
         elseif (nP>1) then
-          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+          for i in 1:1 loop //this stupid loop is only for disabling check error about empty array p[:] in Dymola 2025
             products[1].definition =
               (1/p[i]) * (s*substrates.definition + process - p[2:end]*nextProducts);
           end for;
 
         else
-          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+          for i in 1:1 loop //this stupid loop is only for disabling check error about empty array p[:] in Dymola 2025
             products[1].definition = (1/p[i])*(s*substrates.definition + process);
           end for;
         end if;
@@ -964,7 +964,7 @@ Choices for initialization of a state h.
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -991,7 +991,7 @@ Choices for initialization of a state h.
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -1213,7 +1213,7 @@ Choices for initialization of a state h.
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -1292,7 +1292,7 @@ This Gibbs energy loss du to reach chemical process molar flow q:
  = kf * xA - kb * xB
 </pre></blockquote>
 <p>
-where kf is the forwar rate coefficient and kb is backward rate coefficient of chemical process;
+where kf is the forward rate coefficient and kb is backward rate coefficient of chemical process;
 xA is mole fraction os substrate and xB is mole fraction of product.
 And K = kf/kb = xB/xA is a dissociation coefficient of the chemical process.
 </p>
@@ -1372,13 +1372,13 @@ du := n_flow/kC;
         if (firstForeSubunitFrom == FirstProductChoice.Substance)  then
           subunit_fore[1].definition = firstForeSubunit;
         elseif (nP>1) then
-          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+          for i in 1:1 loop //this stupid loop is only for disabling check error about empty array p[:] in Dymola 2025
             subunit_fore[1].definition =
                (ones(nS)*subunit_rear.definition + process - ones(max(1,nP-1))*nextForeSubunits);
           end for;
 
         else
-          for i in 1:1 loop //this stupid loop is only for disabling check error about enpty array p[:] in Dymola 2025
+          for i in 1:1 loop //this stupid loop is only for disabling check error about empty array p[:] in Dymola 2025
             subunit_fore[1].definition = (ones(nS)*subunit_rear.definition + process);
           end for;
         end if;
@@ -1391,7 +1391,7 @@ du := n_flow/kC;
 <p><i>2013-2020 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>",     info="<html>
 <p><b>s<sub>1</sub>&middot;S<sub>1</sub> + .. + s<sub>nS</sub>&middot;S<sub>nS</sub> &lt;-&gt; p<sub>1</sub>&middot;P<sub>1</sub> + .. + p<sub>nP</sub>&middot;P<sub>nP</sub></b> </p>
-<p>By redefinition of stoichometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
+<p>By redefinition of stoichiometry as v<sub>i</sub> = -s<sub>i</sub>, A<sub>i</sub> = S<sub>i</sub> for i=1..nS v<sub>i</sub> = p<sub>i-nS</sub>, A<sub>i</sub> = P<sub>i-nS</sub> for i=nS+1..nS+nP </p>
 <p>So the reaction can be written also as 0 = &sum; (v<sub>i</sub> &middot; A<sub>i</sub>) </p>
 <h4><span style=\"color:#008000\">Equilibrium equation</span></h4>
 <table cellspacing=\"2\" cellpadding=\"0\" border=\"0\"><tr>
@@ -1418,7 +1418,7 @@ du := n_flow/kC;
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>
@@ -1561,7 +1561,7 @@ du := n_flow/kC;
           Gj=Gj,
           Qj=Qj,
           Ij=Ij)
-             "To connect substance with solution, where is pressented"
+             "To connect substance with solution, where is present"
         annotation (Placement(transformation(extent={{-66,-110},{-46,-90}}), iconTransformation(extent={{-66,-110},{-46,-90}})));
 
          Chemical.Interfaces.SolutionState solutionState;
@@ -1610,7 +1610,7 @@ du := n_flow/kC;
         subunit_rear.solution_rearwards = fill(solutionState,nS);
       end if;
 
-      solution_rear.dH + solution_fore.dH + dH = 0 "entalphy change per each subunit";
+      solution_rear.dH + solution_fore.dH + dH = 0 "enthalpy change per each subunit";
       solution_rear.i + solution_fore.i + i = 0 "current change per each subunit";
       solution_rear.Qj + solution_fore.Qj + Qj = 0 "electric charge per each subunit";
       solution_rear.Ij + solution_fore.Ij + Ij = 0 "ionic strength per each subunit";
@@ -1702,7 +1702,7 @@ du := n_flow/kC;
 </tr>
 <tr>
 <td><p>v<sub>i</sub></p></td>
-<td><p>stochiometric coefficients of i-th substance</p></td>
+<td><p>stoichiometric coefficients of i-th substance</p></td>
 </tr>
 <tr>
 <td><p>K</p></td>

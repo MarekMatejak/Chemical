@@ -1,5 +1,5 @@
 within Chemical;
-model Solution "Chemical solution as homogenous mixture of the substances"
+model Solution "Chemical solution as homogeneous mixture of the substances"
   extends Icons.Solution;
 
   extends Interfaces.PartialSolutionWithHeatPort(pressure(start=BasePressure));
@@ -8,7 +8,7 @@ model Solution "Chemical solution as homogenous mixture of the substances"
   "Pressure at zero mechanic force (or if not useMechanicPorts)"
   annotation (HideResult=true);
 
-  parameter Boolean useMechanicPorts = false "Are mechanic ports pressent?"
+  parameter Boolean useMechanicPorts = false "Are mechanic ports present?"
   annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
   parameter Modelica.Units.SI.Area SurfaceArea=0.01
@@ -16,7 +16,7 @@ model Solution "Chemical solution as homogenous mixture of the substances"
   annotation (HideResult=true, Dialog(enable=useMechanicPorts));
 
   parameter Boolean isPistonPositionAbsolute=false
-  "Relavite position has zero at initial state without force"
+  "Relative position has zero at initial state without force"
     annotation (HideResult=true,choices(checkBox=true), Dialog(enable=useMechanicPorts));
 
   Modelica.Mechanics.Translational.Interfaces.Flange_a surfaceFlange(f=f,s=top_s) if useMechanicPorts
@@ -24,7 +24,7 @@ model Solution "Chemical solution as homogenous mixture of the substances"
     annotation (Placement(transformation(extent={{-10,70},{10,90}}),
         iconTransformation(extent={{-2,98},{2,102}})));
   Modelica.Mechanics.Translational.Interfaces.Flange_b bottom(f=-f,s=top_s - ds) if useMechanicPorts
-  "Fix of the cilinder on bottom."   annotation (Placement(transformation(
+  "Fix of the cylinder on bottom."   annotation (Placement(transformation(
           extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
             -100}})));
 
