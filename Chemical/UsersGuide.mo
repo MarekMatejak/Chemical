@@ -199,8 +199,6 @@ class Contact "Contact"
  annotation (Documentation(info="<html>
 <p>Marek Matej&aacute;k</p>
 <p>email: marek@matfy.cz</p>
-<p>skype: marek.matejak</p>
-<p>tel: +420 776 301 395</p>
 </html>"));
 
 end Contact;
