@@ -490,9 +490,9 @@ To change its behavior it is necessary to modify Property functions.
     model SubstanceProperties "Properties of the substance"
       import Chemical;
 
-      parameter Boolean FixedDefinition "definition==definitionParam";
+      parameter Boolean FixedDefinition "definition==definitionParam" annotation(Evaluate=true);
 
-      parameter Chemical.Interfaces.Definition definitionParam "used only if FixedDefinition to help initialization";
+      parameter Chemical.Interfaces.Definition definitionParam "used only if FixedDefinition to help initialization" annotation(Evaluate=true);
 
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance";
 
@@ -647,8 +647,8 @@ To change its behavior it is necessary to modify Property functions.
 
       // during initialization it does not take value from parameter definition if not useInlet,
       // so instead of just "selfClustering(definition)" it must be written
-      if (FixedDefinition and selfClustering(definitionParam)) or selfClustering(definition) then
-
+      //if (FixedDefinition and selfClustering(definitionParam)) or selfClustering(definition) then
+      if (FixedDefinition and definitionParam.SelfClustering) or (definition.SelfClustering) then
         //Liquid cluster theory - equilibrium:
         //x[i] = x*(K*x)^i .. mole fraction of cluster composed with i base molecules
         //amountOfParticles/solutionState.n = x/(1-K*x);                //sum(x[i])
@@ -1694,8 +1694,8 @@ end DataRecord;
     parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution comes from?"
         annotation(HideResult=true, Dialog(group="Chemical solution (of products)"));
 
-    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible) "Chemical solution state as Parameter"
-      annotation (HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter), group="Chemical solution (of products)"));
+    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState( phase=Chemical.Interfaces.Phase.Incompressible) "Chemical solution state as Parameter"
+      annotation (Evaluate = true, HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter), group="Chemical solution (of products)"));
 
     Chemical.Interfaces.SolutionPort solution(
         T=solutionState.T,
