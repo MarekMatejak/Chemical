@@ -1935,6 +1935,7 @@ du := n_flow/kC;
           points={{6,24},{40,24},{40,22},{48,22}},
           color={158,66,200},
           thickness=0.5));
+       annotation (experiment(StopTime=1, __Dymola_Algorithm="Dassl"));
     end SimpleFlow;
 
     model TestMembrane
