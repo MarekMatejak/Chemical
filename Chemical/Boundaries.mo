@@ -33,26 +33,25 @@ package Boundaries "Boundary models for undirected chemical simulation"
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(initAmount ==InitializationSubstance.derivative)));
 
   protected
-
     Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = Chemical.Interfaces.Properties.molarMassOfBaseMolecule(substanceDefinitionVar);
 
-    Real logn(stateSelect=StateSelect.prefer, start=log(amountOfSubstance_start))
+    Real logn(stateSelect=if not preferMass then StateSelect.always else StateSelect.default, start=log(amountOfSubstance_start))
     "Natural logarithm of the amount of base molecules in solution";
 
-    Real logm(stateSelect=StateSelect.prefer, start=log(mass_start))
+    Real logm(stateSelect=if preferMass then StateSelect.always else StateSelect.default, start=log(mass_start))
     "Natural logarithm of the substance mass in solution";
 
   initial equation
 
-    if initAmount ==InitializationSubstance.steadyStateForwards  then
+    if initAmount ==InitializationSubstance.steadyStateForwards then
       substance.u = state_in_rear.u;
-    elseif initAmount ==InitializationSubstance.steadyStateRearwards  then
+    elseif initAmount ==InitializationSubstance.steadyStateRearwards then
       substance.u = state_in_fore.u;
     elseif initAmount ==InitializationSubstance.state  and not preferMass then
       logn=log(amountOfSubstance_start);
     elseif initAmount ==InitializationSubstance.state  and preferMass then
       logm=log(mass_start);
-    elseif initAmount ==InitializationSubstance.derivative  then
+    elseif initAmount ==InitializationSubstance.derivative then
       n_flow = change_start;
     end if;
 
@@ -164,7 +163,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
       annotation (Placement(transformation(extent={{-70,-110},{-50,-90}}), iconTransformation(extent={{-70,-110},{-50,-90}})));
 
   protected
-
     parameter Chemical.Interfaces.Definition definition=Chemical.Substances.Solid.e "Definition of the substance"
       annotation (choicesAllMatching=true, Dialog(enable=not useRear));
 
@@ -173,13 +171,13 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
 
   initial equation
-     if init == InitializationSubstance.steadyStateForwards  then
+     if init == InitializationSubstance.steadyStateForwards then
       state_out.u = state_in_rear.u;
-    elseif init ==InitializationSubstance.steadyStateRearwards  then
+    elseif init ==InitializationSubstance.steadyStateRearwards then
       state_out.u = state_in_fore.u;
     elseif init ==InitializationSubstance.state then
       state_out.u = definition.data.z*Modelica.Constants.F*v_start;
-    elseif init ==InitializationSubstance.derivative  then
+    elseif init ==InitializationSubstance.derivative then
       n_flow = i_start/(definition.data.z*Modelica.Constants.F);
     end if;
 
@@ -846,8 +844,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
       Substance substance(
         useRear=true,
         useFore=false,
-
         substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{26,30},{46,50}})));
+
       Substance substance2(
         useRear=false,
         useFore=true,
@@ -871,9 +869,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
       Substance substance4(
         useRear=true,
         useFore=false,
-
         useSolution=true,
         substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{34,-82},{54,-62}})));
+
       BoundaryRear boundaryRear3(substanceDefinition=Chemical.Substances.Liquid.H2O, useSolution=false)
         annotation (Placement(transformation(extent={{-68,-54},{-48,-34}})));
       Substance substance5(
@@ -897,8 +895,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
         useRear=true,
         useFore=false,
         useRearSolution=false,
-
         substanceDefinition=Chemical.Substances.Liquid.H2O) annotation (Placement(transformation(extent={{26,6},{46,26}})));
+
     equation
       connect(boundaryRear.fore, substance.rear) annotation (Line(
           points={{-56,40},{26,40}},
@@ -1334,9 +1332,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation(HideResult=true, Dialog(tab="Advanced"));
 
+
      protected
-
-
       Modelica.Units.SI.MolarFlowRate n_flow "Molar change of the amount of base substance";
       Modelica.Units.SI.EnthalpyFlowRate h_flow "Change of enthalpy";
 
@@ -1405,10 +1402,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
         definition=substanceDefinitionVar) if useFore annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
 
 
+
+
     protected
-
-
-
       Chemical.Interfaces.Definition substanceDefinitionVar;         //substanceDefinition;
       Chemical.Interfaces.DefinitionInput definitionVar;//substanceDefinition;
       Chemical.Interfaces.SolutionState solutionState;
@@ -1532,8 +1528,6 @@ package Boundaries "Boundary models for undirected chemical simulation"
       end if;
         annotation (choicesAllMatching=true, HideResults=useSolution or useRear, Dialog(enable=not useSolution and not useRear),
                   Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(coordinateSystem(preserveAspectRatio=false)));
-
-
     end PartialSubstance;
 
     partial model PartialTerminalRear
