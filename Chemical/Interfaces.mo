@@ -273,32 +273,6 @@ package Interfaces "Chemical interfaces"
    Modelica.Units.SI.ElectricCharge Q "Electric charge of the solution";
    Modelica.Units.SI.MoleFraction I "Mole fraction based ionic strength of the solution";
 
-   encapsulated operator 'constructor'
-     import Chemical.Interfaces.SolutionState;
-     import Chemical.Interfaces.SolutionPort;
-     import Chemical.Interfaces.Phase;
-      //   constant Real R=1.380649e-23*6.02214076e23;
-      //   constant Real T0=298.15 "Base temperature";
-      //   constant Real p0=100000 "Base pressure";
-
-     function fromValues
-       input Phase phase "Phase of the chemical solution";
-       input Real T=298.15 "Temperature of the solution";
-       input Real p=100000 "Pressure of the solution";
-       input Real v=0 "Electric potential in the solution";
-       input Real n=1 "Amount of the solution";
-       input Real m=1 "Mass of the solution";
-       input Real V=if (phase==Phase.Gas) then n*(1.380649e-23*6.02214076e23)*T/p else 0.001 "Volume of the solution";
-       input Real G=0 "Free Gibbs energy of the solution";
-       input Real Q=0 "Electric charge of the solution";
-       input Real I=0 "Mole fraction based ionic strength of the solution";
-       output SolutionState result(T=T,p=p,v=v,n=n,m=m,V=V,G=G,Q=Q,I=I);
-     algorithm
-       annotation(Inline = true);
-     end fromValues;
-
-
-   end 'constructor';
 
    encapsulated operator function '=='
      import Chemical.Interfaces.SolutionState;
@@ -589,7 +563,7 @@ To change its behavior it is necessary to modify Property functions.
       Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
            m_start*specificAmountOfFreeBaseMolecule(
                                        definitionParam,
-                                       Chemical.Interfaces.SolutionState(
+                                       setSolutionState(
                                        phase=Chemical.Interfaces.Phase.Incompressible,
                                        T=system.T_ambient,
                                        p=system.p_ambient)))
@@ -598,7 +572,7 @@ To change its behavior it is necessary to modify Property functions.
       Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
            m_start*specificAmountOfParticles(
                                        definitionParam,
-                                       Chemical.Interfaces.SolutionState(
+                                       setSolutionState(
                                        phase=Chemical.Interfaces.Phase.Incompressible,
                                        T=system.T_ambient,
                                        p=system.p_ambient)))
@@ -1302,6 +1276,28 @@ algorithm
        //(if refChoice == Choices.ReferenceEnthalpy.UserDefined then h_off else 0.0))
 
    end H_T;
+
+    function setSolutionState
+        import Chemical.Interfaces.SolutionState;
+        import Chemical.Interfaces.SolutionPort;
+        import Chemical.Interfaces.Phase;
+         //   constant Real R=1.380649e-23*6.02214076e23;
+         //   constant Real T0=298.15 "Base temperature";
+         //   constant Real p0=100000 "Base pressure";
+        input Phase phase "Phase of the chemical solution";
+        input Real T=298.15 "Temperature of the solution";
+        input Real p=100000 "Pressure of the solution";
+        input Real v=0 "Electric potential in the solution";
+        input Real n=1 "Amount of the solution";
+        input Real m=1 "Mass of the solution";
+        input Real V=if (phase==Phase.Gas) then n*(1.380649e-23*6.02214076e23)*T/p else 0.001 "Volume of the solution";
+        input Real G=0 "Free Gibbs energy of the solution";
+        input Real Q=0 "Electric charge of the solution";
+        input Real I=0 "Mole fraction based ionic strength of the solution";
+        output SolutionState result(T=T,p=p,v=v,n=n,m=m,V=V,G=G,Q=Q,I=I);
+    algorithm
+       annotation(Inline = true);
+    end setSolutionState;
     annotation (Documentation(revisions="<html>
 <p><i>2015-2016</i></p>
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
@@ -1694,7 +1690,7 @@ end DataRecord;
     parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution comes from?"
         annotation(HideResult=true, Dialog(group="Chemical solution (of products)"));
 
-    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState( phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient,
+    parameter Chemical.Interfaces.SolutionState solutionParam = Properties.setSolutionState( phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient,
           p=system.p_ambient) "Chemical solution state as Parameter"
       annotation (Evaluate = true, HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter), group="Chemical solution (of products)"));
 

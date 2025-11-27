@@ -812,9 +812,13 @@ Junction with a rear and two fores in a lying T shape.
       parameter Boolean useSolution = false "Use solution connector?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(group="Conditional inputs"));
 
-      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible)
+      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.Properties.setSolutionState(
+            phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient, p=system.p_ambient)
       "Constant chemical solution state if not from rear or input"
         annotation (Dialog(enable=not useSolution and not useRear));
+
+       outer Modelica.Fluid.System system "System wide properties";
+
 
       Chemical.Interfaces.SolutionPort solution(
           T=solutionState.T,

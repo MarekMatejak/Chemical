@@ -295,7 +295,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
   model ExternalGas "Gas substance with defined partial pressure"
     extends Internal.PartialSubstance(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas),
+      solutionParam=Chemical.Interfaces.Properties.setSolutionState(phase=Chemical.Interfaces.Phase.Gas, T=system.T_ambient,
+          p=system.p_ambient),
       m_start=1,
       substance(final SolutionObserverOnly=true));
 
@@ -612,8 +613,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     parameter Boolean useSolution = false "Use input connector for solution?"
       annotation ( Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(group= "Chemical solution"));
-    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible)
+    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.Properties.setSolutionState(
+          phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient, p=system.p_ambient)
       annotation (Dialog(enable=not useSolution,group = "Chemical solution"));
+
+    outer Modelica.Fluid.System system "System wide properties";
 
     parameter Boolean usePotential = false "Use input connector for chemical potential"
       annotation ( Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(group= "Substance"));
@@ -738,8 +742,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     parameter Boolean useSolution = false "Use input connector for solution?"
       annotation ( Evaluate=true, HideResult=true, choices(checkBox=true), Dialog(group= "Chemical solution"));
-    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible)
+    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.Properties.setSolutionState(
+        phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient, p=system.p_ambient)
       annotation (Dialog(enable=not useSolution,group = "Chemical solution"));
+
+    outer Modelica.Fluid.System system "System wide properties";
+
 
     Modelica.Blocks.Interfaces.RealInput u0_var(unit="J/mol") if usePotential "ChemicalPotential input connector [Pa]"
       annotation (Placement(transformation(extent={{-20,-20},{20,20}}, rotation=180, origin={20,60}),
@@ -1462,7 +1470,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Boolean useRearSolution = useRear and (not useSolution)  "Use solution from rear?"
         annotation(Evaluate=true, HideResult=true, choices(checkBox=true),Dialog(enable=not useSolution and useRear, group="Chemical solution"));
 
-      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState( phase=Chemical.Interfaces.Phase.Incompressible,
+      parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.Properties.setSolutionState( phase=Chemical.Interfaces.Phase.Incompressible,
             T=system.T_ambient,
             p=system.p_ambient) "Constant chemical solution state if not from rear or input"
           annotation (Evaluate = true, HideResults=useSolution or (useRearSolution and useRear), Dialog(enable=not useSolution and (not useRear or not useRearSolution), group="Chemical solution"));

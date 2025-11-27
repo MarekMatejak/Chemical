@@ -16,8 +16,8 @@ package Examples "Tests for top level components of undirected"
     constant Definition Hemoglobin = Liquid.Unknown;
     import Chemical.Interfaces.SolutionState;
     import Chemical.Interfaces.Phase;
-    constant SolutionState SATP = SolutionState(phase = Phase.Gas, T = 298.15);
-    SolutionState heatingSolution = SolutionState(phase = Phase.Gas, T = 273.15+1*time);
+    constant SolutionState SATP = Properties.setSolutionState(phase = Phase.Gas, T = 298.15);
+    SolutionState heatingSolution = Properties.setSolutionState(phase = Phase.Gas, T = 273.15+1*time);
     import Chemical.Interfaces.ProcessProperties;
     ProcessProperties O2_dissolving_props(definition = processData(0.0013, -1500*R), solutionState = heatingSolution);
     ProcessProperties H2O_formation_props(definition = H2O_formation, solutionState = heatingSolution);
@@ -128,7 +128,7 @@ package Examples "Tests for top level components of undirected"
 
   model OxygenInWater "Oxygen dissolution in water"
     extends Modelica.Icons.Example;
-
+    import Chemical.Interfaces.Properties.setSolutionState;
 
     Boundaries.Substance O2aqS(
       useRear=true,
@@ -139,7 +139,7 @@ package Examples "Tests for top level components of undirected"
     Boundaries.Substance O2gS(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useFore=true,
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
       preferMass=false,
       amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-38,2},{-18,22}})));
     Boundaries.Substance O2aqR(
@@ -151,18 +151,18 @@ package Examples "Tests for top level components of undirected"
     Boundaries.Substance O2gR(
       substanceDefinition=Chemical.Substances.Gas.O2,
       useFore=true,
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
       preferMass=false,
       amountOfSubstance_start=0.2*1e5*1e-3/(Modelica.Constants.R*(273.15 + 37))) annotation (Placement(transformation(extent={{-36,-30},{-16,-10}})));
     Processes.Reaction gasSolubilityR(
       firstProductFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       firstProduct=Chemical.Substances.Aqueous.O2,
       solutionFrom=Chemical.Utilities.Types.SolutionChoice.Parameter,
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       nS=1,
       nP=1) annotation (Placement(transformation(extent={{16,-30},{36,-10}})));
     Processes.GasSolubility gasSolubilityS(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{12,2},{32,22}})));
     Boundaries.ExternalGas O2gE(substanceDefinition=Chemical.Substances.Gas.O2, PartialPressure(displayUnit="mmHg") = 13332.2387415)
@@ -174,7 +174,7 @@ package Examples "Tests for top level components of undirected"
       preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{56,66},{76,86}})));
     Processes.GasSolubility gasSolubilityE(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{12,66},{32,86}})));
     Boundaries.Substance O2aqF(
@@ -184,11 +184,11 @@ package Examples "Tests for top level components of undirected"
       preferMass=false,
       amountOfSubstance_start=2e-9) annotation (Placement(transformation(extent={{70,-96},{90,-76}})));
     Processes.GasSolubility gasSolubilityF(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-86})));
     Boundaries.TerminalInflow O2gF(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
       SubstanceFlow(displayUnit="umol/min") = 1.6666666666667e-10,
       definition=Chemical.Substances.Gas.O2) annotation (Placement(transformation(extent={{-26,-96},{-6,-76}})));
     Modelica.Blocks.Sources.ContinuousClock clock(offset=1e3)
@@ -202,7 +202,7 @@ package Examples "Tests for top level components of undirected"
       amountOfSubstance_start=2e-3) annotation (Placement(transformation(extent={{58,-70},{80,-50}})));
     Boundaries.ExternalGas O2gT(
       substanceDefinition=Chemical.Substances.Gas.O2,
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Gas, T=310.15),
       usePartialPressureInput=true,
       PartialPressure(displayUnit="mmHg") = 13332.2387415)
       annotation (Placement(transformation(
@@ -210,7 +210,7 @@ package Examples "Tests for top level components of undirected"
           rotation=0,
           origin={-14,-60})));
     Processes.GasSolubility gasSolubilityT(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.O2) annotation (Placement(transformation(extent={{-10,-10},{10,10}}, origin={28,-60})));
     Boundaries.ExternalGas O2gP(substanceDefinition=Chemical.Substances.Gas.O2, PartialPressure(displayUnit="mmHg") = 13332.2387415)
@@ -222,7 +222,7 @@ package Examples "Tests for top level components of undirected"
       preferMass=false,
       amountOfSubstance_start=2e-4) annotation (Placement(transformation(extent={{56,32},{76,52}})));
     Processes.GasSolubility gasSolubilityP(
-      solutionParam=Chemical.Interfaces.SolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
+      solutionParam=setSolutionState(phase=Chemical.Interfaces.Phase.Incompressible, T=310.15),
       productFrom=Chemical.Utilities.Types.FirstProductChoice.Substance,
       product=Chemical.Substances.Aqueous.O2,
       process=Chemical.Interfaces.processData(0.0013, -1500*Modelica.Constants.R))
