@@ -5,9 +5,9 @@ package Chemical "Chemical pathways"
 
   annotation (
 preferredView="info",
-version="2.0.0",
-versionDate="2025-09-06",
-dateModified = "2025-09-06 15:45:41Z",
+version="2.0.1",
+versionDate="2025-11-27",
+dateModified = "2025-11-27 9:45:41Z",
 conversion(
   from(version="1.4.1", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.4_to_2.0.mos",
         to="2.0.0"),

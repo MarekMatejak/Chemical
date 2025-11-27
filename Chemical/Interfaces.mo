@@ -1694,8 +1694,11 @@ end DataRecord;
     parameter SolutionChoice solutionFrom = Chemical.Utilities.Types.SolutionChoice.FirstSubstrate "Chemical solution comes from?"
         annotation(HideResult=true, Dialog(group="Chemical solution (of products)"));
 
-    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState( phase=Chemical.Interfaces.Phase.Incompressible) "Chemical solution state as Parameter"
+    parameter Chemical.Interfaces.SolutionState solutionParam = Chemical.Interfaces.SolutionState( phase=Chemical.Interfaces.Phase.Incompressible, T=system.T_ambient,
+          p=system.p_ambient) "Chemical solution state as Parameter"
       annotation (Evaluate = true, HideResult=true, Dialog(enable=(solutionFrom == SolutionChoice.Parameter), group="Chemical solution (of products)"));
+
+      outer Modelica.Fluid.System system "System wide properties";
 
     Chemical.Interfaces.SolutionPort solution(
         T=solutionState.T,
