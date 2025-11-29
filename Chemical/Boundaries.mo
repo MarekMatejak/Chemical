@@ -652,6 +652,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     Modelica.Units.SI.ChemicalPotential r;
     Chemical.Interfaces.SolutionState solutionState "State of chemical solution";
+	
+	//Real logq(stateSelect=StateSelect.always, start=log(q_start));
 
   public
     Chemical.Interfaces.SolutionPort solution(T=solutionState.T,p=solutionState.p,v=solutionState.v,n=solutionState.n,m=solutionState.m,V=solutionState.V,G=solutionState.G,Q=solutionState.Q,I=solutionState.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if useSolution
