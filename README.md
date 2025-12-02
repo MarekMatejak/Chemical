@@ -13,6 +13,7 @@ Download [Chemical 2.0 (2025-09-06)](../../archive/v2.0.0.zip)
 ## Main references
  * Documentations
    * [Theoretical background](https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/Chemical.pdf)
+   * [Numerical methods](https://github.com/MarekMatejak/Chemical/raw/master/Chemical/Resources/Documentation/NumericalMethods.pdf)
  * Dissertation thesis
    * [Fromalization of Integrative Physiology](https://github.com/MarekMatejak/dissertation/raw/master/thesis.pdf)
  
