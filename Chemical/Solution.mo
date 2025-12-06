@@ -28,7 +28,7 @@ model Solution "Chemical solution as homogeneous mixture of the substances"
           extent={{-10,-90},{10,-70}}), iconTransformation(extent={{-2,-104},{2,
             -100}})));
 
-  Interfaces.SolutionPort solution "Solution nonflows and flows"
+  Interfaces.SolutionWhole solution "Solution nonflows and flows"
                                   annotation (Placement(
         transformation(extent={{50,-90},{70,-70}}),  iconTransformation(extent={{58,-100},
           {62,-96}})));

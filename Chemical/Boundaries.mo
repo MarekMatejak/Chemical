@@ -141,8 +141,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
         Placement(transformation(extent={{90,50},{110,70}}), iconTransformation(
             extent={{-10,88},{10,108}})));
 
-     Chemical.Interfaces.SolutionPort solution(
-        T=solutionState.T,
+
+
+     Chemical.Interfaces.SolutionPart solution(
         p=solutionState.p,
         v=solutionState.v,
         n=solutionState.n,
@@ -182,6 +183,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
     end if;
 
   equation
+    solution.T=solutionState.T;
+
      //electric
     pin.v = solution.v;
     pin.i + definition.data.z*Modelica.Constants.F*n_flow + solution.i = 0;
@@ -652,13 +655,15 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
     Modelica.Units.SI.ChemicalPotential r;
     Chemical.Interfaces.SolutionState solutionState "State of chemical solution";
-	
-	//Real logq(stateSelect=StateSelect.always, start=log(q_start));
 
+    //Real logq(stateSelect=StateSelect.always, start=log(q_start));
+
+    //input Modelica.Units.SI.Temperature Tinput;
   public
-    Chemical.Interfaces.SolutionPort solution(T=solutionState.T,p=solutionState.p,v=solutionState.v,n=solutionState.n,m=solutionState.m,V=solutionState.V,G=solutionState.G,Q=solutionState.Q,I=solutionState.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if useSolution
+    Chemical.Interfaces.SolutionPart solution(T = solutionState.T, p=solutionState.p,v=solutionState.v,n=solutionState.n,m=solutionState.m,V=solutionState.V,G=solutionState.G,Q=solutionState.Q,I=solutionState.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if useSolution
       annotation (Placement(transformation(extent={{-30,-70},{-10,-50}}), iconTransformation(extent={{-30,-70},{-10,-50}})));
   equation
+
 
     connect(u0_var, u0);
     if not usePotential then
@@ -673,6 +678,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     if not useSolution then
       solutionState=solutionParam;
     end if;
+   // solutionState.T = Tinput;
 
     der(fore.n_flow)*L = fore.r-r;
 
@@ -771,8 +777,9 @@ package Boundaries "Boundary models for undirected chemical simulation"
     Modelica.Units.SI.ChemicalPotential r;
     Chemical.Interfaces.SolutionState solutionState "State of chemical solution";
 
+   // input Modelica.Units.SI.Temperature Tinput;
   public
-    Chemical.Interfaces.SolutionPort solution(T=solutionState.T,p=solutionState.p,v=solutionState.v,n=solutionState.n,m=solutionState.m,V=solutionState.V,G=solutionState.G,Q=solutionState.Q,I=solutionState.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if useSolution
+    Chemical.Interfaces.SolutionPart solution(T=solutionState.T, p=solutionState.p,v=solutionState.v,n=solutionState.n,m=solutionState.m,V=solutionState.V,G=solutionState.G,Q=solutionState.Q,I=solutionState.I, i=0, dH=0, dV=0, nj=0, mj=0, Vj=0, Gj=0, Qj=0, Ij=0) if useSolution
       annotation (Placement(transformation(extent={{10,-70},{30,-50}}),   iconTransformation(extent={{10,-70},{30,-50}})));
 
   equation
@@ -790,6 +797,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
     if not useSolution then
       solutionState=solutionParam;
     end if;
+
+  //  solutionState.T=Tinput;
 
     der(rear.n_flow)*L = rear.r-r;
 
@@ -1454,6 +1463,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Modelica.Units.SI.Mass m_start "Start value for mass of the substance"
        annotation (Dialog(group="Substance"));
 
+      Modelica.Units.SI.TemperatureSlope dT, solutionPort_dT;
+
       Modelica.Units.SI.AmountOfSubstance n
         "Amount of base molecules inside all clusters in compartment";
 
@@ -1476,7 +1487,8 @@ package Boundaries "Boundary models for undirected chemical simulation"
             T=system.T_ambient,
             p=system.p_ambient) "Constant chemical solution state if not from rear or input"
           annotation (Evaluate = true, HideResults=useSolution or (useRearSolution and useRear), Dialog(enable=not useSolution and (not useRear or not useRearSolution), group="Chemical solution"));
-      Chemical.Interfaces.SolutionPort solution(
+      Chemical.Interfaces.SolutionPart solution(
+          dT=solutionPort_dT,
           T=solutionPortState.T,
           p=solutionPortState.p,
           v=solutionPortState.v,
@@ -1505,14 +1517,18 @@ package Boundaries "Boundary models for undirected chemical simulation"
             "Molality";
         Modelica.Units.SI.MoleFraction x "Mole fraction";
         Modelica.Units.SI.MassFraction X "Mass fraction";
-    protected
+     protected
+        // input Modelica.Units.SI.Temperature Tinput;
+
          outer Chemical.DropOfCommons dropOfCommons "Chemical wide properties";
          Chemical.Interfaces.SolutionState solutionPortState;
 
          Chemical.Interfaces.SolutionStateInput inputSubstrateSolution=solutionState if (useRearSolution and useRear and not useSolution);
+
     equation
-
-
+      //solution.T is an input
+      //solutionPortState.T = Tinput;
+      substance.dT=dT;
 
       c = substance.c;
       b = substance.b;
@@ -1524,7 +1540,11 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
       connect(rear.solution_forwards,inputSubstrateSolution);
 
-      if (useSolution and not useRearSolution) or (not useSolution) then
+      if (not useSolution) then
+        solutionState=solutionPortState;
+        dT = solutionPort_dT;
+      end if;
+      if (useSolution and not useRearSolution) then
         solutionState=solutionPortState;
       end if;
       if not useSolution and not useRearSolution then

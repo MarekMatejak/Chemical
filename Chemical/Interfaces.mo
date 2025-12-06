@@ -310,7 +310,7 @@ package Interfaces "Chemical interfaces"
   "Only for connecting the one solution their substances. Please, do not use it in different way."
 
     //enthalpy
-  Modelica.Units.SI.Temperature T "Temperature of the solution";
+    Modelica.Units.SI.TemperatureSlope dT "Temperature change of the solution";
   flow Modelica.Units.SI.EnthalpyFlowRate dH
     "Internal enthalpy change of the solution";
 
@@ -388,6 +388,16 @@ package Interfaces "Chemical interfaces"
             fillPattern=FillPattern.Solid,
             lineThickness=1)}));
   end SolutionPort;
+
+  connector SolutionPart
+    extends SolutionPort;
+    input Modelica.Units.SI.Temperature T "Solution temperature";
+  end SolutionPart;
+
+  connector SolutionWhole
+    extends SolutionPort;
+    output Modelica.Units.SI.Temperature T "Solution temperature";
+  end SolutionWhole;
 
   type Phase                 = enumeration(
     Gas
@@ -482,6 +492,8 @@ To change its behavior it is necessary to modify Property functions.
       InputMolarFlowRate n_flow "Molar change of the substance";
 
       InputHeatFlowRate h_flow "Substance enthalpy change";
+
+      Modelica.Units.SI.TemperatureSlope dT "Temperature change";
 
       Modelica.Units.SI.MoleFraction x "Mole fraction of the base molecule of the substance";
 
@@ -592,6 +604,8 @@ To change its behavior it is necessary to modify Property functions.
 
       outer Modelica.Fluid.System system "System wide properties";
 
+      Modelica.Units.SI.MolarHeatCapacity cp;
+
       Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
 
     equation
@@ -663,6 +677,10 @@ To change its behavior it is necessary to modify Property functions.
         Gj = amountOfBaseMolecules*u "Gibbs energy of the substance [J]";
 
       end if;
+
+      dT = der(h)/cp; //definition of molar heat capacity
+
+      cp = Chemical.Interfaces.Properties.molarHeatCapacityCp(definition,solutionState);
 
       x = amountOfFreeMolecule/solutionState.n "mole fraction of base molecule [mol/mol]";
 
@@ -1460,7 +1478,7 @@ end DataRecord;
   model Total "Summation of all extensible properties per substance"
 
 
-    SolutionPort solution
+    SolutionWhole solution
       annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
 
     parameter Boolean ElectricGround = true
@@ -1470,6 +1488,8 @@ end DataRecord;
     Modelica.Blocks.Interfaces.RealInput pressure "pressure"
       annotation (Placement(transformation(extent={{-120,58},{-80,100}})));
     Modelica.Blocks.Interfaces.RealInput temperature "temperature"
+      annotation (Placement(transformation(extent={{-120,-22},{-80,20}})));
+    Modelica.Blocks.Interfaces.RealInput temperature_der "temperature change"
       annotation (Placement(transformation(extent={{-120,-22},{-80,20}})));
     Modelica.Blocks.Interfaces.RealOutput volume_der "derivation of volume"
       annotation (Placement(transformation(extent={{100,80},{120,100}})));
@@ -1489,8 +1509,13 @@ end DataRecord;
   equation
 
     solution.p =pressure;
-    solution.T =temperature;
+    //input
+    solution.T = temperature;
 
+    //effort
+    solution.dT = temperature_der;
+
+    //flows
     volume_der + solution.dV = 0;
     enthalpy_der + solution.dH = 0;
 
@@ -1561,7 +1586,10 @@ end DataRecord;
     "Is electric potential equal to zero?"
       annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Environment relationships"));
 
-  Modelica.Units.SI.Temperature temperature "Temperature";
+
+      Modelica.Units.SI.TemperatureSlope temperature_der "Temperature change";
+
+      Modelica.Units.SI.Temperature temperature "Temperature";
 
   Modelica.Units.SI.Pressure pressure "Pressure";
 
@@ -1592,7 +1620,10 @@ end DataRecord;
 
     //total inputs - thermodynamic state
     total.pressure = pressure;
+    total.temperature_der = temperature_der;
     total.temperature = temperature;
+
+    der(temperature) = temperature_der;
 
     //total outputs = extensible properties
     enthalpy_der = total.enthalpy_der;
@@ -1632,7 +1663,7 @@ end DataRecord;
     //thermal
     if (not useThermalPort) and ConstantTemperature then
       //Ideal thermal exchange between environment and solution to reach constant temperature
-      der(temperature) = 0;
+      temperature_der = 0;
     end if;
     if (not useThermalPort) and (not ConstantTemperature) then
       //Thermally isolated without any thermal exchange with environment
@@ -1696,7 +1727,7 @@ end DataRecord;
 
       outer Modelica.Fluid.System system "System wide properties";
 
-    Chemical.Interfaces.SolutionPort solution(
+    Chemical.Interfaces.SolutionPart solution(
         T=solutionState.T,
         p=solutionState.p,
         v=solutionState.v,

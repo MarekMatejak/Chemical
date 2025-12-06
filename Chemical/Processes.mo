@@ -1506,7 +1506,10 @@ du := n_flow/kC;
             rotation=180,
             origin={100,0})));
 
-      Interfaces.SolutionPort solution_rear(
+      Modelica.Units.SI.TemperatureSlope dT "Temperature change";
+
+      Interfaces.SolutionWhole solution_rear(
+         dT=dT,
          T=solutionState.T,
          p=solutionState.p,
          v=solutionState.v,
@@ -1519,7 +1522,8 @@ du := n_flow/kC;
          "To connect solution of subunits with rear state of macromolecule"
         annotation (Placement(transformation(extent={{-110,34},{-90,54}}),   iconTransformation(extent={{-110,36},{-90,56}})));
 
-      Interfaces.SolutionPort solution_fore(
+      Interfaces.SolutionWhole solution_fore(
+         dT=dT,
          T=solutionState.T,
          p=solutionState.p,
          v=solutionState.v,
@@ -1542,8 +1546,8 @@ du := n_flow/kC;
       Modelica.Units.SI.MoleFraction xm_rear
         "Mole fraction of the macromolecule in rear state";
 
-      Chemical.Interfaces.SolutionPort solution(
-          T=solutionState.T,
+      Chemical.Interfaces.SolutionPart solution(
+          dT=dT,
           p=solutionState.p,
           v=solutionState.v,
           n=solutionState.n,
@@ -1602,6 +1606,8 @@ du := n_flow/kC;
       end if;
 
     equation
+      //solution.T is an input
+      solutionState.T = solution.T;
 
       //chemical solution and its propagation
       if nS>0 then
