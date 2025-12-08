@@ -493,7 +493,7 @@ To change its behavior it is necessary to modify Property functions.
 
       InputHeatFlowRate h_flow "Substance enthalpy change";
 
-      Modelica.Units.SI.TemperatureSlope dT "Temperature change";
+      InputTemperatureSlope dT "Temperature change";
 
       Modelica.Units.SI.MoleFraction x "Mole fraction of the base molecule of the substance";
 
@@ -552,6 +552,8 @@ To change its behavior it is necessary to modify Property functions.
 
      // Local connector definition, used for equation balancing check
 
+      connector InputTemperatureSlope = input Modelica.Units.SI.TemperatureSlope
+        "Change of temperature as input signal";
       connector InputMolarFlowRate = input Modelica.Units.SI.MolarFlowRate
         "Molar flow rate as input signal connector";
       connector InputHeatFlowRate = input Modelica.Units.SI.HeatFlowRate
@@ -671,14 +673,14 @@ To change its behavior it is necessary to modify Property functions.
 
         //der(enthalpy) = dH + n_flow*actualStream(port_a.h_outflow);
         //enthalpy = h*amountOfBaseMolecules;
-        dH =  der(h)*amountOfBaseMolecules + n_flow*h - h_flow
+        dH =  dT*cp*amountOfBaseMolecules + n_flow*h - h_flow
                   "heat transfer from other substances in solution [J/s]";
 
         Gj = amountOfBaseMolecules*u "Gibbs energy of the substance [J]";
 
       end if;
 
-      dT = der(h)/cp; //definition of molar heat capacity
+      //dT = der(h)/cp; //definition of molar heat capacity
 
       cp = Chemical.Interfaces.Properties.molarHeatCapacityCp(definition,solutionState);
 
@@ -1727,7 +1729,10 @@ end DataRecord;
 
       outer Modelica.Fluid.System system "System wide properties";
 
+    Modelica.Units.SI.TemperatureSlope dT;
+
     Chemical.Interfaces.SolutionPart solution(
+        dT=dT,
         T=solutionState.T,
         p=solutionState.p,
         v=solutionState.v,
@@ -1756,6 +1761,10 @@ end DataRecord;
       Chemical.Interfaces.SolutionStateInput inputSubstrateSolution=solutionState if (solutionFrom == SolutionChoice.FirstSubstrate);
 
   equation
+
+    if not (solutionFrom == SolutionChoice.SolutionPort) then
+      dT=0;
+    end if;
 
     if (solutionFrom == SolutionChoice.Parameter) then
       solutionState.T=solutionParam.T "Temperature of the solution";

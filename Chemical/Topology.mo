@@ -819,8 +819,10 @@ Junction with a rear and two fores in a lying T shape.
 
        outer Modelica.Fluid.System system "System wide properties";
 
+       Modelica.Units.SI.TemperatureSlope dT;
 
-      Chemical.Interfaces.SolutionPort solution(
+      Chemical.Interfaces.SolutionPart solution(
+          dT=dT,
           T=solutionState.T,
           p=solutionState.p,
           v=solutionState.v,
@@ -846,6 +848,7 @@ Junction with a rear and two fores in a lying T shape.
     equation
 
       if not useSolution then
+        dT=0;
         solutionState.T=solutionParam.T "Temperature of the solution";
         solutionState.p=solutionParam.p "Pressure of the solution";
         solutionState.v=solutionParam.v "Electric potential in the solution";
