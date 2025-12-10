@@ -1642,37 +1642,6 @@ du := n_flow/kC;
 </table>
 </html>"));
 
-    protected
-
-
-    //  Real duRT_fore, duRT_rear,
-      //Real du_fore, du_rear, dr,
-
-    equation
-
-      //solution.T is an input
-
-      //chemical solution and its propagation
-      //  connect(subunit_rear[1].solution,inputSubstrateSolution);
-
-      //change of macromolecule = change of its subunits
-     // subunits.n_flow = -altogether.n_flow * ones(NumberOfSubunits);
-
-      //mole fraction of all forms in conformation
-
-    //electrochemical potential of the specific form
-                         // * exp(ones(nS) * ((subunit_rear.state_forwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
-                         // * exp(ones(nP) * ((subunit_fore.state_rearwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
-
-      //debug            // * exp(ones(nS) * ((subunit_rear.state_rearwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
-                         // * exp(ones(nP) * ((subunit_fore.state_forwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
-              // exp(- ((ones(nS) * ((uPure_subunit_rear)./(Modelica.Constants.R*subunit_rear.solution.T))) - (ones(nP) * ((uPure_subunit_fore)./(Modelica.Constants.R*subunit_fore.solution.T)))));
-
-      //reaction molar rates
-
-
-
-
     end PartialSpeciation;
 
   end Internal;
