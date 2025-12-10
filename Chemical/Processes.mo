@@ -1198,48 +1198,6 @@ Choices for initialization of a state h.
 </html>"));
 
 
-     protected
-
-
-     // Real duRT_fore, duRT_rear, du_fore, du_rear;
-
-
-      //if substrates[i].n_flow > 0 -> i-th substrate is sink (r[i]=(s[i]/sum(s))*(p*products.r)) else it is source (r=0)
-                                                //state_out.u - substrates.state_forewards.u,
-      //if products[j].n_flow > 0 -> j-th product is sink (r[j]=(p[j]/sum(p))*(s*substrates.r)) else it is source (r=0)
-
-
-      //Real Px_fore,Sx_rear;
-     // Real r_mix;
-      //  Real r_products_mix, r_substrates_mix;
-
-      //, Sx, Px;
-
-
-    equation
-
-      //reaction molar rates
-
-      //electro-chemical inertia
-
-
-      //debug
-
-     // Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
-     // Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
-
-     // Sx = exp(s * ((_uS - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
-     // Px = exp(p * ((_uP - uPure_products)  ./(Modelica.Constants.R*products.solution_rearwards.T)));
-
-
-     // du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
-     // du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
-
-     // duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))));
-     // duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))));
-
-
-
     end PartialReaction;
 
     package Kinetics

@@ -1897,58 +1897,6 @@ end DataRecord;
 </html>"));
 
 
-
-  protected
-
-    // delta potential computation
-    //Modelica.Units.SI.ChemicalPotential du_fore;
-    //Modelica.Units.SI.ChemicalPotential du_rear;
-
-  /*  Modelica.Units.SI.Concentration c_in, c_out;
-  Modelica.Units.SI.Molality b_in, b_out;
-  Modelica.Units.SI.MassFraction X_in, X_out;
-*/
-
-    //Chemical.Interfaces.SubstanceState state_out "Input substance state in rearwards direction";
-
-    // input state quantities
-    //Modelica.Units.SI.ChemicalPotential u_rear_in=rear.state_forwards.u "Chemical potential of substance entering";
-    //Modelica.Units.SI.ChemicalPotential u_fore_in=fore.state_rearwards.u "Chemical potential of substance entering";
-    //Modelica.Units.SI.MolarEnthalpy h_rear_in=rear.state_forwards.h "Enthalpy of substance entering";
-    //Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance entering";
-
-    //outlet state quantities
-
-    //Chemical.Utilities.Units.URT duRT_fore, duRT_rear;
-
-   // Real _uS,_uP;
-
-  equation
-
-
-
-   //du_fore = rear.state_forwards.u - fore.state_forwards.u;
-    //du_rear = fore.state_rearwards.u - rear.state_rearwards.u;
-
-    /*
-  du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
-  du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
-  */
-
-
-
-  //  duRT_fore = (rear.state_forwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_forwards.u / (Modelica.Constants.R*fore.solution.T));
-  //  duRT_rear = (rear.state_rearwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_rearwards.u / (Modelica.Constants.R*fore.solution.T));
-
-
-
-
-
-
-
-
-
-
   end SISO;
 
 end Interfaces;
