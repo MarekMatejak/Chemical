@@ -8,18 +8,15 @@ model DropOfCommons "Model for global parameters"
   parameter Modelica.Units.SI.MolarFlowRate n_flow_reg = 1e-5 "Regularization threshold of molar flow rate"
     annotation(Dialog(group="Regularization"));
 
-  parameter AssertionLevel assertionLevel = AssertionLevel.error "Global assertion level";
+  parameter Real n_flow_coef_reg(unit="1") = 1e-5
+  "Regulation forward/backward flow tolerance of chemical kinectics" annotation(Dialog(group="Regularization"));
 
+  parameter AssertionLevel assertionLevel = AssertionLevel.error "Global assertion level";
   parameter Chemical.Interfaces.Definition DefaultSubstance=Chemical.Substances.Liquid.Unknown "Default substance"
     annotation (choicesAllMatching=true);
-
   parameter Modelica.Units.SI.Mass DefaultMass=1e-3 "Default initial mass of the substance";
-
   parameter Modelica.Units.SI.AmountOfSubstance DefaultAmount=1e-3 "Default initial amount of substance base molecules";
-
-  annotation (
-
-              defaultComponentName="dropOfCommons",
+      annotation(defaultComponentName="dropOfCommons",
     defaultComponentPrefixes="inner",
     missingInnerMessage="
 Your model is using an outer \"dropOfCommons\" component but
@@ -53,4 +50,5 @@ to specify system properties.",Icon(coordinateSystem(preserveAspectRatio=false),
     Documentation(revisions="<html>
     <p>2023, Marek Mateják</p>
 </html>"));
+
 end DropOfCommons;

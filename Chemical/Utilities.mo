@@ -157,6 +157,21 @@ for a smooth transition from y1 to y2.
 <u>This function applies the regStep function to u,T and Xi of a state and creates and returns the resulting state.</u>
 </html>"));
     end regStepState;
+
+    function regStepLin "Approximation of a general step, such that the characteristic is continuous"
+      extends Modelica.Icons.Function;
+      input Real x "Abscissa value";
+      input Real y1 "Ordinate value for x > 0";
+      input Real y2 "Ordinate value for x < 0";
+      input Real x_small(min=0) = 1e-5
+        "Approximation of step for -x_small <= x <= x_small; x_small >= 0 required";
+      output Real y "Ordinate value to approximate y = if x > 0 then y1 else y2";
+    algorithm
+      y := smooth(1, if x >  x_small then y1 else
+                     if x < -x_small then y2 else
+                     if x_small > 0 then (x/x_small)*(y1-y2)/2 + (y1+y2)/2 else (y1+y2)/2);
+
+    end regStepLin;
     annotation (Documentation(info="<html>
 <u>Internal helper functions and models for the undirected thermofluid simulation.</u>
 </html>"));

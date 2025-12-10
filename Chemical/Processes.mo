@@ -24,7 +24,7 @@ package Processes "Undirected process package"
 
     //chemical kinetics
 
-    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_coef_reg);
 
 
     //chemical solution and its propagation
@@ -158,7 +158,7 @@ package Processes "Undirected process package"
     connect(rear.solution_forwards,inputSubstrateSolution);
 
 
-    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_coef_reg);
 
 
      annotation ( Documentation(revisions="<html>
@@ -211,8 +211,7 @@ package Processes "Undirected process package"
     rear.solution_rearwards = solutionState;
     connect(rear.solution_forwards,inputSubstrateSolution);
 
-
-    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_coef_reg);
 
 
     annotation (
@@ -315,7 +314,7 @@ package Processes "Undirected process package"
 
     connect(rear.solution_forwards,inputSubstrateSolution);
 
-    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(n_flow,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_coef_reg);
 
 
     annotation ( Documentation(info="<html>
@@ -590,7 +589,7 @@ package Processes "Undirected process package"
   equation
 
     //chemical kinetics
-    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_reg);
+    du = uDiff(rr,kf*Sx_fore,(kf/Kx)*Px_rear,solutionState,n_flow_coef_reg);
 
 
     annotation (
@@ -1040,7 +1039,7 @@ Choices for initialization of a state h.
 
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation(HideResult=true, Dialog(tab="Advanced"));
-
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_coef_reg=dropOfCommons.n_flow_coef_reg "Regulation forward/backward flow tolerance of chemical kinectics - smallest significant rate near forward is (1-coef_reg)*q_f (resp. (1-coef_reg)*q_b for backward)";
       parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
         annotation(HideResult=true, Dialog(tab="Advanced"));
       parameter InitializationMethods initN_flow =Chemical.Utilities.Types.InitializationMethods.none  "Initialization method for n_flow"
@@ -1049,27 +1048,20 @@ Choices for initialization of a state h.
         annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
       parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
         annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
       parameter Modelica.Units.SI.Time TC = dropOfCommons.TC "Time constant for electro-chemical potential adaption" annotation (HideResult=true, Dialog(tab="Advanced"));
       parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
         annotation(HideResult=true, Dialog(tab="Advanced"));
-
       parameter Integer nS=0 "Number of substrate types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
       parameter Modelica.Units.SI.StoichiometricNumber s[nS]=ones(nS)
         "Stoichiometric coefficients for substrates"
         annotation (HideResult=true);
-
       parameter Integer nP=0 "Number of product types"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
       parameter Modelica.Units.SI.StoichiometricNumber p[nP]=ones(nP)
         "Stoichiometric numbers for products"
         annotation (HideResult=true);
-
       Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Reaction molar flow rate";
-
       Chemical.Interfaces.Rear substrates[nS] annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1077,7 +1069,6 @@ Choices for initialization of a state h.
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={-100,0})));
-
       Chemical.Interfaces.Fore products[nP] annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1085,46 +1076,28 @@ Choices for initialization of a state h.
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={100,0})));
-
      protected
-
       Modelica.Units.SI.MolarEnthalpy h_fore_mix, h_rear_mix;
-
-     // Real duRT_fore, duRT_rear, du_fore, du_rear;
       Real Sx_fore,Px_rear,Kx;
-
       Modelica.Units.SI.ChemicalPotential uPure_substrates[nS];
       Modelica.Units.SI.ChemicalPotential uPure_products[nP];
       outer DropOfCommons dropOfCommons;
-
-
-      //if substrates[i].n_flow > 0 -> i-th substrate is sink (r[i]=(s[i]/sum(s))*(p*products.r)) else it is source (r=0)
       Modelica.Units.SI.ChemicalPotential substrates_r_intern[nS]=Chemical.Utilities.Internal.regStep(
                 substrates.n_flow,
                 s.*(p*products.r)./(s*ones(nS)),
                 0,
-                n_flow_reg);                    //state_out.u - substrates.state_forewards.u,
-      //if products[j].n_flow > 0 -> j-th product is sink (r[j]=(p[j]/sum(p))*(s*substrates.r)) else it is source (r=0)
+                n_flow_reg);
       Modelica.Units.SI.ChemicalPotential products_r_intern[nP]=Chemical.Utilities.Internal.regStep(
                 products.n_flow,
                 p.*(s*substrates.r)./(p*ones(nP)),
                 0,
                 n_flow_reg);
-
-
-      //Real Px_fore,Sx_rear;
-     // Real r_mix;
-      //  Real r_products_mix, r_substrates_mix;
-
       Real _rR[nS+nP];
       Real _uIn[nS+nP];
       Real _uOut[nS+nP];
       Real _qIn[nS+nP];
       Real _uS[nS],_uP[nP];
       Real du;
-      //, Sx, Px;
-
-
     initial equation
       if initN_flow == InitializationMethods.state then
         rr = n_flow_0;
@@ -1133,16 +1106,11 @@ Choices for initialization of a state h.
       elseif initN_flow == InitializationMethods.steadyState then
         der(rr) = 0;
       end if;
-
     equation
-      //reaction molar rates
       rr*s = substrates.n_flow;
       rr*p = -products.n_flow;
-
-      //electro-chemical inertia
       s*(der(rr)*L) =  substrates.r - _rR[1:nS];
       -p*(der(rr)*L) =  products.r - _rR[nS+1:end];
-
       for i in 1:nS loop
         _uIn[i] = substrates[i].state_forwards.u;
         _uOut[i] = (_uIn*_qIn - _uIn[i]*_qIn[i])/((_qIn*ones(nS+nP)-_qIn[i])*(s*ones(nS)));
@@ -1159,48 +1127,23 @@ Choices for initialization of a state h.
         products[i].state_forwards.u = _uOut[i+nS];
         uPure_products[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure( products[i].definition,  products[i].solution_rearwards);
       end for;
-
       du = p*_uP - s*_uS;
-
       Px_rear = exp((p * ((products.state_rearwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
       Sx_fore = exp(s * ((substrates.state_forwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
-
       Kx = exp( ((s * ((uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T))) - (p * ((uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T)))));
-
-
       products.state_forwards.h = h_fore_mix*ones(nP);
       substrates.state_rearwards.h = h_rear_mix*ones(nS);
-
       if noEvent((nS>0) and (abs(substrates.n_flow*ones(nS))>Modelica.Constants.eps))  then
         h_rear_mix*(substrates.n_flow*ones(nS)) + products.n_flow*products.state_rearwards.h = 0;
       else
         h_rear_mix = 0;
       end if;
-
       if noEvent((nP>0) and (abs(products.n_flow*ones(nP))>Modelica.Constants.eps)) then
         h_fore_mix*(products.n_flow*ones(nP)) + substrates.n_flow*substrates.state_forwards.h = 0;
       else
         h_fore_mix = 0;
       end if;
-
-      //debug
-
-     // Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
-     // Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
-
-     // Sx = exp(s * ((_uS - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
-     // Px = exp(p * ((_uP - uPure_products)  ./(Modelica.Constants.R*products.solution_rearwards.T)));
-
-
-     // du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
-     // du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
-
-     // duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))));
-     // duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))));
-
-
-
-      annotation (
+        annotation(HideResult=true, Dialog(tab="Advanced"),
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
               100,100}})),
         Documentation(revisions="<html>
@@ -1253,6 +1196,50 @@ Choices for initialization of a state h.
 </tr>
 </table>
 </html>"));
+
+
+     protected
+
+
+     // Real duRT_fore, duRT_rear, du_fore, du_rear;
+
+
+      //if substrates[i].n_flow > 0 -> i-th substrate is sink (r[i]=(s[i]/sum(s))*(p*products.r)) else it is source (r=0)
+                                                //state_out.u - substrates.state_forewards.u,
+      //if products[j].n_flow > 0 -> j-th product is sink (r[j]=(p[j]/sum(p))*(s*substrates.r)) else it is source (r=0)
+
+
+      //Real Px_fore,Sx_rear;
+     // Real r_mix;
+      //  Real r_products_mix, r_substrates_mix;
+
+      //, Sx, Px;
+
+
+    equation
+
+      //reaction molar rates
+
+      //electro-chemical inertia
+
+
+      //debug
+
+     // Sx_rear = exp(s * ((substrates.state_rearwards.u - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
+     // Px_fore = exp((p * ((products.state_forwards.u - uPure_products)./(Modelica.Constants.R*products.solution_rearwards.T))));
+
+     // Sx = exp(s * ((_uS - uPure_substrates)./(Modelica.Constants.R*substrates.solution_forwards.T)));
+     // Px = exp(p * ((_uP - uPure_products)  ./(Modelica.Constants.R*products.solution_rearwards.T)));
+
+
+     // du_fore = (s * substrates.state_forwards.u) - (p * products.state_forwards.u);
+     // du_rear = (p * products.state_rearwards.u) - (s * substrates.state_rearwards.u);
+
+     // duRT_fore = ((s * (substrates.state_forwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))) - (p * (products.state_forwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))));
+     // duRT_rear = ((p * (products.state_rearwards.u ./ (Modelica.Constants.R*products.solution_rearwards.T))) - (s * (substrates.state_rearwards.u ./ (Modelica.Constants.R*substrates.solution_forwards.T))));
+
+
+
     end PartialReaction;
 
     package Kinetics
@@ -1264,7 +1251,7 @@ Choices for initialization of a state h.
         input Modelica.Units.SI.MolarFlowRate q_f "Forward rate (e.g. k_forward*x_substrates)";
         input Modelica.Units.SI.MolarFlowRate q_b "Backward rate (e.g. k_backward*x_products)";
         input Chemical.Interfaces.SolutionState solutionState "Solution state";
-        input Modelica.Units.SI.MolarFlowRate q_reg "Smallest significant rate near forward and backward rate";
+        input Real coef_reg = 1e-5 "Forward/backward flow tolerance - smallest significant rate near forward is (1-coef_reg)*q_f (resp. (1-coef_reg)*q_b for backward)";
 
         output Modelica.Units.SI.ChemicalPotential potentialDiff "Electro-chemical potential difference in chemical process";
 
@@ -1279,9 +1266,9 @@ Choices for initialization of a state h.
 
       algorithm
         potentialDiff :=
-          if (q > q_f - q_reg) then Modelica.Constants.R*solutionState.T*log(q_reg/q_f)
-          elseif (q > -q_reg) then Modelica.Constants.R*solutionState.T*log(abs(1-q/q_f))
-          elseif (q < -q_b + q_reg) then -Modelica.Constants.R*solutionState.T*log(q_reg/q_b)
+          if (q > (1-coef_reg)*q_f) then Modelica.Constants.R*solutionState.T*log(coef_reg)
+          elseif (q > 0) then Modelica.Constants.R*solutionState.T*log(abs(1-q/q_f))
+          elseif (q < -(1-coef_reg)*q_b)  then -Modelica.Constants.R*solutionState.T*log(coef_reg)
           else -Modelica.Constants.R*solutionState.T*log(abs(1+q/q_b));
           annotation(Dialog(enable=true),
                     Documentation(info="<html>
@@ -1469,6 +1456,7 @@ du := n_flow/kC;
       parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
         annotation(HideResult=true, Dialog(tab="Advanced"));
 
+      parameter Modelica.Units.SI.MolarFlowRate n_flow_coef_reg=dropOfCommons.n_flow_coef_reg "Regulation forward/backward flow tolerance of chemical kinectics - smallest significant rate near forward is (1-coef_reg)*q_f (resp. (1-coef_reg)*q_b for backward)";
       parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
         annotation(HideResult=true, Dialog(tab="Advanced"));
       parameter InitializationMethods initN_flow =Chemical.Utilities.Types.InitializationMethods.none  "Initialization method for n_flow"
@@ -1477,19 +1465,14 @@ du := n_flow/kC;
         annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.state)));
       parameter Utilities.Units.MolarFlowAcceleration n_acceleration_0 = 0 "Initial value for der(n_flow)"
         annotation(HideResult=true, Dialog(tab= "Initialization", group="Molar flow", enable=(initN_flow == InitializationMethods.derivative)));
-
       parameter Modelica.Units.SI.Time TC=0.1 "Time constant for electro-chemical potential adaption" annotation (HideResult=true, Dialog(tab="Advanced"));
       parameter Utilities.Units.Inertance L = dropOfCommons.L "Inertance of the flow"
         annotation(HideResult=true, Dialog(tab="Advanced"));
-
       Modelica.Units.SI.MolarFlowRate rr(stateSelect=n_flowStateSelect) "Molar flow rate of change macromolecule from rear state to fore state";
-
       parameter Integer nS=0 "Number of subunits in rear macromolecule state"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
       parameter Integer nP=0 "Number of subunits in fore macromolecule state"
         annotation ( HideResult=true, Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
-
       Chemical.Interfaces.Rear subunit_rear[nS] "Subunits in rear macromolecule state" annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1497,7 +1480,6 @@ du := n_flow/kC;
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={-100,0})));
-
       Chemical.Interfaces.Fore subunit_fore[nP] "Subunits in fore macromolecule state" annotation (Placement(transformation(
             extent={{10,-10},{-10,10}},
             rotation=180,
@@ -1505,9 +1487,7 @@ du := n_flow/kC;
             extent={{10,-10},{-10,10}},
             rotation=180,
             origin={100,0})));
-
       Modelica.Units.SI.TemperatureSlope dT "Temperature change";
-
       Interfaces.SolutionWhole solution_rear(
          dT=dT,
          T=solutionState.T,
@@ -1521,7 +1501,6 @@ du := n_flow/kC;
          I=solutionState.I)
          "To connect solution of subunits with rear state of macromolecule"
         annotation (Placement(transformation(extent={{-110,34},{-90,54}}),   iconTransformation(extent={{-110,36},{-90,56}})));
-
       Interfaces.SolutionWhole solution_fore(
          dT=dT,
          T=solutionState.T,
@@ -1535,17 +1514,14 @@ du := n_flow/kC;
          I=solutionState.I)
           "To connect solution of subunits with fore state of macromolecule"
         annotation (Placement(transformation(extent={{90,38},{110,58}}),     iconTransformation(extent={{90,38},{110,58}})));
-
       Modelica.Units.SI.AmountOfSubstance nm_fore
         "Amount of the macromolecule in fore state";
       Modelica.Units.SI.AmountOfSubstance nm_rear
         "Amount of the macromolecule in rear state";
-
       Modelica.Units.SI.MoleFraction xm_fore
         "Mole fraction of the macromolecule in fore state";
       Modelica.Units.SI.MoleFraction xm_rear
         "Mole fraction of the macromolecule in rear state";
-
       Chemical.Interfaces.SolutionPart solution(
           dT=dT,
           p=solutionState.p,
@@ -1567,35 +1543,24 @@ du := n_flow/kC;
           Ij=Ij)
              "To connect substance with solution, where is present"
         annotation (Placement(transformation(extent={{-66,-110},{-46,-90}}), iconTransformation(extent={{-66,-110},{-46,-90}})));
-
          Chemical.Interfaces.SolutionState solutionState;
-
          Chemical.Interfaces.Definition macromolecule_rear "Specific rear state of macromolecule composed only with connected subunits";
          Chemical.Interfaces.Definition macromolecule_fore "Specific fore state of macromolecule composed only with connected subunits";
-
          Real i,dH,dV,nj,mj,Vj,Gj,Qj,Ij;
          Real RTlnxm_rear[nS],RTlnxm_fore[nP];
     protected
-
       Modelica.Units.SI.MolarEnthalpy h_fore_mix, h_rear_mix;
-
-    //  Real duRT_fore, duRT_rear,
-      //Real du_fore, du_rear, dr,
       Real Sx_fore,Px_rear,Kx;
-
       Modelica.Units.SI.ChemicalPotential uPure_subunit_rear[nS];
       Modelica.Units.SI.ChemicalPotential uPure_subunit_fore[nP];
       outer DropOfCommons dropOfCommons;
-
       Real Px_fore,Sx_rear;
-
       Real _rR[nS+nP];
       Real _uIn[nS+nP];
       Real _uOut[nS+nP];
       Real _qIn[nS+nP];
       Real _uS[nS],_uP[nP];
       Real du;
-
     initial equation
       if initN_flow == InitializationMethods.state then
         rr = n_flow_0;
@@ -1604,18 +1569,12 @@ du := n_flow/kC;
       elseif initN_flow == InitializationMethods.steadyState then
         der(rr) = 0;
       end if;
-
     equation
-      //solution.T is an input
       solutionState.T = solution.T;
-
-      //chemical solution and its propagation
       if nS>0 then
-      //  connect(subunit_rear[1].solution,inputSubstrateSolution);
         subunit_fore.solution_forwards = fill(solutionState,nP);
         subunit_rear.solution_rearwards = fill(solutionState,nS);
       end if;
-
       solution_rear.dH + solution_fore.dH + dH = 0 "enthalpy change per each subunit";
       solution_rear.i + solution_fore.i + i = 0 "current change per each subunit";
       solution_rear.Qj + solution_fore.Qj + Qj = 0 "electric charge per each subunit";
@@ -1625,56 +1584,35 @@ du := n_flow/kC;
       solution_rear.Vj + solution_fore.Vj + Vj = 0 "volume per each subunit";
       solution_rear.Gj + solution_fore.Gj + Gj = 0 "Gibbs energy per each subunit";
       solution_rear.dV + solution_fore.dV + dV = 0 "volume change per each subunit";
-
       nm_rear*max(Modelica.Constants.eps,nS) + solution_rear.nj = 0;
       nm_fore*max(Modelica.Constants.eps,nP) + solution_fore.nj = 0;
-
-      //change of macromolecule = change of its subunits
-     // subunits.n_flow = -altogether.n_flow * ones(NumberOfSubunits);
-
-      //mole fraction of all forms in conformation
       xm_rear = nm_rear/solutionState.n;
       xm_fore = nm_fore/solutionState.n;
-
-    //electrochemical potential of the specific form
       macromolecule_rear = ones(nS) * subunit_rear.definition;
       macromolecule_fore = ones(nP) * subunit_fore.definition;
-
       RTlnxm_rear = Modelica.Constants.R*solution.T*log(xm_rear)*ones(nS);
       RTlnxm_fore = Modelica.Constants.R*solution.T*log(xm_fore)*ones(nP);
-
-      Sx_fore = xm_rear; // * exp(ones(nS) * ((subunit_rear.state_forwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
-      Px_rear = xm_fore; // * exp(ones(nP) * ((subunit_fore.state_rearwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
-
-      //debug
-      Sx_rear = xm_rear; // * exp(ones(nS) * ((subunit_rear.state_rearwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
-      Px_fore = xm_fore; // * exp(ones(nP) * ((subunit_fore.state_forwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
-      Kx = 1; // exp(- ((ones(nS) * ((uPure_subunit_rear)./(Modelica.Constants.R*subunit_rear.solution.T))) - (ones(nP) * ((uPure_subunit_fore)./(Modelica.Constants.R*subunit_fore.solution.T)))));
-
-      //reaction molar rates
+      Sx_fore = xm_rear;
+      Px_rear = xm_fore;
+      Sx_rear = xm_rear;
+      Px_fore = xm_fore;
+      Kx = 1;
       rr*ones(nS) = subunit_rear.n_flow;
       rr*ones(nP) = -subunit_fore.n_flow;
-
       subunit_fore.state_forwards.h = h_fore_mix*ones(nP);
       subunit_rear.state_rearwards.h = h_rear_mix*ones(nS);
-
       if nS>0 then
         h_rear_mix*(subunit_rear.n_flow*ones(nS)) + subunit_fore.n_flow*subunit_fore.state_rearwards.h = 0;
       else
         h_rear_mix = 0;
       end if;
-
       if nP>0 then
         h_fore_mix*(subunit_fore.n_flow*ones(nP)) + subunit_rear.n_flow*subunit_rear.state_forwards.h = 0;
       else
         h_fore_mix = 0;
       end if;
-
-
-
       (der(subunit_rear.n_flow)*L) =  subunit_rear.r - _rR[1:nS];
       (der(subunit_fore.n_flow)*L) =  subunit_fore.r - _rR[nS+1:end];
-
       for i in 1:nS loop
         _uIn[i] = subunit_rear[i].state_forwards.u;
         _uOut[i] = (_uIn*_qIn - _uIn[i]*_qIn[i])/(_qIn*ones(nS+nP)-_qIn[i]);
@@ -1691,11 +1629,8 @@ du := n_flow/kC;
         subunit_fore[i].state_forwards.u = _uOut[i+nS];
         uPure_subunit_fore[i] = Chemical.Interfaces.Properties.electroChemicalPotentialPure( subunit_fore[i].definition,  subunit_fore[i].solution_rearwards);
       end for;
-
       du = ones(nP)*_uP - ones(nS)*_uS;
-
-
-      annotation (
+        annotation(HideResult=true, Dialog(tab="Advanced"),
         Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
               100,100}})),
         Documentation(revisions="<html>
@@ -1748,6 +1683,38 @@ du := n_flow/kC;
 </tr>
 </table>
 </html>"));
+
+    protected
+
+
+    //  Real duRT_fore, duRT_rear,
+      //Real du_fore, du_rear, dr,
+
+    equation
+
+      //solution.T is an input
+
+      //chemical solution and its propagation
+      //  connect(subunit_rear[1].solution,inputSubstrateSolution);
+
+      //change of macromolecule = change of its subunits
+     // subunits.n_flow = -altogether.n_flow * ones(NumberOfSubunits);
+
+      //mole fraction of all forms in conformation
+
+    //electrochemical potential of the specific form
+                         // * exp(ones(nS) * ((subunit_rear.state_forwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
+                         // * exp(ones(nP) * ((subunit_fore.state_rearwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
+
+      //debug            // * exp(ones(nS) * ((subunit_rear.state_rearwards.u - uPure_subunit_rear - RTlnxm_rear)./(Modelica.Constants.R*subunit_rear.solution.T)));
+                         // * exp(ones(nP) * ((subunit_fore.state_forwards.u - uPure_subunit_fore - RTlnxm_fore)./(Modelica.Constants.R*subunit_fore.solution.T)));
+              // exp(- ((ones(nS) * ((uPure_subunit_rear)./(Modelica.Constants.R*subunit_rear.solution.T))) - (ones(nP) * ((uPure_subunit_fore)./(Modelica.Constants.R*subunit_fore.solution.T)))));
+
+      //reaction molar rates
+
+
+
+
     end PartialSpeciation;
 
   end Internal;

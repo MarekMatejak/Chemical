@@ -1821,6 +1821,7 @@ end DataRecord;
     parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
       annotation(HideResult=true, Dialog(tab="Advanced"));
 
+    parameter Modelica.Units.SI.MolarFlowRate n_flow_coef_reg=dropOfCommons.n_flow_coef_reg "Regulation forward/backward flow tolerance of chemical kinectics - smallest significant rate near forward is (1-coef_reg)*q_f (resp. (1-coef_reg)*q_b for backward)";
     parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L "Inertance of the flow" annotation (HideResult=true, Dialog(tab="Advanced"));
     parameter StateSelect n_flowStateSelect = StateSelect.default "State select for n_flow"
       annotation(HideResult=true, Dialog(tab="Advanced"));
@@ -1830,16 +1831,72 @@ end DataRecord;
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.state)));
     parameter Chemical.Utilities.Units.MolarFlowAcceleration n_acceleration_0=0 "Initial value for der(n_flow)"
       annotation (HideResult=true, Dialog(tab="Initialization", enable=(initN_flow == InitializationMethods.derivative)));
-
-
     Chemical.Interfaces.Rear rear( state_rearwards(u=u_rear_out, h=h_rear_out))
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}}), iconTransformation(extent={{-120,-20},{-80,20}})));
-
     Chemical.Interfaces.Fore fore( state_forwards(u=u_fore_out, h=h_fore_out))
       annotation (Placement(transformation(extent={{80,-20},{120,20}}), iconTransformation(extent={{80,-20},{120,20}})));
-
-
     Modelica.Units.SI.MolarFlowRate n_flow(stateSelect=n_flowStateSelect)=rear.n_flow;
+  protected
+    Modelica.Units.SI.MoleFraction Px_rear, Sx_fore;
+    outer Chemical.DropOfCommons dropOfCommons;
+    Chemical.Interfaces.SubstanceStateInput state_rear_in "Input substance state in forwards direction";
+    Chemical.Interfaces.SubstanceStateInput state_fore_in "Input substance state in rearwards direction";
+    Modelica.Units.SI.ChemicalPotential u_rear_out "Chemical potential of substance exiting";
+    Modelica.Units.SI.ChemicalPotential u_fore_out "Chemical potential of substance exiting";
+    Modelica.Units.SI.MolarEnthalpy h_rear_out "Enthalpy of substance exiting";
+    Modelica.Units.SI.MolarEnthalpy h_fore_out "Enthalpy of substance exiting";
+    Modelica.Units.SI.ChemicalPotential uPure_substrate "Electro-chemical potential of pure substance entering";
+    Modelica.Units.SI.ChemicalPotential uPure_product "Electro-chemical potential of pure substance exiting";
+    Real Kx;
+    Real _rR[2];
+    Real _uIn[2];
+    Real _uOut[2];
+    Real _qIn[2];
+    Real du;
+  initial equation
+    if initN_flow == InitializationMethods.state then
+      n_flow = n_flow_0;
+    elseif initN_flow == InitializationMethods.derivative then
+      der(n_flow) = n_acceleration_0;
+    elseif initN_flow == InitializationMethods.steadyState then
+      der(n_flow) = 0;
+    end if;
+  equation
+    connect(rear.state_forwards, state_rear_in);
+    connect(fore.state_rearwards, state_fore_in);
+     _uIn[1] = rear.state_forwards.u;
+     _uOut[1] = (_uIn*_qIn - _uIn[1]*_qIn[1])/(_qIn*ones(2)-_qIn[1]);
+     _qIn[1] = max(rear.n_flow,n_flow_reg);
+     rear.state_rearwards.u = _uOut[1];
+     _uIn[2] = fore.state_rearwards.u;
+     _uOut[2] = (_uIn*_qIn - _uIn[2]*_qIn[2])/(_qIn*ones(2)-_qIn[2]);
+     _qIn[2] = max(fore.n_flow,n_flow_reg);
+     fore.state_forwards.u = _uOut[2];
+     du = if (rear.n_flow>=0) then (_uOut[2] + _rR[2]) - (_uIn[1] + _rR[1]) else (_uIn[2] + _rR[2]) - (_uOut[1] + _rR[1]);
+    fore.state_forwards.h = rear.state_forwards.h;
+    rear.state_rearwards.h = fore.state_rearwards.h;
+    Sx_fore = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution_forwards.T)));
+    Px_rear = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution_rearwards.T)));
+    Kx = exp(uPure_product/(Modelica.Constants.R*fore.solution_rearwards.T)-uPure_substrate/(Modelica.Constants.R*rear.solution_forwards.T));
+    uPure_substrate = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
+      rear.definition,
+      rear.solution_forwards);
+    uPure_product = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
+      fore.definition,
+      fore.solution_rearwards);
+    fore.n_flow + rear.n_flow = 0;
+    (der(rear.n_flow)*L) =  rear.r - _rR[1];
+    (der(fore.n_flow)*L) =  fore.r - _rR[2];
+      annotation(HideResult=true, Dialog(tab="Advanced"),
+                Documentation(info="<html>
+<u>Interface class for all components with one fore and one rear port and a massflow without a mass storage between.</u>
+<u>This class already implements the equations that are common for such components, namely the conservation of mass, the inertance equation, as well as the clipping of u_fore to u_min. </u>
+<u>If u_fore should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
+<u>The component offers different initialization methods for the massflow, as well as several parameters used in the equations above. </u>
+<u>The clipping of the massflow can be turned off (this should be done by the modeler as a final modificator while extending to hide this option from the enduser).</u>
+</html>"));
+
+
 
   protected
 
@@ -1847,16 +1904,10 @@ end DataRecord;
     //Modelica.Units.SI.ChemicalPotential du_fore;
     //Modelica.Units.SI.ChemicalPotential du_rear;
 
-    Modelica.Units.SI.MoleFraction Px_rear, Sx_fore;
   /*  Modelica.Units.SI.Concentration c_in, c_out;
   Modelica.Units.SI.Molality b_in, b_out;
   Modelica.Units.SI.MassFraction X_in, X_out;
 */
-
-    outer Chemical.DropOfCommons dropOfCommons;
-
-    Chemical.Interfaces.SubstanceStateInput state_rear_in "Input substance state in forwards direction";
-    Chemical.Interfaces.SubstanceStateInput state_fore_in "Input substance state in rearwards direction";
 
     //Chemical.Interfaces.SubstanceState state_out "Input substance state in rearwards direction";
 
@@ -1867,52 +1918,14 @@ end DataRecord;
     //Modelica.Units.SI.MolarEnthalpy h_fore_in=fore.state_rearwards.h "Enthalpy of substance entering";
 
     //outlet state quantities
-    Modelica.Units.SI.ChemicalPotential u_rear_out "Chemical potential of substance exiting";
-    Modelica.Units.SI.ChemicalPotential u_fore_out "Chemical potential of substance exiting";
-    Modelica.Units.SI.MolarEnthalpy h_rear_out "Enthalpy of substance exiting";
-    Modelica.Units.SI.MolarEnthalpy h_fore_out "Enthalpy of substance exiting";
-
-    Modelica.Units.SI.ChemicalPotential uPure_substrate "Electro-chemical potential of pure substance entering";
-    Modelica.Units.SI.ChemicalPotential uPure_product "Electro-chemical potential of pure substance exiting";
 
     //Chemical.Utilities.Units.URT duRT_fore, duRT_rear;
 
-    Real Kx;
-
-    Real _rR[2];
-    Real _uIn[2];
-    Real _uOut[2];
-    Real _qIn[2];
    // Real _uS,_uP;
-    Real du;
-
-  initial equation
-    if initN_flow == InitializationMethods.state then
-      n_flow = n_flow_0;
-    elseif initN_flow == InitializationMethods.derivative then
-      der(n_flow) = n_acceleration_0;
-    elseif initN_flow == InitializationMethods.steadyState then
-      der(n_flow) = 0;
-    end if;
 
   equation
 
-    connect(rear.state_forwards, state_rear_in);
-    connect(fore.state_rearwards, state_fore_in);
 
-
-     _uIn[1] = rear.state_forwards.u;
-     _uOut[1] = (_uIn*_qIn - _uIn[1]*_qIn[1])/(_qIn*ones(2)-_qIn[1]);
-     _qIn[1] = max(rear.n_flow,n_flow_reg);
-     rear.state_rearwards.u = _uOut[1];
-
-     _uIn[2] = fore.state_rearwards.u;
-     _uOut[2] = (_uIn*_qIn - _uIn[2]*_qIn[2])/(_qIn*ones(2)-_qIn[2]);
-     _qIn[2] = max(fore.n_flow,n_flow_reg);
-     fore.state_forwards.u = _uOut[2];
-
-
-     du = if (rear.n_flow>=n_flow_reg) then (_uOut[2] + _rR[2]) - (_uIn[1] + _rR[1]) else (_uIn[2] + _rR[2]) - (_uOut[1] + _rR[1]);
 
    //du_fore = rear.state_forwards.u - fore.state_forwards.u;
     //du_rear = fore.state_rearwards.u - rear.state_rearwards.u;
@@ -1923,45 +1936,19 @@ end DataRecord;
   */
 
 
-    fore.state_forwards.h = rear.state_forwards.h;
-    rear.state_rearwards.h = fore.state_rearwards.h;
-
 
   //  duRT_fore = (rear.state_forwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_forwards.u / (Modelica.Constants.R*fore.solution.T));
   //  duRT_rear = (rear.state_rearwards.u / (Modelica.Constants.R*rear.solution.T)) - (fore.state_rearwards.u / (Modelica.Constants.R*fore.solution.T));
 
 
-    Sx_fore = exp(((rear.state_forwards.u - uPure_substrate)./(Modelica.Constants.R*rear.solution_forwards.T)));
-    Px_rear = exp(((fore.state_rearwards.u - uPure_product)./(Modelica.Constants.R*fore.solution_rearwards.T)));
-    Kx = exp(uPure_product/(Modelica.Constants.R*fore.solution_rearwards.T)-uPure_substrate/(Modelica.Constants.R*rear.solution_forwards.T));
-
-
-    uPure_substrate = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
-      rear.definition,
-      rear.solution_forwards);
-    uPure_product = Chemical.Interfaces.Properties.electroChemicalPotentialPure(
-      fore.definition,
-      fore.solution_rearwards);
-
-
-
-    fore.n_flow + rear.n_flow = 0;
-
-
-    (der(rear.n_flow)*L) =  rear.r - _rR[1];
-    (der(fore.n_flow)*L) =  fore.r - _rR[2];
 
 
 
 
 
-    annotation (Documentation(info="<html>
-<u>Interface class for all components with one fore and one rear port and a massflow without a mass storage between.</u>
-<u>This class already implements the equations that are common for such components, namely the conservation of mass, the inertance equation, as well as the clipping of u_fore to u_min. </u>
-<u>If u_fore should be lower the u_min, the remaining potential drop is added on the difference in inertial potential r, basically accelerating or decelerating the massflow. </u>
-<u>The component offers different initialization methods for the massflow, as well as several parameters used in the equations above. </u>
-<u>The clipping of the massflow can be turned off (this should be done by the modeler as a final modificator while extending to hide this option from the enduser).</u>
-</html>"));
+
+
+
   end SISO;
 
 end Interfaces;
