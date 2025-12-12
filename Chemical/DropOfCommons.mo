@@ -11,6 +11,11 @@ model DropOfCommons "Model for global parameters"
   parameter Real n_flow_coef_reg(unit="1") = 1e-5
   "Regulation forward/backward flow tolerance of chemical kinectics" annotation(Dialog(group="Regularization"));
 
+  parameter Modelica.Units.SI.Frequency n_flow_per_n_coef_reg = 1e-5
+  "Regulation threshold of molar flow rate divided by amount of substance" annotation(Dialog(group="Regularization"));
+
+
+
   parameter AssertionLevel assertionLevel = AssertionLevel.error "Global assertion level";
   parameter Chemical.Interfaces.Definition DefaultSubstance=Chemical.Substances.Liquid.Unknown "Default substance"
     annotation (choicesAllMatching=true);

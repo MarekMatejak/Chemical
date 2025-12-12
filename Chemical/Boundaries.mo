@@ -183,6 +183,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
     end if;
 
   equation
+    n=solution.n;
     solution.T=solutionState.T;
 
      //electric
@@ -217,10 +218,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
       final m_start=1,
       substance(final SolutionObserverOnly=true));
 
-   /* parameter stateOfMatter.SubstanceDataParameters substanceData
- "Definition of the substance"
-    annotation (choicesAllMatching = true, Dialog(enable=not useRear));
-*/
+
     parameter Chemical.Boundaries.Internal.Types.ConcentrationQuantities quantity "Concentration quantity";
 
     parameter Real FixedValue
@@ -1348,8 +1346,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
       parameter Chemical.Utilities.Units.Inertance L=dropOfCommons.L
        annotation(HideResult=true, Dialog(tab = "Advanced"));
 
-      parameter Modelica.Units.SI.MolarFlowRate n_flow_reg=dropOfCommons.n_flow_reg "Regularization threshold of mass flow rate"
+      parameter Modelica.Units.SI.Frequency n_flow_per_n_coef_reg=dropOfCommons.n_flow_per_n_coef_reg "Regulation threshold of molar flow rate divided by amount of substance"
         annotation(HideResult=true, Dialog(tab="Advanced"));
+
+
+      Modelica.Units.SI.AmountOfSubstance n
+        "Amount of base molecules inside all clusters in compartment";
 
 
      protected
@@ -1364,12 +1366,12 @@ package Boundaries "Boundary models for undirected chemical simulation"
                 n_flow_rear,
                 state_out.u - state_in_rear.u,
                 0,
-                n_flow_reg);
+                n*n_flow_per_n_coef_reg);
       Modelica.Units.SI.ChemicalPotential r_fore_intern=Chemical.Utilities.Internal.regStep(
                 n_flow_fore,
                 state_out.u - state_in_fore.u,
                 0,
-                n_flow_reg);
+                n*n_flow_per_n_coef_reg);
       // dont regstep variables that are only in der(state), to increase accuracy
       Modelica.Units.SI.EnthalpyFlowRate h_flow_rear=(if n_flow_rear >= 0 then state_in_rear.h else state_out.h)*n_flow_rear;
       Modelica.Units.SI.EnthalpyFlowRate h_flow_fore=(if n_flow_fore >= 0 then state_in_fore.h else state_out.h)*n_flow_fore;
@@ -1465,8 +1467,7 @@ package Boundaries "Boundary models for undirected chemical simulation"
 
 
 
-      Modelica.Units.SI.AmountOfSubstance n
-        "Amount of base molecules inside all clusters in compartment";
+
 
       Chemical.Interfaces.Properties.SubstanceProperties substance(
         definition=substanceDefinitionVar,
