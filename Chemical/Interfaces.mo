@@ -67,14 +67,15 @@ package Interfaces "Chemical interfaces"
   extends Modelica.Icons.InterfacesPackage;
 
   operator record Definition "Definition of a chemical substance or a chemical process"
-
+  
     Chemical.Interfaces.DataRecord data "Data record of the substance or process";
-
+    //may need to add default value (MM(start=0),Hf(start=0),H0(start=0),alow(start={0,0,0,0,0,0,0}))
+  
      Boolean SelfClustering "default=false If true then the base molecules are binding together into clusters";
      Modelica.Units.SI.MolarEnthalpy SelfClustering_dH "Enthalpy of bond between two base molecules of substance at 25degC, 1 bar";
      Modelica.Units.SI.MolarEntropy SelfClustering_dS "Entropy of bond between two base molecules of substance at 25degC, 1 bar";
-
-
+  
+  
    encapsulated operator 'constructor'
       import Definition=Chemical.Interfaces.Definition;
       import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
@@ -83,7 +84,7 @@ package Interfaces "Chemical interfaces"
       //    constant Real R=1.380649e-23*6.02214076e23;
       //    constant Real T0=298.15 "Base temperature";
       //    constant Real p0=100000 "Base pressure";
-
+  
       function fromDataRecord
         input DataRecord data "Mass based data record";
         input Boolean SelfClustering = false;
@@ -97,7 +98,7 @@ package Interfaces "Chemical interfaces"
       algorithm
         annotation (Inline=true);
       end fromDataRecord;
-
+  
       function fromFormationEnergies
         input Real MM=1 "Molar mass of the substance";
         input Real z=0 "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
@@ -131,15 +132,15 @@ package Interfaces "Chemical interfaces"
         annotation (Inline=true);
       end fromFormationEnergies;
    end 'constructor';
-
-
+  
+  
     encapsulated operator function '+'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
       input Definition d1;
       input Definition d2;
       output Definition result " = d1 + d2";
-
+  
     algorithm
       result :=Definition(
           data=DataRecord(
@@ -156,7 +157,7 @@ package Interfaces "Chemical interfaces"
             VmExcess=d1.data.VmExcess + d2.data.VmExcess));
           annotation (Inline=true);
     end '+';
-
+  
     encapsulated operator '-'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
@@ -177,10 +178,10 @@ package Interfaces "Chemical interfaces"
             phase = d.data.phase,
             VmBase= -d.data.VmBase,
             VmExcess=d.data.VmExcess));
-
+  
           annotation (Inline=true);
      end negate;
-
+  
      function subtract
       input Definition d1;
       input Definition d2;
@@ -199,15 +200,15 @@ package Interfaces "Chemical interfaces"
             phase=d1.data.phase,
             VmBase=d1.data.VmBase - d2.data.VmBase,
             VmExcess=d1.data.VmExcess - d2.data.VmExcess));
-
+  
           annotation (Inline=true);
      end subtract;
     end '-';
-
+  
     encapsulated operator '*'
       import Definition=Chemical.Interfaces.Definition;
       import DataRecord=Chemical.Interfaces.DataRecord;
-
+  
     function scalar
       input Real n=1 "Stoichiometric coefficient";
       input Definition d;
@@ -226,10 +227,10 @@ package Interfaces "Chemical interfaces"
             phase=d.data.phase,
             VmBase=n * d.data.VmBase,
             VmExcess=n * d.data.VmExcess));
-
+  
           annotation (Inline=true);
     end scalar;
-
+  
     function vector
       input Real[:] n "Stoichiometric coefficients";
       input Definition[:] d;
@@ -251,7 +252,7 @@ package Interfaces "Chemical interfaces"
           annotation (Inline=true);
     end vector;
     end '*';
-
+  
   end Definition;
 
  replaceable record SubstanceState "Set that defines a state of substance"
@@ -1328,23 +1329,23 @@ algorithm
 
 operator record DataRecord "Coefficient data record for chemical definitions based on NASA source"
 
-  Modelica.Units.SI.MolarMass MM "Molar mass";
-  Modelica.Units.SI.MolarEnthalpy Hf "Enthalpy of formation at 298.15K, 1bar";
-  Modelica.Units.SI.MolarEnthalpy H0 "H0(298.15K, 1bar) - H0(0K, 1bar)";
+  Modelica.Units.SI.MolarMass MM(start=0) "Molar mass";
+  Modelica.Units.SI.MolarEnthalpy Hf(start=0) "Enthalpy of formation at 298.15K, 1bar";
+  Modelica.Units.SI.MolarEnthalpy H0(start=0) "H0(298.15K, 1bar) - H0(0K, 1bar)";
 
-  Real alow[7] "Low temperature coefficients a at 298.15K, 1bar";
-  Real blow[3] "Low temperature constants b at 298.15K, 1bar";
-  Real ahigh[7] "High temperature coefficients a at 298.15K, 1bar";
-  Real bhigh[3] "High temperature constants b at 298.15K, 1bar";
+  Real alow[7](start=fill(0,7)) "Low temperature coefficients a at 298.15K, 1bar";
+  Real blow[3](start=fill(0,3)) "Low temperature constants b at 298.15K, 1bar";
+  Real ahigh[7](start=fill(0,7)) "High temperature coefficients a at 298.15K, 1bar";
+  Real bhigh[3](start=fill(0,3)) "High temperature constants b at 298.15K, 1bar";
 
-  Modelica.Units.SI.ChargeNumberOfIon z
+  Modelica.Units.SI.ChargeNumberOfIon z(start=0)
   "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
-  Chemical.Interfaces.Phase phase "State of matter";
+  Chemical.Interfaces.Phase phase(start=Chemical.Interfaces.Phase.Gas) "State of matter";
 
   // following is used only if phase is not Chemical.Interfaces.Phase.Gas:
-  Modelica.Units.SI.MolarVolume VmBase "Base molar volume at 298.15K, 1bar (molar volume Vm = VmBase + VmExcess, density = MM/Vm)";
-  Modelica.Units.SI.MolarVolume VmExcess "Excess of molar volume at 298.15K, 1bar (activity coefficient = exp(VmExcess/VmBase)";
+  Modelica.Units.SI.MolarVolume VmBase(start=0) "Base molar volume at 298.15K, 1bar (molar volume Vm = VmBase + VmExcess, density = MM/Vm)";
+  Modelica.Units.SI.MolarVolume VmExcess(start=0) "Excess of molar volume at 298.15K, 1bar (activity coefficient = exp(VmExcess/VmBase)";
 
    encapsulated operator 'constructor'
     import ModelicaDataRecord=Modelica.Media.IdealGases.Common.DataRecord;
