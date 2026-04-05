@@ -5,7 +5,7 @@ package Chemical "Chemical pathways"
 
   annotation (
 preferredView="info",
-version="2.0.1",
+version="2.0.2",
 versionDate="2025-11-27",
 dateModified = "2025-11-27 9:45:41Z",
 conversion(
@@ -22,8 +22,9 @@ conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_2.0.mos",
         to="2.0.0"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_2.0.mos",
-        to="2.0.0")),
-      uses( Modelica(version="4.0.0")),
+        to="2.0.0"),
+      noneFromVersion="2.0.1"),
+      uses( Modelica(version="4.1.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2025, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
