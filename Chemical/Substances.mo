@@ -1,4 +1,4 @@
-﻿within Chemical;
+within Chemical;
 package Substances "Definitions of substances"
   package IdealGasesMSL
 

@@ -1,4 +1,4 @@
-﻿within ;
+within ;
 package Chemical "Physical Chemistry"
   package UsersGuide "User's Guide"
     extends Modelica.Icons.Information;
@@ -1133,7 +1133,7 @@ package Chemical "Physical Chemistry"
          redeclare package stateOfMatter = stateOfMatter,
          substanceData=substanceData)
         annotation (Placement(transformation(extent={{-56,-10},{-76,10}})));
-      SubstancePump substancePump(useSubstanceFlowInput=true,EnthalpyNotUsed=EnthalpyNotUsed)
+      SubstancePump substancePump(useSubstanceFlowInput=true)
         annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
       Modelica.Blocks.Logical.Switch switch1 annotation (Placement(transformation(
             extent={{-10,10},{10,-10}},
@@ -1252,6 +1252,243 @@ package Chemical "Physical Chemistry"
 <br/>
 </html>"));
     end Stream;
+
+    model SimpleSubstance "Neglible amount of substance in solution"
+      extends Icons.Substance;
+
+      extends Interfaces.PartialSubstance;
+
+      Modelica.Units.SI.MolarFlowRate q
+      "Molar flow rate of the substance into the component";
+
+      Modelica.Units.SI.Temperature T = temperature "Temperature";
+      parameter Modelica.Units.SI.AmountOfSubstance nSolution "Amount of all particles in chemical solution";
+
+      parameter Boolean use_mass_start = true "use mass_start, otherwise amountOfSubstance_start"
+        annotation (Evaluate=true, choices(checkBox=true), Dialog(group="Initialization"));
+
+    parameter Modelica.Units.SI.Mass mass_start=1
+      "Initial mass of the substance"
+      annotation (HideResult=not use_mass_start, Dialog(group="Initialization", enable=use_mass_start));
+
+    parameter Modelica.Units.SI.AmountOfSubstance amountOfSubstance_start=1
+      "Initial amount of substance base molecules"
+        annotation (HideResult=use_mass_start, Dialog(group="Initialization", enable=not use_mass_start));
+
+      Modelica.Units.SI.Mass mass=amountOfBaseMolecules*
+          molarMassOfBaseMolecule "Mass";
+
+      parameter Boolean calculateClusteringHeat = true "Only for self clustering substances"
+          annotation(Evaluate=true, choices(checkBox=true), Dialog(tab = "Clustering", enable = stateOfMatter.selfClustering(substanceData)));
+
+    protected
+      parameter Modelica.Units.SI.Mass m_start=if use_mass_start then mass_start else
+        amountOfSubstance_start*molarMassOfBaseMolecule;
+
+      parameter Modelica.Units.SI.MolarMass molarMassOfBaseMolecule = stateOfMatter.molarMassOfBaseMolecule(substanceData);
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBaseMolecules(start=
+           m_start/molarMassOfBaseMolecule)
+        "Amount of base molecules inside all clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfFreeMolecule(start=
+           m_start*stateOfMatter.specificAmountOfFreeBaseMolecule(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of free molecules not included inside any clusters in compartment";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfParticles(start=
+           m_start*stateOfMatter.specificAmountOfParticles(
+                                       substanceData,
+                                       T=system.T_ambient,
+                                       p=system.p_ambient))
+        "Amount of particles/clusters in compartment";
+
+      Modelica.Units.SI.MoleFraction SelfClustering_K=exp(-SelfClustering_dG/(
+          Modelica.Constants.R*T))
+        "Dissociation constant of hydrogen bond between base molecules";
+
+      Modelica.Units.SI.ChemicalPotential SelfClustering_dG=
+          stateOfMatter.selfClusteringBondEnthalpy(substanceData)
+        - T * stateOfMatter.selfClusteringBondEntropy(substanceData)
+        "Gibbs energy of hydrogen bond between H2O molecules";
+
+      Modelica.Units.SI.AmountOfSubstance amountOfBonds
+        "Amount of hydrogen bonds between molecules in compartment";
+
+      Real logn(stateSelect=StateSelect.prefer, start=log(m_start/molarMassOfBaseMolecule))
+      "Natural logarithm of the amount of base molecules in solution";
+
+      parameter Boolean EnthalpyNotUsed=false annotation (
+        Evaluate=true,
+        HideResult=true,
+        choices(checkBox=true),
+        Dialog(tab="Advanced", group="Performance"));
+
+    initial equation
+
+      amountOfBaseMolecules = m_start/molarMassOfBaseMolecule;
+    equation
+      q=port_a.q;
+
+      temperature = system.T_ambient;
+      pressure = system.p_ambient;
+      electricPotential = 0;
+      moleFractionBasedIonicStrength = 0;
+
+      if stateOfMatter.selfClustering(substanceData) then
+
+        amountOfParticles*(1 - SelfClustering_K*x) = amountOfFreeMolecule;
+
+        //Calculation of "abs(amountOfBaseMolecules*(1 - SelfClustering_K*x)) = amountOfParticles":
+        x = ((2*SelfClustering_K+nSolution/amountOfBaseMolecules) - sqrt((4*SelfClustering_K*nSolution/amountOfBaseMolecules)+(nSolution/amountOfBaseMolecules)^2)) / (2*(SelfClustering_K^2));
+
+        amountOfBonds = amountOfBaseMolecules*x*SelfClustering_K;
+
+      else
+
+        amountOfParticles = amountOfFreeMolecule;
+        amountOfBaseMolecules = amountOfFreeMolecule;
+        amountOfBonds = 0;
+
+      end if;
+
+      //The main accumulation equation is "der(amountOfBaseMolecules)=q"
+      // However, the numerical solvers can handle it in form of log(n) much better. :-)
+      der(logn) = (q/amountOfBaseMolecules) "accumulation of amountOfBaseMolecules=exp(logn) [mol]";
+      amountOfBaseMolecules = exp(logn);
+
+      x = amountOfFreeMolecule/nSolution "mole fraction [mol/mol]";
+
+         annotation(Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},
+                {100,100}}), graphics={Text(
+              extent={{-84,22},{92,64}},
+              lineColor={128,0,255},
+              textString="%name")}), Documentation(revisions="<html>
+<p>2009-2015 by Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<h4>n = x &middot; n(solution) = &int; MolarFlow</h4>
+<p>where n is amount of the substance and x is mole fraction.</p>
+<p>The main class from &ldquo;Chemical&rdquo; package is called &quot;Substance&quot;. It has one chemical connector, where chemical potential and molar flow is presented. An amount of solute &quot;n&quot; is accumulated by molar flow inside an instance of this class. In the default setting the amount of solution &quot;n(solution)&quot; is set to 55.6 as amount of water in one liter, so in this setting the concentration of very diluted solution in pure water at &ldquo;mol/L&rdquo; has the same value as the amount of substance at &ldquo;mol&rdquo;. But in the advanced settings the default amount of solution can be changed by parameter or using solution port to connect with solution. The molar flow at the port can be also negative, which means that the solute leaves the Substance instance.&nbsp;</p>
+<p><br>The recalculation between mole fraction, molarity and molality can be written as follows:</p>
+<p>x = n/n(solution) = b * m(solvent)/n(solution) = c * V(solution)/n(solution)</p>
+<p>where m(solvent) is mass of solvent, V(solution) is volume of solution, b=n/m(solvent) is molality of the substance, c=n/V(solution) is molarity of the substance.</p>
+<p>If the amount of solution is selected to the number of total solution moles per one kilogram of solvent then the values of x will be the same as molality.</p>
+<p>If the amount of solution is selected to the number of total solution moles in one liter of solution then the values of x will be the same as molarity.</p>
+<p><br><br>Definition of electro-chemical potential:</p>
+<h4>u = u&deg; + R*T*ln(gamma*x) + z*F*v</h4>
+<h4>u&deg; = DfG = DfH - T * DfS</h4>
+<p>where</p>
+<p>x .. mole fraction of the substance in the solution</p>
+<p>T .. temperature in Kelvins</p>
+<p>v .. relative eletric potential of the solution</p>
+<p>z .. elementary charge of the substance (like -1 for electron, +2 for Ca^2+)</p>
+<p>R .. gas constant</p>
+<p>F .. Faraday constant</p>
+<p>gamma .. activity coefficient</p>
+<p>u&deg; .. chemical potential of pure substance</p>
+<p>DfG .. free Gibbs energy of formation of the substance</p>
+<p>DfH .. free enthalpy of formation of the substance</p>
+<p>DfS .. free entropy of formation of the substance </p>
+<p><br>Be carefull, DfS is not the same as absolute entropy of the substance S&deg; from III. thermodinamic law! It must be calculated from tabulated value of DfG(298.15 K) and DfH as DfS=(DfH - DfG)/298.15. </p>
+</html>"));
+    end SimpleSubstance;
+
+    model SimpleStream "Flow of whole solution"
+
+
+      parameter Modelica.Units.SI.VolumeFlowRate SolutionFlow=0
+      "Volume flow rate of the solution";
+
+      replaceable package stateOfMatter = Interfaces.Incompressible                    constrainedby Interfaces.StateOfMatter
+      "Substance model to translate data into substance properties"
+         annotation (choicesAllMatching = true);
+
+
+      parameter stateOfMatter.SubstanceData substanceData
+      "Definition of the substance"
+         annotation (choicesAllMatching = true);
+
+    Interfaces.SubstancePort_b port_b annotation (Placement(transformation(
+            extent={{-110,-10},{-90,10}}), iconTransformation(extent={{-110,-10},
+              {-90,10}})));
+      Sensors.SimpleMoleFractionSensor
+                                 simpleMoleFractionSensor(
+         redeclare package stateOfMatter = stateOfMatter,
+         substanceData=substanceData)
+        annotation (Placement(transformation(extent={{-56,-10},{-76,10}})));
+      SubstancePump substancePump(useSubstanceFlowInput=true)
+        annotation (Placement(transformation(extent={{-14,-74},{6,-54}})));
+      Modelica.Blocks.Math.Product product
+        annotation (Placement(transformation(extent={{-40,-36},{-20,-16}})));
+    Interfaces.SubstancePort_b port_a
+      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
+
+    equation
+      product.u1=SolutionFlow;
+
+
+      connect(port_b, simpleMoleFractionSensor.port_a) annotation (Line(points={{-100,0},{-76,0}}, color={158,66,200}));
+      connect(product.u2, simpleMoleFractionSensor.moleFraction) annotation (Line(points={{-42,-32},{-50,-32},{-50,0},{-56,0}}, color={0,0,127}));
+      connect(port_b, substancePump.port_a) annotation (Line(
+          points={{-100,0},{-86,0},{-86,-64},{-14,-64}},
+          color={158,66,200}));
+      connect(substancePump.port_b, port_a) annotation (Line(
+          points={{6,-64},{84,-64},{84,0},{100,0}},
+          color={158,66,200}));
+      connect(product.y, substancePump.substanceFlow) annotation (Line(points={{-19,-26},{0,-26},{0,-60}}, color={0,0,127}));
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+                            graphics={
+            Rectangle(
+              extent={{-100,-50},{100,50}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              rotation=360),
+            Polygon(
+              points={{-80,25},{80,0},{-80,-25},{-80,25}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid,
+              rotation=360),
+            Text(
+              extent={{-150,-20},{150,20}},
+              textString="%name",
+              lineColor={128,0,255},
+              origin={2,-74},
+              rotation=180)}),
+        Documentation(revisions="<html>
+<p><i>2009-2018 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>",     info="<html>
+<h4><font color=\"#008000\">Bidirectional mass flow by concentration</font></h4>
+<p>Possible field values: </p>
+<table cellspacing=\"2\" cellpadding=\"0\" border=\"0.1\"><tr>
+<td></td>
+<td><h4>forward flow</h4></td>
+<td><h4>backward flow</h4></td>
+</tr>
+<tr>
+<td><h4>solutionFlow</h4></td>
+<td><p align=\"center\">&gt;=0</p></td>
+<td><p align=\"center\">&lt;=0</p></td>
+</tr>
+<tr>
+<td><h4>q_in.q</h4></td>
+<td><p align=\"center\">=solutionFlow*q_in.conc</p></td>
+<td><p align=\"center\">=-q_out.q</p></td>
+</tr>
+<tr>
+<td><h4>q_out.q</h4></td>
+<td><p align=\"center\">=-q_in.q</p></td>
+<td><p align=\"center\">=solutionFlow*q_out.conc</p></td>
+</tr>
+</table>
+<br/>
+</html>"));
+    end SimpleStream;
   end Components;
 
   package Sensors "Chemical sensors"
@@ -1924,6 +2161,53 @@ package Chemical "Physical Chemistry"
 </table>
 </html>"));
     end ActivityCoefficient;
+
+    model SimpleMoleFractionSensor "Measure of mole fraction"
+      extends Modelica.Icons.RoundSensor;
+      extends Interfaces.PartialSubstance;
+
+
+
+       outer Modelica.Fluid.System system "System wide properties";
+
+      Modelica.Blocks.Interfaces.RealOutput moleFraction(final unit="1")
+      "Mole fraction of the substance"
+       annotation (
+          Placement(transformation(
+            extent={{-20,-20},{20,20}},
+            rotation=270,
+            origin={0,-60}), iconTransformation(
+            extent={{-20,-20},{20,20}},
+            origin={-100,0},
+          rotation=180)));
+
+    equation
+       //aliases
+      temperature = system.T_ambient;
+      pressure = system.p_ambient;
+      electricPotential = 0;
+      moleFractionBasedIonicStrength = 0;
+
+
+      port_a.q = 0;
+
+      moleFraction = x;
+
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{
+              100,100}}),   graphics={
+            Text(
+              extent={{-31,-3},{28,-62}},
+              lineColor={0,0,0},
+              textString="x"),
+            Line(
+              points={{70,0},{80,0}},
+              color={127,0,127})}),
+        Documentation(revisions="<html>
+<p><i>2009-2015</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SimpleMoleFractionSensor;
   end Sensors;
 
   package Sources "Chemical sources"
@@ -2794,6 +3078,63 @@ package Chemical "Physical Chemistry"
 <p>Marek Matejak, Charles University, Prague, Czech Republic </p>
 </html>"));
     end SubstanceInflowT;
+
+    model SimpleClearance "Physiological Clearance"
+     extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
+     extends Interfaces.PartialSubstance;
+
+
+
+    parameter Modelica.Units.SI.VolumeFlowRate Clearance=0
+      "Physiological clearance of the substance if useSolutionFlowInput=false"
+      annotation (HideResult=true, Dialog(enable=not useSolutionFlowInput));
+
+      parameter Real K(unit="1")=1
+      "Coefficient such that Clearance = K*solutionFlow";
+
+    Modelica.Units.SI.MolarFlowRate molarClearance
+      "Current molar clearance";
+
+    equation
+
+
+      //aliases
+      temperature = system.T_ambient;
+      pressure = system.p_ambient;
+      electricPotential = 0;
+      moleFractionBasedIonicStrength = 0;
+
+
+      molarClearance = q*K;
+
+      port_a.q = molarClearance * x;
+
+      assert(molarClearance>=-Modelica.Constants.eps, "Clearance can not be negative!");
+
+     annotation (
+        Icon(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{100,100}}),
+                            graphics={
+            Rectangle(
+              extent={{-100,-100},{100,50}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Polygon(
+              points={{80,25},{-80,0},{80,-25},{80,25}},
+              lineColor={0,0,127},
+              fillColor={255,255,255},
+              fillPattern=FillPattern.Solid),
+            Text(
+              extent={{-150,-90},{150,-50}},
+              textString="%name",
+              lineColor={128,0,255}),
+            Text(
+              extent={{-100,-30},{100,-50}},
+              lineColor={0,0,0},
+              textString="K=%K")}),        Documentation(revisions="<html>
+<p><i>2009-2015 by </i>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"));
+    end SimpleClearance;
   end Sources;
 
   package Interfaces "Chemical interfaces"
@@ -2904,20 +3245,10 @@ package Chemical "Physical Chemistry"
     SubstancePort_a port_b annotation (Placement(transformation(extent={{90,-10},
               {110,10}}), iconTransformation(extent={{90,-10},{110,10}})));
 
-    parameter Boolean EnthalpyNotUsed=false annotation (
-        Evaluate=true,
-        HideResult=true,
-        choices(checkBox=true),
-        Dialog(tab="Advanced", group="Performance"));
-
     equation
       port_a.q + port_b.q = 0;
-      port_a.h_outflow =
-       if EnthalpyNotUsed then 0
-       else inStream(port_b.h_outflow);
-      port_b.h_outflow =
-       if EnthalpyNotUsed then 0
-       else inStream(port_a.h_outflow);
+      port_a.h_outflow = inStream(port_b.h_outflow);
+      port_b.h_outflow = inStream(port_a.h_outflow);
     end OnePort;
 
     connector SubstancePorts_a
@@ -3669,11 +4000,11 @@ end solution_temperature_;
           "Charge number of the substance (e.g., 0..uncharged, -1..electron, +2..Ca^(2+))";
 
         parameter Modelica.Units.SI.MolarEnergy DfG(displayUnit="kJ/mol")=
-          DfG_25degC_1bar
+          0
           "Gibbs energy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
         parameter Modelica.Units.SI.MolarEnergy DfH(displayUnit="kJ/mol")=
-          DfH_25degC
+          0
           "Enthalpy of formation of the substance at SATP conditions (25 degC, 1 bar)";
 
         parameter Modelica.Units.SI.ActivityCoefficient gamma=1
@@ -3683,14 +4014,6 @@ end solution_temperature_;
           "Molar heat capacity of the substance at  SATP conditions (25 degC, 1 bar)";
         parameter String References[1]={""}
           "References of these thermodynamical values";
-
-        parameter Modelica.Units.SI.MolarEnergy DfG_25degC_1bar(displayUnit="kJ/mol")=
-             0 "Obsolete parameter use DfH instead"
-          annotation (Dialog(tab="Obsolete"));
-
-        parameter Modelica.Units.SI.MolarEnergy DfH_25degC(displayUnit="kJ/mol")=
-             0 "Obsolete parameter use DfG instead"
-          annotation (Dialog(tab="Obsolete"));
 
         parameter Boolean SelfClustering=false
           "Pure substance is making clusters (weak bonds between molecules)";
@@ -5140,7 +5463,7 @@ end solution_temperature_;
   end Interfaces;
   annotation (
 preferredView="info",
-version="1.4.1",
+version="1.4.2",
 versionDate="2023-11-23",
 dateModified = "2023-11-23 21:10:41Z",
 conversion(
@@ -5153,8 +5476,9 @@ conversion(
   from(version="1.1.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.1_to_1.4.mos",
         to="1.4.1"),
   from(version="1.0.0", script="modelica://Chemical/Resources/Scripts/Dymola/ConvertChemical_from_1.0_to_1.4.mos",
-        to="1.4.1")),
-      uses( Modelica(version="4.0.0")),
+        to="1.4.1"),
+      noneFromVersion="1.4.1"),
+      uses( Modelica(version="4.1.0")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2023, Marek Matej&aacute;k, Ph.D. </p>
 <p>All rights reserved. </p>
