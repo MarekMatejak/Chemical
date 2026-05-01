@@ -3080,7 +3080,7 @@ package Chemical "Physical Chemistry"
     end SubstanceInflowT;
 
     model SimpleClearance "Physiological Clearance"
-     extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance/K);
+     extends Interfaces.ConditionalSolutionFlow(final SolutionFlow=Clearance);
      extends Interfaces.PartialSubstance;
 
 
